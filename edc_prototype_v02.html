@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Decision Card | SmartSearch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ss-dark: #1a1a1a;
+            --ss-dark-soft: #2c2c2c;
+            --ss-header-bg: #2d2824;
+            --ss-gold: #c5a572;
+            --ss-gold-light: #d4ba8a;
+            --ss-gold-pale: #e8dbc7;
+            --ss-gold-glow: rgba(197, 165, 114, 0.15);
+            --ss-gold-deep: #b08f5a;
+            --ss-cream: #faf8f5;
+            --ss-warm-white: #f7f4ef;
+            --ss-warm-tint: #fdfbf7;
+            --ss-gray: #6b6b6b;
+            --ss-gray-light: #a0a0a0;
+            --ss-gray-pale: #d4d2ce;
+            --ss-green: #4a7c59;
+            --ss-green-soft: #5a9469;
+            --ss-green-light: rgba(74, 124, 89, 0.10);
+            --ss-green-badge: rgba(74, 124, 89, 0.08);
+            --ss-yellow: #c9953a;
+            --ss-yellow-light: rgba(201, 149, 58, 0.10);
+            --ss-red: #b85450;
+            --ss-red-light: rgba(184, 84, 80, 0.08);
+            --ss-blue: #4a6a8c;
+            --ss-blue-light: rgba(74, 106, 140, 0.10);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f0ede8;
+            color: var(--ss-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px 80px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== THE CARD ===== */
+        .edc-card {
+            width: 100%;
+            max-width: 820px;
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow:
+                0 1px 3px rgba(0,0,0,0.04),
+                0 8px 30px rgba(0,0,0,0.06),
+                0 30px 80px rgba(0,0,0,0.04);
+            position: relative;
+        }
+
+        /* ===== HEADER ===== */
+        .edc-header {
+            background: var(--ss-header-bg);
+            padding: 36px 48px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .edc-header::before {
+            content: "";
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, rgba(197, 165, 114, 0.08) 0%, transparent 65%);
+            pointer-events: none;
+        }
+        .edc-header::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(197, 165, 114, 0.35), transparent);
+        }
+
+        .edc-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 28px;
+        }
+        .edc-brand {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+        .edc-brand img {
+            height: 28px;
+            width: auto;
+            opacity: 0.55;
+            transition: opacity 0.3s ease;
+        }
+        .edc-brand:hover img { opacity: 0.75; }
+
+        /* EDC Badge - memorable treatment */
+        .edc-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0;
+        }
+        .edc-badge-main {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ss-gold-light);
+            letter-spacing: 0.5px;
+            line-height: 1.15;
+        }
+        .edc-badge-main em {
+            font-style: italic;
+            color: var(--ss-gold);
+        }
+        .edc-badge-sub {
+            font-size: 0.58rem;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: rgba(197, 165, 114, 0.4);
+            font-weight: 600;
+            margin-top: 1px;
+        }
+
+        .edc-candidate-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.2rem;
+            font-weight: 500;
+            color: #f5f0ea;
+            line-height: 1.05;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+        .edc-candidate-flash {
+            font-size: 0.95rem;
+            color: rgba(255,255,255,0.55);
+            font-weight: 400;
+            letter-spacing: 0.3px;
+        }
+        .edc-candidate-flash span {
+            color: rgba(197, 165, 114, 0.5);
+            margin: 0 10px;
+        }
+
+        .edc-header-meta {
+            display: flex;
+            gap: 36px;
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+        .edc-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .edc-meta-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+        .edc-meta-value {
+            font-size: 0.92rem;
+            color: rgba(255,255,255,0.78);
+            font-weight: 400;
+        }
+
+        /* ===== SETTINGS TOGGLE ===== */
+        .edc-settings {
+            position: fixed;
+            top: 20px; left: 20px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .settings-toggle-btn {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: var(--ss-header-bg);
+            color: var(--ss-gold);
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .settings-toggle-btn:hover { 
+            background: #3a332e;
+            transform: scale(1.05); 
+        }
+        .settings-panel {
+            display: none;
+            background: var(--ss-header-bg);
+            border-radius: 14px;
+            padding: 18px 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            min-width: 240px;
+        }
+        .settings-panel.open { display: block; }
+        .settings-panel-title {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--ss-gold);
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+        }
+        .settings-item label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 36px; height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0; height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: "";
+            position: absolute;
+            width: 16px; height: 16px;
+            left: 2px; bottom: 2px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: var(--ss-gold);
+        }
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(16px);
+        }
+
+        /* ===== BODY ===== */
+        .edc-body { padding: 0; }
+
+        /* Section shared */
+        .edc-section {
+            padding: 32px 48px;
+            border-bottom: 1px solid #f0ede8;
+            position: relative;
+        }
+        .edc-section:last-child { border-bottom: none; }
+        .edc-section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: var(--ss-gray-light);
+            font-weight: 600;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .edc-section-label .label-line {
+            flex: 1;
+            height: 1px;
+            background: #eeebe6;
+        }
+
+        /* ===== SCOPE MATCH ===== */
+        .scope-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .scope-table th {
+            text-align: left;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ss-gray-light);
+            font-weight: 600;
+            padding: 0 16px 10px 0;
+            border-bottom: 1px solid #eeebe6;
+        }
+        .scope-table th:last-child { text-align: center; padding-right: 0; }
+        .scope-table td {
+            padding: 12px 16px 12px 0;
+            font-size: 0.88rem;
+            border-bottom: 1px solid #f7f5f1;
+            vertical-align: middle;
+        }
+        .scope-table tr:last-child td { border-bottom: none; }
+        .scope-table td:first-child {
+            font-weight: 500;
+            color: var(--ss-dark);
+            width: 160px;
+            font-size: 0.85rem;
+        }
+        .scope-table td:nth-child(2) { color: var(--ss-dark); }
+        .scope-table td:nth-child(3) { color: var(--ss-gray); }
+        .scope-table td:last-child { text-align: center; width: 48px; padding-right: 0; }
+
+        .match-dot {
+            width: 9px; height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: opacity 0.3s ease;
+        }
+        .match-dot.strong { background: var(--ss-green); box-shadow: 0 0 0 3px var(--ss-green-light); }
+        .match-dot.partial { background: var(--ss-yellow); box-shadow: 0 0 0 3px var(--ss-yellow-light); }
+        .match-dot.gap { background: var(--ss-red); box-shadow: 0 0 0 3px var(--ss-red-light); }
+        .match-dot.hidden { opacity: 0; }
+        .scope-dot-col.hidden { visibility: hidden; }
+
+        .scope-seasoning {
+            margin-top: 18px;
+            padding: 14px 20px;
+            background: var(--ss-warm-tint);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            color: var(--ss-dark-soft);
+            line-height: 1.65;
+            border-left: 3px solid var(--ss-gold);
+            font-style: italic;
+            transition: all 0.3s ease;
+        }
+        .scope-seasoning.hidden { display: none; }
+
+        /* ===== KEY CRITERIA ===== */
+        .criteria-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .criteria-item {
+            padding: 18px 0;
+            border-bottom: 1px solid #f7f5f1;
+            display: grid;
+            grid-template-columns: 32px 1fr auto;
+            gap: 14px;
+            align-items: flex-start;
+        }
+        .criteria-item:last-child { border-bottom: none; }
+        .criteria-num {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--ss-green-badge);
+            color: var(--ss-green);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .criteria-content h4 {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--ss-dark);
+            margin-bottom: 5px;
+        }
+        .criteria-content p {
+            font-size: 0.87rem;
+            color: var(--ss-gray);
+            line-height: 1.65;
+        }
+        .criteria-content p strong {
+            color: var(--ss-dark);
+            font-weight: 600;
+        }
+
+        /* Focus labels - descriptive pills replacing Strong/Developing */
+        .criteria-focus {
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 4px 11px;
+            border-radius: 12px;
+            white-space: nowrap;
+            margin-top: 2px;
+            transition: opacity 0.3s ease;
+        }
+        .criteria-focus.green { background: var(--ss-green-light); color: var(--ss-green); }
+        .criteria-focus.gold { background: var(--ss-yellow-light); color: var(--ss-yellow); }
+        .criteria-focus.blue { background: var(--ss-blue-light); color: var(--ss-blue); }
+        .criteria-focus.red { background: var(--ss-red-light); color: var(--ss-red); }
+        .criteria-focus.hidden { opacity: 0; }
+
+        /* ===== COMPENSATION ===== */
+        .comp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+        .comp-item {
+            background: var(--ss-warm-tint);
+            border-radius: 12px;
+            padding: 20px 22px;
+            text-align: center;
+        }
+        .comp-item.highlight {
+            background: var(--ss-gold-glow);
+            border: 1px solid rgba(197, 165, 114, 0.2);
+            position: relative;
+            cursor: help;
+        }
+        .comp-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ss-gray-light);
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .comp-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--ss-dark);
+        }
+        .comp-detail {
+            font-size: 0.8rem;
+            color: var(--ss-gray);
+            margin-top: 4px;
+        }
+        .comp-note {
+            margin-top: 16px;
+            font-size: 0.87rem;
+            color: var(--ss-gray);
+            line-height: 1.65;
+        }
+
+        /* Budget tooltip */
+        .budget-tooltip {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            background: var(--ss-header-bg);
+            color: rgba(255,255,255,0.85);
+            border-radius: 12px;
+            padding: 16px 18px;
+            font-size: 0.78rem;
+            line-height: 1.6;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 50;
+        }
+        .budget-tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--ss-header-bg);
+        }
+        .budget-tooltip-label {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ss-gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .comp-item.highlight:hover .budget-tooltip {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(-4px);
+        }
+
+        /* ===== MOTIVATION ===== */
+        .motive-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .motive-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+        .motive-icon {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .motive-icon.pull { background: var(--ss-green-light); color: var(--ss-green); }
+        .motive-icon.push { background: var(--ss-yellow-light); color: var(--ss-yellow); }
+        .motive-text {
+            font-size: 0.88rem;
+            color: var(--ss-gray);
+            line-height: 1.65;
+        }
+        .motive-text strong { color: var(--ss-dark); font-weight: 600; }
+
+        /* ===== CONCERNS ===== */
+        .concerns-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .concern-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 18px;
+            background: var(--ss-red-light);
+            border-radius: 10px;
+            border-left: 3px solid var(--ss-red);
+        }
+        .concern-icon {
+            color: var(--ss-red);
+            font-size: 0.85rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .concern-text {
+            font-size: 0.87rem;
+            color: var(--ss-dark);
+            line-height: 1.65;
+        }
+        .concern-text strong { font-weight: 600; }
+
+        /* ===== THE DIVIDER ===== */
+        .edc-divider {
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--ss-gold-pale) 15%, 
+                var(--ss-gold) 50%, 
+                var(--ss-gold-pale) 85%, 
+                transparent 100%
+            );
+            position: relative;
+        }
+        .edc-divider::before {
+            content: "✦";
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: var(--ss-gold);
+            font-size: 1rem;
+            padding: 0 16px;
+            z-index: 1;
+        }
+
+        /* ===== OUR TAKE ===== */
+        .our-take-section {
+            padding: 36px 48px 40px;
+            background: linear-gradient(180deg, var(--ss-warm-tint) 0%, white 100%);
+            position: relative;
+        }
+        .our-take-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 22px;
+        }
+        .our-take-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .our-take-label .ot-icon {
+            color: var(--ss-gold);
+            font-size: 1.1rem;
+        }
+        .our-take-label .ot-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--ss-dark);
+        }
+        .our-take-label .ot-author {
+            font-size: 0.82rem;
+            color: var(--ss-gray-light);
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        /* Generate Buttons */
+        .generate-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--ss-gold);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+        }
+        .generate-btn:hover {
+            background: var(--ss-gold-deep);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(197, 165, 114, 0.4);
+        }
+        .generate-btn:active { transform: translateY(0); }
+        .generate-btn .btn-icon {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+        .generate-btn:hover .btn-icon { transform: rotate(15deg); }
+        .generate-btn.generating {
+            pointer-events: none;
+            background: var(--ss-gold-deep);
+        }
+        .generate-btn.generating .btn-icon {
+            animation: sparkle 0.8s ease infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2) rotate(20deg); }
+        }
+
+        .generate-again-btn {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background: transparent;
+            color: var(--ss-gold);
+            border: 1.5px solid var(--ss-gold);
+            border-radius: 8px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.3px;
+        }
+        .generate-again-btn:hover {
+            background: var(--ss-gold-glow);
+            transform: translateY(-1px);
+        }
+        .generate-again-btn.visible { display: inline-flex; }
+
+        /* Our Take Content */
+        .our-take-empty {
+            padding: 40px 32px;
+            text-align: center;
+            border: 2px dashed var(--ss-gold-pale);
+            border-radius: 14px;
+            background: rgba(197, 165, 114, 0.03);
+        }
+        .our-take-empty .ote-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+        .our-take-empty p {
+            font-size: 0.9rem;
+            color: var(--ss-gray-light);
+            font-style: italic;
+            line-height: 1.6;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .our-take-content {
+            display: none;
+            position: relative;
+        }
+        .our-take-content.visible { display: block; }
+
+        /* Structured Our Take */
+        .our-take-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #eeebe6;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.02);
+            overflow: hidden;
+            cursor: text;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .our-take-card:focus-within {
+            border-color: var(--ss-gold);
+            box-shadow: 0 0 0 3px var(--ss-gold-glow);
+        }
+
+        .ot-verdict {
+            padding: 22px 28px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem;
+            font-weight: 600;
+            color: var(--ss-dark);
+            line-height: 1.35;
+            position: relative;
+        }
+        .ot-case {
+            padding: 14px 28px 0;
+            font-size: 0.9rem;
+            color: var(--ss-gray);
+            line-height: 1.8;
+        }
+        .ot-case strong { color: var(--ss-dark); font-weight: 600; }
+        .ot-question {
+            margin: 16px 28px 0;
+            padding: 12px 16px;
+            background: rgba(197, 165, 114, 0.06);
+            border-radius: 8px;
+            border-left: 3px solid var(--ss-gold);
+            font-size: 0.87rem;
+            color: var(--ss-dark-soft);
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .ot-question-label {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ss-gold);
+            font-weight: 700;
+            font-style: normal;
+            margin-bottom: 4px;
+        }
+        .ot-recommendation {
+            padding: 16px 28px 22px;
+            font-size: 0.88rem;
+            color: var(--ss-dark);
+            font-weight: 500;
+            line-height: 1.65;
+        }
+        .ot-recommendation .rec-action {
+            display: inline-block;
+            background: var(--ss-green-light);
+            color: var(--ss-green);
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            margin-right: 4px;
+        }
+
+        /* Editable contenteditable sections */
+        [contenteditable="true"] {
+            outline: none;
+        }
+        [contenteditable="true"]:hover {
+            background: rgba(197, 165, 114, 0.02);
+        }
+
+        .our-take-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding: 0 4px;
+        }
+        .our-take-source {
+            font-size: 0.74rem;
+            color: var(--ss-gray-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .our-take-source:hover { color: var(--ss-gold); }
+        .our-take-source .source-dot {
+            width: 6px; height: 6px;
+            background: var(--ss-gold);
+            border-radius: 50%;
+        }
+        .our-take-edit-hint {
+            font-size: 0.74rem;
+            color: var(--ss-gray-light);
+        }
+
+        /* ===== TOOLTIP (Source) ===== */
+        .source-tooltip {
+            position: fixed;
+            width: 420px;
+            background: var(--ss-header-bg);
+            color: white;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            transform: translateY(8px);
+        }
+        .source-tooltip.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .tooltip-section { margin-bottom: 16px; }
+        .tooltip-section:last-child { margin-bottom: 0; }
+        .tooltip-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--ss-gold);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .tooltip-note {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.65;
+            font-style: italic;
+            padding-left: 14px;
+            border-left: 2px solid var(--ss-gold);
+        }
+        .tooltip-rationale {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+        }
+        .tooltip-close {
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.3);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .tooltip-close:hover { color: white; }
+
+        /* ===== FOOTER ===== */
+        .edc-footer {
+            padding: 20px 48px;
+            background: #faf9f6;
+            border-top: 1px solid #f0ede8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .edc-footer-left {
+            font-size: 0.74rem;
+            color: var(--ss-gray-light);
+            letter-spacing: 0.3px;
+        }
+        .edc-footer-right {
+            font-size: 0.7rem;
+            color: var(--ss-gray-pale);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ===== WORD-BY-WORD ANIMATION ===== */
+        .word-animate {
+            display: inline;
+            opacity: 0;
+            filter: blur(4px);
+            transition: opacity 0.35s ease, filter 0.35s ease;
+        }
+        .word-animate.revealed {
+            opacity: 1;
+            filter: blur(0);
+        }
+
+        /* ===== LABEL BADGE ===== */
+        .prototype-label {
+            position: fixed;
+            top: 20px; right: 20px;
+            background: var(--ss-header-bg);
+            color: var(--ss-gold);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        /* ===== MOBILE RESPONSIVENESS ===== */
+        @media (max-width: 768px) {
+            body { padding: 16px 10px 60px; }
+            .edc-header { padding: 28px 24px 24px; }
+            .edc-candidate-name { font-size: 2.2rem; }
+            .edc-candidate-flash { font-size: 0.82rem; }
+            .edc-header-meta { 
+                flex-wrap: wrap; 
+                gap: 16px;
+            }
+            .edc-meta-item { min-width: 45%; }
+            .edc-section { padding: 24px 24px; }
+            .scope-table td { font-size: 0.8rem; padding: 10px 8px 10px 0; }
+            .scope-table th { font-size: 0.62rem; }
+            .comp-grid { grid-template-columns: 1fr; gap: 10px; }
+            .our-take-section { padding: 28px 24px 32px; }
+            .edc-footer { padding: 16px 24px; flex-direction: column; gap: 6px; align-items: flex-start; }
+            .edc-badge-main { font-size: 0.9rem; }
+            .ot-verdict { font-size: 1.15rem; padding: 18px 20px 0; }
+            .ot-case { padding: 12px 20px 0; }
+            .ot-question { margin: 14px 20px 0; }
+            .ot-recommendation { padding: 14px 20px 18px; }
+            .settings-toggle-btn { display: none; }
+        }
+        @media (max-width: 480px) {
+            .edc-candidate-name { font-size: 1.8rem; }
+            .edc-header-top { flex-direction: column; gap: 16px; }
+            .edc-badge { align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="prototype-label">EDC Prototype v0.2</div>
+
+    <!-- SETTINGS PANEL -->
+    <div class="edc-settings">
+        <button class="settings-toggle-btn" onclick="toggleSettings()" title="View Settings">&#x2699;</button>
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-panel-title">Client View Toggles</div>
+            <div class="settings-item">
+                <label for="toggleDots">Scope match indicators</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggleDots" checked onchange="toggleScopeDots()">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="settings-item">
+                <label for="toggleSeasoning">Scope insight</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggleSeasoning" checked onchange="toggleSeasoning()">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+            <div class="settings-item">
+                <label for="toggleCriteria">Criteria focus labels</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggleCriteria" checked onchange="toggleCriteriaFocus()">
+                    <span class="toggle-slider"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Source Tooltip -->
+    <div class="source-tooltip" id="sourceTooltip">
+        <button class="tooltip-close" onclick="hideTooltip()">&times;</button>
+        <div class="tooltip-section">
+            <div class="tooltip-label">Original Note &mdash; Jackie Wyard-Yates</div>
+            <div class="tooltip-note">"Really strong operator. Knows aftermarket inside out &mdash; not just service but genuine parts revenue growth. Built a $45M service business from $28M in 3 years which is exactly what Norican needs. Team loves him &mdash; you can tell from how he talks about his people. Took me by surprise actually &mdash; much more strategic than his title suggests. Only flag: hasn't reported to a European board before, and the Norican CEO is Danish. He's aware and seems genuinely curious rather than defensive. Would present well. Probably our strongest so far."</div>
+        </div>
+        <div class="tooltip-section">
+            <div class="tooltip-label">AI Rationale</div>
+            <div class="tooltip-rationale">The consultant emphasised commercial growth ($28M to $45M) and people leadership as primary strengths. "Took me by surprise" and "much more strategic than his title suggests" were used to calibrate the upside framing. European board reporting gap flagged as sole concern &mdash; "curious rather than defensive" informed the positive language around cultural adaptation. Internal shortlist positioning ("our strongest so far") removed; confidence level retained in tone.</div>
+        </div>
+    </div>
+
+    <div class="edc-card">
+        <!-- HEADER -->
+        <div class="edc-header">
+            <div class="edc-header-top">
+                <div class="edc-brand">
+                    <img src="Logos_SmartSearch_Primary_White.png" alt="SmartSearch" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;font-size:0.85rem;color:rgba(255,255,255,0.4);font-weight:500;letter-spacing:0.5px&quot;>SmartSearch</span>';">
+                </div>
+                <div class="edc-badge">
+                    <div class="edc-badge-main">Executive <em>Decision</em></div>
+                    <div class="edc-badge-sub">Card</div>
+                </div>
+            </div>
+
+            <div class="edc-candidate-name">Andrew Myers</div>
+            <div class="edc-candidate-flash">
+                Norican Group (DISA)
+                <span>|</span>
+                Aftermarket Operations, Americas
+                <span>|</span>
+                Atlanta, GA
+            </div>
+
+            <div class="edc-header-meta">
+                <div class="edc-meta-item">
+                    <div class="edc-meta-label">Search</div>
+                    <div class="edc-meta-value">VP Aftermarket, North America</div>
+                </div>
+                <div class="edc-meta-item">
+                    <div class="edc-meta-label">Consultant</div>
+                    <div class="edc-meta-value">Jackie Wyard-Yates</div>
+                </div>
+                <div class="edc-meta-item">
+                    <div class="edc-meta-label">Interview Date</div>
+                    <div class="edc-meta-value">6 February 2026</div>
+                </div>
+                <div class="edc-meta-item">
+                    <div class="edc-meta-label">Generated</div>
+                    <div class="edc-meta-value">12 February 2026</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="edc-body">
+            <!-- SCOPE MATCH -->
+            <div class="edc-section">
+                <div class="edc-section-label">
+                    Scope Match
+                    <div class="label-line"></div>
+                </div>
+                <table class="scope-table">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>Candidate</th>
+                            <th>Role Requirement</th>
+                            <th class="scope-dot-col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>P&amp;L</td>
+                            <td>$45M aftermarket P&amp;L</td>
+                            <td>$60M+ target</td>
+                            <td class="scope-dot-col"><span class="match-dot partial"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Headcount</td>
+                            <td>120 direct &amp; indirect</td>
+                            <td>150+ across NAM</td>
+                            <td class="scope-dot-col"><span class="match-dot strong"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Geography</td>
+                            <td>US, Canada, Mexico</td>
+                            <td>North America</td>
+                            <td class="scope-dot-col"><span class="match-dot strong"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Reporting Line</td>
+                            <td>Reports to SVP Operations</td>
+                            <td>Reports to Group CEO</td>
+                            <td class="scope-dot-col"><span class="match-dot partial"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Industry</td>
+                            <td>Industrial equipment / foundry</td>
+                            <td>Foundry / metalcasting</td>
+                            <td class="scope-dot-col"><span class="match-dot strong"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Revenue Target</td>
+                            <td>Grew $28M &rarr; $45M (+61%)</td>
+                            <td>$60M within 3 years</td>
+                            <td class="scope-dot-col"><span class="match-dot partial"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="scope-seasoning" id="scopeSeasoning">
+                    He grew the very business they're hiring for. The scale gap is timing, not capability.
+                </div>
+            </div>
+
+            <!-- KEY CRITERIA -->
+            <div class="edc-section">
+                <div class="edc-section-label">
+                    Key Criteria Assessment
+                    <div class="label-line"></div>
+                </div>
+                <div class="criteria-list">
+                    <div class="criteria-item">
+                        <div class="criteria-num">1</div>
+                        <div class="criteria-content">
+                            <h4>Aftermarket Revenue Growth</h4>
+                            <p><strong>Built a $45M aftermarket operation from $28M in three years</strong> through a combined parts-and-service strategy. Described a deliberate shift from reactive service to proactive parts revenue &mdash; "We stopped waiting for things to break and started showing customers what they were losing by not upgrading."</p>
+                        </div>
+                        <span class="criteria-focus green">Track Record</span>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-num">2</div>
+                        <div class="criteria-content">
+                            <h4>Team Leadership &amp; Development</h4>
+                            <p>Leads 120 across field service, inside sales, and technical support. <strong>Notable retention: lost only 3 people in 2 years in a market where aftermarket engineers are "constantly recruited."</strong> Attributes this to structured career pathing and a "promote from within" philosophy he introduced.</p>
+                        </div>
+                        <span class="criteria-focus green">Retention Story</span>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-num">3</div>
+                        <div class="criteria-content">
+                            <h4>Operational Excellence</h4>
+                            <p>Implemented Lean methodology across the service function. <strong>Reduced mean-time-to-repair by 22% while increasing first-time-fix rates from 74% to 89%.</strong> Speaks fluently about operational metrics without prompting &mdash; these numbers were recalled immediately.</p>
+                        </div>
+                        <span class="criteria-focus green">Data-Led</span>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-num">4</div>
+                        <div class="criteria-content">
+                            <h4>C-Suite / Board Engagement</h4>
+                            <p>Currently presents quarterly to the Americas leadership team but <strong>has not reported directly to a European board or Group CEO.</strong> Acknowledged this gap and described preparation steps &mdash; has begun attending Norican global leadership summits and "actively seeking mentorship from the CFO on board dynamics."</p>
+                        </div>
+                        <span class="criteria-focus gold">Untested</span>
+                    </div>
+                    <div class="criteria-item">
+                        <div class="criteria-num">5</div>
+                        <div class="criteria-content">
+                            <h4>Strategic Planning Capability</h4>
+                            <p>Authored the Americas aftermarket 3-year plan currently in execution. <strong>Demonstrated ability to connect operational detail to commercial strategy</strong> &mdash; described how field data informed the parts catalogue expansion that drove 40% of revenue growth.</p>
+                        </div>
+                        <span class="criteria-focus blue">Strategic Link</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COMPENSATION -->
+            <div class="edc-section">
+                <div class="edc-section-label">
+                    Compensation &amp; Timeline
+                    <div class="label-line"></div>
+                </div>
+                <div class="comp-grid">
+                    <div class="comp-item">
+                        <div class="comp-label">Current Package</div>
+                        <div class="comp-value">$285K</div>
+                        <div class="comp-detail">$195K base + $90K bonus</div>
+                    </div>
+                    <div class="comp-item">
+                        <div class="comp-label">Expectation</div>
+                        <div class="comp-value">$320&ndash;340K</div>
+                        <div class="comp-detail">"In the range of" &mdash; flexible</div>
+                    </div>
+                    <div class="comp-item highlight">
+                        <div class="comp-label">Budget Range</div>
+                        <div class="comp-value">$310&ndash;360K</div>
+                        <div class="comp-detail">Base + bonus + LTI</div>
+                        <div class="budget-tooltip">
+                            <div class="budget-tooltip-label">How this was calculated</div>
+                            Derived from the role's approved compensation band as defined in the Job Summary. Includes base salary ($200&ndash;240K), annual bonus (25&ndash;35%), and estimated long-term incentive. Aligned with Norican's VP-level benchmarking for North America.
+                        </div>
+                    </div>
+                </div>
+                <div class="comp-note">
+                    <strong>Notice period:</strong> 60 days. <strong>Relocation:</strong> Not required &mdash; Atlanta is the NAM hub. <strong>Non-compete:</strong> 12-month clause, but limited to "direct competitor in foundry aftermarket" &mdash; Norican's legal view is this would not apply to an internal move.
+                </div>
+            </div>
+
+            <!-- MOTIVATION -->
+            <div class="edc-section">
+                <div class="edc-section-label">
+                    Why Are They Interested?
+                    <div class="label-line"></div>
+                </div>
+                <div class="motive-list">
+                    <div class="motive-item">
+                        <div class="motive-icon pull">&#x2191;</div>
+                        <div class="motive-text"><strong>Step-up to VP with full P&amp;L ownership</strong> &mdash; "I've been building this business for three years. I want to own it properly, with the title and the authority to match."</div>
+                    </div>
+                    <div class="motive-item">
+                        <div class="motive-icon pull">&#x2191;</div>
+                        <div class="motive-text"><strong>Proximity to Group strategy</strong> &mdash; Wants direct line to European leadership. Sees this as the professional development gap he needs to close.</div>
+                    </div>
+                    <div class="motive-item">
+                        <div class="motive-icon push">&#x2193;</div>
+                        <div class="motive-text"><strong>Current reporting structure limits impact</strong> &mdash; SVP Operations layer means his strategic input "gets filtered before it reaches the people making decisions." Wants to be in the room.</div>
+                    </div>
+                    <div class="motive-item">
+                        <div class="motive-icon pull">&#x2191;</div>
+                        <div class="motive-text"><strong>Knows the business intimately</strong> &mdash; Already within the Norican ecosystem. Sees inefficiencies across divisions that he believes a unified aftermarket VP could address.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONCERNS -->
+            <div class="edc-section">
+                <div class="edc-section-label">
+                    Concerns
+                    <div class="label-line"></div>
+                </div>
+                <div class="concerns-list">
+                    <div class="concern-item">
+                        <div class="concern-icon">&#x26A0;</div>
+                        <div class="concern-text"><strong>European board reporting:</strong> No direct experience reporting to a Group CEO or European board. He is self-aware and actively developing, but this remains untested.</div>
+                    </div>
+                    <div class="concern-item">
+                        <div class="concern-icon">&#x26A0;</div>
+                        <div class="concern-text"><strong>P&amp;L scale gap:</strong> Current P&amp;L is $45M against a $60M target. Growth trajectory is strong, but he has not yet operated at the required scale.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THE DIVIDER -->
+        <div class="edc-divider"></div>
+
+        <!-- OUR TAKE -->
+        <div class="our-take-section">
+            <div class="our-take-header">
+                <div class="our-take-label">
+                    <span class="ot-icon">&#x2726;</span>
+                    <span class="ot-title">Our Take</span>
+                    <span class="ot-author">&mdash; Jackie Wyard-Yates</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="generate-again-btn" id="generateAgainBtn" onclick="generateAgain()">
+                        <span>&#x21bb;</span> Generate Again
+                    </button>
+                    <button class="generate-btn" id="generateBtn" onclick="generateTake()">
+                        <span class="btn-icon">&#x2726;</span> Generate Our Take
+                    </button>
+                </div>
+            </div>
+
+            <div class="our-take-empty" id="emptyState">
+                <div class="ote-icon">&#x2726;</div>
+                <p>Manual notes detected from this interview. Click <strong>Generate Our Take</strong> to translate your instinct into professional language &mdash; then edit until it sounds like you.</p>
+            </div>
+
+            <div class="our-take-content" id="contentState">
+                <div class="our-take-card" id="ourTakeCard">
+                    <div class="ot-verdict" id="otVerdict" contenteditable="true"></div>
+                    <div class="ot-case" id="otCase" contenteditable="true"></div>
+                    <div class="ot-question" id="otQuestion"></div>
+                    <div class="ot-recommendation" id="otRec" contenteditable="true"></div>
+                </div>
+                <div class="our-take-meta">
+                    <div class="our-take-source" id="sourceLink" onclick="showTooltip(event)">
+                        <span class="source-dot"></span>
+                        <span>View original note &amp; AI rationale</span>
+                    </div>
+                    <div class="our-take-edit-hint">Click any section to edit directly</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="edc-footer">
+            <div class="edc-footer-left">SmartSearch &times; ExecFlow Intelligence &middot; Generated 12 Feb 2026</div>
+            <div class="edc-footer-right">Confidential</div>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generateBtn');
+        const generateAgainBtn = document.getElementById('generateAgainBtn');
+        const emptyState = document.getElementById('emptyState');
+        const contentState = document.getElementById('contentState');
+        const tooltip = document.getElementById('sourceTooltip');
+
+        // Structured Our Take variants
+        const takeVariants = [
+            {
+                verdict: "A builder, not an inheritor. Myers grew the exact business Norican is hiring for.",
+                case: `He took a $28M aftermarket operation to $45M in three years &mdash; not through acquisition or inherited momentum, but through a strategic pivot he designed: shifting from reactive service to proactive parts revenue. That's the <strong>precise transformation</strong> this role demands at continental scale. His retention numbers are striking &mdash; 3 voluntary departures from 120 people in a market where aftermarket engineers are poached relentlessly. He holds teams and builds culture, which matters when Norican is rebuilding its NAM bench.`,
+                questionLabel: "Worth discussing with the client",
+                question: "He's never reported to a European board, and the Norican CEO is Danish. He's aware of this gap and actively investing in it &mdash; but it's untested. The real question: is Norican looking for someone who's done this exact job before, or someone with the trajectory and hunger to grow into it?",
+                recommendation: `<span class="rec-action">Progress to shortlist</span> He would present well. The conversation with the client should centre on growth trajectory vs. pedigree &mdash; and whether the board-readiness gap is a dealbreaker or a development plan.`
+            },
+            {
+                verdict: "The strongest operator on this search. The question is whether Norican wants safe or strategic.",
+                case: `The $28M-to-$45M growth story isn't theoretical &mdash; it was built through a <strong>deliberate commercial redesign</strong> he authored and executed. He converted a reactive service function into a proactive revenue engine, which is precisely the playbook Norican needs across the wider aftermarket portfolio. In conversation, he operates a level above his title: structured thinking, immediate data recall, and a clear-eyed view of where the business needs to go. The retention story confirms what you hear in his voice &mdash; people want to work for him.`,
+                questionLabel: "The tension worth naming",
+                question: "His P&L is $45M against a $60M target. The trajectory says he'll get there; the resume doesn't prove it yet. This is a bet on capability over credential &mdash; and based on what we've seen, it's a well-placed one.",
+                recommendation: `<span class="rec-action">Progress to shortlist</span> Strongest candidate to date on commercial depth and people leadership. Frame the European board gap honestly &mdash; his self-awareness on this point is itself a signal of readiness.`
+            },
+            {
+                verdict: "His title undersells him. In conversation, he's already operating at VP level.",
+                case: `What's unusual about Myers is the gap between what his LinkedIn says and what 60 minutes of conversation reveals. Director of Aftermarket Operations reads as one step below. <strong>In practice, he authored the 3-year commercial strategy</strong> currently driving NAM results, designed the team structure, and owns the P&L growth narrative end to end. He's the only candidate so far who proactively raised his own development area &mdash; European board exposure &mdash; and described specific steps he's taking to close it. That self-awareness is rarer than the experience itself.`,
+                questionLabel: "One to watch",
+                question: "He's an internal candidate in all but name &mdash; already within the Norican ecosystem, already knows the pain points across divisions. That's either a significant advantage or a perceived risk, depending on how the CEO views internal promotion at this level.",
+                recommendation: `<span class="rec-action">Progress to shortlist</span> Recommend positioning him as the high-ceiling candidate. The conversation with the client should explore appetite for internal progression vs. external validation.`
+            }
+        ];
+
+        let variantIndex = 0;
+        let isGenerating = false;
+
+        function animateContent(variant) {
+            const verdictEl = document.getElementById('otVerdict');
+            const caseEl = document.getElementById('otCase');
+            const questionEl = document.getElementById('otQuestion');
+            const recEl = document.getElementById('otRec');
+
+            // Set content with word-by-word animation on verdict
+            const verdictWords = variant.verdict.split(' ');
+            verdictEl.innerHTML = verdictWords.map((w, i) =>
+                `<span class="word-animate" style="transition-delay: ${i * 40}ms">${w}</span>`
+            ).join(' ');
+
+            // Delay case section
+            setTimeout(() => {
+                caseEl.innerHTML = variant.case;
+                caseEl.style.opacity = '0';
+                caseEl.style.transition = 'opacity 0.6s ease';
+                requestAnimationFrame(() => { caseEl.style.opacity = '1'; });
+            }, verdictWords.length * 40 + 200);
+
+            // Delay question
+            setTimeout(() => {
+                questionEl.innerHTML = `<div class="ot-question-label">${variant.questionLabel}</div>${variant.question}`;
+                questionEl.style.opacity = '0';
+                questionEl.style.transition = 'opacity 0.6s ease';
+                requestAnimationFrame(() => { questionEl.style.opacity = '1'; });
+            }, verdictWords.length * 40 + 600);
+
+            // Delay recommendation
+            setTimeout(() => {
+                recEl.innerHTML = variant.recommendation;
+                recEl.style.opacity = '0';
+                recEl.style.transition = 'opacity 0.6s ease';
+                requestAnimationFrame(() => { recEl.style.opacity = '1'; });
+            }, verdictWords.length * 40 + 1000);
+
+            // Trigger verdict word animation
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.word-animate').forEach(el => {
+                        el.classList.add('revealed');
+                    });
+                });
+            });
+
+            // Clean up verdict for editing
+            const totalTime = verdictWords.length * 40 + 1400;
+            setTimeout(() => {
+                verdictEl.innerHTML = variant.verdict;
+                isGenerating = false;
+            }, totalTime);
+
+            return totalTime;
+        }
+
+        function generateTake() {
+            if (isGenerating) return;
+            isGenerating = true;
+
+            generateBtn.classList.add('generating');
+            generateBtn.innerHTML = '<span class="btn-icon">&#x2726;</span> Generating...';
+
+            setTimeout(() => {
+                emptyState.style.display = 'none';
+                contentState.classList.add('visible');
+
+                const variant = takeVariants[variantIndex % takeVariants.length];
+                const totalTime = animateContent(variant);
+
+                setTimeout(() => {
+                    generateBtn.style.display = 'none';
+                    generateAgainBtn.classList.add('visible');
+                }, totalTime);
+            }, 1200);
+        }
+
+        function generateAgain() {
+            if (isGenerating) return;
+            variantIndex++;
+            isGenerating = true;
+
+            generateAgainBtn.innerHTML = '<span>&#x21bb;</span> Generating...';
+            generateAgainBtn.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                const variant = takeVariants[variantIndex % takeVariants.length];
+                const totalTime = animateContent(variant);
+
+                setTimeout(() => {
+                    generateAgainBtn.innerHTML = '<span>&#x21bb;</span> Generate Again';
+                    generateAgainBtn.style.pointerEvents = 'auto';
+                }, totalTime);
+            }, 600);
+        }
+
+        // Source tooltip
+        function showTooltip(e) {
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            tooltip.style.left = Math.min(rect.left, window.innerWidth - 450) + 'px';
+            tooltip.style.bottom = (window.innerHeight - rect.top + 12) + 'px';
+            tooltip.style.top = 'auto';
+            tooltip.classList.add('visible');
+        }
+
+        function hideTooltip() {
+            tooltip.classList.remove('visible');
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.source-tooltip') && !e.target.closest('.our-take-source')) {
+                hideTooltip();
+            }
+        });
+
+        // Settings panel
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('open');
+        }
+
+        function toggleScopeDots() {
+            const checked = document.getElementById('toggleDots').checked;
+            document.querySelectorAll('.scope-dot-col').forEach(el => {
+                el.classList.toggle('hidden', !checked);
+            });
+        }
+
+        function toggleSeasoning() {
+            const checked = document.getElementById('toggleSeasoning').checked;
+            document.getElementById('scopeSeasoning').classList.toggle('hidden', !checked);
+        }
+
+        function toggleCriteriaFocus() {
+            const checked = document.getElementById('toggleCriteria').checked;
+            document.querySelectorAll('.criteria-focus').forEach(el => {
+                el.classList.toggle('hidden', !checked);
+            });
+        }
+
+        // Close settings on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.edc-settings')) {
+                document.getElementById('settingsPanel').classList.remove('open');
+            }
+        });
+
+        // Header parallax
+        window.addEventListener('scroll', () => {
+            const scrolled = window.scrollY;
+            const header = document.querySelector('.edc-header');
+            if (header) {
+                header.style.backgroundPosition = `center ${scrolled * 0.15}px`;
+            }
+        });
+    </script>
+</body>
+</html>

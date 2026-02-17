@@ -25,27 +25,27 @@ export default function Compensation({
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Compensation & Timeline" />
 
-      {/* Three-column grid */}
-      <div className="grid grid-cols-3 gap-6 mb-6">
+      {/* Three-column grid — prototype: 1fr 1fr 1fr, gap 16px */}
+      <div
+        className="grid grid-cols-3 mb-4"
+        style={{ gap: "16px" }}
+      >
         {/* Current */}
-        <CompColumn title="Current Package">
-          <CompRow label="Base" value={compensation.current_base} />
-          <CompRow label="Total" value={compensation.current_total} />
-        </CompColumn>
+        <CompCard title="Current Package">
+          <CompValue value={compensation.current_base} />
+          <CompDetail text={compensation.current_total} />
+        </CompCard>
 
         {/* Expectation */}
-        <CompColumn title="Expectation">
-          <CompRow label="Base" value={compensation.expected_base} />
-          <CompRow label="Total" value={compensation.expected_total} />
-        </CompColumn>
+        <CompCard title="Expectation">
+          <CompValue value={compensation.expected_base} />
+          <CompDetail text={compensation.expected_total} />
+        </CompCard>
 
         {/* Budget — gold highlight */}
-        <CompColumn title="Client Budget" highlighted>
-          <CompRow
-            label="Range"
-            value={compensation.budget_range || "Not specified"}
-          />
-        </CompColumn>
+        <CompCard title="Client Budget" highlighted>
+          <CompValue value={compensation.budget_range || "Not specified"} />
+        </CompCard>
       </div>
 
       {/* Flexibility note */}
@@ -88,7 +88,7 @@ export default function Compensation({
   );
 }
 
-function CompColumn({
+function CompCard({
   title,
   highlighted,
   children,
@@ -99,38 +99,57 @@ function CompColumn({
 }) {
   return (
     <div
-      className="rounded-lg p-4"
       style={{
         background: highlighted ? "var(--ss-gold-glow)" : "var(--ss-warm-tint)",
         border: highlighted
           ? "1px solid rgba(197, 165, 114, 0.2)"
-          : "1px solid var(--ss-border-light)",
+          : "1px solid transparent",
+        borderRadius: "12px",
+        padding: "20px 22px",
+        textAlign: "center",
       }}
     >
       <div
-        className="text-meta-label uppercase text-ss-gray-light mb-3"
+        className="uppercase font-semibold"
         style={{
-          color: highlighted ? "var(--ss-gold-deep)" : undefined,
+          fontSize: "0.68rem",
+          letterSpacing: "1.5px",
+          color: highlighted ? "var(--ss-gold-deep)" : "var(--ss-gray-light)",
+          marginBottom: "6px",
         }}
       >
         {title}
       </div>
-      <div className="space-y-2">{children}</div>
+      {children}
     </div>
   );
 }
 
-function CompRow({ label, value }: { label: string; value: string }) {
+function CompValue({ value }: { value: string }) {
   return (
-    <div>
-      <span className="text-body text-ss-gray-light text-[0.75rem]">
-        {label}
-      </span>
-      <EditableField
-        value={value}
-        as="p"
-        className="text-body text-ss-dark font-medium"
-      />
+    <div
+      className="font-cormorant"
+      style={{
+        fontSize: "1.7rem",
+        fontWeight: 600,
+        color: "var(--ss-dark)",
+      }}
+    >
+      {value}
+    </div>
+  );
+}
+
+function CompDetail({ text }: { text: string }) {
+  return (
+    <div
+      style={{
+        fontSize: "0.8rem",
+        color: "var(--ss-gray)",
+        marginTop: "4px",
+      }}
+    >
+      {text}
     </div>
   );
 }

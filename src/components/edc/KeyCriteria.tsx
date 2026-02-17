@@ -17,49 +17,63 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Key Criteria Assessment" />
 
-      {key_criteria.map((item, i) => (
-        <div
-          key={i}
-          className="py-criteria-y"
-          style={{
-            borderBottom:
-              i < key_criteria.length - 1
-                ? "1px solid var(--ss-border-light)"
-                : "none",
-          }}
-        >
-          {/* Criterion header: number badge + name + context anchor pill */}
-          <div className="flex items-center gap-3 mb-2">
-            {/* Green number badge — ordinal marker, not a score */}
+      <div className="flex flex-col gap-0">
+        {key_criteria.map((item, i) => (
+          <div
+            key={i}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "32px 1fr auto",
+              gap: "14px",
+              alignItems: "flex-start",
+              padding: "18px 0",
+              borderBottom:
+                i < key_criteria.length - 1
+                  ? "1px solid var(--ss-border-light)"
+                  : "none",
+            }}
+          >
+            {/* Green number badge — ordinal, NOT a score */}
             <span
-              className="inline-flex items-center justify-center shrink-0 font-semibold text-white rounded-full"
+              className="inline-flex items-center justify-center shrink-0 font-bold"
               style={{
-                width: "24px",
-                height: "24px",
+                width: "28px",
+                height: "28px",
                 fontSize: "0.72rem",
-                background: "var(--ss-green)",
-                boxShadow: "0 0 0 3px var(--ss-green-badge)",
+                borderRadius: "50%",
+                background: "var(--ss-green-badge)",
+                color: "var(--ss-green)",
+                marginTop: "1px",
               }}
             >
               {i + 1}
             </span>
-            <span className="text-criteria-heading text-ss-dark">
-              {item.name}
-            </span>
-            {item.context_anchor && (
+
+            {/* Content — name + evidence */}
+            <div>
+              <h4
+                className="text-criteria-heading text-ss-dark"
+                style={{ marginBottom: "5px" }}
+              >
+                {item.name}
+              </h4>
+              <EditableField
+                value={item.evidence}
+                html
+                className="text-body text-ss-gray"
+                style={{ lineHeight: 1.65 }}
+              />
+            </div>
+
+            {/* Context anchor pill — right-aligned */}
+            {item.context_anchor ? (
               <ContextAnchorPill text={item.context_anchor} />
+            ) : (
+              <span />
             )}
           </div>
-
-          {/* Evidence paragraph — editable, supports HTML (bold highlights) */}
-          <EditableField
-            value={item.evidence}
-            html
-            className="text-body text-ss-gray ml-[36px]"
-            style={{ lineHeight: 1.65 }}
-          />
-        </div>
-      ))}
+        ))}
+      </div>
     </section>
   );
 }

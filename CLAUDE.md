@@ -544,3 +544,81 @@ npm run dev          # Local development (http://localhost:3000)
 npm run build        # Production build
 npm run lint         # Lint check
 ```
+
+---
+
+## v0.1 Design Review — Feb 17 (Baz, 13" MacBook Air, 100% zoom)
+
+### Overall Verdict
+
+v0.1 is structurally correct but visually lifeless. It reads like a SaaS dashboard, not a £100k boardroom document. The HTML prototype (`edc_prototype_v02.html`) has warmth, personality, and visual hierarchy that v0.1 has completely lost in translation to Next.js. The prototype uses Cormorant Garamond for display type + Outfit for body — this contrast gives it soul. v0.1's uniform Inter usage flattens everything.
+
+**The north star remains `edc_prototype_v02.html`.** v0.2 must close the visual gap.
+
+### Issue-by-Issue (from screenshots)
+
+#### 1. Header (Image 1)
+
+- **Flat and lifeless.** Missing the radial gold glow, the gradient bottom border, the warmth. Feels like a grey rectangle, not a premium document header.
+- **"Executive Decision Card" badge looks terrible.** The prototype uses Cormorant Garamond italic for "Decision" with a stacked layout — elegant and memorable. v0.1 renders it as a plain bordered pill. This is the brand mark of the product; it needs to feel special. **Match the prototype's treatment exactly:** `Executive` + italic `Decision` on one line (Cormorant Garamond 600), `CARD` as tiny uppercase subtitle below.
+- **SmartSearch logo missing.** Use the white PNG (`Logos_SmartSearch_Primary_White.png`) in top-left, ~28px height, 55% opacity. Already in `/public/` — just reference it.
+- **"Tara Mitchell" is not a SmartSearch person.** Use real names: Jackie Wyard-Yates, Tara (surname TBC), Carlie (surname TBC), or Blair. For Prenax CTO test data, use Jackie Wyard-Yates as search lead.
+
+#### 2. Scope Match (Images 1-2)
+
+- **Too much vertical space — requires scrolling on 13" screen before reaching Key Criteria.** This is the #1 UX problem. The scope match should be scannable in one viewport, then BAM — key criteria.
+- **Fix:** Tighten row padding. Consider whether 6 rows can fit more compactly. The table cells have too much breathing room. Reduce `padding: 12px 16px` to `padding: 8px 12px` on cells.
+- **Scope seasoning callout looks awful.** Described as "a dollop of stale mayo." In the prototype it has energy — gold left border, warm tint background, italic text. In v0.1 it looks flat and disconnected.
+- **Positioning:** Move seasoning ABOVE the table or alongside it (not buried below). It should be the editorial lens through which you read the table, not an afterthought.
+
+#### 3. Key Criteria (Image 2)
+
+- **Dry and boring compared to prototype.** The prototype's grid layout (number badge | content | pill) with clear right-aligned pills looks clean. v0.1's pills float inconsistently.
+- **Context anchor pills MUST be right-aligned** in the criteria grid, consistently positioned. Same vertical line for all pills. The prototype demonstrates this well.
+- **Pill content enhancement (v0.2):** Beyond just "at Prenax Group", consider auto-generating richer pill content: company + location, or company + a key metric (revenue, duration, team size). E.g. `Prenax Group · London` or `Prenax Group · €85M P&L`. Need a slick, configurable way to choose what shows — discuss with team.
+
+#### 4. Compensation (Image 3)
+
+- **The prototype's compensation section is beautiful.** Three clean cards with centered typography, the gold-highlighted budget card, Cormorant Garamond for the big numbers. v0.1 looks like a spreadsheet export.
+- **Must match prototype treatment:** Rounded cards, `--ss-warm-tint` background, centered layout, large display numbers (use a display-weight font, not body Inter), gold glow on budget card.
+- **Notice period / timeline below** should be clean inline text, not another block.
+
+#### 5. Motivation (Image 4)
+
+- **v0.1 is falling asleep.** The prototype uses compact arrow icons (↑/↓) in colored boxes with bold headlines. v0.1 reads as a flat text list.
+- **Fix:** Match prototype's `motive-icon` boxes (24px, rounded, green-light for pull, yellow-light for push), bold headline inline with supporting text. The PULL/PUSH labels beside the headline are a nice addition in v0.1 — keep those but make them pills, not plain text.
+
+#### 6. Concerns (Images 4-5)
+
+- **Prototype has proper concern cards** with red-light background, red left border, ⚠ icon. v0.1's concerns section lacks visual weight.
+- **Severity distinction needs visual treatment.** "DEVELOPMENT AREA" in amber/yellow tones, "SIGNIFICANT CONCERN" in red tones. Both with left border + tinted background + icon. The v0.1 screenshots show this is partially working but not with the right visual punch.
+
+#### 7. Our Take (Image 5)
+
+- **The green border treatment is the signature element.** Prototype wraps the entire Our Take text in a card with green border + rounded corners. v0.1's version looks uninspired.
+- **Match:** White card, 14px rounded corners, 1px green border (#4a7c59), subtle shadow. The text inside should breathe — good padding (22px-28px).
+- **The divider between evidence and judgment sections** (the gold gradient line with ✦ diamond) is missing or invisible in v0.1. This is a key design element.
+
+### Typography Note for v0.2
+
+The prototype uses TWO font families to great effect:
+
+- **Cormorant Garamond** (serif) for: candidate name, EDC badge, compensation numbers, Our Take verdict headline. Gives warmth and boardroom gravitas.
+- **Outfit** (sans-serif) for: body text, labels, meta values.
+
+The [CLAUDE.md](http://CLAUDE.md) spec says Inter-only, but the prototype proves that the dual-font approach is what gives it life. **v0.2 decision needed:** either adopt Cormorant Garamond + Inter (matching prototype) or find a way to make Inter-only not look sterile. Recommend adopting the prototype's font pairing.
+
+### Priority Fixes for v0.2 (ordered)
+
+1. **Header:** Gold glow, gradient border, proper EDC badge (Cormorant Garamond), SmartSearch white logo, fix consultant name
+2. **Scope Match:** Compact rows, move seasoning above/alongside table, better seasoning styling
+3. **Compensation:** Match prototype's card layout with display typography and gold budget highlight
+4. **Key Criteria:** Right-align pills consistently, consider richer pill content
+5. **Motivation:** Proper icon boxes, visual distinction between pull/push
+6. **Concerns:** Card treatment with colored left borders and tinted backgrounds
+7. **Our Take:** Green-bordered card, gold divider above
+8. **Overall:** Consider Cormorant Garamond for display elements; add the warmth and personality the prototype has
+
+### Test Data Fix
+
+Replace "Tara Mitchell" with "Jackie Wyard-Yates" in all test fixtures. SmartSearch consultants: Jackie Wyard-Yates, Tara, Carlie, Blair.

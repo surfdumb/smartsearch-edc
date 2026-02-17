@@ -58,23 +58,44 @@ export default async function CandidateEDCPage({
           {/* 5. Potential Concerns */}
           <Concerns potential_concerns={data.potential_concerns} />
 
-          {/* Gold divider between evidence and judgment */}
+          {/* ✦ Gold divider between evidence and judgment */}
           <div
             style={{
-              height: "2px",
+              height: "4px",
               background:
-                "linear-gradient(90deg, transparent 10%, var(--ss-gold) 30%, var(--ss-gold) 70%, transparent 90%)",
-              margin: "0 48px",
-              opacity: 0.25,
+                "linear-gradient(90deg, transparent 0%, var(--ss-gold-pale) 15%, var(--ss-gold) 50%, var(--ss-gold-pale) 85%, transparent 100%)",
+              position: "relative",
             }}
-          />
+          >
+            <span
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                background: "white",
+                color: "var(--ss-gold)",
+                fontSize: "1rem",
+                padding: "0 16px",
+                zIndex: 1,
+              }}
+            >
+              ✦
+            </span>
+          </div>
 
           {/* 6. Our Take */}
-          <OurTake text={data.our_take.text} />
+          <OurTake
+            text={data.our_take.text}
+            consultant_name={data.consultant_name}
+          />
         </div>
 
         {/* === FOOTER === */}
-        <EDCFooter search_name={data.search_name} />
+        <EDCFooter
+          search_name={data.search_name}
+          generated_date={data.generated_date}
+        />
       </div>
     </main>
   );

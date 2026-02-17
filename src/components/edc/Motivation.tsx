@@ -16,70 +16,45 @@ export default function Motivation({ why_interested }: MotivationProps) {
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Why Are They Interested?" />
 
-      <div className="space-y-0">
+      <div className="flex flex-col" style={{ gap: "10px" }}>
         {why_interested.map((item, i) => (
           <div
             key={i}
-            className="py-[14px] flex gap-4"
-            style={{
-              borderBottom:
-                i < why_interested.length - 1
-                  ? "1px solid var(--ss-border-light)"
-                  : "none",
-            }}
+            className="flex items-start"
+            style={{ gap: "12px" }}
           >
-            {/* Directional indicator */}
+            {/* Directional icon — 24px box, border-radius 6px, ↑/↓ characters */}
             <span
-              className="shrink-0 inline-flex items-center justify-center rounded-full"
+              className="shrink-0 inline-flex items-center justify-center"
               style={{
-                width: "28px",
-                height: "28px",
-                marginTop: "2px",
+                width: "24px",
+                height: "24px",
+                borderRadius: "6px",
+                marginTop: "1px",
+                fontSize: "0.7rem",
                 background:
                   item.type === "pull"
                     ? "var(--ss-green-light)"
-                    : "var(--ss-gold-glow)",
+                    : "var(--ss-yellow-light)",
                 color:
                   item.type === "pull"
                     ? "var(--ss-green)"
-                    : "var(--ss-gold-deep)",
+                    : "var(--ss-yellow)",
               }}
             >
-              {item.type === "pull" ? (
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M6 2v8M3 5l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : (
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M6 10V2M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
+              {item.type === "pull" ? "↑" : "↓"}
             </span>
 
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-criteria-heading text-ss-dark">
-                  {item.headline}
-                </span>
-                <span
-                  className="uppercase font-semibold"
-                  style={{
-                    fontSize: "0.6rem",
-                    letterSpacing: "1px",
-                    color:
-                      item.type === "pull"
-                        ? "var(--ss-green-soft)"
-                        : "var(--ss-gold)",
-                  }}
-                >
-                  {item.type}
-                </span>
-              </div>
+            {/* Content */}
+            <div style={{ fontSize: "0.88rem", color: "var(--ss-gray)", lineHeight: 1.65 }}>
+              <strong style={{ color: "var(--ss-dark)", fontWeight: 600 }}>
+                {item.headline}
+              </strong>
+              {" — "}
               <EditableField
                 value={item.detail}
-                as="p"
-                className="text-body text-ss-gray"
-                style={{ lineHeight: 1.65 }}
+                as="span"
+                style={{ color: "var(--ss-gray)", lineHeight: 1.65 }}
               />
             </div>
           </div>

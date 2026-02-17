@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         inter: ["var(--font-inter)", "Inter", "sans-serif"],
+        cormorant: ["var(--font-cormorant)", "Cormorant Garamond", "serif"],
       },
       colors: {
         // Core

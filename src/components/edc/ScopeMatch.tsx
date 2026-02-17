@@ -19,68 +19,85 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Scope Match" />
 
+      {/* Scope seasoning callout — ABOVE table */}
+      {scope_seasoning && (
+        <div
+          style={{
+            padding: "14px 20px",
+            borderRadius: "10px",
+            borderLeft: "3px solid var(--ss-gold)",
+            background: "var(--ss-warm-tint)",
+            marginBottom: "18px",
+            fontStyle: "italic",
+          }}
+        >
+          <EditableField
+            value={scope_seasoning}
+            as="p"
+            className="text-body"
+            style={{ lineHeight: 1.65, color: "var(--ss-dark-soft)" }}
+          />
+        </div>
+      )}
+
       {/* Table header */}
       <div
-        className="grid gap-4 pb-3 mb-1"
+        className="grid gap-4"
         style={{
-          gridTemplateColumns: "minmax(140px, 1fr) minmax(200px, 2fr) minmax(200px, 2fr) 40px",
-          borderBottom: "1px solid var(--ss-border)",
+          gridTemplateColumns: "160px 1fr 1fr 48px",
+          paddingBottom: "10px",
+          borderBottom: "1px solid #eeebe6",
         }}
       >
-        <span className="text-meta-label uppercase text-ss-gray-light">Dimension</span>
-        <span className="text-meta-label uppercase text-ss-gray-light">Candidate</span>
-        <span className="text-meta-label uppercase text-ss-gray-light">Role Requirement</span>
+        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+          Dimension
+        </span>
+        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+          Candidate
+        </span>
+        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+          Role Requirement
+        </span>
         <span />
       </div>
 
-      {/* Table rows */}
+      {/* Table rows — compact padding matching prototype */}
       {scope_match.map((item, i) => (
         <div
           key={i}
-          className="grid gap-4 py-[14px] items-start"
+          className="grid gap-4 items-start"
           style={{
-            gridTemplateColumns: "minmax(140px, 1fr) minmax(200px, 2fr) minmax(200px, 2fr) 40px",
-            borderBottom: i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
+            gridTemplateColumns: "160px 1fr 1fr 48px",
+            padding: "12px 0",
+            borderBottom:
+              i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
           }}
         >
-          <span className="text-criteria-heading text-ss-dark">
+          <span
+            style={{
+              fontWeight: 500,
+              color: "var(--ss-dark)",
+              fontSize: "0.85rem",
+            }}
+          >
             {item.dimension}
           </span>
           <EditableField
             value={item.candidate_actual}
             as="span"
-            className="text-body text-ss-gray"
+            style={{ fontSize: "0.88rem", color: "var(--ss-dark)" }}
           />
           <EditableField
             value={item.role_requirement}
             as="span"
             className="text-body text-ss-gray"
+            style={{ fontSize: "0.88rem" }}
           />
           <span className="flex items-center justify-center pt-1">
             <AlignmentDot alignment={item.alignment} />
           </span>
         </div>
       ))}
-
-      {/* Scope seasoning callout */}
-      {scope_seasoning && (
-        <div
-          className="mt-5"
-          style={{
-            padding: "14px 20px",
-            borderRadius: "10px",
-            borderLeft: "3px solid var(--ss-gold)",
-            background: "var(--ss-warm-tint)",
-          }}
-        >
-          <EditableField
-            value={scope_seasoning}
-            as="p"
-            className="text-body text-ss-gray"
-            style={{ lineHeight: 1.65 }}
-          />
-        </div>
-      )}
     </section>
   );
 }
