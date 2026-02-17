@@ -1,7 +1,28 @@
-// OurTake — Green-bordered box. Editable consultant voice text.
-// No ADVANCE/HOLD/PASS badge. Free-form text only.
-// TODO: Build Step 8
+import SectionLabel from "@/components/ui/SectionLabel";
 
-export default function OurTake() {
-  return null;
+interface OurTakeProps {
+  text: string;
+}
+
+export default function OurTake({ text }: OurTakeProps) {
+  return (
+    <section className="px-section-x py-section-y">
+      <SectionLabel label="Our Take" />
+
+      <div
+        className="rounded-lg p-5"
+        style={{
+          border: "2px solid var(--ss-green)",
+          background: "rgba(74, 124, 89, 0.03)",
+        }}
+      >
+        <p
+          className="text-body text-ss-gray"
+          style={{ lineHeight: 1.75 }}
+        >
+          {text}
+        </p>
+      </div>
+    </section>
+  );
 }
