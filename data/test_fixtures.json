@@ -1,0 +1,149 @@
+{
+  "candidates": {
+    "david-norton": {
+      "candidate_name": "David Norton",
+      "current_title": "Chief Technology Officer",
+      "current_company": "Prenax Group",
+      "location": "London, UK",
+
+      "scope_match": [
+        {
+          "dimension": "P&L Responsibility",
+          "candidate_actual": "Full P&L ownership of €85M technology division at Prenax Group, including a €12M SaaS product line launched in 2022",
+          "role_requirement": "P&L ownership of technology function, ideally €50M+",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Team Size",
+          "candidate_actual": "145 across engineering, infrastructure, data, and product at Prenax Group; previously 80 at Meridian Systems",
+          "role_requirement": "Leadership of 100+ technology professionals across multiple disciplines",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geographic Scope",
+          "candidate_actual": "Pan-European delivery (UK, DACH, Nordics) at Prenax Group with offshore teams in India and Poland",
+          "role_requirement": "Multi-country European operations with global delivery capability",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Board Exposure",
+          "candidate_actual": "Reports to Group CEO at Prenax; quarterly presentations to PE-backed board. No listed company board experience",
+          "role_requirement": "Direct board reporting line; experience presenting to institutional investors",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Digital Transformation",
+          "candidate_actual": "Led cloud migration and SaaS platform build at Prenax Group; legacy modernisation at Meridian Systems",
+          "role_requirement": "Proven track record of enterprise-scale digital transformation",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "M&A / Integration",
+          "candidate_actual": "Led technology due diligence and integration for two bolt-on acquisitions at Prenax Group (2021, 2023)",
+          "role_requirement": "Experience with technology integration post-acquisition",
+          "alignment": "partial"
+        }
+      ],
+      "scope_seasoning": "David's scope at Prenax Group maps closely to the role requirements. The gap is listed board experience — his PE board exposure is strong but he hasn't operated in a publicly listed environment. Worth probing whether the client views this as essential or developable.",
+
+      "key_criteria": [
+        {
+          "name": "Enterprise Technology Strategy",
+          "evidence": "Developed and executed the three-year technology roadmap <strong>at Prenax Group</strong>, transitioning the business from on-premise legacy systems to a cloud-native architecture. The strategy delivered €8M in annual infrastructure cost savings and enabled the launch of their first SaaS product line, which reached €12M ARR within 18 months.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "Team Leadership & Talent Development",
+          "evidence": "Scaled the technology organisation from 90 to 145 <strong>at Prenax Group</strong> over three years, including building a new data engineering function from scratch. Implemented an engineering career ladder that reduced senior attrition from 18% to 6%. Previously built and led an 80-person engineering team <strong>at Meridian Systems</strong>.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "SaaS / Product Development",
+          "evidence": "Conceived and launched Prenax Connect, a B2B SaaS platform <strong>at Prenax Group</strong> serving 340 enterprise customers. Took the product from concept to €12M ARR, managing a cross-functional team of 35 across product, engineering, and design. This was the company's first product-led revenue stream.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "Operational Excellence & Delivery",
+          "evidence": "Introduced DevOps practices and CI/CD pipelines <strong>at Prenax Group</strong>, reducing deployment frequency from monthly to daily. Platform uptime improved from 97.2% to 99.95%. Managed a €22M annual technology budget with consistent delivery within 3% variance.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "Stakeholder & Board Communication",
+          "evidence": "Presents quarterly technology updates to the PE-backed board <strong>at Prenax Group</strong>, translating complex technical initiatives into business impact language. Led the technology narrative during the 2023 refinancing process. Has not yet presented to a listed company board or public market investors.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "Data & AI Readiness",
+          "evidence": "Built the data engineering team and established a centralised data platform <strong>at Prenax Group</strong>, enabling real-time business intelligence across all operating companies. Currently piloting AI-assisted customer support and predictive maintenance modules. Earlier in career, had limited exposure to advanced analytics <strong>at Meridian Systems</strong>.",
+          "context_anchor": "at Prenax Group"
+        },
+        {
+          "name": "Commercial Acumen",
+          "evidence": "Not mentioned in interview. David's background is predominantly technology-delivery focused. While the SaaS product launch <strong>at Prenax Group</strong> demonstrates commercial instinct, he has not held a revenue-carrying quota or direct sales leadership responsibility.",
+          "context_anchor": "at Prenax Group"
+        }
+      ],
+
+      "compensation": {
+        "current_base": "£245,000",
+        "current_total": "£340,000 (base + 30% bonus + LTIP currently valued at ~£55K)",
+        "expected_base": "£270,000–£290,000",
+        "expected_total": "£380,000–£420,000 including equity participation",
+        "flexibility": "Open to discussion on package structure; values equity upside over guaranteed cash. Would consider a lower base for meaningful equity.",
+        "budget_range": "£260,000–£300,000 base + 30–40% bonus + equity"
+      },
+      "notice_period": "6 months (contractual), open to negotiation with current employer",
+      "earliest_start_date": "Q3 2025, subject to notice period negotiation",
+
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Scale and complexity step-up",
+          "detail": "The role offers a significantly larger technology estate and the opportunity to operate at group level across a more complex, multi-brand portfolio. David described this as the natural next step from his divisional CTO experience."
+        },
+        {
+          "type": "pull",
+          "headline": "Product-led transformation mandate",
+          "detail": "Genuinely energised by the brief to build product capabilities from the ground up. His Prenax Connect experience gives him confidence, but he sees this as an opportunity to do it at much greater scale with proper investment backing."
+        },
+        {
+          "type": "push",
+          "headline": "Ceiling reached at Prenax Group",
+          "detail": "Feels he has delivered the core transformation at Prenax and the PE owners are moving toward exit preparation rather than further investment in technology growth. Concerned about a 'caretaker' phase."
+        },
+        {
+          "type": "push",
+          "headline": "Desire for listed company experience",
+          "detail": "Acknowledges the gap in his profile and is actively seeking a role that provides public market exposure. Views this as career-critical for his long-term trajectory toward a Group CTO or CIO position."
+        }
+      ],
+
+      "potential_concerns": [
+        {
+          "concern": "No listed company or public market board experience. All board exposure has been in PE-backed environments. The transition to listed company governance, regulatory reporting, and investor relations cadence may require adjustment.",
+          "severity": "development"
+        },
+        {
+          "concern": "Commercial experience is inferred rather than demonstrated. While the SaaS launch shows commercial instinct, David has not carried revenue targets or led commercial negotiations at a senior level.",
+          "severity": "development"
+        },
+        {
+          "concern": "Single-company concentration in recent career. Five years at Prenax Group means all major achievements reference one environment. The transferability of his transformation playbook to a different organisational culture is untested.",
+          "severity": "significant"
+        }
+      ],
+
+      "our_take": {
+        "text": "David is a builder who has delivered a genuine technology transformation at Prenax Group — not inherited one. The SaaS product launch and the team scaling story are both substantive. He's not a polished corporate CTO; he's an operator who has grown into the strategic layer. The listed board gap is real but developable, and his self-awareness about it is encouraging. We believe he's worth a deep-dive conversation. The question for the client is whether they want someone who has already operated in a listed environment, or someone with the trajectory and hunger to step up. If the latter, David should be in the final conversation."
+      },
+
+      "search_name": "Prenax Group — CTO Search",
+      "role_title": "Chief Technology Officer",
+      "generated_date": "15 February 2025",
+      "consultant_name": "Tara Mitchell",
+
+      "match_score_percentage": 78,
+      "match_score_display": "HIDE"
+    }
+  }
+}

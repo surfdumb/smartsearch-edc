@@ -1,0 +1,6 @@
+/* EDC print styles — future PDF export support */
+@media print {
+  body {
+    background: white;
+  }
+}

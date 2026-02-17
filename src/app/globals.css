@@ -3,25 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* === Core === */
+  --ss-dark: #1a1a1a;
+  --ss-dark-soft: #2c2c2c;
+  --ss-header-bg: #2d2824;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* === Gold System === */
+  --ss-gold: #c5a572;
+  --ss-gold-light: #d4ba8a;
+  --ss-gold-pale: #e8dbc7;
+  --ss-gold-glow: rgba(197, 165, 114, 0.15);
+  --ss-gold-deep: #b08f5a;
+
+  /* === Backgrounds === */
+  --ss-cream: #faf8f5;
+  --ss-warm-white: #f7f4ef;
+  --ss-warm-tint: #fdfbf7;
+  --ss-page-bg: #f0ede8;
+
+  /* === Text === */
+  --ss-gray: #6b6b6b;
+  --ss-gray-light: #a0a0a0;
+  --ss-gray-pale: #d4d2ce;
+
+  /* === Semantic — Scope Match Only === */
+  --ss-green: #4a7c59;
+  --ss-green-soft: #5a9469;
+  --ss-green-light: rgba(74, 124, 89, 0.10);
+  --ss-green-badge: rgba(74, 124, 89, 0.08);
+
+  --ss-yellow: #c9953a;
+  --ss-yellow-light: rgba(201, 149, 58, 0.10);
+
+  --ss-red: #b85450;
+  --ss-red-light: rgba(184, 84, 80, 0.08);
+
+  /* === Context Anchor (Key Criteria pills) === */
+  --ss-blue: #4a6a8c;
+  --ss-blue-light: rgba(74, 106, 140, 0.10);
+
+  /* === Borders === */
+  --ss-border: #f0ede8;
+  --ss-border-light: #f7f5f1;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  background: var(--ss-page-bg);
+  color: var(--ss-dark);
+  font-family: var(--font-inter), "Inter", sans-serif;
 }
