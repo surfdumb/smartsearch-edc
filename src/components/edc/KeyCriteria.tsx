@@ -1,5 +1,8 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
+import EditableField from "@/components/edc/EditableField";
 
 interface KeyCriteriaProps {
   key_criteria: {
@@ -48,11 +51,12 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
             )}
           </div>
 
-          {/* Evidence paragraph */}
-          <div
+          {/* Evidence paragraph — editable, supports HTML (bold highlights) */}
+          <EditableField
+            value={item.evidence}
+            html
             className="text-body text-ss-gray ml-[36px]"
             style={{ lineHeight: 1.65 }}
-            dangerouslySetInnerHTML={{ __html: item.evidence }}
           />
         </div>
       ))}

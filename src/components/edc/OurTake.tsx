@@ -1,4 +1,7 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
+import EditableField from "@/components/edc/EditableField";
 
 interface OurTakeProps {
   text: string;
@@ -16,12 +19,12 @@ export default function OurTake({ text }: OurTakeProps) {
           background: "rgba(74, 124, 89, 0.03)",
         }}
       >
-        <p
+        <EditableField
+          value={text}
+          as="p"
           className="text-body text-ss-gray"
           style={{ lineHeight: 1.75 }}
-        >
-          {text}
-        </p>
+        />
       </div>
     </section>
   );

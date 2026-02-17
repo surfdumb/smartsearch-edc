@@ -1,4 +1,7 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
+import EditableField from "@/components/edc/EditableField";
 
 interface MotivationProps {
   why_interested: {
@@ -72,9 +75,12 @@ export default function Motivation({ why_interested }: MotivationProps) {
                   {item.type}
                 </span>
               </div>
-              <p className="text-body text-ss-gray" style={{ lineHeight: 1.65 }}>
-                {item.detail}
-              </p>
+              <EditableField
+                value={item.detail}
+                as="p"
+                className="text-body text-ss-gray"
+                style={{ lineHeight: 1.65 }}
+              />
             </div>
           </div>
         ))}

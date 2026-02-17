@@ -1,5 +1,8 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
+import EditableField from "@/components/edc/EditableField";
 
 interface ScopeMatchProps {
   scope_match: {
@@ -43,12 +46,16 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
           <span className="text-criteria-heading text-ss-dark">
             {item.dimension}
           </span>
-          <span className="text-body text-ss-gray">
-            {item.candidate_actual}
-          </span>
-          <span className="text-body text-ss-gray">
-            {item.role_requirement}
-          </span>
+          <EditableField
+            value={item.candidate_actual}
+            as="span"
+            className="text-body text-ss-gray"
+          />
+          <EditableField
+            value={item.role_requirement}
+            as="span"
+            className="text-body text-ss-gray"
+          />
           <span className="flex items-center justify-center pt-1">
             <AlignmentDot alignment={item.alignment} />
           </span>
@@ -66,9 +73,12 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
             background: "var(--ss-warm-tint)",
           }}
         >
-          <p className="text-body text-ss-gray" style={{ lineHeight: 1.65 }}>
-            {scope_seasoning}
-          </p>
+          <EditableField
+            value={scope_seasoning}
+            as="p"
+            className="text-body text-ss-gray"
+            style={{ lineHeight: 1.65 }}
+          />
         </div>
       )}
     </section>

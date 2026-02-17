@@ -1,4 +1,7 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
+import EditableField from "@/components/edc/EditableField";
 
 interface CompensationProps {
   compensation: {
@@ -47,9 +50,12 @@ export default function Compensation({
 
       {/* Flexibility note */}
       {compensation.flexibility && (
-        <p className="text-body text-ss-gray mb-5" style={{ lineHeight: 1.65 }}>
-          {compensation.flexibility}
-        </p>
+        <EditableField
+          value={compensation.flexibility}
+          as="p"
+          className="text-body text-ss-gray mb-5"
+          style={{ lineHeight: 1.65 }}
+        />
       )}
 
       {/* Notice period and timeline */}
@@ -61,17 +67,21 @@ export default function Compensation({
           <span className="text-meta-label uppercase text-ss-gray-light block mb-1">
             Notice Period
           </span>
-          <span className="text-body text-ss-dark font-medium">
-            {notice_period}
-          </span>
+          <EditableField
+            value={notice_period}
+            as="span"
+            className="text-body text-ss-dark font-medium"
+          />
         </div>
         <div>
           <span className="text-meta-label uppercase text-ss-gray-light block mb-1">
             Earliest Start
           </span>
-          <span className="text-body text-ss-dark font-medium">
-            {earliest_start_date}
-          </span>
+          <EditableField
+            value={earliest_start_date}
+            as="span"
+            className="text-body text-ss-dark font-medium"
+          />
         </div>
       </div>
     </section>
@@ -116,7 +126,11 @@ function CompRow({ label, value }: { label: string; value: string }) {
       <span className="text-body text-ss-gray-light text-[0.75rem]">
         {label}
       </span>
-      <p className="text-body text-ss-dark font-medium">{value}</p>
+      <EditableField
+        value={value}
+        as="p"
+        className="text-body text-ss-dark font-medium"
+      />
     </div>
   );
 }

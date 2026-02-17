@@ -1,4 +1,7 @@
+"use client";
+
 import SectionLabel from "@/components/ui/SectionLabel";
+import EditableField from "@/components/edc/EditableField";
 
 interface ConcernsProps {
   potential_concerns: {
@@ -67,9 +70,12 @@ export default function Concerns({ potential_concerns }: ConcernsProps) {
                     : "Development Area"}
                 </span>
               </div>
-              <p className="text-body text-ss-gray" style={{ lineHeight: 1.65 }}>
-                {item.concern}
-              </p>
+              <EditableField
+                value={item.concern}
+                as="p"
+                className="text-body text-ss-gray"
+                style={{ lineHeight: 1.65 }}
+              />
             </div>
           </div>
         ))}
