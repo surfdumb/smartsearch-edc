@@ -1,138 +1,355 @@
 {
   "candidates": {
-    "david-norton": {
-      "candidate_name": "David Norton",
-      "current_title": "Chief Technology Officer",
-      "current_company": "Prenax Group",
-      "location": "London, UK",
-
+    "rama-kataria": {
+      "candidate_name": "Rama Kataria",
+      "current_title": "Associate Director, Business Development",
+      "current_company": "Alexion Pharmaceuticals",
+      "location": "Boston, Massachusetts",
       "scope_match": [
         {
-          "dimension": "P&L Responsibility",
-          "candidate_actual": "Full P&L ownership of €85M technology division at Prenax Group, including a €12M SaaS product line launched in 2022",
-          "role_requirement": "P&L ownership of technology function, ideally €50M+",
-          "alignment": "strong"
+          "dimension": "Revenue/P&L Scale",
+          "candidate_actual": "Associate Director level at Alexion (large pharma)",
+          "role_requirement": "Head of BD role targeting $200M to $500M innovative revenue growth",
+          "alignment": "partial"
         },
         {
           "dimension": "Team Size",
-          "candidate_actual": "145 across engineering, infrastructure, data, and product at Prenax Group; previously 80 at Meridian Systems",
-          "role_requirement": "Leadership of 100+ technology professionals across multiple disciplines",
+          "candidate_actual": "Individual contributor with cross-functional team leadership",
+          "role_requirement": "Senior individual contributor with German/Swiss team support",
           "alignment": "strong"
         },
         {
           "dimension": "Geographic Scope",
-          "candidate_actual": "Pan-European delivery (UK, DACH, Nordics) at Prenax Group with offshore teams in India and Poland",
-          "role_requirement": "Multi-country European operations with global delivery capability",
+          "candidate_actual": "US-based with expanding China biotech focus",
+          "role_requirement": "US/China asset sourcing for European commercialization",
           "alignment": "strong"
         },
         {
-          "dimension": "Board Exposure",
-          "candidate_actual": "Reports to Group CEO at Prenax; quarterly presentations to PE-backed board. No listed company board experience",
-          "role_requirement": "Direct board reporting line; experience presenting to institutional investors",
-          "alignment": "partial"
-        },
-        {
-          "dimension": "Digital Transformation",
-          "candidate_actual": "Led cloud migration and SaaS platform build at Prenax Group; legacy modernisation at Meridian Systems",
-          "role_requirement": "Proven track record of enterprise-scale digital transformation",
+          "dimension": "Therapeutic Areas",
+          "candidate_actual": "Nephrology, transplant, neurology, bone health, endocrinology",
+          "role_requirement": "Nephrology, neurology, bone health focus",
           "alignment": "strong"
         },
         {
-          "dimension": "M&A / Integration",
-          "candidate_actual": "Led technology due diligence and integration for two bolt-on acquisitions at Prenax Group (2021, 2023)",
-          "role_requirement": "Experience with technology integration post-acquisition",
-          "alignment": "partial"
+          "dimension": "Deal Stage",
+          "candidate_actual": "Preclinical through Phase II complete experience",
+          "role_requirement": "Post-Phase II late-stage assets",
+          "alignment": "strong"
         }
       ],
-      "scope_seasoning": "David's scope at Prenax Group maps closely to the role requirements. The gap is listed board experience — his PE board exposure is strong but he hasn't operated in a publicly listed environment. Worth probing whether the client views this as essential or developable.",
-
+      "scope_seasoning": "Rama presents <strong>exceptional therapeutic area alignment</strong> with direct experience in STADA's core focus areas (nephrology, neurology, bone health) and proven end-to-end BD capability from search through transaction execution. Her <strong>expanding China biotech network</strong> directly supports STADA's geographic sourcing strategy. The <strong>critical question is cultural fit</strong> — her emphasis on empowered, collaborative team dynamics may face tension with STADA's remote structure and German-based support model.",
       "key_criteria": [
         {
-          "name": "Enterprise Technology Strategy",
-          "evidence": "Developed and executed the three-year technology roadmap <strong>at Prenax Group</strong>, transitioning the business from on-premise legacy systems to a cloud-native architecture. The strategy delivered €8M in annual infrastructure cost savings and enabled the launch of their first SaaS product line, which reached €12M ARR within 18 months.",
-          "context_anchor": "at Prenax Group"
+          "name": "Buying-side business development experience",
+          "evidence": "Rama leads comprehensive buy-side BD activities at Alexion including <strong>search and evaluation, cross-functional due diligence, business case development, and CEO-level presentations</strong>. She has completed <strong>full acquisitions, collaboration agreements with option to acquire, and asset license deals</strong> spanning preclinical through Phase II-complete stage assets.",
+          "context_anchor": "at Alexion Pharmaceuticals"
         },
         {
-          "name": "Team Leadership & Talent Development",
-          "evidence": "Scaled the technology organisation from 90 to 145 <strong>at Prenax Group</strong> over three years, including building a new data engineering function from scratch. Implemented an engineering career ladder that reduced senior attrition from 18% to 6%. Previously built and led an 80-person engineering team <strong>at Meridian Systems</strong>.",
-          "context_anchor": "at Prenax Group"
+          "name": "End-to-end deal execution capability",
+          "evidence": "She manages complete deal cycles from <strong>search through transaction execution, drafting non-binding term sheets, leading negotiations, and completing deal cycles</strong>. Demonstrated independent capability by identifying a newly characterized disease opportunity, educating leadership, conducting directional forecasts herself, and presenting to CEO <strong>without internal research or clinical champions</strong>.",
+          "context_anchor": "at Alexion Pharmaceuticals"
         },
         {
-          "name": "SaaS / Product Development",
-          "evidence": "Conceived and launched Prenax Connect, a B2B SaaS platform <strong>at Prenax Group</strong> serving 340 enterprise customers. Took the product from concept to €12M ARR, managing a cross-functional team of 35 across product, engineering, and design. This was the company's first product-led revenue stream.",
-          "context_anchor": "at Prenax Group"
+          "name": "US biotech network and relationships",
+          "evidence": "Boston-based with <strong>established networks in the VC community and contacts in China's business development community</strong>. Has worked at Alexion and Vertex in the heart of Boston's biotech ecosystem. Increasing focus on <strong>Chinese companies due to heating biotech activity</strong> in Asia Pacific region.",
+          "context_anchor": "at Alexion Pharmaceuticals and broader Boston ecosystem"
         },
         {
-          "name": "Stakeholder & Board Communication",
-          "evidence": "Presents quarterly technology updates to the PE-backed board <strong>at Prenax Group</strong>, translating complex technical initiatives into business impact language. Led the technology narrative during the 2023 refinancing process. Has not yet presented to a listed company board or public market investors.",
-          "context_anchor": "at Prenax Group"
+          "name": "Scientific depth and technical fluency",
+          "evidence": "<strong>PhD in biochemistry and molecular biology, postdoctoral research at NIH and Harvard Medical School</strong>, plus MBA from MIT. Demonstrates <strong>modality-agnostic expertise</strong> across small molecules, antibodies, gene therapy, cell therapy, and oligonucleotides. Leads BD opportunities with <strong>science-first approach</strong> and has educated leadership on newly characterized diseases.",
+          "context_anchor": "at NIH, Harvard Medical School, and Alexion Pharmaceuticals"
         },
         {
-          "name": "Commercial Acumen",
-          "evidence": "Not mentioned in interview. David's background is predominantly technology-delivery focused. While the SaaS product launch <strong>at Prenax Group</strong> demonstrates commercial instinct, he has not held a revenue-carrying quota or direct sales leadership responsibility.",
-          "context_anchor": "at Prenax Group"
+          "name": "Entrepreneurial and independent operator",
+          "evidence": "Confirmed comfort with independent operation, stating <strong>'Building therapeutic area strategy to identifying assets, filtering noise and really championing the deal is what I've been doing is what I love'</strong>. Led deals entirely from scratch without internal champions, comfortable with extensive travel, and operates autonomously while leading cross-functional teams.",
+          "context_anchor": "at Alexion Pharmaceuticals"
         }
       ],
-
       "compensation": {
-        "current_base": "£245,000",
-        "current_total": "£340,000 (base + 30% bonus + LTIP currently valued at ~£55K)",
-        "expected_base": "£270,000–£290,000",
-        "expected_total": "£380,000–£420,000 including equity participation",
-        "flexibility": "Open to discussion on package structure; values equity upside over guaranteed cash. Would consider a lower base for meaningful equity.",
-        "budget_range": "£260,000–£300,000 base + 30–40% bonus + equity"
+        "current_base": "Not mentioned",
+        "current_total": "Not mentioned",
+        "expected_base": "Not mentioned",
+        "expected_total": "Not mentioned",
+        "flexibility": "Deferred compensation discussion until fit is established — prioritizes cultural and strategic alignment first",
+        "budget_range": "Base salary anticipated to start with 2, maybe 3 (unclear if $200K-$300K range intended)"
       },
-      "notice_period": "6 months (contractual), open to negotiation with current employer",
-      "earliest_start_date": "Q3 2025, subject to notice period negotiation",
-
+      "notice_period": "Not mentioned",
+      "earliest_start_date": "Not mentioned",
       "why_interested": [
         {
           "type": "pull",
-          "headline": "Scale and complexity step-up",
-          "detail": "The role offers a significantly larger technology estate and the opportunity to operate at group level across a more complex, multi-brand portfolio. David described this as the natural next step from his divisional CTO experience."
-        },
-        {
-          "type": "pull",
-          "headline": "Product-led transformation mandate",
-          "detail": "Genuinely energised by the brief to build product capabilities from the ground up. His Prenax Connect experience gives him confidence, but he sees this as an opportunity to do it at much greater scale with proper investment backing."
+          "headline": "Direct role alignment",
+          "detail": "Role description matches her current end-to-end BD work including therapeutic areas (nephrology, neurology, bone health), CEO-level engagement, and deal execution."
         },
         {
           "type": "push",
-          "headline": "Ceiling reached at Prenax Group",
-          "detail": "Feels he has delivered the core transformation at Prenax and the PE owners are moving toward exit preparation rather than further investment in technology growth. Concerned about a 'caretaker' phase."
-        },
-        {
-          "type": "push",
-          "headline": "Desire for listed company experience",
-          "detail": "Acknowledges the gap in his profile and is actively seeking a role that provides public market exposure. Views this as career-critical for his long-term trajectory toward a Group CTO or CIO position."
+          "headline": "Seeking empowered environment",
+          "detail": "Wants an environment where she feels heard and empowered to make impact, with space for healthy debates and evidence-based decision-making rather than having ideas dismissed."
         }
       ],
-
       "potential_concerns": [
         {
-          "concern": "No listed company or public market board experience. All board exposure has been in PE-backed environments. The transition to listed company governance, regulatory reporting, and investor relations cadence may require adjustment.",
-          "severity": "development"
-        },
-        {
-          "concern": "Commercial experience is inferred rather than demonstrated. While the SaaS launch shows commercial instinct, David has not carried revenue targets or led commercial negotiations at a senior level.",
-          "severity": "development"
-        },
-        {
-          "concern": "Single-company concentration in recent career. Five years at Prenax Group means all major achievements reference one environment. The transferability of his transformation playbook to a different organisational culture is untested.",
+          "concern": "Raised specific concerns about STADA's strategic clarity, questioning whether it's 'precision therapy' focus or 'just a revenue play' and seeking understanding of long-term leadership stability given PE transition timing",
           "severity": "significant"
+        },
+        {
+          "concern": "Strong emphasis on collaborative team culture with 'space for healthy debates' may face tension with STADA's remote individual contributor structure without US office presence",
+          "severity": "significant"
+        },
+        {
+          "concern": "No evidence of European market commercialization experience or understanding of European regulatory and reimbursement landscape for asset evaluation",
+          "severity": "development"
         }
       ],
-
       "our_take": {
-        "text": "David is a builder who has delivered a genuine technology transformation at Prenax Group — not inherited one. The SaaS product launch and the team scaling story are both substantive. He's not a polished corporate CTO; he's an operator who has grown into the strategic layer. The listed board gap is real but developable, and his self-awareness about it is encouraging. We believe he's worth a deep-dive conversation. The question for the client is whether they want someone who has already operated in a listed environment, or someone with the trajectory and hunger to step up. If the latter, David should be in the final conversation."
+        "text": "We believe Rama represents a strong technical fit with exceptional therapeutic area alignment and proven end-to-end BD capability. Her PhD background, science-first approach, and track record identifying novel assets in newly characterized diseases align well with STADA's need for scientific fluency and entrepreneurial dealmaking. However, her sophisticated questions about strategic vision and leadership stability signal she will require substantive clarity on STADA's mission and organizational coherence before committing. Worth discussing with the client whether her emphasis on empowered, collaborative culture can be satisfied within STADA's remote structure.",
+        "recommendation": "ADVANCE",
+        "discussion_points": [
+          "Strategic vision clarity: Is STADA pursuing precision therapy focus or pure revenue growth mandate?",
+          "Cultural fit assessment: Can STADA's remote structure with German support provide the empowered, collaborative environment she seeks?",
+          "Leadership stability and organizational coherence during PE transition",
+          "Her China biotech network depth and specific relationships that could accelerate Asian sourcing strategy"
+        ],
+        "ai_rationale": "I structured this Our Take to balance strong technical fit against cultural fit concerns, emphasizing her direct therapeutic alignment and proven capabilities while highlighting her sophisticated due diligence questions as both positive (strategic thinking) and concerning (potential barriers to acceptance). I recommended ADVANCE based on strong technical credentials but flagged key discussion points the client must address to secure her interest."
       },
-
-      "search_name": "Prenax Group — CTO Search",
-      "role_title": "Chief Technology Officer",
-      "generated_date": "15 February 2025",
+      "search_name": "Head of Business Development, US Specialty · STADA",
+      "role_title": "Head of Business Development, US Specialty",
+      "generated_date": "20 February 2026",
       "consultant_name": "Jackie Wyard-Yates",
-
-      "match_score_percentage": 78,
+      "match_score_display": "HIDE"
+    },
+    "peter-borden": {
+      "candidate_name": "Peter Borden",
+      "current_title": "Director of Search & Evaluation Neuroscience",
+      "current_company": "AbbVie",
+      "location": "Chicago, IL",
+      "scope_match": [
+        {
+          "dimension": "Deal Experience",
+          "candidate_actual": "3 completed in-licensing deals including $1.2B Aliada transaction; clinical-stage and discovery assets",
+          "role_requirement": "Late-stage assets (post-Phase II and filed compounds)",
+          "alignment": "gap"
+        },
+        {
+          "dimension": "Scientific Depth",
+          "candidate_actual": "PhD biomedical engineering with neuroscience focus; 3 years evaluating neuroscience and eye care assets",
+          "role_requirement": "PhD or MD background with technical fluency",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geographic Scope",
+          "candidate_actual": "Global asset evaluation including significant China activity",
+          "role_requirement": "US and Chinese biotech sourcing focus",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Role Structure",
+          "candidate_actual": "Seeking team leadership role and organizational growth",
+          "role_requirement": "Individual contributor operating remotely without US office",
+          "alignment": "gap"
+        }
+      ],
+      "scope_seasoning": "Borden brings <strong>proven buy-side execution</strong> with three completed deals including a $1.2B transaction, backed by strong scientific credentials. However, two critical gaps emerge: his deals focused on <strong>clinical-stage and discovery assets rather than the late-stage compounds</strong> STADA specifically targets, and his stated aspiration to <strong>\"lead a team\"</strong> conflicts with the entrepreneurial solo operator model required for this remote, individual contributor role.",
+      "key_criteria": [
+        {
+          "name": "Buying-side business development experience",
+          "evidence": "Almost three years of dedicated buy-side search and evaluation experience at <strong>AbbVie</strong>, where he has completed <strong>three full in-licensing deals</strong> plus participated in final diligence for the Cerebell M&A acquisition. Has due diligenced <strong>\"hundreds of companies\"</strong> and confirmed that \"all of the deals I've done have been licensing deals\" on the in-licensing side.",
+          "context_anchor": "at AbbVie"
+        },
+        {
+          "name": "End-to-end deal execution capability",
+          "evidence": "Completed three full deals at AbbVie including the <strong>Aliada transaction ($1.2B for brain shuttle technology)</strong> and the <strong>Aterex collaboration (multi-TA discovery collaboration with \"a couple hundred million upfront\")</strong>. Also participated in the Cerebell acquisition where he \"performed the final leg of diligence through the M&A of the company.\"",
+          "context_anchor": "at AbbVie"
+        },
+        {
+          "name": "US biotech network and relationships",
+          "evidence": "Travels <strong>\"at least one to two full weeks a quarter, probably close to two weeks a quarter\"</strong> attending conferences including <strong>JPMorgan and BIO</strong>, suggesting active engagement in the US biotech ecosystem. However, depth of senior-level relationships with CEOs, CBOs, or Heads of R&D was not explored in the interview.",
+          "context_anchor": "at AbbVie"
+        },
+        {
+          "name": "Scientific depth and technical fluency",
+          "evidence": "Holds a <strong>PhD in biomedical engineering with a neuroscience focus from Georgia Tech Emory</strong>. Has almost three years in AbbVie's Search & Evaluation group focused on neuroscience and eye care, having <strong>due diligenced \"hundreds of companies\"</strong> and completed neuroscience-focused transactions including the Aliada brain shuttle technology deal.",
+          "context_anchor": "at AbbVie and Georgia Tech Emory"
+        },
+        {
+          "name": "Entrepreneurial and independent operator",
+          "evidence": "Expressed interest in the STADA opportunity but stated he is <strong>\"looking for a bigger role\"</strong> and <strong>\"hoping to lead a team at some point,\"</strong> noting \"sounds like I'd be the only hire\" and expressing hope \"we could grow to a team of individuals.\" This suggests orientation toward team-building rather than solo entrepreneurial operation.",
+          "context_anchor": "at AbbVie"
+        }
+      ],
+      "compensation": {
+        "current_base": "Not mentioned",
+        "current_total": "Over $400,000",
+        "expected_base": "Closer to $300,000",
+        "expected_total": "Closer to $500,000",
+        "flexibility": "Used \"probably\" and \"closer to\" suggesting some flexibility around the $500K figure",
+        "budget_range": "Not mentioned"
+      },
+      "notice_period": "Not mentioned",
+      "earliest_start_date": "Not mentioned",
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Leadership opportunity",
+          "detail": "Interested because \"I could lead the group which is something that I'm interested to do more of\" and hopes to \"grow to a team of individuals to really shape the business development opportunities.\""
+        },
+        {
+          "type": "push",
+          "headline": "Seeking bigger role",
+          "detail": "Stated he is \"looking for a bigger role\" after having \"done a couple of deals and kind of understand how it goes\" at AbbVie."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "No late-stage deal experience - acknowledged \"I haven't been involved in late stage\" and philosophy that \"usually there's a reason why they're late stage and not picked up already\" contrasts with STADA's focus on post-Phase II and filed assets",
+          "severity": "significant"
+        },
+        {
+          "concern": "Role structure misalignment - explicitly seeking team leadership opportunities while STADA requires entrepreneurial individual contributor operating remotely without US office infrastructure",
+          "severity": "significant"
+        },
+        {
+          "concern": "US biotech network depth not validated - while attends major conferences, senior-level relationships with CEOs/CBOs not explored",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Borden presents strong technical credentials and proven deal execution capability that merit continued evaluation, but two fundamental concerns require direct client discussion. His acknowledged lack of late-stage experience and stated philosophy about late-stage assets conflicts directly with STADA's mandate to source post-Phase II and filed compounds. Additionally, his explicit career goal to \"lead a team\" and expectation to \"grow to a team of individuals\" suggests potential misalignment with the entrepreneurial solo operator model STADA requires. While his scientific depth and $1.2B deal track record are compelling, these structural gaps may indicate he views this as a stepping stone rather than a long-term strategic fit.",
+        "recommendation": "HOLD",
+        "discussion_points": [
+          "Comfort level and track record operating independently without organizational support or US office infrastructure",
+          "Willingness to focus exclusively on late-stage assets despite philosophical concerns about why they remain available",
+          "Long-term interest in individual contributor role versus team leadership aspirations",
+          "Depth of senior-level relationships within US biotech ecosystem to represent STADA as European partner of choice"
+        ],
+        "ai_rationale": "Generated Our Take from EDS evidence since no manual notes were provided. Emphasized the two most critical structural concerns (late-stage experience gap and role structure misalignment) that emerged consistently throughout the assessment, while acknowledging his strong technical qualifications and deal track record that make him worth continued evaluation rather than immediate dismissal."
+      },
+      "search_name": "Head of Business Development, US Specialty · STADA",
+      "role_title": "Head of Business Development, US Specialty",
+      "generated_date": "20 February 2026",
+      "consultant_name": "Jackie Wyard-Yates",
+      "match_score_display": "HIDE"
+    },
+    "julien-genovino": {
+      "candidate_name": "Julien Genovino",
+      "current_title": "Associate Director, Global Business Development & Strategy",
+      "current_company": "Otsuka Pharmaceutical Companies",
+      "location": "Princeton, New Jersey",
+      "scope_match": [
+        {
+          "dimension": "Years of Experience",
+          "candidate_actual": "2-3 years of active buy-side deal execution",
+          "role_requirement": "5-10 years of buy-side BD experience",
+          "alignment": "gap"
+        },
+        {
+          "dimension": "Deal Execution Scope",
+          "candidate_actual": "Scientific due diligence and supporting negotiations/commercial evaluation",
+          "role_requirement": "Full end-to-end deal execution capability as independent operator",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Therapeutic Area Coverage",
+          "candidate_actual": "CNS, nephrology, immunology, rare diseases",
+          "role_requirement": "Nephrology, neurology, oncology, immunology, bone health",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Deal Size and Stage",
+          "candidate_actual": "Preclinical to commercial, regularly Phase II/III, up to $600M-$1B deals",
+          "role_requirement": "Late-stage post-Phase II assets",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Scientific Fluency",
+          "candidate_actual": "Medicinal chemistry background, drug discovery at Pfizer/Novartis",
+          "role_requirement": "Strong scientific fluency for technical discussions",
+          "alignment": "strong"
+        }
+      ],
+      "scope_seasoning": "Genovino presents a compelling scientific profile with <strong>exceptional therapeutic area alignment</strong> and proven deal capability through a <strong>$600M Phase I acquisition</strong>, but faces a <strong>significant experience gap</strong> with only 2-3 years of active deal work versus the 5-10 year target. His role has emphasized <strong>supporting rather than leading</strong> full transaction execution, raising questions about readiness for the autonomous, senior-level dealmaker mandate STADA requires as their sole US representative without local infrastructure support.",
+      "key_criteria": [
+        {
+          "name": "Buying-side business development experience",
+          "evidence": "Genovino has <strong>2-3 years of active buy-side deal experience</strong> at Otsuka Pharmaceutical, leading scientific due diligence and supporting negotiations for asset acquisitions. He closed a <strong>$600M Phase I monoclonal antibody acquisition</strong> in the IL-1 pathway for autoimmune diseases and evaluates deals from preclinical to commercial stage with values ranging up to <strong>$1B+</strong>. However, his deal sheet shows limited closure track record with one major deal and several projects that did not close.",
+          "context_anchor": "at Otsuka Pharmaceutical"
+        },
+        {
+          "name": "End-to-end deal execution capability",
+          "evidence": "His current role is described as <strong>\"very much focused on the science\"</strong> and <strong>\"supporting negotiations or the commercial evaluation\"</strong> rather than independently leading full transaction lifecycle. He coordinates with BD, commercial, and transaction teams globally but does not appear to drive deals autonomously from identification through contract execution without dedicated transaction support.",
+          "context_anchor": "at Otsuka Pharmaceutical"
+        },
+        {
+          "name": "US biotech network and relationships",
+          "evidence": "Genovino has established presence in US biotech ecosystem through regular attendance at major partnering conferences (<strong>JPM, BIO</strong>) and evaluation of US-based opportunities. He is based in <strong>Princeton, New Jersey</strong>, a key pharma/biotech hub, and has global deal scope with primary US focus. However, his Associate Director title and supporting role may limit senior-level engagement capabilities.",
+          "context_anchor": "at Otsuka Pharmaceutical"
+        },
+        {
+          "name": "Scientific depth and technical fluency",
+          "evidence": "Genovino has exceptional scientific credentials with <strong>medicinal chemistry background</strong> from drug discovery roles at Pfizer and Novartis in cardiometabolic and oncology. His role explicitly focuses on <strong>leading scientific due diligence</strong>, and he has worked across multiple modalities including small molecules, monoclonal antibodies, gene therapies, and radiopharmaceuticals. His therapeutic area experience spans immunology, CNS, nephrology, and rare diseases.",
+          "context_anchor": "at Pfizer and Novartis, continued at Otsuka"
+        },
+        {
+          "name": "Entrepreneurial and independent operator",
+          "evidence": "Genovino demonstrates entrepreneurial mindset through his <strong>self-directed career transition</strong> from bench science to BD via MBA, startup consulting experience, and building Otsuka's immunology BD strategy from ground zero. He has successfully navigated cultural complexity and remote collaboration with European and Japanese colleagues, stating he is <strong>\"not worried about working German company\"</strong> after Japanese company experience.",
+          "context_anchor": "at Otsuka and previous startup consulting"
+        }
+      ],
+      "compensation": {
+        "current_base": "Not disclosed",
+        "current_total": "Not disclosed",
+        "expected_base": "Step up from Associate Director level",
+        "expected_total": "Not specified",
+        "flexibility": "Flexible on structure; interested in standard package (base + bonus + LTI)",
+        "budget_range": "Not mentioned"
+      },
+      "notice_period": "Not mentioned",
+      "earliest_start_date": "Not mentioned",
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Career growth opportunity",
+          "detail": "Seeks to develop his career and progress, viewing opportunities like STADA as vehicles to boost his career in many ways."
+        },
+        {
+          "type": "push",
+          "headline": "Cultural challenges at Japanese company",
+          "detail": "Faces clear cultural differences including communication issues from language barriers and significantly different risk tolerance between US and Japan colleagues."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Limited deal execution experience with only 2-3 years of active deal work versus role requirement of 5-10 years - candidate self-identified this as potentially 'borderline for the role'",
+          "severity": "significant"
+        },
+        {
+          "concern": "Current role emphasizes supporting negotiations rather than leading end-to-end transaction execution independently, which may not demonstrate autonomous dealmaker capability required",
+          "severity": "significant"
+        },
+        {
+          "concern": "Limited deal closure track record with one major deal and several non-closed projects may not constitute strong track record for senior-level engagement",
+          "severity": "development"
+        },
+        {
+          "concern": "Associate Director title may create positioning challenges when engaging at CEO/CBO/Head of R&D level as STADA's sole US representative",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Genovino presents a strong scientific foundation and cultural adaptability that would serve STADA well, but his experience level represents a meaningful gap for this senior autonomous role. His medicinal chemistry background, therapeutic area alignment, and successful $600M deal closure demonstrate core capabilities, yet his 2-3 years of active deal experience falls well short of the 5-10 year target. Most critically, his current role emphasizes scientific support rather than independent deal leadership, raising questions about readiness for the full transaction autonomy STADA requires as their sole US representative. His self-awareness about these limitations and integrity in flagging potential gaps is commendable, but he appears to be 3-5 years early in his career trajectory for this mandate.",
+        "recommendation": "HOLD",
+        "discussion_points": [
+          "Assess readiness for autonomous deal leadership without dedicated transaction team support",
+          "Validate senior-level engagement capability with biotech CEOs/CBOs given Associate Director positioning",
+          "Explore specific examples of independent deal execution beyond the single $600M closure",
+          "Understand comfort level operating as sole US presence without local office infrastructure"
+        ],
+        "ai_rationale": "I structured the Our Take to balance Genovino's clear strengths (scientific background, cultural adaptability, therapeutic alignment) against the significant experience gaps he himself identified. I emphasized the central tension between his potential and his current trajectory being 3-5 years early for this role. The HOLD recommendation reflects that while he has foundational capabilities, the experience and autonomy gaps are substantial enough to warrant careful validation before advancing."
+      },
+      "search_name": "Head of Business Development, US Specialty · STADA",
+      "role_title": "Head of Business Development, US Specialty",
+      "generated_date": "20 February 2026",
+      "consultant_name": "Jackie Wyard-Yates",
       "match_score_display": "HIDE"
     }
   }

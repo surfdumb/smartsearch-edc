@@ -49,9 +49,13 @@ export interface EDCData {
     severity: 'development' | 'significant';
   }[];
 
-  // Our Take
+  // Our Take — structured output from AI
   our_take: {
-    text: string;     // Free-form consultant judgment. Editable.
+    text: string;                  // Main assessment paragraph (consultant voice)
+    recommendation?: 'ADVANCE' | 'HOLD' | 'PASS';  // Progress badge
+    discussion_points?: string[];  // Key points to discuss with client
+    original_note?: string;        // Raw consultant manual note (consultant-only, collapsible)
+    ai_rationale?: string;         // Why the AI structured it this way (consultant-only, collapsible)
   };
 
   // Meta
@@ -68,4 +72,91 @@ export interface EDCData {
   cv_url?: string;
   linkedin_url?: string;
   cv_highlights?: string[];
+}
+
+export interface SearchContext {
+  search_name: string;
+  client_company: string;
+  client_location: string;
+  client_logo_url?: string;
+  key_criteria_names: string[];
+  search_lead: string;
+  candidates: IntroCardData[];
+}
+
+/**
+ * Builds a plain-text summary of the candidate's EDC data for use as context
+ * when generating the "Our Take" section via AI.
+ */
+export function buildCandidateContext(data: EDCData): string {
+  const parts: string[] = [];
+
+  parts.push(`CANDIDATE: ${data.candidate_name}`);
+  parts.push(`ROLE: ${data.current_title} at ${data.current_company} (${data.location})`);
+  parts.push(`SEARCH: ${data.search_name}`);
+  parts.push('');
+
+  // Scope match
+  if (data.scope_match.length > 0) {
+    parts.push('SCOPE MATCH:');
+    for (const s of data.scope_match) {
+      parts.push(`- ${s.dimension}: Candidate has "${s.candidate_actual}" vs requirement "${s.role_requirement}" → ${s.alignment}`);
+    }
+    if (data.scope_seasoning) {
+      parts.push(`Scope seasoning: ${data.scope_seasoning.replace(/<[^>]+>/g, '')}`);
+    }
+    parts.push('');
+  }
+
+  // Key criteria
+  if (data.key_criteria.length > 0) {
+    parts.push('KEY CRITERIA:');
+    for (const kc of data.key_criteria) {
+      parts.push(`- ${kc.name}: ${kc.evidence.replace(/<[^>]+>/g, '')}${kc.context_anchor ? ` [${kc.context_anchor}]` : ''}`);
+    }
+    parts.push('');
+  }
+
+  // Compensation
+  parts.push('COMPENSATION:');
+  parts.push(`Current: ${data.compensation.current_base} base / ${data.compensation.current_total} total`);
+  parts.push(`Expected: ${data.compensation.expected_base} base / ${data.compensation.expected_total} total`);
+  parts.push(`Flexibility: ${data.compensation.flexibility}`);
+  if (data.compensation.budget_range) parts.push(`Budget: ${data.compensation.budget_range}`);
+  parts.push(`Notice: ${data.notice_period}, Earliest start: ${data.earliest_start_date}`);
+  parts.push('');
+
+  // Motivation
+  if (data.why_interested.length > 0) {
+    parts.push('MOTIVATION:');
+    for (const m of data.why_interested) {
+      parts.push(`- [${m.type.toUpperCase()}] ${m.headline}: ${m.detail}`);
+    }
+    parts.push('');
+  }
+
+  // Concerns
+  if (data.potential_concerns.length > 0) {
+    parts.push('CONCERNS:');
+    for (const c of data.potential_concerns) {
+      parts.push(`- [${c.severity}] ${c.concern}`);
+    }
+    parts.push('');
+  }
+
+  return parts.join('\n');
+}
+
+export interface IntroCardData {
+  candidate_name: string;
+  current_title: string;
+  current_company: string;
+  location: string;
+  initials: string;
+  flash_summary: string;
+  key_strengths: string[];
+  notice_period?: string;
+  compensation_alignment?: 'aligned' | 'risk' | 'gap';
+  candidate_id: string;
+  edc_data: EDCData;
 }

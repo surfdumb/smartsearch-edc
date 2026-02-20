@@ -7,3 +7,10 @@ export function getAuth() {
     role: 'consultant' as const,
   };
 }
+
+export function getClientAuth() {
+  return {
+    authenticated: true,
+    role: 'client' as const,
+  };
+}

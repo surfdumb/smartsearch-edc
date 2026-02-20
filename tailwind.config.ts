@@ -11,6 +11,7 @@ const config: Config = {
       fontFamily: {
         inter: ["var(--font-inter)", "Inter", "sans-serif"],
         cormorant: ["var(--font-cormorant)", "Cormorant Garamond", "serif"],
+        "sorts-mill": ["var(--font-sorts-mill)", "Sorts Mill Goudy", "serif"],
       },
       colors: {
         // Core
@@ -55,6 +56,11 @@ const config: Config = {
         // Borders
         "ss-border": "#f0ede8",
         "ss-border-light": "#f7f5f1",
+
+        // Obsidian (dark theme)
+        "ss-obsidian": "#0a0a0a",
+        "ss-obsidian-card": "#111111",
+        "ss-obsidian-elevated": "#161616",
       },
       fontSize: {
         // Typography scale from spec

@@ -34,6 +34,7 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
           <EditableField
             value={scope_seasoning}
             as="p"
+            html
             className="text-body"
             style={{ lineHeight: 1.65, color: "var(--ss-dark-soft)" }}
           />

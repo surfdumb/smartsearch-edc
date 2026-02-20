@@ -1,4 +1,4 @@
-import { EDCData } from './types';
+import { EDCData, SearchContext } from './types';
 import fixtureData from '../../data/test_fixtures.json';
 
 // Data fetching abstraction — reads JSON now, API later
@@ -24,4 +24,13 @@ export async function getSearchCandidates(
   _searchId: string
 ): Promise<string[]> {
   return Object.keys(fixtures.candidates);
+}
+
+export async function getDeckData(searchId: string): Promise<SearchContext | null> {
+  try {
+    const deckData = await import(`../../data/decks/${searchId}.json`);
+    return deckData.default as SearchContext;
+  } catch {
+    return null;
+  }
 }

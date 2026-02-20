@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 interface EDCHeaderProps {
   candidate_name: string;
   current_title: string;
@@ -40,25 +42,23 @@ export default function EDCHeader({
 
       {/* Top row: brand logo + EDC badge */}
       <div className="relative flex items-start justify-between" style={{ marginBottom: "28px" }}>
-        {/* Brand — text fallback (logo PNG not available) */}
-        <span
+        {/* SmartSearch logo */}
+        <img
+          src="/logos/smartsearch-white.png"
+          alt="SmartSearch"
           style={{
-            fontSize: "0.85rem",
-            color: "rgba(255,255,255,0.4)",
-            fontWeight: 500,
-            letterSpacing: "0.5px",
+            height: "28px",
+            opacity: 0.55,
           }}
-        >
-          SmartSearch
-        </span>
+        />
 
-        {/* EDC Badge — Cormorant Garamond stacked treatment */}
+        {/* EDC Badge — Sorts Mill Goudy treatment */}
         <div className="flex flex-col items-end gap-0">
           <span
-            className="font-cormorant"
+            className="font-sorts-mill"
             style={{
-              fontSize: "1.1rem",
-              fontWeight: 600,
+              fontSize: "1.15rem",
+              fontWeight: 400,
               color: "var(--ss-gold-light)",
               letterSpacing: "0.5px",
               lineHeight: 1.15,

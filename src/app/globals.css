@@ -45,6 +45,11 @@
   /* === Borders === */
   --ss-border: #f0ede8;
   --ss-border-light: #f7f5f1;
+
+  /* === Transform Page (dark theme) === */
+  --ss-obsidian: #0a0a0a;
+  --ss-obsidian-card: #111111;
+  --ss-obsidian-elevated: #161616;
 }
 
 body {
