@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartSearch EDC Deck</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ss-black: #1a1a1a;
+            --ss-gold: #C5A572;
+            --ss-gold-light: #D4B896;
+            --ss-cream: #FAF8F5;
+            --ss-white: #ffffff;
+            --ss-gray: #666;
+            --ss-gray-light: #999;
+            --ss-green: #2E7D32;
+            --ss-yellow: #F9A825;
+            --ss-red: #C62828;
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--ss-black);
+            color: var(--ss-cream);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(197, 165, 114, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-placeholder {
+            width: 160px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--ss-gold) 0%, var(--ss-gold-light) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--ss-black);
+            letter-spacing: 1px;
+        }
+
+        .search-title {
+            font-size: 14px;
+            color: var(--ss-gold);
+            font-weight: 500;
+            margin-left: 16px;
+            padding-left: 16px;
+            border-left: 1px solid rgba(197, 165, 114, 0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ss-gray-light);
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-tab:hover {
+            color: var(--ss-cream);
+            background: rgba(197, 165, 114, 0.1);
+        }
+
+        .nav-tab.active {
+            background: var(--ss-gold);
+            color: var(--ss-black);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            color: var(--ss-gold);
+        }
+
+        .btn-outline:hover {
+            background: rgba(197, 165, 114, 0.1);
+            border-color: var(--ss-gold);
+        }
+
+        .btn-primary {
+            background: var(--ss-gold);
+            color: var(--ss-black);
+        }
+
+        .btn-primary:hover {
+            background: var(--ss-gold-light);
+        }
+
+        .private-indicator {
+            background: rgba(198, 40, 40, 0.2);
+            color: #ff6b6b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .private-indicator.visible {
+            display: block;
+        }
+
+        /* Main Container */
+        .main {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === INTRO DECK VIEW === */
+        .intro-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .intro-header h1 {
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--ss-cream);
+        }
+
+        .intro-header p {
+            color: var(--ss-gray-light);
+            font-size: 15px;
+        }
+
+        .candidates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            perspective: 1200px;
+        }
+
+        /* Intro Card */
+        .intro-card {
+            background: var(--ss-white);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            transform-style: preserve-3d;
+            border: 3px solid transparent;
+        }
+
+        .intro-card.comp-aligned { border-color: var(--ss-green); }
+        .intro-card.comp-risk { border-color: var(--ss-yellow); }
+        .intro-card.comp-gap { border-color: var(--ss-red); }
+
+        .intro-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .intro-card-header {
+            background: var(--ss-black);
+            padding: 24px;
+            position: relative;
+        }
+
+        .match-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .match-badge.strong { background: var(--ss-green); }
+        .match-badge.moderate { background: var(--ss-yellow); color: var(--ss-black); }
+        .match-badge.weak { background: var(--ss-red); }
+        .match-badge.hidden { display: none; }
+
+        .candidate-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ss-gold) 0%, var(--ss-gold-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--ss-black);
+            margin-bottom: 16px;
+        }
+
+        .candidate-name {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--ss-cream);
+            margin-bottom: 4px;
+        }
+
+        .candidate-title {
+            font-size: 14px;
+            color: var(--ss-gold);
+            margin-bottom: 4px;
+        }
+
+        .candidate-company {
+            font-size: 13px;
+            color: var(--ss-gray-light);
+        }
+
+        .intro-card-body {
+            padding: 24px;
+            background: var(--ss-white);
+            color: var(--ss-black);
+        }
+
+        .intro-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .intro-field {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .intro-field:last-child {
+            border-bottom: none;
+        }
+
+        .intro-field-label {
+            color: var(--ss-gray-light);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .intro-field-value {
+            font-weight: 500;
+            color: var(--ss-black);
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .click-hint {
+            text-align: center;
+            padding: 16px;
+            background: rgba(197, 165, 114, 0.05);
+            color: var(--ss-gray);
+            font-size: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /* === FLIP ANIMATION === */
+        .card-transition-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            pointer-events: none;
+            perspective: 1200px;
+        }
+
+        .flying-card {
+            position: absolute;
+            background: var(--ss-white);
+            border-radius: 20px;
+            transform-style: preserve-3d;
+            transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .flying-card.flipping {
+            transform: rotateY(180deg);
+        }
+
+        /* === FULL EDC VIEW === */
+        .edc-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--ss-white);
+            border-radius: 24px;
+            overflow: hidden;
+            color: var(--ss-black);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .edc-header {
+            background: var(--ss-black);
+            padding: 32px 40px;
+            position: relative;
+        }
+
+        .edc-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .back-to-deck {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ss-gold);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .back-to-deck:hover {
+            color: var(--ss-gold-light);
+            transform: translateX(-4px);
+        }
+
+        .edc-header-content {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+        }
+
+        .edc-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--ss-gold) 0%, var(--ss-gold-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--ss-black);
+            flex-shrink: 0;
+        }
+
+        .edc-header-info {
+            flex: 1;
+        }
+
+        .edc-candidate-name {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--ss-cream);
+            margin-bottom: 8px;
+        }
+
+        .edc-candidate-title {
+            font-size: 16px;
+            color: var(--ss-gold);
+            margin-bottom: 4px;
+        }
+
+        .edc-candidate-company {
+            font-size: 14px;
+            color: var(--ss-gray-light);
+            margin-bottom: 16px;
+        }
+
+        .edc-meta-row {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .edc-meta-item {
+            font-size: 13px;
+            color: var(--ss-gray-light);
+        }
+
+        .edc-meta-item strong {
+            color: var(--ss-cream);
+        }
+
+        .edc-match-badge {
+            position: absolute;
+            top: 32px;
+            right: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .match-score-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .match-score-circle.strong { background: var(--ss-green); }
+        .match-score-circle.moderate { background: var(--ss-yellow); color: var(--ss-black); }
+        .match-score-circle.weak { background: var(--ss-red); }
+
+        .match-label {
+            font-size: 11px;
+            color: var(--ss-gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .match-hidden .edc-match-badge { display: none; }
+
+        .edc-body {
+            padding: 40px;
+        }
+
+        /* Draggable Sections */
+        .edc-section {
+            margin-bottom: 28px;
+            border-radius: 16px;
+            background: #fafafa;
+            padding: 24px;
+            position: relative;
+            cursor: grab;
+            transition: all 0.2s;
+        }
+
+        .edc-section:active {
+            cursor: grabbing;
+        }
+
+        .edc-section.dragging {
+            opacity: 0.5;
+            transform: scale(1.02);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .edc-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-drag-handle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            color: #ccc;
+            font-size: 16px;
+            cursor: grab;
+        }
+
+        .edc-section-title {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ss-black);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--ss-gold);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .edc-section-title[contenteditable="true"]:focus {
+            outline: 2px solid var(--ss-gold);
+            border-radius: 4px;
+        }
+
+        .executive-summary {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--ss-black);
+        }
+
+        /* Key Criteria - Horizontal Bar Style */
+        .criteria-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .criteria-bar {
+            display: flex;
+            align-items: stretch;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        .criteria-bar:hover .criteria-insight {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .criteria-rating-box {
+            width: 100px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .criteria-rating-box.strong { background: var(--ss-green); }
+        .criteria-rating-box.very-good { background: #4CAF50; }
+        .criteria-rating-box.moderate { background: var(--ss-yellow); color: var(--ss-black); }
+        .criteria-rating-box.limited { background: #FF9800; color: var(--ss-black); }
+        .criteria-rating-box.weak { background: var(--ss-red); }
+
+        .criteria-name {
+            flex: 1;
+            padding: 16px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ss-black);
+            display: flex;
+            align-items: center;
+        }
+
+        .criteria-insight {
+            position: absolute;
+            bottom: 100%;
+            left: 100px;
+            right: 0;
+            background: var(--ss-black);
+            color: var(--ss-cream);
+            padding: 12px 16px;
+            font-size: 12px;
+            border-radius: 8px 8px 0 0;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .criteria-insight::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            border: 8px solid transparent;
+            border-top-color: var(--ss-black);
+            border-bottom: none;
+        }
+
+        /* Private Notes Tooltip */
+        .private-tooltip {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #2B2B2B;
+            color: #ff9999;
+            padding: 12px 16px;
+            border-radius: 0 0 12px 12px;
+            font-size: 11px;
+            line-height: 1.5;
+            border-top: 2px solid #ff6b6b;
+            z-index: 5;
+        }
+
+        .private-view .private-tooltip {
+            display: block;
+        }
+
+        .private-note-label {
+            color: #ff6b6b;
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .highlight-list {
+            list-style: none;
+        }
+
+        .highlight-list li {
+            padding: 12px 0;
+            padding-left: 28px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .highlight-list li:last-child {
+            border-bottom: none;
+        }
+
+        .highlight-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--ss-gold);
+            font-weight: bold;
+        }
+
+        .motivation-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.7;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comp-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .comp-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .comp-box.highlight {
+            border: 2px solid var(--ss-gold);
+        }
+
+        .comp-box-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--ss-gray);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .comp-box-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ss-black);
+        }
+
+        .notice-timeline {
+            margin-top: 20px;
+            display: flex;
+            gap: 24px;
+            background: rgba(197, 165, 114, 0.1);
+            padding: 16px 20px;
+            border-radius: 12px;
+        }
+
+        .timeline-item {
+            font-size: 13px;
+        }
+
+        .timeline-item strong {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--ss-gray);
+            margin-bottom: 4px;
+        }
+
+        .concerns-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .concern-item {
+            padding: 16px;
+            border-radius: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+        }
+
+        .concern-item.development {
+            border-left: 4px solid #FF9800;
+        }
+
+        .concern-item.significant {
+            border-left: 4px solid var(--ss-red);
+        }
+
+        .concern-item h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--ss-gray);
+        }
+
+        .concern-item p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .our-take-box {
+            background: var(--ss-black);
+            color: var(--ss-cream);
+            padding: 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .our-take-box .recommendation {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .our-take-box .recommendation.advance { background: var(--ss-green); }
+        .our-take-box .recommendation.hold { background: var(--ss-yellow); color: var(--ss-black); }
+        .our-take-box .recommendation.pass { background: var(--ss-red); }
+
+        /* === NAVIGATION === */
+        .nav-arrows {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            align-items: center;
+            gap: 16px;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            z-index: 900;
+        }
+
+        .nav-arrows.visible {
+            display: flex;
+        }
+
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            color: var(--ss-gold);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .nav-btn:hover {
+            background: var(--ss-gold);
+            color: var(--ss-black);
+        }
+
+        .nav-indicator {
+            font-size: 13px;
+            color: var(--ss-cream);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .keyboard-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            font-size: 12px;
+            color: var(--ss-gray-light);
+            background: rgba(26, 26, 26, 0.8);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .keyboard-hint.visible {
+            display: block;
+        }
+
+        kbd {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* === SPLIT VIEW === */
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .split-edc {
+            background: var(--ss-white);
+            border-radius: 20px;
+            overflow: hidden;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+
+        .split-cv {
+            background: var(--ss-white);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+            overflow: hidden;
+        }
+
+        .cv-upload-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--ss-gray);
+            border: 2px dashed #ddd;
+            margin: 20px;
+            border-radius: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .cv-upload-area:hover {
+            border-color: var(--ss-gold);
+            background: rgba(197, 165, 114, 0.05);
+        }
+
+        .cv-upload-area.has-file {
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .cv-upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .cv-upload-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--ss-black);
+        }
+
+        .cv-upload-hint {
+            font-size: 13px;
+        }
+
+        .cv-preview {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .cv-preview.visible {
+            display: block;
+        }
+
+        .cv-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        #cvFileInput {
+            display: none;
+        }
+
+        /* === COMPARE VIEW === */
+        .compare-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .compare-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .compare-header h2 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .compare-table {
+            background: var(--ss-white);
+            border-radius: 20px;
+            overflow: hidden;
+            color: var(--ss-black);
+        }
+
+        .compare-row {
+            display: grid;
+            grid-template-columns: 180px repeat(3, 1fr);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .compare-row:last-child {
+            border-bottom: none;
+        }
+
+        .compare-row.header {
+            background: var(--ss-black);
+            color: var(--ss-cream);
+        }
+
+        .compare-cell {
+            padding: 16px 20px;
+            font-size: 13px;
+        }
+
+        .compare-cell.label {
+            font-weight: 600;
+            background: #f8f8f8;
+            color: var(--ss-gray);
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .compare-cell.label:hover {
+            background: #f0f0f0;
+        }
+
+        .compare-cell.label[contenteditable="true"]:focus {
+            outline: 2px solid var(--ss-gold);
+            background: white;
+        }
+
+        .compare-cell.header {
+            text-align: center;
+        }
+
+        .compare-candidate-name {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .compare-candidate-title {
+            font-size: 12px;
+            color: var(--ss-gold);
+        }
+
+        .compare-cell .rating-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .rating-pill.strong { background: var(--ss-green); color: white; }
+        .rating-pill.very-good { background: #4CAF50; color: white; }
+        .rating-pill.moderate { background: var(--ss-yellow); color: var(--ss-black); }
+        .rating-pill.limited { background: #FF9800; color: var(--ss-black); }
+        .rating-pill.weak { background: var(--ss-red); color: white; }
+
+        .add-row-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: #f8f8f8;
+            color: var(--ss-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        .add-row-btn:hover {
+            background: rgba(197, 165, 114, 0.1);
+            color: var(--ss-gold);
+        }
+
+        /* === SETTINGS PANEL === */
+        .settings-panel {
+            position: fixed;
+            top: 80px;
+            right: -420px;
+            width: 400px;
+            height: calc(100vh - 80px);
+            background: rgba(26, 26, 26, 0.98);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(197, 165, 114, 0.2);
+            z-index: 800;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(197, 165, 114, 0.2);
+        }
+
+        .settings-header h3 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--ss-cream);
+        }
+
+        .close-settings {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(197, 165, 114, 0.3);
+            color: var(--ss-gold);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-settings:hover {
+            background: var(--ss-gold);
+            color: var(--ss-black);
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-group-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ss-gold);
+            margin-bottom: 12px;
+        }
+
+        .toggle-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .toggle-item:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            font-size: 13px;
+            color: var(--ss-cream);
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--ss-gold);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+            transition: all 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            left: 23px;
+        }
+
+        /* === SHARE MODAL === */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--ss-white);
+            border-radius: 20px;
+            width: 480px;
+            max-width: 90vw;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            background: var(--ss-black);
+            padding: 24px;
+            color: var(--ss-cream);
+        }
+
+        .modal-header h3 {
+            font-family: var(--font-display);
+            font-size: 22px;
+        }
+
+        .modal-body {
+            padding: 24px;
+            color: var(--ss-black);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--ss-gray);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--ss-gold);
+            box-shadow: 0 0 0 3px rgba(197, 165, 114, 0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--ss-gold);
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            background: #f8f8f8;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: var(--ss-gray);
+        }
+
+        .modal-btn.cancel:hover {
+            background: #f0f0f0;
+        }
+
+        .modal-btn.primary {
+            background: var(--ss-gold);
+            border: none;
+            color: var(--ss-black);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--ss-gold-light);
+        }
+
+        /* Editable text */
+        [contenteditable="true"] {
+            cursor: text;
+            border-radius: 4px;
+            padding: 2px 4px;
+            margin: -2px -4px;
+            transition: all 0.2s;
+        }
+
+        [contenteditable="true"]:hover {
+            background: rgba(197, 165, 114, 0.1);
+        }
+
+        [contenteditable="true"]:focus {
+            outline: 2px solid var(--ss-gold);
+            background: rgba(197, 165, 114, 0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-placeholder">SMARTSEARCH</div>
+            <span class="search-title">Norican - VP Aftermarket</span>
+        </div>
+        
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-view="intro">Intro Deck</div>
+            <div class="nav-tab" data-view="edc">EDC</div>
+            <div class="nav-tab" data-view="split">Split View</div>
+            <div class="nav-tab" data-view="compare">Compare</div>
+        </div>
+        
+        <div class="header-actions">
+            <span class="private-indicator" id="privateIndicator">🔒 Private View</span>
+            <button class="btn btn-outline" onclick="toggleSettings()">⚙ Settings</button>
+            <button class="btn btn-outline" onclick="toggleMatchScore()">👁 Toggle Match</button>
+            <button class="btn btn-primary" onclick="openShareModal()">Share Deck</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Intro Deck View -->
+        <div class="view active" id="view-intro">
+            <div class="intro-header">
+                <h1>Executive Decision Intro Deck</h1>
+                <p>Click any card to view full Executive Decision Card</p>
+            </div>
+            
+            <div class="candidates-grid" id="candidatesGrid">
+                <!-- Cards populated by JS -->
+            </div>
+        </div>
+
+        <!-- Full EDC View -->
+        <div class="view" id="view-edc">
+            <div class="edc-container" id="edcContainer">
+                <!-- EDC content populated by JS -->
+            </div>
+        </div>
+
+        <!-- Split View -->
+        <div class="view" id="view-split">
+            <div class="split-container">
+                <div class="split-edc" id="splitEdc">
+                    <!-- Same EDC content -->
+                </div>
+                <div class="split-cv">
+                    <div class="cv-upload-area" id="cvUploadArea" onclick="document.getElementById('cvFileInput').click()">
+                        <div class="cv-upload-icon">📄</div>
+                        <div class="cv-upload-text">Upload CV</div>
+                        <div class="cv-upload-hint">Click to upload PDF or drag & drop</div>
+                    </div>
+                    <div class="cv-preview" id="cvPreview">
+                        <iframe id="cvFrame"></iframe>
+                    </div>
+                    <input type="file" id="cvFileInput" accept=".pdf" onchange="handleCVUpload(event)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Compare View -->
+        <div class="view" id="view-compare">
+            <div class="compare-container">
+                <div class="compare-header">
+                    <h2>Candidate Comparison</h2>
+                    <p style="color: var(--ss-gray-light);">Click any label to edit • Side-by-side analysis</p>
+                </div>
+                <div class="compare-table" id="compareTable">
+                    <!-- Comparison table populated by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows" id="navArrows">
+        <button class="nav-btn" onclick="prevCandidate()">←</button>
+        <div class="nav-indicator" id="navIndicator">1 / 3</div>
+        <button class="nav-btn" onclick="nextCandidate()">→</button>
+    </div>
+
+    <div class="keyboard-hint" id="keyboardHint">
+        <kbd>←</kbd> <kbd>→</kbd> Navigate &nbsp;&nbsp; <kbd>M</kbd> Toggle Match &nbsp;&nbsp; <kbd>P</kbd> Private View &nbsp;&nbsp; <kbd>Esc</kbd> Back
+    </div>
+
+    <!-- Card Transition Overlay -->
+    <div class="card-transition-overlay" id="cardOverlay"></div>
+
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h3>Display Settings</h3>
+            <button class="close-settings" onclick="toggleSettings()">✕</button>
+        </div>
+        
+        <div class="settings-group">
+            <div class="settings-group-title">Intro Card Fields</div>
+            <div class="toggle-item">
+                <span class="toggle-label">Match Score</span>
+                <div class="toggle-switch active" data-toggle="matchScore" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Location</span>
+                <div class="toggle-switch active" data-toggle="location" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Industry</span>
+                <div class="toggle-switch active" data-toggle="industry" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Career Progression</span>
+                <div class="toggle-switch active" data-toggle="career" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Motivation</span>
+                <div class="toggle-switch active" data-toggle="motivation" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Notice Period</span>
+                <div class="toggle-switch active" data-toggle="notice" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Photo (Avatar)</span>
+                <div class="toggle-switch" data-toggle="photo" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Comp Border</span>
+                <div class="toggle-switch active" data-toggle="compBorder" onclick="toggleSetting(this)"></div>
+            </div>
+        </div>
+        
+        <div class="settings-group">
+            <div class="settings-group-title">EDC Sections</div>
+            <div class="toggle-item">
+                <span class="toggle-label">Executive Summary</span>
+                <div class="toggle-switch active" data-toggle="execSummary" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Key Criteria</span>
+                <div class="toggle-switch active" data-toggle="keyCriteria" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Career Highlights</span>
+                <div class="toggle-switch active" data-toggle="careerHighlights" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Why Interested</span>
+                <div class="toggle-switch active" data-toggle="whyInterested" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Compensation</span>
+                <div class="toggle-switch active" data-toggle="compensation" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Concerns</span>
+                <div class="toggle-switch active" data-toggle="concerns" onclick="toggleSetting(this)"></div>
+            </div>
+            <div class="toggle-item">
+                <span class="toggle-label">Our Take</span>
+                <div class="toggle-switch active" data-toggle="ourTake" onclick="toggleSetting(this)"></div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-group-title">View Mode</div>
+            <div class="toggle-item">
+                <span class="toggle-label">🔒 Private View (Internal Notes)</span>
+                <div class="toggle-switch" data-toggle="privateView" onclick="toggleSetting(this)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div class="modal-overlay" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Share EDC Deck</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Recipients</label>
+                    <input type="text" placeholder="Enter email addresses..." value="client@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Password Protection</label>
+                    <input type="text" placeholder="Set a password (optional)">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" checked>
+                        Include Match Scores
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox" checked>
+                        Include CVs
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-group">
+                        <input type="checkbox">
+                        Expire link in 7 days
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeShareModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="shareLink()">Generate Link</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Consistent 5 Key Criteria across all candidates
+        const keyCriteria = [
+            "Aftermarket P&L Leadership",
+            "Customer Relationship Recovery",
+            "Hands-On Operational Leadership",
+            "Team Leadership Through Change",
+            "Aftermarket Business Model Expertise"
+        ];
+
+        // Candidate Data with consistent criteria
+        const candidates = [
+            {
+                id: 1,
+                name: "Anthony Villa",
+                initials: "AV",
+                title: "Managing Director of Sales & Marketing",
+                company: "McCracken",
+                location: "Outside Boston",
+                industry: "Financial Services Software",
+                career: "Agency → Corp Marketing → Sales Leadership",
+                motivation: "Seeking builder challenge, bored in maintenance mode",
+                noticePeriod: "Not specified",
+                matchScore: 88,
+                matchClass: "strong",
+                compClass: "comp-aligned",
+                recommendation: "advance",
+                currentComp: "$180k base + bonus",
+                expectedComp: "OTE $250-300k acceptable",
+                earliestStart: "Flexible",
+                execSummary: "Anthony Villa presents a strong fit for the Norican VP Aftermarket role given his proven track record of building sales functions from ground up. His McCracken transformation from zero growth to $1M annual new accounts directly parallels the Norican challenge, while his complex B2B sales experience and comfort with unknown brands align perfectly with role requirements. Recommend advancing to next stage with confidence.",
+                criteria: [
+                    { rating: "Strong", ratingClass: "strong", insight: "Built function from zero → $1M annual revenue" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Pivoted strategy when market shifted to PE/private lending" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Self-identifies as 'builder who rolls up sleeves'" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Manages 8-9 person team with shared accountability" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Complex 5-year contracts, $700-800k accounts" }
+                ],
+                privateNotes: [
+                    "Very articulate on call - 'sounds excited' about opportunity",
+                    "Base ask $30k higher but total comp flexible",
+                    "Mentioned he's 'quite frankly bored' in current role"
+                ],
+                highlights: [
+                    "Transformed McCracken sales function from zero growth to consistent $1M annual new account revenue",
+                    "Generated 8-figure revenue growth through strategic go-to-market restructuring",
+                    "Successfully pivoted sales strategy from traditional banking to private equity/private lending market",
+                    "Led 17% year-over-year revenue growth at Arnold Worldwide managing Progressive Insurance account"
+                ],
+                whyOpen: "Not unhappy at current company which he describes as 'good, stable' but self-identifies as 'builder' who thrives on major challenges. Currently in maintenance mode after successfully rebuilding sales department.",
+                developmentConcerns: [
+                    "Base salary expectations $30k higher than offering ($180k current vs $150k target)"
+                ],
+                significantConcerns: [],
+                ourTake: "Anthony Villa is a strong fit who should be advanced with confidence. His proven track record building sales functions from the ground up, combined with his articulate communication style and self-described 'builder' mentality, make him well-suited for the Norican challenge."
+            },
+            {
+                id: 2,
+                name: "Jose Montes",
+                initials: "JM",
+                title: "Head of People Business Partners",
+                company: "Edgewell Personal Care",
+                location: "Connecticut",
+                industry: "Consumer Packaged Goods",
+                career: "HR Generalist → Sr HRBP → Head HR BP",
+                motivation: "CHRO step-up, seeking international scope",
+                noticePeriod: "2-4 weeks",
+                matchScore: 35,
+                matchClass: "weak",
+                compClass: "comp-gap",
+                recommendation: "pass",
+                currentComp: "$350k base + 40% bonus + $150k LTI",
+                expectedComp: "Seeking increase above $640k total",
+                earliestStart: "Feb 2025",
+                execSummary: "Jose Montes is a weak fit for the VP Aftermarket role despite being an exceptional HR transformation leader. The fundamental disqualifier is complete absence of aftermarket business model expertise - Jose has zero experience with spare parts, field service, or P&L ownership in industrial sectors. The 55% compensation gap ($640k vs ~$290k) creates additional misalignment.",
+                criteria: [
+                    { rating: "Weak", ratingClass: "weak", insight: "Zero P&L experience - entire career in HR" },
+                    { rating: "Limited", ratingClass: "limited", insight: "Employee engagement ≠ customer recovery" },
+                    { rating: "Very Good", ratingClass: "very-good", insight: "'I like to roll up sleeves' - hands-on style" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Led 80+ HR professionals through restructuring" },
+                    { rating: "Weak", ratingClass: "weak", insight: "No aftermarket, spare parts, or service experience" }
+                ],
+                privateNotes: [
+                    "Wrong role type entirely - pursuing CHRO positions",
+                    "Would be great for HR leadership search",
+                    "Compensation expectations completely misaligned"
+                ],
+                highlights: [
+                    "Led Japan business turnaround increasing employee engagement from 30-40% to 80%+ levels",
+                    "Redesigned global People organizational model establishing three key verticals",
+                    "Leading $150M+ manufacturing consolidation closing 4 plants affecting 2,500+ employees"
+                ],
+                whyOpen: "Seeking CHRO step-up role with international scope. Has been feeling 'butterflies' about next move for approximately five months.",
+                developmentConcerns: [
+                    "No P&L ownership experience - entire 16-year career in HR functional roles",
+                    "No customer-facing operations experience"
+                ],
+                significantConcerns: [
+                    "Complete absence of aftermarket business model expertise - zero experience with spare parts, field service, or customer lifecycle management",
+                    "Fundamental role type mismatch - pursuing CHRO roles, not operations leadership",
+                    "Significant compensation gap - current $640k total vs. ~$290k (55% decrease)"
+                ],
+                ourTake: "Jose Montes should not be advanced for this role. While he is an exceptional HR transformation leader ready for a CHRO step-up, he lacks every core requirement for the VP Aftermarket position. Connect him with appropriate CHRO searches."
+            },
+            {
+                id: 3,
+                name: "Ravi Addala",
+                initials: "RA",
+                title: "Senior Service Project Manager",
+                company: "Freelance (Sand Mining)",
+                location: "Johns Creek, Atlanta",
+                industry: "Packaging Equipment / Capital Projects",
+                career: "Engineer → Project Mgr → Service PM",
+                motivation: "Seeking stability after freelance, industry switch",
+                noticePeriod: "2-4 weeks (freelance)",
+                matchScore: 68,
+                matchClass: "moderate",
+                compClass: "comp-aligned",
+                recommendation: "hold",
+                currentComp: "$180k base + 25% bonus",
+                expectedComp: "$180-200k base, similar structure",
+                earliestStart: "Feb 2025",
+                execSummary: "Ravi Addala presents a mixed profile for the VP Aftermarket role. His strongest asset is deep aftermarket business model expertise, having grown spare parts sales 67% ($75M to $125M) at Sidel. However, significant concerns exist around VP-level readiness: no P&L ownership, no formal team leadership, and large corporate background that mirrors the struggling incumbent.",
+                criteria: [
+                    { rating: "Limited", ratingClass: "limited", insight: "Contributed to growth but no formal P&L accountability" },
+                    { rating: "Moderate", ratingClass: "moderate", insight: "Improved CSAT 60%→80%, but no win-back examples" },
+                    { rating: "Very Good", ratingClass: "very-good", insight: "Strong technical depth, OEM operations expertise" },
+                    { rating: "Moderate", ratingClass: "moderate", insight: "Worked with 8 PMs but they weren't direct reports" },
+                    { rating: "Strong", ratingClass: "strong", insight: "Grew spare parts $75M→$125M (67% increase)" }
+                ],
+                privateNotes: [
+                    "Good technical depth but 'VP readiness questionable'",
+                    "Large corporate background = risk flag per departing incumbent",
+                    "Title jump from Sr PM → VP is substantial"
+                ],
+                highlights: [
+                    "Grew spare parts sales from $75M to $125M (67% increase) over 6.5 years at Sidel",
+                    "Improved customer satisfaction scores from 60% to 80%",
+                    "Developed global 24/7 technical support infrastructure with regional coverage",
+                    "Led integration of acquired Montreal facility with robotics capabilities"
+                ],
+                whyOpen: "Left Sidel in January 2025 feeling 'stagnated' after long tenure. Current freelance role 'will not last much more than a year' - seeking conventional full-time position for stability.",
+                developmentConcerns: [
+                    "No direct P&L ownership experience",
+                    "Limited formal team leadership experience (influenced but didn't manage)",
+                    "Title/level mismatch - Senior Service PM to VP is substantial jump"
+                ],
+                significantConcerns: [
+                    "Large corporate background risk - entire career at PepsiCo, Sidel/Tetra Pak. Departing incumbent struggled coming from similar background.",
+                    "Customer relationship recovery track record unclear - improved CSAT but no specific win-back examples"
+                ],
+                ourTake: "Ravi Addala represents a calculated risk. His deep aftermarket expertise is highly relevant, but the combination of no P&L experience, no formal team leadership, and large corporate background creates meaningful risk. Hold for further discussion - could grow into the role with investment."
+            }
+        ];
+
+        let currentCandidateIndex = 0;
+        let showMatchScore = true;
+        let privateView = false;
+        let settings = {
+            matchScore: true,
+            location: true,
+            industry: true,
+            career: true,
+            motivation: true,
+            notice: true,
+            photo: false,
+            compBorder: true,
+            execSummary: true,
+            keyCriteria: true,
+            careerHighlights: true,
+            whyInterested: true,
+            compensation: true,
+            concerns: true,
+            ourTake: true,
+            privateView: false
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderIntroCards();
+            renderCompareTable();
+            setupNavigation();
+            selectCandidate(0, false);
+        });
+
+        // Render Intro Cards with Jackie's confirmed fields
+        function renderIntroCards() {
+            const grid = document.getElementById('candidatesGrid');
+            grid.innerHTML = candidates.map((c, index) => `
+                <div class="intro-card ${settings.compBorder ? c.compClass : ''}" data-index="${index}" onclick="openEDC(${index}, this)">
+                    <div class="intro-card-header">
+                        <span class="match-badge ${c.matchClass} ${showMatchScore && settings.matchScore ? '' : 'hidden'}">${c.matchScore}%</span>
+                        <div class="candidate-avatar">${c.initials}</div>
+                        <div class="candidate-name">${c.name}</div>
+                        <div class="candidate-title">${c.title}</div>
+                        <div class="candidate-company">${c.company}</div>
+                    </div>
+                    <div class="intro-card-body">
+                        <div class="intro-fields">
+                            ${settings.location ? `<div class="intro-field"><span class="intro-field-label">Location</span><span class="intro-field-value">${c.location}</span></div>` : ''}
+                            ${settings.industry ? `<div class="intro-field"><span class="intro-field-label">Industry</span><span class="intro-field-value">${c.industry}</span></div>` : ''}
+                            ${settings.career ? `<div class="intro-field"><span class="intro-field-label">Career</span><span class="intro-field-value">${c.career}</span></div>` : ''}
+                            ${settings.motivation ? `<div class="intro-field"><span class="intro-field-label">Motivation</span><span class="intro-field-value">${c.motivation}</span></div>` : ''}
+                            ${settings.notice ? `<div class="intro-field"><span class="intro-field-label">Notice</span><span class="intro-field-value">${c.noticePeriod}</span></div>` : ''}
+                        </div>
+                    </div>
+                    <div class="click-hint">Click to view full EDC →</div>
+                </div>
+            `).join('');
+        }
+
+        // Open EDC with flip animation
+        function openEDC(index, cardElement) {
+            currentCandidateIndex = index;
+            const rect = cardElement.getBoundingClientRect();
+            const overlay = document.getElementById('cardOverlay');
+            
+            const flyingCard = document.createElement('div');
+            flyingCard.className = 'flying-card';
+            flyingCard.style.cssText = `
+                top: ${rect.top}px;
+                left: ${rect.left}px;
+                width: ${rect.width}px;
+                height: ${rect.height}px;
+            `;
+            overlay.appendChild(flyingCard);
+            cardElement.style.opacity = '0';
+            
+            requestAnimationFrame(() => {
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                const tw = Math.min(900, vw - 80);
+                const th = Math.min(700, vh - 160);
+                
+                flyingCard.style.cssText = `
+                    top: ${(vh - th) / 2}px;
+                    left: ${(vw - tw) / 2}px;
+                    width: ${tw}px;
+                    height: ${th}px;
+                `;
+                flyingCard.classList.add('flipping');
+            });
+            
+            setTimeout(() => {
+                overlay.innerHTML = '';
+                cardElement.style.opacity = '1';
+                
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-view="edc"]').classList.add('active');
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                document.getElementById('view-edc').classList.add('active');
+                
+                selectCandidate(index, false);
+                showNavigation();
+            }, 700);
+        }
+
+        // Select Candidate - EDC with hover insights
+        function selectCandidate(index, animate = true) {
+            currentCandidateIndex = index;
+            const c = candidates[index];
+            
+            const edcHTML = `
+                <div class="edc-header ${showMatchScore ? '' : 'match-hidden'} ${privateView ? 'private-view' : ''}">
+                    <div class="edc-nav">
+                        <div class="back-to-deck" onclick="backToDeck()">← Back to Deck</div>
+                    </div>
+                    <div class="edc-header-content">
+                        <div class="edc-avatar">${c.initials}</div>
+                        <div class="edc-header-info">
+                            <div class="edc-candidate-name" contenteditable="true">${c.name}</div>
+                            <div class="edc-candidate-title" contenteditable="true">${c.title}</div>
+                            <div class="edc-candidate-company" contenteditable="true">${c.company}</div>
+                            <div class="edc-meta-row">
+                                <div class="edc-meta-item"><strong>${c.location}</strong></div>
+                                <div class="edc-meta-item">Industry: <strong>${c.industry}</strong></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="edc-match-badge">
+                        <div class="match-score-circle ${c.matchClass}">${c.matchScore}%</div>
+                        <div class="match-label">Match Score</div>
+                    </div>
+                </div>
+                
+                <div class="edc-body ${privateView ? 'private-view' : ''}" id="edcSections">
+                    <div class="edc-section" draggable="true" data-section="execSummary" style="${settings.execSummary ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Executive Summary</div>
+                        <div class="executive-summary" contenteditable="true">${c.execSummary}</div>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="keyCriteria" style="${settings.keyCriteria ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Key Criteria Assessment</div>
+                        <div class="criteria-bars">
+                            ${keyCriteria.map((name, i) => `
+                                <div class="criteria-bar">
+                                    <div class="criteria-rating-box ${c.criteria[i].ratingClass}">${c.criteria[i].rating}</div>
+                                    <div class="criteria-name" contenteditable="true">${name}</div>
+                                    <div class="criteria-insight">${c.criteria[i].insight}</div>
+                                    ${privateView && c.privateNotes[i] ? `<div class="private-tooltip"><div class="private-note-label">Internal Note</div>${c.privateNotes[i] || ''}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="careerHighlights" style="${settings.careerHighlights ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Career Highlights</div>
+                        <ul class="highlight-list">
+                            ${c.highlights.map(h => `<li contenteditable="true">${h}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="whyInterested" style="${settings.whyInterested ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Why Are They Interested?</div>
+                        <div class="motivation-box" contenteditable="true">${c.whyOpen}</div>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="compensation" style="${settings.compensation ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Compensation & Availability</div>
+                        <div class="comp-details">
+                            <div class="comp-box">
+                                <div class="comp-box-label">Current</div>
+                                <div class="comp-box-value" contenteditable="true">${c.currentComp}</div>
+                            </div>
+                            <div class="comp-box highlight">
+                                <div class="comp-box-label">Expected</div>
+                                <div class="comp-box-value" contenteditable="true">${c.expectedComp}</div>
+                            </div>
+                            <div class="comp-box">
+                                <div class="comp-box-label">Notice</div>
+                                <div class="comp-box-value" contenteditable="true">${c.noticePeriod}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="concerns" style="${settings.concerns ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Potential Concerns</div>
+                        <div class="concerns-list">
+                            ${c.developmentConcerns.length > 0 ? `
+                                <div class="concern-item development">
+                                    <h4>Development Areas</h4>
+                                    ${c.developmentConcerns.map(d => `<p contenteditable="true">• ${d}</p>`).join('')}
+                                </div>
+                            ` : ''}
+                            ${c.significantConcerns.length > 0 ? `
+                                <div class="concern-item significant">
+                                    <h4>Significant Concerns</h4>
+                                    ${c.significantConcerns.map(s => `<p contenteditable="true">• ${s}</p>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="edc-section" draggable="true" data-section="ourTake" style="${settings.ourTake ? '' : 'display:none'}">
+                        <span class="section-drag-handle">⋮⋮</span>
+                        <div class="edc-section-title" contenteditable="true">Our Take</div>
+                        <div class="our-take-box">
+                            <span class="recommendation ${c.recommendation}">
+                                ${c.recommendation === 'advance' ? '✓ Recommend Advance' : c.recommendation === 'hold' ? '⏸ Hold for Discussion' : '✕ Do Not Advance'}
+                            </span>
+                            <p contenteditable="true">${c.ourTake}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('edcContainer').innerHTML = edcHTML;
+            document.getElementById('splitEdc').innerHTML = edcHTML;
+            updateNavIndicator();
+            setupDragAndDrop();
+        }
+
+        // Drag and Drop for sections
+        function setupDragAndDrop() {
+            const sections = document.querySelectorAll('.edc-section[draggable="true"]');
+            let draggedItem = null;
+            
+            sections.forEach(section => {
+                section.addEventListener('dragstart', (e) => {
+                    draggedItem = section;
+                    section.classList.add('dragging');
+                });
+                
+                section.addEventListener('dragend', () => {
+                    section.classList.remove('dragging');
+                    draggedItem = null;
+                });
+                
+                section.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    const container = section.parentElement;
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    if (afterElement == null) {
+                        container.appendChild(draggedItem);
+                    } else {
+                        container.insertBefore(draggedItem, afterElement);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.edc-section:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // Back to Deck
+        function backToDeck() {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-view="intro"]').classList.add('active');
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-intro').classList.add('active');
+            hideNavigation();
+        }
+
+        // Navigation
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const view = tab.dataset.view;
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+                    document.getElementById(`view-${view}`).classList.add('active');
+                    
+                    if (view === 'intro' || view === 'compare') {
+                        hideNavigation();
+                    } else {
+                        showNavigation();
+                    }
+                });
+            });
+            
+            document.addEventListener('keydown', (e) => {
+                const activeView = document.querySelector('.view.active').id;
+                if (activeView === 'view-edc' || activeView === 'view-split') {
+                    if (e.key === 'ArrowRight') nextCandidate();
+                    if (e.key === 'ArrowLeft') prevCandidate();
+                    if (e.key === 'Escape') backToDeck();
+                }
+                if (e.key === 'm' || e.key === 'M') toggleMatchScore();
+                if (e.key === 'p' || e.key === 'P') togglePrivateView();
+            });
+        }
+
+        function showNavigation() {
+            document.getElementById('navArrows').classList.add('visible');
+            document.getElementById('keyboardHint').classList.add('visible');
+        }
+
+        function hideNavigation() {
+            document.getElementById('navArrows').classList.remove('visible');
+            document.getElementById('keyboardHint').classList.remove('visible');
+        }
+
+        function prevCandidate() {
+            currentCandidateIndex = (currentCandidateIndex - 1 + candidates.length) % candidates.length;
+            selectCandidate(currentCandidateIndex);
+        }
+
+        function nextCandidate() {
+            currentCandidateIndex = (currentCandidateIndex + 1) % candidates.length;
+            selectCandidate(currentCandidateIndex);
+        }
+
+        function updateNavIndicator() {
+            document.getElementById('navIndicator').textContent = `${currentCandidateIndex + 1} / ${candidates.length}`;
+        }
+
+        // Compare Table with editable rows
+        function renderCompareTable() {
+            const table = document.getElementById('compareTable');
+            const c = candidates;
+            
+            const compareRows = [
+                { label: "Match Score", getValue: (cand) => `<span class="rating-pill ${cand.matchClass}">${cand.matchScore}%</span>` },
+                { label: "Company", getValue: (cand) => cand.company },
+                { label: "Location", getValue: (cand) => cand.location },
+                { label: "Industry", getValue: (cand) => cand.industry },
+                { label: keyCriteria[0], getValue: (cand) => `<span class="rating-pill ${cand.criteria[0].ratingClass}">${cand.criteria[0].rating}</span>` },
+                { label: keyCriteria[1], getValue: (cand) => `<span class="rating-pill ${cand.criteria[1].ratingClass}">${cand.criteria[1].rating}</span>` },
+                { label: keyCriteria[2], getValue: (cand) => `<span class="rating-pill ${cand.criteria[2].ratingClass}">${cand.criteria[2].rating}</span>` },
+                { label: keyCriteria[3], getValue: (cand) => `<span class="rating-pill ${cand.criteria[3].ratingClass}">${cand.criteria[3].rating}</span>` },
+                { label: keyCriteria[4], getValue: (cand) => `<span class="rating-pill ${cand.criteria[4].ratingClass}">${cand.criteria[4].rating}</span>` },
+                { label: "Compensation", getValue: (cand) => cand.expectedComp },
+                { label: "Recommendation", getValue: (cand) => `<span class="rating-pill ${cand.recommendation === 'advance' ? 'strong' : cand.recommendation === 'hold' ? 'moderate' : 'weak'}">${cand.recommendation === 'advance' ? 'Advance' : cand.recommendation === 'hold' ? 'Hold' : 'Pass'}</span>` }
+            ];
+            
+            table.innerHTML = `
+                <div class="compare-row header">
+                    <div class="compare-cell label"></div>
+                    ${c.map(cand => `
+                        <div class="compare-cell header">
+                            <div class="compare-candidate-name">${cand.name}</div>
+                            <div class="compare-candidate-title">${cand.title}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${compareRows.map(row => `
+                    <div class="compare-row">
+                        <div class="compare-cell label" contenteditable="true">${row.label}</div>
+                        ${c.map(cand => `<div class="compare-cell">${row.getValue(cand)}</div>`).join('')}
+                    </div>
+                `).join('')}
+                <div class="add-row-btn" onclick="addCompareRow()">+ Add Row</div>
+            `;
+        }
+
+        function addCompareRow() {
+            const table = document.getElementById('compareTable');
+            const addBtn = table.querySelector('.add-row-btn');
+            const newRow = document.createElement('div');
+            newRow.className = 'compare-row';
+            newRow.innerHTML = `
+                <div class="compare-cell label" contenteditable="true">New Field</div>
+                <div class="compare-cell" contenteditable="true">-</div>
+                <div class="compare-cell" contenteditable="true">-</div>
+                <div class="compare-cell" contenteditable="true">-</div>
+            `;
+            table.insertBefore(newRow, addBtn);
+        }
+
+        // CV Upload
+        function handleCVUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                const url = URL.createObjectURL(file);
+                document.getElementById('cvFrame').src = url;
+                document.getElementById('cvUploadArea').classList.add('has-file');
+                document.getElementById('cvUploadArea').style.display = 'none';
+                document.getElementById('cvPreview').classList.add('visible');
+            }
+        }
+
+        // Toggle Match Score
+        function toggleMatchScore() {
+            showMatchScore = !showMatchScore;
+            renderIntroCards();
+            selectCandidate(currentCandidateIndex, false);
+        }
+
+        // Toggle Private View
+        function togglePrivateView() {
+            privateView = !privateView;
+            settings.privateView = privateView;
+            document.getElementById('privateIndicator').classList.toggle('visible', privateView);
+            document.querySelectorAll('[data-toggle="privateView"]').forEach(el => {
+                el.classList.toggle('active', privateView);
+            });
+            selectCandidate(currentCandidateIndex, false);
+        }
+
+        // Settings
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('open');
+        }
+
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+            const settingKey = element.dataset.toggle;
+            settings[settingKey] = element.classList.contains('active');
+            
+            if (settingKey === 'privateView') {
+                privateView = settings.privateView;
+                document.getElementById('privateIndicator').classList.toggle('visible', privateView);
+            }
+            
+            renderIntroCards();
+            selectCandidate(currentCandidateIndex, false);
+            renderCompareTable();
+        }
+
+        // Share Modal
+        function openShareModal() {
+            document.getElementById('shareModal').classList.add('open');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('open');
+        }
+
+        function shareLink() {
+            alert('Link generated: https://smartsearch.app/deck/norican-vp-aftermarket-2025\n\nThis would copy to clipboard and send to recipients.');
+            closeShareModal();
+        }
+
+        document.getElementById('shareModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('shareModal')) closeShareModal();
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,12 @@
+/**
+ * Controls how EDCCard renders in different display contexts.
+ * - standalone: Full header + full EDC (consultant/client direct URL)
+ * - deck: Full header + full EDC (inside deck flip view)
+ * - comparison: Compact header — just name + title, no meta row
+ * - print: Full, optimised for @media print
+ */
+export type EDCContext = 'standalone' | 'deck' | 'comparison' | 'print';
+
 export interface EDCData {
   // Header
   candidate_name: string;
@@ -156,7 +165,12 @@ export interface IntroCardData {
   flash_summary: string;
   key_strengths: string[];
   notice_period?: string;
-  compensation_alignment?: 'aligned' | 'risk' | 'gap';
+  /** green = within range, amber = stretch, red = gap, not_set = unknown */
+  compensation_alignment?: 'green' | 'amber' | 'red' | 'not_set';
+  /** e.g. "Builder → Integrator", "Operator → Strategist" */
+  career_trajectory?: string;
+  /** Short industry label e.g. "FMCG", "FinTech", "Life Sciences" */
+  industry_shorthand?: string;
   candidate_id: string;
   edc_data: EDCData;
 }

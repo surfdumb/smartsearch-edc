@@ -1,40 +1,52 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import SearchContextHeader from "@/components/deck/SearchContextHeader";
 import IntroCard from "@/components/deck/IntroCard";
 import CandidateGrid from "@/components/deck/CandidateGrid";
 import DeckNavigation from "@/components/deck/DeckNavigation";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
-import EDCHeader from "@/components/edc/EDCHeader";
-import ScopeMatch from "@/components/edc/ScopeMatch";
-import KeyCriteria from "@/components/edc/KeyCriteria";
-import Compensation from "@/components/edc/Compensation";
-import Motivation from "@/components/edc/Motivation";
-import Concerns from "@/components/edc/Concerns";
-import OurTake from "@/components/edc/OurTake";
-import EDCFooter from "@/components/edc/EDCFooter";
+import EDCCard from "@/components/edc/EDCCard";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
   | { mode: "grid" }
+  | { mode: "flipping"; candidateIndex: number; cardRect: DOMRect }
   | { mode: "edc"; candidateIndex: number; split: boolean };
 
 interface DeckClientProps {
   data: SearchContext;
+  searchId: string;
 }
 
-export default function DeckClient({ data }: DeckClientProps) {
+export default function DeckClient({ data, searchId }: DeckClientProps) {
   const [view, setView] = useState<DeckView>({ mode: "grid" });
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // ── Card flip handler ───────────────────────────────────────────────────────
   const handleCardClick = (index: number) => {
-    setView({ mode: "edc", candidateIndex: index, split: false });
+    const el = cardRefs.current[index];
+    if (!el) {
+      // Fallback: skip animation
+      setView({ mode: "edc", candidateIndex: index, split: false });
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    setView({ mode: "flipping", candidateIndex: index, cardRect: rect });
   };
 
-  const handleBack = () => {
-    setView({ mode: "grid" });
-  };
+  // Once flip animation completes, switch to edc mode
+  useEffect(() => {
+    if (view.mode !== "flipping") return;
+    const timer = setTimeout(() => {
+      setView({ mode: "edc", candidateIndex: view.candidateIndex, split: false });
+    }, 750);
+    return () => clearTimeout(timer);
+  }, [view]);
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
+  const handleBack = () => setView({ mode: "grid" });
 
   const handlePrev = useCallback(() => {
     if (view.mode === "edc" && view.candidateIndex > 0) {
@@ -60,31 +72,93 @@ export default function DeckClient({ data }: DeckClientProps) {
       const target = e.target as HTMLElement;
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
 
-      if (e.key === "Escape" && view.mode === "edc") {
-        e.preventDefault();
-        handleBack();
-      }
-      if (e.key === "ArrowLeft" && view.mode === "edc") {
-        e.preventDefault();
-        handlePrev();
-      }
-      if (e.key === "ArrowRight" && view.mode === "edc") {
-        e.preventDefault();
-        handleNext();
-      }
-      if (e.key === "s" && view.mode === "edc" && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault();
-        handleToggleSplit();
-      }
+      if (e.key === "Escape" && view.mode === "edc") { e.preventDefault(); handleBack(); }
+      if (e.key === "ArrowLeft" && view.mode === "edc") { e.preventDefault(); handlePrev(); }
+      if (e.key === "ArrowRight" && view.mode === "edc") { e.preventDefault(); handleNext(); }
+      if (e.key === "s" && view.mode === "edc" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); handleToggleSplit(); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [view, handlePrev, handleNext, handleToggleSplit]);
 
-  // GRID VIEW
+  // ── FLIP ANIMATION OVERLAY ──────────────────────────────────────────────────
+  if (view.mode === "flipping") {
+    const { cardRect } = view;
+    // Target: centred, full-width up to 820px
+    const vpW = typeof window !== "undefined" ? window.innerWidth : 1200;
+    const vpH = typeof window !== "undefined" ? window.innerHeight : 800;
+    const targetW = Math.min(820, vpW - 48);
+    const targetH = Math.min(700, vpH - 80);
+    const targetLeft = (vpW - targetW) / 2;
+    const targetTop = (vpH - targetH) / 2;
+
+    return (
+      <>
+        {/* Dimmed background */}
+        <div
+          style={{
+            position: "fixed", inset: 0, zIndex: 1999,
+            background: "rgba(0,0,0,0.6)",
+            animation: "fadeInOverlay 0.2s ease forwards",
+          }}
+        />
+
+        {/* Flying card — animates from card position to centre, flipping 180° */}
+        <div
+          style={{
+            position: "fixed",
+            zIndex: 2000,
+            left: cardRect.left,
+            top: cardRect.top,
+            width: cardRect.width,
+            height: cardRect.height,
+            background: "var(--ss-header-bg)",
+            borderRadius: "16px",
+            border: "1px solid rgba(197,165,114,0.35)",
+            boxShadow: "0 30px 100px rgba(0,0,0,0.5)",
+            animation: `cardFly 0.75s cubic-bezier(0.4, 0, 0.2, 1) 0.05s forwards`,
+          }}
+        >
+          {/* Gold shimmer on the flying card */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "radial-gradient(circle at 70% 30%, rgba(197,165,114,0.12) 0%, transparent 70%)",
+            borderRadius: "16px",
+          }} />
+          <div style={{
+            position: "absolute", bottom: 0, left: 0, right: 0,
+            height: "2px",
+            background: "linear-gradient(90deg, transparent, rgba(197,165,114,0.5), transparent)",
+          }} />
+        </div>
+
+        <style>{`
+          @keyframes fadeInOverlay {
+            from { opacity: 0; } to { opacity: 1; }
+          }
+          @keyframes cardFly {
+            0%   { transform: translate(0,0) scale(1) rotateY(0deg); }
+            30%  { transform: translate(0,0) scale(1.03) rotateY(0deg); box-shadow: 0 40px 120px rgba(0,0,0,0.6); }
+            100% {
+              transform:
+                translate(
+                  calc(${targetLeft}px - ${cardRect.left}px),
+                  calc(${targetTop}px - ${cardRect.top}px)
+                )
+                scaleX(${targetW / cardRect.width})
+                scaleY(${targetH / cardRect.height})
+                rotateY(180deg);
+            }
+          }
+        `}</style>
+      </>
+    );
+  }
+
+  // ── GRID VIEW ───────────────────────────────────────────────────────────────
   if (view.mode === "grid") {
     return (
-      <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "60px" }}>
+      <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "20px" }}>
         {/* Sticky header */}
         <div
           style={{
@@ -93,23 +167,44 @@ export default function DeckClient({ data }: DeckClientProps) {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            background: "linear-gradient(180deg, rgba(45, 40, 36, 0.3) 0%, transparent 100%)",
           }}
         >
           <img
             src="/logos/smartsearch-white.png"
             alt="SmartSearch"
-            style={{ height: "24px", opacity: 0.6 }}
+            style={{ height: "24px", opacity: 0.55 }}
           />
           <span
-            className="font-sorts-mill"
-            style={{
-              fontSize: "1.1rem",
-              fontWeight: 400,
-              color: "var(--ss-gold)",
-            }}
+            className="font-cormorant"
+            style={{ fontSize: "1.05rem", color: "var(--ss-gold)", letterSpacing: "0.5px" }}
           >
             Executive <em style={{ fontStyle: "italic" }}>Decision</em> Deck
           </span>
+          <a
+            href={`/deck/${searchId}/compare`}
+            style={{
+              fontSize: "0.72rem",
+              fontWeight: 600,
+              color: "rgba(197,165,114,0.6)",
+              textDecoration: "none",
+              letterSpacing: "0.5px",
+              padding: "6px 14px",
+              border: "1px solid rgba(197,165,114,0.15)",
+              borderRadius: "8px",
+              transition: "all 0.2s",
+            }}
+            onMouseOver={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.4)";
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.6)";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.15)";
+            }}
+          >
+            Compare All →
+          </a>
         </div>
 
         <div style={{ padding: "40px 24px" }}>
@@ -126,9 +221,9 @@ export default function DeckClient({ data }: DeckClientProps) {
             className="font-cormorant"
             style={{
               textAlign: "center",
-              fontSize: "1.1rem",
+              fontSize: "1.05rem",
               fontStyle: "italic",
-              color: "rgba(255,255,255,0.4)",
+              color: "rgba(255,255,255,0.25)",
               marginBottom: "32px",
             }}
           >
@@ -137,105 +232,44 @@ export default function DeckClient({ data }: DeckClientProps) {
 
           <CandidateGrid>
             {data.candidates.map((candidate, i) => (
-              <IntroCard
+              <div
                 key={candidate.candidate_id}
-                card={candidate}
-                onClick={() => handleCardClick(i)}
-              />
+                ref={(el) => { cardRefs.current[i] = el; }}
+              >
+                <IntroCard
+                  card={candidate}
+                  onClick={() => handleCardClick(i)}
+                />
+              </div>
             ))}
           </CandidateGrid>
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            textAlign: "center",
-            padding: "40px 24px",
-            color: "rgba(255,255,255,0.25)",
-            fontSize: "0.8rem",
-          }}
-        >
-          <span className="font-cormorant" style={{ fontStyle: "italic", fontSize: "0.95rem" }}>
+        <div style={{ textAlign: "center", padding: "48px 24px 32px" }}>
+          <span
+            className="font-cormorant"
+            style={{
+              display: "block",
+              fontStyle: "italic",
+              fontSize: "0.95rem",
+              color: "rgba(255,255,255,0.2)",
+              marginBottom: "8px",
+            }}
+          >
             Show Evidence. Let Humans Judge.
           </span>
-          <br />
-          <span style={{ marginTop: "8px", display: "inline-block" }}>SmartSearch &copy; 2026</span>
+          <span style={{ display: "block", fontSize: "0.75rem", color: "rgba(255,255,255,0.15)" }}>
+            SmartSearch &copy; 2026
+          </span>
         </div>
       </main>
     );
   }
 
-  // EDC VIEW (full candidate)
+  // ── EDC VIEW ────────────────────────────────────────────────────────────────
   const candidate = data.candidates[view.candidateIndex];
   const edc = candidate.edc_data;
-
-  const edcCard = (
-    <div
-      style={{
-        maxWidth: view.split ? "100%" : "820px",
-        margin: "0 auto",
-        borderRadius: "20px",
-        overflow: "hidden",
-        boxShadow:
-          "0 0 0 1px rgba(197,165,114,0.1), 0 8px 40px rgba(0,0,0,0.5), 0 30px 100px rgba(0,0,0,0.4)",
-      }}
-    >
-      <EDCHeader
-        candidate_name={edc.candidate_name}
-        current_title={edc.current_title}
-        current_company={edc.current_company}
-        location={edc.location}
-        role_title={edc.role_title}
-        consultant_name={edc.consultant_name}
-        generated_date={edc.generated_date}
-      />
-      <div className="bg-white">
-        <ScopeMatch scope_match={edc.scope_match} scope_seasoning={edc.scope_seasoning} />
-        <KeyCriteria key_criteria={edc.key_criteria} />
-        <Compensation
-          compensation={edc.compensation}
-          notice_period={edc.notice_period}
-          earliest_start_date={edc.earliest_start_date}
-        />
-        <Motivation why_interested={edc.why_interested} />
-        <Concerns potential_concerns={edc.potential_concerns} />
-        <div
-          style={{
-            height: "4px",
-            background:
-              "linear-gradient(90deg, transparent 0%, var(--ss-gold-pale) 15%, var(--ss-gold) 50%, var(--ss-gold-pale) 85%, transparent 100%)",
-            position: "relative",
-          }}
-        >
-          <span
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "white",
-              color: "var(--ss-gold)",
-              fontSize: "1rem",
-              padding: "0 16px",
-              zIndex: 1,
-            }}
-          >
-            ✦
-          </span>
-        </div>
-        <OurTake
-          text={edc.our_take.text}
-          consultant_name={edc.consultant_name}
-          recommendation={edc.our_take.recommendation}
-          discussion_points={edc.our_take.discussion_points}
-          original_note={edc.our_take.original_note}
-          ai_rationale={edc.our_take.ai_rationale}
-          isConsultantView={false}
-        />
-      </div>
-      <EDCFooter search_name={edc.search_name} generated_date={edc.generated_date} />
-    </div>
-  );
 
   return (
     <main style={{ minHeight: "100vh", background: "#0a0a0a" }}>
@@ -251,7 +285,12 @@ export default function DeckClient({ data }: DeckClientProps) {
 
       <SplitViewContainer active={view.split} cvUrl={edc.cv_url}>
         <div style={{ padding: view.split ? "0" : "0 24px 80px" }}>
-          {edcCard}
+          <EDCCard
+            data={edc}
+            isConsultantView={false}
+            fluid={view.split}
+            context="deck"
+          />
         </div>
       </SplitViewContainer>
     </main>

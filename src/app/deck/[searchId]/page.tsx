@@ -13,5 +13,5 @@ export default async function DeckPage({
     notFound();
   }
 
-  return <DeckClient data={data} />;
+  return <DeckClient data={data} searchId={params.searchId} />;
 }

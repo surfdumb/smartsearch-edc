@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import type { EDCContext } from "@/lib/types";
 
 interface EDCHeaderProps {
   candidate_name: string;
@@ -8,6 +9,7 @@ interface EDCHeaderProps {
   role_title: string;
   consultant_name: string;
   generated_date: string;
+  context?: EDCContext;
 }
 
 export default function EDCHeader({
@@ -18,7 +20,55 @@ export default function EDCHeader({
   role_title,
   consultant_name,
   generated_date,
+  context = 'standalone',
 }: EDCHeaderProps) {
+  // Comparison context: compact — just name + title/company, no brand bar or meta row
+  if (context === 'comparison') {
+    return (
+      <header
+        className="relative overflow-hidden rounded-t-card"
+        style={{
+          background: "var(--ss-header-bg)",
+          padding: "24px 32px 20px",
+        }}
+      >
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: "-60px", right: "-60px",
+            width: "240px", height: "240px",
+            background: "radial-gradient(circle, rgba(197, 165, 114, 0.06) 0%, transparent 65%)",
+          }}
+        />
+        <h1
+          className="relative font-cormorant"
+          style={{
+            fontSize: "2rem",
+            fontWeight: 500,
+            lineHeight: 1.1,
+            letterSpacing: "-0.3px",
+            color: "#f5f0ea",
+            marginBottom: "6px",
+          }}
+        >
+          {candidate_name}
+        </h1>
+        <p className="relative" style={{ color: "rgba(255,255,255,0.55)", fontSize: "0.85rem" }}>
+          {current_title}
+          <span style={{ color: "rgba(197, 165, 114, 0.5)", margin: "0 8px" }}>·</span>
+          {current_company}
+        </p>
+        <div
+          className="absolute bottom-0 left-0 right-0"
+          style={{
+            height: "1px",
+            background: "linear-gradient(90deg, transparent, rgba(197, 165, 114, 0.35), transparent)",
+          }}
+        />
+      </header>
+    );
+  }
+
   return (
     <header
       className="relative overflow-hidden rounded-t-card"
@@ -126,7 +176,7 @@ export default function EDCHeader({
         }}
       >
         <MetaItem label="Role" value={role_title} />
-        <MetaItem label="Consultant" value={consultant_name} />
+        <MetaItem label="Search Lead" value={consultant_name} />
         <MetaItem label="Generated" value={generated_date} />
       </div>
 

@@ -4,15 +4,8 @@
 import { useState } from "react";
 import EDSInput from "@/components/transform/EDSInput";
 import TransformButton from "@/components/transform/TransformButton";
-import EDCHeader from "@/components/edc/EDCHeader";
-import ScopeMatch from "@/components/edc/ScopeMatch";
-import KeyCriteria from "@/components/edc/KeyCriteria";
-import Compensation from "@/components/edc/Compensation";
-import Motivation from "@/components/edc/Motivation";
-import Concerns from "@/components/edc/Concerns";
-import OurTake from "@/components/edc/OurTake";
-import EDCFooter from "@/components/edc/EDCFooter";
-import { type EDCData, buildCandidateContext } from "@/lib/types";
+import EDCCard from "@/components/edc/EDCCard";
+import { type EDCData } from "@/lib/types";
 
 type TransformState =
   | { status: "idle" }
@@ -29,7 +22,8 @@ export default function TransformPage() {
     if (!rawText || rawText.length < 100) {
       setState({
         status: "error",
-        message: "This doesn't look like a complete EDS. Please paste the full document content.",
+        message:
+          "This doesn't look like a complete EDS. Please paste the full document content.",
       });
       return;
     }
@@ -51,99 +45,63 @@ export default function TransformPage() {
       const data: EDCData = await res.json();
       setState({ status: "success", data });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Transformation failed — please try again";
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Transformation failed — please try again";
       setState({ status: "error", message });
     }
   };
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        background: "var(--ss-obsidian)",
-        color: "white",
-      }}
-    >
-      {/* Top bar */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "20px 40px",
-          borderBottom: "1px solid rgba(197, 165, 114, 0.1)",
-        }}
-      >
+    <main className="transform-page">
+      {/* ===== Top bar ===== */}
+      <header className="transform-topbar">
         <img
           src="/logos/smartsearch-white.png"
           alt="SmartSearch"
-          style={{ height: "24px", opacity: 0.6 }}
+          className="transform-logo"
         />
-        <span
-          className="font-sorts-mill"
-          style={{
-            fontSize: "1.1rem",
-            fontWeight: 400,
-            color: "var(--ss-gold)",
-          }}
-        >
-          EDS &rarr; EDC
-        </span>
-      </div>
+        <div className="transform-badge">
+          <span className="font-sorts-mill">
+            EDS <span style={{ opacity: 0.5, margin: "0 6px" }}>&rarr;</span>{" "}
+            EDC
+          </span>
+        </div>
+      </header>
 
-      {/* Input section */}
+      {/* ===== Input section ===== */}
       {state.status !== "success" && (
-        <div style={{ padding: "40px 24px" }}>
-          <div style={{ textAlign: "center", marginBottom: "32px" }}>
-            <h1
-              className="font-cormorant"
-              style={{
-                fontSize: "2.2rem",
-                fontWeight: 500,
-                color: "rgba(245, 240, 234, 0.9)",
-                marginBottom: "8px",
-              }}
-            >
-              Transform an EDS into an Executive Decision Card
+        <div className="transform-input-section">
+          {/* Title area */}
+          <div className="transform-title-area">
+            <h1 className="font-cormorant transform-heading">
+              Transform an EDS into an
+              <br />
+              <span className="transform-heading-accent">
+                Executive Decision Card
+              </span>
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem" }}>
-              Paste the raw EDS text or upload a .docx file
+            <p className="transform-subtitle">
+              Paste the raw EDS text or upload a .docx file below
             </p>
           </div>
 
-          <EDSInput
-            onTextReady={setRawText}
-            disabled={state.status === "loading"}
-          />
+          {/* Input card with border */}
+          <div className="transform-input-card">
+            <EDSInput
+              onTextReady={setRawText}
+              disabled={state.status === "loading"}
+            />
+          </div>
 
           {/* Manual Notes Section */}
-          <div style={{ maxWidth: "800px", margin: "24px auto 0" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "10px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: "var(--ss-gold)",
-                }}
-              >
+          <div className="transform-notes-section">
+            <div className="transform-notes-header">
+              <span className="transform-notes-label">
                 Consultant Manual Notes
               </span>
-              <span
-                style={{
-                  fontSize: "0.7rem",
-                  color: "rgba(255,255,255,0.3)",
-                  fontStyle: "italic",
-                }}
-              >
+              <span className="transform-notes-hint">
                 (optional &mdash; used to generate &ldquo;Our Take&rdquo;)
               </span>
             </div>
@@ -151,20 +109,17 @@ export default function TransformPage() {
               value={manualNotes}
               onChange={(e) => setManualNotes(e.target.value)}
               disabled={state.status === "loading"}
-              placeholder={`Write your raw, uninhibited notes here...\n\nExamples:\n\u2022 "He's a builder, not a polished corporate type \u2014 real operator energy"\n\u2022 "Concerned about his English \u2014 B2 level might be a problem in board settings"\n\u2022 "Surprisingly strong on data for someone from that background"\n\u2022 "Worth advancing but client needs to decide on the board experience gap"\n\nThese notes are NEVER shown to clients. They're used to generate the professional "Our Take" section.`}
+              placeholder={`Write your raw, uninhibited notes here...
+
+Examples:
+• "He's a builder, not a polished corporate type — real operator energy"
+• "Concerned about his English — B2 level might be a problem in board settings"
+• "Surprisingly strong on data for someone from that background"
+• "Worth advancing but client needs to decide on the board experience gap"
+
+These notes are NEVER shown to clients. They're used to generate the professional "Our Take" section.`}
+              className="transform-notes-textarea"
               style={{
-                width: "100%",
-                minHeight: "180px",
-                padding: "20px",
-                fontFamily: "'SF Mono', 'Fira Code', monospace",
-                fontSize: "0.83rem",
-                lineHeight: 1.6,
-                color: "rgba(240, 236, 228, 0.8)",
-                background: "var(--ss-obsidian-card)",
-                border: "1px solid rgba(197, 165, 114, 0.15)",
-                borderRadius: "12px",
-                resize: "vertical",
-                outline: "none",
                 opacity: state.status === "loading" ? 0.5 : 1,
               }}
             />
@@ -176,180 +131,312 @@ export default function TransformPage() {
             disabled={!rawText || rawText.length < 100}
           />
 
+          {/* Illustrative data disclaimer */}
+          <p className="transform-disclaimer">
+            *Illustrative data evaluation only, not indicative of EDC final
+            outcomes.
+          </p>
+
           {/* Loading state */}
           {state.status === "loading" && (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <p
-                className="font-cormorant"
-                style={{
-                  fontSize: "1.3rem",
-                  fontStyle: "italic",
-                  color: "var(--ss-gold)",
-                  opacity: 0.8,
-                  animation: "fadeIn 0.5s ease-in",
-                }}
-              >
+            <div className="transform-loading">
+              <div className="transform-loading-icon">
+                <img
+                  src="/logos/smartsearch-white.png"
+                  alt=""
+                  style={{
+                    height: "32px",
+                    opacity: 0.6,
+                    animation: "pulse 2s ease-in-out infinite",
+                  }}
+                />
+              </div>
+              <p className="font-cormorant transform-loading-text">
                 Building your Executive Decision Card...
               </p>
-              <style jsx>{`
-                @keyframes fadeIn {
-                  from { opacity: 0; transform: translateY(10px); }
-                  to { opacity: 0.8; transform: translateY(0); }
-                }
-              `}</style>
             </div>
           )}
 
           {/* Error state */}
           {state.status === "error" && (
-            <div
-              style={{
-                maxWidth: "600px",
-                margin: "0 auto",
-                padding: "16px 24px",
-                background: "rgba(201, 149, 58, 0.1)",
-                border: "1px solid rgba(201, 149, 58, 0.3)",
-                borderRadius: "12px",
-                color: "var(--ss-yellow)",
-                textAlign: "center",
-                fontSize: "0.9rem",
-              }}
-            >
-              {state.message}
-            </div>
+            <div className="transform-error">{state.message}</div>
           )}
         </div>
       )}
 
-      {/* EDC Preview */}
+      {/* ===== EDC Preview ===== */}
       {state.status === "success" && (
-        <div
-          style={{
-            padding: "40px 24px 80px",
-            animation: "slideUp 0.6s ease-out",
-          }}
-        >
+        <div className="transform-preview">
           {/* Back / New Transform button */}
-          <div style={{ maxWidth: "820px", margin: "0 auto 24px", textAlign: "left" }}>
+          <div className="transform-preview-header">
             <button
               onClick={() => setState({ status: "idle" })}
-              style={{
-                background: "transparent",
-                border: "1px solid rgba(197, 165, 114, 0.3)",
-                color: "var(--ss-gold)",
-                padding: "8px 20px",
-                borderRadius: "8px",
-                fontSize: "0.85rem",
-                cursor: "pointer",
-              }}
+              className="transform-back-button"
             >
               &larr; New Transform
             </button>
+            <span className="transform-preview-badge">
+              &#10022; Card Generated Successfully
+            </span>
           </div>
 
-          {/* The EDC Card */}
-          <div
-            style={{
-              maxWidth: "820px",
-              margin: "0 auto",
-              borderRadius: "20px",
-              overflow: "hidden",
-              boxShadow:
-                "0 0 0 1px rgba(197,165,114,0.1), 0 8px 40px rgba(0,0,0,0.5), 0 30px 100px rgba(0,0,0,0.4), 0 0 120px rgba(197,165,114,0.04)",
+          {/* The EDC Card — using reusable component */}
+          <EDCCard
+            data={state.data}
+            isConsultantView={true}
+            onOurTakeGenerated={(result) => {
+              setState({
+                status: "success",
+                data: {
+                  ...state.data,
+                  our_take: {
+                    text: result.text,
+                    recommendation: result.recommendation,
+                    discussion_points: result.discussion_points,
+                    original_note: result.original_note,
+                    ai_rationale: result.ai_rationale,
+                  },
+                },
+              });
             }}
-          >
-            <EDCHeader
-              candidate_name={state.data.candidate_name}
-              current_title={state.data.current_title}
-              current_company={state.data.current_company}
-              location={state.data.location}
-              role_title={state.data.role_title}
-              consultant_name={state.data.consultant_name}
-              generated_date={state.data.generated_date}
-            />
-            <div className="bg-white">
-              <ScopeMatch
-                scope_match={state.data.scope_match}
-                scope_seasoning={state.data.scope_seasoning}
-              />
-              <KeyCriteria key_criteria={state.data.key_criteria} />
-              <Compensation
-                compensation={state.data.compensation}
-                notice_period={state.data.notice_period}
-                earliest_start_date={state.data.earliest_start_date}
-              />
-              <Motivation why_interested={state.data.why_interested} />
-              <Concerns potential_concerns={state.data.potential_concerns} />
-              <div
-                style={{
-                  height: "4px",
-                  background:
-                    "linear-gradient(90deg, transparent 0%, var(--ss-gold-pale) 15%, var(--ss-gold) 50%, var(--ss-gold-pale) 85%, transparent 100%)",
-                  position: "relative",
-                }}
-              >
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    background: "white",
-                    color: "var(--ss-gold)",
-                    fontSize: "1rem",
-                    padding: "0 16px",
-                    zIndex: 1,
-                  }}
-                >
-                  &#10022;
-                </span>
-              </div>
-              <OurTake
-                text={state.data.our_take.text}
-                consultant_name={state.data.consultant_name}
-                recommendation={state.data.our_take.recommendation}
-                discussion_points={state.data.our_take.discussion_points}
-                original_note={state.data.our_take.original_note}
-                ai_rationale={state.data.our_take.ai_rationale}
-                isConsultantView={true}
-                candidateContext={buildCandidateContext(state.data)}
-                onOurTakeGenerated={(result) => {
-                  setState({
-                    status: "success",
-                    data: {
-                      ...state.data,
-                      our_take: {
-                        text: result.text,
-                        recommendation: result.recommendation,
-                        discussion_points: result.discussion_points,
-                        original_note: result.original_note,
-                        ai_rationale: result.ai_rationale,
-                      },
-                    },
-                  });
-                }}
-              />
-            </div>
-            <EDCFooter
-              search_name={state.data.search_name}
-              generated_date={state.data.generated_date}
-            />
-          </div>
-
-          <style jsx>{`
-            @keyframes slideUp {
-              from {
-                opacity: 0;
-                transform: translateY(20px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-          `}</style>
+          />
         </div>
       )}
+
+      <style jsx>{`
+        .transform-page {
+          min-height: 100vh;
+          background: #0a0a0a;
+          color: white;
+        }
+
+        /* ===== Top bar ===== */
+        .transform-topbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 18px 40px;
+          border-bottom: 1px solid rgba(197, 165, 114, 0.12);
+          background: linear-gradient(
+            180deg,
+            rgba(45, 40, 36, 0.4) 0%,
+            transparent 100%
+          );
+        }
+
+        .transform-logo {
+          height: 24px;
+          opacity: 0.55;
+        }
+
+        .transform-badge {
+          font-size: 1.05rem;
+          color: var(--ss-gold);
+          letter-spacing: 1px;
+        }
+
+        /* ===== Input section ===== */
+        .transform-input-section {
+          padding: 48px 24px 60px;
+          max-width: 860px;
+          margin: 0 auto;
+        }
+
+        .transform-title-area {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+
+        .transform-heading {
+          font-size: 2.4rem;
+          font-weight: 500;
+          color: rgba(245, 240, 234, 0.85);
+          line-height: 1.3;
+          margin-bottom: 12px;
+        }
+
+        .transform-heading-accent {
+          color: var(--ss-gold);
+          font-style: italic;
+        }
+
+        .transform-subtitle {
+          color: rgba(255, 255, 255, 0.35);
+          font-size: 0.92rem;
+          letter-spacing: 0.3px;
+        }
+
+        /* ===== Input card ===== */
+        .transform-input-card {
+          background: rgba(17, 17, 17, 0.6);
+          border: 1px solid rgba(197, 165, 114, 0.12);
+          border-radius: 16px;
+          padding: 24px 24px 20px;
+          backdrop-filter: blur(10px);
+        }
+
+        /* ===== Notes section ===== */
+        .transform-notes-section {
+          margin-top: 24px;
+        }
+
+        .transform-notes-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+        }
+
+        .transform-notes-label {
+          font-size: 0.72rem;
+          font-weight: 600;
+          letter-spacing: 1.8px;
+          text-transform: uppercase;
+          color: var(--ss-gold);
+        }
+
+        .transform-notes-hint {
+          font-size: 0.7rem;
+          color: rgba(255, 255, 255, 0.28);
+          font-style: italic;
+        }
+
+        .transform-notes-textarea {
+          width: 100%;
+          min-height: 180px;
+          padding: 20px;
+          font-family: "SF Mono", "Fira Code", monospace;
+          font-size: 0.83rem;
+          line-height: 1.6;
+          color: rgba(240, 236, 228, 0.8);
+          background: rgba(17, 17, 17, 0.6);
+          border: 1px solid rgba(197, 165, 114, 0.12);
+          border-radius: 12px;
+          resize: vertical;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+
+        .transform-notes-textarea:focus {
+          border-color: rgba(197, 165, 114, 0.35);
+        }
+
+        .transform-notes-textarea::placeholder {
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ===== Disclaimer ===== */
+        .transform-disclaimer {
+          text-align: center;
+          font-size: 0.75rem;
+          color: rgba(255, 255, 255, 0.22);
+          font-style: italic;
+          margin-top: -8px;
+          margin-bottom: 12px;
+        }
+
+        /* ===== Loading state ===== */
+        .transform-loading {
+          text-align: center;
+          padding: 48px 0;
+        }
+
+        .transform-loading-icon {
+          margin-bottom: 20px;
+        }
+
+        .transform-loading-text {
+          font-size: 1.3rem;
+          font-style: italic;
+          color: var(--ss-gold);
+          opacity: 0.8;
+          animation: fadeIn 0.5s ease-in;
+        }
+
+        /* ===== Error state ===== */
+        .transform-error {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 16px 24px;
+          background: rgba(201, 149, 58, 0.08);
+          border: 1px solid rgba(201, 149, 58, 0.25);
+          border-radius: 12px;
+          color: var(--ss-yellow);
+          text-align: center;
+          font-size: 0.9rem;
+        }
+
+        /* ===== Preview section ===== */
+        .transform-preview {
+          padding: 32px 24px 80px;
+          animation: slideUp 0.6s ease-out;
+        }
+
+        .transform-preview-header {
+          max-width: 820px;
+          margin: 0 auto 28px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .transform-back-button {
+          background: transparent;
+          border: 1px solid rgba(197, 165, 114, 0.25);
+          color: var(--ss-gold);
+          padding: 8px 20px;
+          border-radius: 8px;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .transform-back-button:hover {
+          background: rgba(197, 165, 114, 0.08);
+          border-color: rgba(197, 165, 114, 0.4);
+        }
+
+        .transform-preview-badge {
+          font-size: 0.8rem;
+          color: var(--ss-green-soft);
+          letter-spacing: 0.5px;
+        }
+
+        /* ===== Animations ===== */
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 0.8;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes pulse {
+          0%,
+          100% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.08);
+          }
+        }
+      `}</style>
     </main>
   );
 }

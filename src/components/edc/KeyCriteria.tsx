@@ -23,7 +23,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
             key={i}
             style={{
               display: "grid",
-              gridTemplateColumns: "32px 1fr auto",
+              gridTemplateColumns: "32px 1fr",
               gap: "14px",
               alignItems: "flex-start",
               padding: "18px 0",
@@ -49,7 +49,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
               {i + 1}
             </span>
 
-            {/* Content — name + evidence */}
+            {/* Content — name + evidence + context anchor pill stacked below */}
             <div>
               <h4
                 className="text-criteria-heading text-ss-dark"
@@ -63,14 +63,12 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                 className="text-body text-ss-gray"
                 style={{ lineHeight: 1.65 }}
               />
+              {item.context_anchor && (
+                <div style={{ marginTop: "8px" }}>
+                  <ContextAnchorPill text={item.context_anchor} />
+                </div>
+              )}
             </div>
-
-            {/* Context anchor pill — right-aligned */}
-            {item.context_anchor ? (
-              <ContextAnchorPill text={item.context_anchor} />
-            ) : (
-              <span />
-            )}
           </div>
         ))}
       </div>

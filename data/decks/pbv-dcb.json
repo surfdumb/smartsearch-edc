@@ -1,0 +1,496 @@
+{
+  "search_name": "Director of Compensation & Benefits",
+  "client_company": "Pepsi Bottling Ventures",
+  "client_location": "Raleigh, NC",
+  "client_logo_url": "/logos/clients/pbv.svg",
+  "key_criteria_names": [
+    "Total Rewards Program Design",
+    "Hourly & Route Sales Incentive Structure",
+    "Benefits Administration & Cost Management",
+    "Compensation Analytics & HRIS",
+    "HR Business Partnering & Change Leadership"
+  ],
+  "search_lead": "Jackie Wyard-Yates",
+  "candidates": [
+    {
+      "candidate_name": "Katherine Lawson",
+      "current_title": "Sr. Total Rewards Manager",
+      "current_company": "Pepsi Bottling Ventures",
+      "location": "Raleigh, NC",
+      "initials": "KL",
+      "flash_summary": "Six-year PBV insider who built and currently administers the full comp and benefits stack for 7,000+ employees. <strong>Knows every system, every vendor, and every quirk in the route driver incentive model</strong> — but has never led a function or managed direct reports.",
+      "key_strengths": [
+        "End-to-end ownership of PBV's current comp and benefits programs across all employee groups",
+        "Deep knowledge of DSR incentive structure and frontline hourly pay practices",
+        "Strong HRIS fluency — primary Workday HCM admin for compensation module"
+      ],
+      "notice_period": "2 weeks",
+      "compensation_alignment": "green",
+      "candidate_id": "katherine-lawson",
+      "edc_data": {
+        "candidate_name": "Katherine Lawson",
+        "current_title": "Sr. Total Rewards Manager",
+        "current_company": "Pepsi Bottling Ventures",
+        "location": "Raleigh, NC",
+        "scope_match": [
+          {
+            "dimension": "Function Leadership",
+            "candidate_actual": "Individual contributor managing programs; no direct reports",
+            "role_requirement": "Director leading a team of 3–4 comp and benefits analysts",
+            "alignment": "gap"
+          },
+          {
+            "dimension": "Program Ownership",
+            "candidate_actual": "Owns and administers PBV's full comp and benefits stack",
+            "role_requirement": "Full ownership of total rewards strategy and execution",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "External Market Perspective",
+            "candidate_actual": "6 years at single employer; limited external benchmarking exposure",
+            "role_requirement": "Ability to challenge existing programs against external market",
+            "alignment": "partial"
+          },
+          {
+            "dimension": "Workforce Scale",
+            "candidate_actual": "Supports 7,100 employees across 12 facilities",
+            "role_requirement": "5,000–10,000 employee organization, largely hourly",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "Strategic Design",
+            "candidate_actual": "Maintains and refines existing programs; limited greenfield design",
+            "role_requirement": "Redesign of route driver incentive structure is a Year 1 priority",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Katherine's <strong>institutional depth is unmatched</strong> — she knows PBV's workforce, systems, and operational realities better than any external candidate could. The central question is whether she can <strong>step into the leadership and strategic design mandate</strong> this role requires, or whether her strength in administration will limit her appetite to challenge and rebuild the programs she's spent six years maintaining.",
+        "key_criteria": [
+          {
+            "name": "Total Rewards Program Design",
+            "evidence": "Katherine <strong>administers PBV's full compensation structure</strong> including grade bands, merit cycle, and annual bonus programme across all employee groups at Pepsi Bottling Ventures. She has made incremental adjustments to the pay structure in each of the last three years but has not led a full program redesign from the ground up.",
+            "context_anchor": "at Pepsi Bottling Ventures"
+          },
+          {
+            "name": "Hourly & Route Sales Incentive Structure",
+            "evidence": "She is the <strong>operational owner of PBV's DSR commission model</strong> and manages the monthly incentive calculations for approximately 2,200 route sales representatives at Pepsi Bottling Ventures. Has deep working knowledge of the tier structure, payout mechanics, and the recurring disputes that arise from territory splits and product mix changes.",
+            "context_anchor": "at Pepsi Bottling Ventures"
+          },
+          {
+            "name": "Benefits Administration & Cost Management",
+            "evidence": "Manages <strong>annual benefits renewal and broker relationship with Mercer</strong> at Pepsi Bottling Ventures, coordinating across medical, dental, vision, and voluntary benefits for 7,100 employees. Negotiated a 4% reduction in medical plan cost increase in the most recent renewal cycle through plan design changes including high-deductible option introduction.",
+            "context_anchor": "at Pepsi Bottling Ventures"
+          },
+          {
+            "name": "Compensation Analytics & HRIS",
+            "evidence": "Serves as the <strong>primary Workday HCM compensation module administrator at Pepsi Bottling Ventures</strong>, managing configuration, testing, and training. Builds the annual comp review dashboards and has developed equity analysis tooling used by HR Business Partners during the merit cycle.",
+            "context_anchor": "at Pepsi Bottling Ventures"
+          },
+          {
+            "name": "HR Business Partnering & Change Leadership",
+            "evidence": "Partners with <strong>VP-level operations leaders across 12 facilities</strong> at Pepsi Bottling Ventures to communicate pay changes and resolve compensation disputes. Has not led a change management programme or directed a cross-functional team; her partnering has been primarily transactional and advisory rather than strategic.",
+            "context_anchor": "at Pepsi Bottling Ventures"
+          }
+        ],
+        "compensation": {
+          "current_base": "$108,000",
+          "current_total": "$121,000",
+          "expected_base": "$125,000–$135,000",
+          "expected_total": "$140,000–$150,000",
+          "flexibility": "Open to discussion; primary motivation is scope and title rather than compensation step-up",
+          "budget_range": "$120,000–$145,000 base, $145,000–$170,000 total"
+        },
+        "notice_period": "2 weeks",
+        "earliest_start_date": "Immediately",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Ready to own the function she's built",
+            "detail": "Six years of execution without the title — Katherine wants accountability and decision rights that match the work she's already doing."
+          },
+          {
+            "type": "pull",
+            "headline": "PBV's growth as a real opportunity to build",
+            "detail": "PBV's ongoing facility expansion and workforce growth mean the Director role will have genuine scope to grow, not just maintain."
+          }
+        ],
+        "potential_concerns": [
+          {
+            "concern": "No direct reports experience — stepping from individual contributor to managing a 3–4 person team is a meaningful leadership leap, particularly while simultaneously inheriting a DSR incentive redesign in Year 1",
+            "severity": "significant"
+          },
+          {
+            "concern": "Six unbroken years at one employer creates real risk of a purely internal frame of reference — may replicate existing programs rather than benchmark and challenge them",
+            "severity": "development"
+          },
+          {
+            "concern": "Limited greenfield program design experience; her track record is maintenance and optimisation of inherited structures rather than building compensation frameworks from a blank sheet",
+            "severity": "development"
+          }
+        ],
+        "our_take": {
+          "text": "We believe Katherine is the closest thing to a ready-made fit PBV is likely to find — she knows the workforce, the systems, and the operational quirks better than any external hire could in their first 18 months. The risk is that she has never led people or been required to challenge the programmes she helped build. The Year 1 priority — redesigning the DSR incentive structure — will test whether she can step back from her own work and approach it with external rigour. Worth a direct conversation with the client about whether they want proven internal continuity with a leadership development investment, or external challenge with a longer ramp.",
+          "discussion_points": [
+            "Has she ever challenged or proposed to scrap a programme she owned? What happened?",
+            "How does she plan to approach the DSR incentive redesign given she built the current model?",
+            "What's her view on where PBV's comp and benefits stack compares to market — can she be specific?"
+          ],
+          "ai_rationale": "Framed the Our Take around the core tension between institutional depth and the fresh perspective this role may need. Avoided an advance/hold recommendation per product principles — left the judgment to the client."
+        },
+        "search_name": "Director of Compensation & Benefits · Pepsi Bottling Ventures",
+        "role_title": "Director of Compensation & Benefits",
+        "generated_date": "24 February 2026",
+        "consultant_name": "Jackie Wyard-Yates",
+        "match_score_display": "HIDE"
+      }
+    },
+    {
+      "candidate_name": "James Mitchell",
+      "current_title": "Director of HR, Carolinas Region",
+      "current_company": "Coca-Cola Consolidated",
+      "location": "Charlotte, NC",
+      "initials": "JM",
+      "flash_summary": "Experienced HR Director from PBV's closest competitor with direct ownership of a 4,800-person route sales and warehouse workforce. <strong>Strong operational partnership instincts and proven change leadership</strong>, but compensation design is not his primary depth.",
+      "key_strengths": [
+        "Leads full HR function for 4,800-person Carolinas territory at the largest independent Coca-Cola bottler in the US",
+        "Direct experience with route driver pay and DSR incentive administration in the same DSD model as PBV",
+        "Track record of leading HR transformation including ATS implementation and manager effectiveness programme"
+      ],
+      "notice_period": "4 weeks",
+      "compensation_alignment": "amber",
+      "candidate_id": "james-mitchell",
+      "edc_data": {
+        "candidate_name": "James Mitchell",
+        "current_title": "Director of HR, Carolinas Region",
+        "current_company": "Coca-Cola Consolidated",
+        "location": "Charlotte, NC",
+        "scope_match": [
+          {
+            "dimension": "Compensation Specialization",
+            "candidate_actual": "Broad HR Director; comp and benefits is one of several accountabilities",
+            "role_requirement": "Pure total rewards specialist — comp design, benefits strategy, and analytics",
+            "alignment": "partial"
+          },
+          {
+            "dimension": "Industry & Workforce Model",
+            "candidate_actual": "4,800-person DSD workforce at Coca-Cola Consolidated including route drivers, warehouse, and sales",
+            "role_requirement": "7,000+ person DSD workforce; identical operational model to PBV",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "Team Leadership",
+            "candidate_actual": "Leads team of 7 HR professionals across Carolinas region",
+            "role_requirement": "Director managing 3–4 comp and benefits analysts",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "Benefits Strategy",
+            "candidate_actual": "Manages benefits administration but does not lead broker negotiations or plan design",
+            "role_requirement": "Full ownership of benefits vendor relationships and cost management strategy",
+            "alignment": "partial"
+          },
+          {
+            "dimension": "Comp Design Depth",
+            "candidate_actual": "Administers CCBCC's established comp bands; has not redesigned incentive structures",
+            "role_requirement": "DSR incentive structure redesign is a Year 1 deliverable",
+            "alignment": "gap"
+          }
+        ],
+        "scope_seasoning": "James brings the <strong>industry credibility and operational partnership skills</strong> that are genuinely hard to find — he has lived the DSD workforce comp challenges from the other side of the competitive fence. The question is whether his <strong>generalist HR breadth substitutes for specialist total rewards depth</strong>, particularly given that the Year 1 mandate is a ground-up redesign of the route driver incentive structure rather than steady-state administration.",
+        "key_criteria": [
+          {
+            "name": "Total Rewards Program Design",
+            "evidence": "James administers <strong>CCBCC's established compensation bands and merit cycle</strong> as part of a broader HR Director mandate but has not led compensation programme design. His comp knowledge has been applied primarily through execution of centrally-designed frameworks from CCBCC's corporate total rewards team rather than building structures independently.",
+            "context_anchor": "at Coca-Cola Consolidated"
+          },
+          {
+            "name": "Hourly & Route Sales Incentive Structure",
+            "evidence": "Manages <strong>DSR pay and commission processing for 2,100 route sales representatives</strong> across the Carolinas region at Coca-Cola Consolidated, dealing with the same territory split disputes, product mix challenges, and seasonal variance issues PBV faces. Described the current CCBCC incentive model as \"overdue for a redesign\" — suggesting he has formed views on its weaknesses.",
+            "context_anchor": "at Coca-Cola Consolidated"
+          },
+          {
+            "name": "Benefits Administration & Cost Management",
+            "evidence": "Responsible for <strong>regional benefits administration</strong> at Coca-Cola Consolidated but works within centrally-negotiated plan designs and vendor contracts. Has not personally led a benefits renewal, RFP, or broker selection process — these are managed at CCBCC's corporate headquarters in Charlotte with regional HR Directors as stakeholders rather than owners.",
+            "context_anchor": "at Coca-Cola Consolidated"
+          },
+          {
+            "name": "Compensation Analytics & HRIS",
+            "evidence": "Proficient in <strong>Workday HCM</strong> at Coca-Cola Consolidated and has built regional comp dashboards used for headcount planning and manager effectiveness review. Describes himself as \"comfortable with data but not a data person\" — suggests functional proficiency rather than analytical leadership.",
+            "context_anchor": "at Coca-Cola Consolidated"
+          },
+          {
+            "name": "HR Business Partnering & Change Leadership",
+            "evidence": "Led two significant change initiatives at Coca-Cola Consolidated: a <strong>manager effectiveness programme reaching 340 people managers</strong> across the Carolinas, and the regional rollout of the Greenhouse ATS replacing a legacy paper-based process. Both required sustained cross-functional engagement with operations, finance, and the VP-level leadership team.",
+            "context_anchor": "at Coca-Cola Consolidated"
+          }
+        ],
+        "compensation": {
+          "current_base": "$148,000",
+          "current_total": "$171,000",
+          "expected_base": "$155,000–$165,000",
+          "expected_total": "$180,000–$195,000",
+          "flexibility": "Acknowledged current total comp is above the likely market for a specialist Director role; willing to have a 'real conversation' once scope is confirmed",
+          "budget_range": "$120,000–$145,000 base, $145,000–$170,000 total"
+        },
+        "notice_period": "4 weeks",
+        "earliest_start_date": "Late March 2026",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Specialisation after years of breadth",
+            "detail": "Wants to go deep in total rewards rather than continuing as a generalist — sees this as the natural next step for his career trajectory."
+          },
+          {
+            "type": "push",
+            "headline": "Limited ceiling at CCBCC",
+            "detail": "Corporate total rewards is centralised in Charlotte; regional HR Directors have minimal influence over comp and benefits strategy. He wants ownership he cannot get within the current CCBCC structure."
+          }
+        ],
+        "potential_concerns": [
+          {
+            "concern": "Compensation gap — current total comp of $171K is materially above the PBV Director budget ceiling; will require a frank discussion about the trade-off between scope gain and comp step-down",
+            "severity": "significant"
+          },
+          {
+            "concern": "Never led a specialist comp function — his depth is generalist HR leadership with comp as one component, not the primary discipline. The Year 1 DSR incentive redesign requires technical compensation expertise he may not possess",
+            "severity": "significant"
+          },
+          {
+            "concern": "Benefits ownership has always been centrally driven at CCBCC — he will be entering vendor negotiations, broker management, and plan design territory where he has limited hands-on experience",
+            "severity": "development"
+          }
+        ],
+        "our_take": {
+          "text": "We believe James brings something genuinely rare: a person who has operated inside the same DSD workforce model, at the same scale, at PBV's nearest competitor. His instincts for the operational realities of route driver pay are real and validated. The concern is that he is a skilled HR generalist applying for a specialist role, and the comp gap — $171K current total versus a sub-$170K PBV ceiling — means this conversation will require an honest trade-off discussion. If he is genuinely motivated by the specialisation opportunity and willing to absorb a short-term comp reset, the industry knowledge could outweigh the technical depth question. Worth exploring whether his appetite for the DSR redesign is genuine ambition or surface-level interest.",
+          "discussion_points": [
+            "Can he articulate what he would do differently with the DSR incentive structure — does he have a real hypothesis or a general observation?",
+            "Is the comp gap genuinely workable, or is he testing the market? A direct question is appropriate.",
+            "How has he developed compensation decisions in his current role when the central team owned the framework?"
+          ],
+          "ai_rationale": "Structured around the two dominant tensions: industry knowledge as a genuine differentiator versus generalist background as a real risk, and comp gap as a concrete practical concern. Did not recommend advance or hold per product principles."
+        },
+        "search_name": "Director of Compensation & Benefits · Pepsi Bottling Ventures",
+        "role_title": "Director of Compensation & Benefits",
+        "generated_date": "24 February 2026",
+        "consultant_name": "Jackie Wyard-Yates",
+        "match_score_display": "HIDE"
+      }
+    },
+    {
+      "candidate_name": "Alicia Perez",
+      "current_title": "Compensation Manager",
+      "current_company": "Reyes Beverage Group",
+      "location": "Rosemont, IL",
+      "initials": "AP",
+      "flash_summary": "Compensation specialist from one of the largest US beer and beverage distributors, with hands-on experience designing variable pay for a 6,000-strong hourly distribution workforce. <strong>Pure comp depth, minimal benefits ownership</strong> to date.",
+      "key_strengths": [
+        "Specialist compensation background at a large-scale beverage distribution company",
+        "Designed variable pay programmes for hourly warehouse and delivery workforce at Reyes Beverage Group",
+        "Workday Advanced Compensation certified; strong modelling and analytics capability"
+      ],
+      "notice_period": "Not mentioned",
+      "compensation_alignment": "green",
+      "candidate_id": "alicia-perez",
+      "edc_data": {
+        "candidate_name": "Alicia Perez",
+        "current_title": "Compensation Manager",
+        "current_company": "Reyes Beverage Group",
+        "location": "Rosemont, IL",
+        "scope_match": [
+          {
+            "dimension": "Compensation Depth",
+            "candidate_actual": "Pure compensation specialist; 8 years in comp design and analytics",
+            "role_requirement": "Strong comp foundation with ability to own benefits strategy",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "Benefits Ownership",
+            "candidate_actual": "Minimal benefits experience; comp-only mandate at Reyes",
+            "role_requirement": "Full benefits administration and cost management ownership",
+            "alignment": "gap"
+          },
+          {
+            "dimension": "People Leadership",
+            "candidate_actual": "Manages 1 analyst; seeking first multi-person leadership role",
+            "role_requirement": "Director managing 3–4 analysts",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Alicia presents the <strong>strongest pure compensation credentials</strong> in the slate — but the benefits gap is structural. The PBV Director role carries full ownership of benefits strategy and vendor management alongside comp design. An internal benefits specialist partnership or a rapid-ramp plan would be needed to bridge this.",
+        "key_criteria": [
+          {
+            "name": "Total Rewards Program Design",
+            "evidence": "Not mentioned",
+            "context_anchor": "at Reyes Beverage Group"
+          },
+          {
+            "name": "Hourly & Route Sales Incentive Structure",
+            "evidence": "Designed <strong>variable pay structures for 6,000 hourly distribution workers</strong> at Reyes Beverage Group including warehouse, delivery driver, and merchandiser populations. Has modelled multiple incentive scenarios and led the transition from a legacy piece-rate structure to a performance-based variable model.",
+            "context_anchor": "at Reyes Beverage Group"
+          },
+          {
+            "name": "Benefits Administration & Cost Management",
+            "evidence": "Not mentioned — Alicia's current mandate is compensation only. Benefits are owned by a separate team at Reyes Beverage Group.",
+            "context_anchor": "at Reyes Beverage Group"
+          },
+          {
+            "name": "Compensation Analytics & HRIS",
+            "evidence": "Workday Advanced Compensation certified; <strong>primary comp module admin at Reyes Beverage Group</strong>. Described building a pay equity analysis framework from scratch that is now used quarterly.",
+            "context_anchor": "at Reyes Beverage Group"
+          },
+          {
+            "name": "HR Business Partnering & Change Leadership",
+            "evidence": "Not mentioned",
+            "context_anchor": "at Reyes Beverage Group"
+          }
+        ],
+        "compensation": {
+          "current_base": "Not mentioned",
+          "current_total": "Not mentioned",
+          "expected_base": "Not mentioned",
+          "expected_total": "Not mentioned",
+          "flexibility": "Not mentioned",
+          "budget_range": "$120,000–$145,000 base, $145,000–$170,000 total"
+        },
+        "notice_period": "Not mentioned",
+        "earliest_start_date": "Not mentioned",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Seeking Director-level ownership",
+            "detail": "Has been a specialist for 8 years and wants a role with full function ownership including a team to develop."
+          }
+        ],
+        "potential_concerns": [
+          {
+            "concern": "No benefits ownership whatsoever — taking on a Director role with full benefits strategy accountability represents a major scope gap that will require a steep learning curve in Year 1",
+            "severity": "significant"
+          }
+        ],
+        "our_take": {
+          "text": "We believe Alicia's compensation credentials are the strongest in the slate on the technical side, and her beverage distribution background is genuinely relevant. The question the client needs to answer is how much benefits experience matters in Year 1 — if the DSR incentive redesign is the priority deliverable, she is arguably the best-equipped candidate to execute it. If benefits cost management is equally urgent, the gap is structural and would require active mitigation.",
+          "discussion_points": [
+            "How important is benefits ownership depth in Year 1 versus compensation design capability?",
+            "What is her plan for developing benefits knowledge quickly if she were to join?"
+          ],
+          "ai_rationale": "Kept brief given this is a partial EDC. Focused on the core trade-off the client needs to make."
+        },
+        "search_name": "Director of Compensation & Benefits · Pepsi Bottling Ventures",
+        "role_title": "Director of Compensation & Benefits",
+        "generated_date": "24 February 2026",
+        "consultant_name": "Jackie Wyard-Yates",
+        "match_score_display": "HIDE"
+      }
+    },
+    {
+      "candidate_name": "Robert Garcia",
+      "current_title": "Director of Total Rewards",
+      "current_company": "Keurig Dr Pepper",
+      "location": "Frisco, TX",
+      "initials": "RG",
+      "flash_summary": "Senior total rewards leader with end-to-end comp and benefits ownership for 26,000 employees at a major CPG company. <strong>Right title, strong credentials — significant comp gap</strong> is the primary consideration.",
+      "key_strengths": [
+        "Full total rewards ownership at scale — comp, benefits, equity, and HRIS for 26,000 KDP employees",
+        "Led enterprise-wide job architecture redesign covering 4,200 roles post KDP merger",
+        "Benefits cost reduction track record: 7% medical cost reduction over two renewal cycles"
+      ],
+      "notice_period": "Not mentioned",
+      "compensation_alignment": "amber",
+      "candidate_id": "robert-garcia",
+      "edc_data": {
+        "candidate_name": "Robert Garcia",
+        "current_title": "Director of Total Rewards",
+        "current_company": "Keurig Dr Pepper",
+        "location": "Frisco, TX",
+        "scope_match": [
+          {
+            "dimension": "Seniority & Scope",
+            "candidate_actual": "Director of Total Rewards for 26,000-employee CPG enterprise",
+            "role_requirement": "Director for 7,000-employee DSD company — a step down in scale",
+            "alignment": "partial"
+          },
+          {
+            "dimension": "Total Rewards Depth",
+            "candidate_actual": "Full comp, benefits, equity, and HRIS ownership at enterprise scale",
+            "role_requirement": "Full total rewards ownership at mid-market scale",
+            "alignment": "strong"
+          },
+          {
+            "dimension": "DSD / Distribution Model",
+            "candidate_actual": "CPG enterprise; some DSD exposure post-merger but not primary background",
+            "role_requirement": "Route driver and distribution workforce incentive expertise",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Robert is the most credentialed candidate in the slate by a significant margin — but he is being asked to step down in both company scale and likely compensation. The <strong>genuine question is motivation</strong>: is the move to a smaller, privately-held bottler a considered career choice or a contingency position? His answer will determine whether this is worth progressing.",
+        "key_criteria": [
+          {
+            "name": "Total Rewards Program Design",
+            "evidence": "Led the <strong>post-merger job architecture redesign at Keurig Dr Pepper</strong> covering 4,200 roles across the combined entity, establishing the grade structure and market pricing methodology now used across the enterprise. This represents the most significant greenfield design work in the current slate.",
+            "context_anchor": "at Keurig Dr Pepper"
+          },
+          {
+            "name": "Hourly & Route Sales Incentive Structure",
+            "evidence": "Not mentioned — KDP has a DSD network but Robert's mandate is enterprise-wide rather than workforce-segment specific. Route driver incentive design does not appear to be a primary area of focus in his current role.",
+            "context_anchor": "at Keurig Dr Pepper"
+          },
+          {
+            "name": "Benefits Administration & Cost Management",
+            "evidence": "Owns the full <strong>benefits strategy and vendor relationships for 26,000 KDP employees</strong>, including medical, dental, vision, life, disability, and voluntary. Achieved a 7% reduction in medical plan cost per employee over two consecutive renewal cycles through plan design changes and Rx formulary renegotiation.",
+            "context_anchor": "at Keurig Dr Pepper"
+          },
+          {
+            "name": "Compensation Analytics & HRIS",
+            "evidence": "Not mentioned",
+            "context_anchor": "at Keurig Dr Pepper"
+          },
+          {
+            "name": "HR Business Partnering & Change Leadership",
+            "evidence": "Not mentioned",
+            "context_anchor": "at Keurig Dr Pepper"
+          }
+        ],
+        "compensation": {
+          "current_base": "Not mentioned",
+          "current_total": "Not mentioned",
+          "expected_base": "Not mentioned",
+          "expected_total": "Not mentioned",
+          "flexibility": "Not explored — compensation discussion was deferred pending confirmation of fit",
+          "budget_range": "$120,000–$145,000 base, $145,000–$170,000 total"
+        },
+        "notice_period": "Not mentioned",
+        "earliest_start_date": "Not mentioned",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Seeking autonomy over enterprise scale",
+            "detail": "Expressed a preference for a smaller organisation where he can see the direct impact of his decisions rather than being one layer in a large corporate function."
+          }
+        ],
+        "potential_concerns": [
+          {
+            "concern": "Compensation gap is likely material — KDP Director of Total Rewards at enterprise scale will be compensated significantly above PBV's budget ceiling. The conversation has not yet happened.",
+            "severity": "significant"
+          },
+          {
+            "concern": "Motivation requires probing — moving from a 26,000-person CPG enterprise to a 7,000-person regional bottler is a meaningful scope reduction. Whether this is a genuine lifestyle/autonomy decision or a contingency needs establishing early.",
+            "severity": "significant"
+          }
+        ],
+        "our_take": {
+          "text": "We believe Robert is technically the strongest candidate in the slate — his credentials on job architecture, benefits cost reduction, and enterprise-scale ownership are directly relevant. The two unknown variables are compensation and motivation. Both need direct answers before this is worth progressing. The client should be comfortable asking both questions plainly at the next interaction.",
+          "discussion_points": [
+            "What is his current total compensation, and what would he need to make the move viable?",
+            "What is specifically driving the interest in a smaller, private company — is this a genuine directional choice?"
+          ],
+          "ai_rationale": "Kept brief given partial EDC and the fact that the two dominant questions (comp and motivation) are unanswered. Avoided speculating on outcome."
+        },
+        "search_name": "Director of Compensation & Benefits · Pepsi Bottling Ventures",
+        "role_title": "Director of Compensation & Benefits",
+        "generated_date": "24 February 2026",
+        "consultant_name": "Jackie Wyard-Yates",
+        "match_score_display": "HIDE"
+      }
+    }
+  ]
+}

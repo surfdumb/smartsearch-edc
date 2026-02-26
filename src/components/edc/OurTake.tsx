@@ -58,7 +58,7 @@ export default function OurTake({
   const [noteOpen, setNoteOpen] = useState(false);
   const [rationaleOpen, setRationaleOpen] = useState(false);
   const [notesInput, setNotesInput] = useState(original_note || "");
-  const [notesExpanded, setNotesExpanded] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(!text || text.length === 0);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
 
@@ -407,8 +407,8 @@ export default function OurTake({
         </div>
       )}
 
-      {/* Consultant-only sections: Original Note + AI Rationale */}
-      {isConsultantView && (original_note || ai_rationale) && (
+      {/* Consultant-only sections: Original Note + AI Rationale (shown only after Our Take is generated) */}
+      {isConsultantView && hasContent && (original_note || ai_rationale) && (
         <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
           {/* Original Note collapsible */}
           {original_note && (
