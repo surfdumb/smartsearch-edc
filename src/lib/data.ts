@@ -11,13 +11,17 @@ interface FixtureFile {
 const fixtures = fixtureData as FixtureFile;
 
 export async function getCandidateData(
-  _searchId: string,
+  searchId: string,
   candidateId: string
 ): Promise<EDCData | null> {
-  // For v1.0, _searchId is ignored — we have a single fixture file
-  // When moving to API, searchId will scope the query
+  // Check flat fixtures first (legacy)
   const candidate = fixtures.candidates[candidateId] ?? null;
-  return candidate;
+  if (candidate) return candidate;
+
+  // Fall back to deck data — covers candidates defined in /data/decks/[searchId].json
+  const deck = await getDeckData(searchId);
+  const deckCandidate = deck?.candidates.find((c) => c.candidate_id === candidateId);
+  return deckCandidate?.edc_data ?? null;
 }
 
 export async function getSearchCandidates(
