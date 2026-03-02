@@ -284,7 +284,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                 <CompareRow
                   label="Current Role"
                   candidates={candidates}
-                  renderCell={(c) => (
+                  renderCell={(c, _i, _expanded) => (
                     <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
                       {c.current_title}
                       <br />
@@ -299,8 +299,9 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                     key={criterionName}
                     label={criterionName}
                     isAlt={rowIdx % 2 === 0}
+                    expandable
                     candidates={candidates}
-                    renderCell={(c, i) => {
+                    renderCell={(c, i, isExpanded) => {
                       const entry = criteriaByCandidate[i][criterionName];
                       if (!entry) {
                         return (
@@ -309,12 +310,13 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                           </span>
                         );
                       }
-                      const plainEvidence = snippet(entry.evidence);
+                      const plain = entry.evidence.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+                      const displayText = isExpanded ? plain : snippet(plain);
                       return (
                         <div>
                           <EditableField
-                            value={plainEvidence}
-                            originalValue={plainEvidence}
+                            value={displayText}
+                            originalValue={displayText}
                             as="p"
                             style={{
                               fontSize: "0.78rem",
@@ -349,7 +351,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                 <CompareRow
                   label="Compensation"
                   candidates={candidates}
-                  renderCell={(c) => (
+                  renderCell={(c, _i, _expanded) => (
                     <div style={{ fontSize: "0.78rem", lineHeight: 1.7 }}>
                       <div>
                         <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
@@ -378,7 +380,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                   label="Notice Period"
                   candidates={candidates}
                   isLast
-                  renderCell={(c) => (
+                  renderCell={(c, _i, _expanded) => (
                     <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)" }}>
                       {c.edc_data.notice_period}
                     </span>
@@ -417,13 +419,15 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
 interface CompareRowProps {
   label: string;
   candidates: SearchContext["candidates"];
-  renderCell: (candidate: SearchContext["candidates"][number], index: number) => React.ReactNode;
+  renderCell: (candidate: SearchContext["candidates"][number], index: number, isExpanded: boolean) => React.ReactNode;
   isAlt?: boolean;
   isLast?: boolean;
+  expandable?: boolean;
 }
 
-function CompareRow({ label, candidates, renderCell, isAlt, isLast }: CompareRowProps) {
+function CompareRow({ label, candidates, renderCell, isAlt, isLast, expandable }: CompareRowProps) {
   const rowBg = isAlt ? "rgba(255,255,255,0.015)" : "transparent";
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <tr>
@@ -448,10 +452,33 @@ function CompareRow({ label, candidates, renderCell, isAlt, isLast }: CompareRow
             color: "rgba(197,165,114,0.5)",
             lineHeight: 1.4,
             display: "block",
+            marginBottom: expandable ? "10px" : undefined,
           }}
         >
           {label}
         </span>
+        {expandable && (
+          <button
+            onClick={() => setIsExpanded((v) => !v)}
+            style={{
+              fontSize: "0.6rem",
+              fontWeight: 600,
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+              color: isExpanded ? "var(--ss-gold)" : "rgba(255,255,255,0.2)",
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              transition: "color 0.15s",
+            }}
+          >
+            {isExpanded ? "↑ Less" : "↓ More"}
+          </button>
+        )}
       </td>
 
       {/* Candidate cells */}
@@ -466,7 +493,7 @@ function CompareRow({ label, candidates, renderCell, isAlt, isLast }: CompareRow
             verticalAlign: "top",
           }}
         >
-          {renderCell(candidate, i)}
+          {renderCell(candidate, i, isExpanded)}
         </td>
       ))}
     </tr>
