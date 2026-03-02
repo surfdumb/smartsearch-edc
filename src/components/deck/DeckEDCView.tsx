@@ -1,12 +1,25 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import DeckNavigation from "@/components/deck/DeckNavigation";
 import EDCStatusBar from "@/components/deck/EDCStatusBar";
 import EDCCard from "@/components/edc/EDCCard";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
-import type { IntroCardData } from "@/lib/types";
+import type { IntroCardData, EDCData } from "@/lib/types";
+
+interface OurTakeResult {
+  text: string;
+  recommendation?: "ADVANCE" | "HOLD" | "PASS";
+  discussion_points?: string[];
+  ai_rationale?: string;
+  original_note?: string;
+}
+
+function ourTakeStorageKey(candidateId: string) {
+  return `edc_ourtake_result_${candidateId}`;
+}
 
 interface DeckEDCViewProps {
   candidate: IntroCardData;
@@ -36,6 +49,28 @@ export default function DeckEDCView({
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const edc = candidate.edc_data;
   const isEditable = isEditRoute && state === "draft";
+
+  // Our Take result — persisted in localStorage so generated text survives page nav
+  const [ourTakeOverride, setOurTakeOverride] = useState<OurTakeResult | null>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(ourTakeStorageKey(candidate.candidate_id));
+      if (stored) setOurTakeOverride(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, [candidate.candidate_id]);
+
+  const handleOurTakeGenerated = (result: OurTakeResult) => {
+    setOurTakeOverride(result);
+    try {
+      localStorage.setItem(ourTakeStorageKey(candidate.candidate_id), JSON.stringify(result));
+    } catch { /* ignore */ }
+  };
+
+  // Merge any generated/stored Our Take into the EDC data
+  const edcWithOurTake: EDCData = ourTakeOverride
+    ? { ...edc, our_take: { ...edc.our_take, ...ourTakeOverride } }
+    : edc;
 
   return (
     <EditorContext.Provider value={{ isEditable }}>
@@ -73,11 +108,12 @@ export default function DeckEDCView({
             style={{ padding: split ? "0" : "0 24px 80px" }}
           >
             <EDCCard
-              data={edc}
+              data={edcWithOurTake}
               isConsultantView={isEditable}
               fluid={split}
               context="deck"
               candidateId={candidate.candidate_id}
+              onOurTakeGenerated={isEditable ? handleOurTakeGenerated : undefined}
             />
           </div>
         </SplitViewContainer>
