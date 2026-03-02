@@ -248,7 +248,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                       }}
                     >
                       <a
-                        href={`/deck/${searchId}#${candidate.candidate_id}`}
+                        href={`/search/${searchId}/edc/${candidate.candidate_id}`}
                         style={{
                           fontSize: "0.65rem",
                           fontWeight: 600,
