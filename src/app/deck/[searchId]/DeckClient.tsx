@@ -242,32 +242,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   Client View →
                 </a>
               </>
-            ) : (
-              <a
-                href={`/deck/${searchId}/edit`}
-                style={{
-                  fontSize: "0.72rem",
-                  fontWeight: 600,
-                  color: "rgba(197,165,114,0.3)",
-                  textDecoration: "none",
-                  letterSpacing: "0.5px",
-                  padding: "6px 14px",
-                  border: "1px solid rgba(197,165,114,0.08)",
-                  borderRadius: "8px",
-                  transition: "all 0.2s",
-                }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.7)";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.25)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.3)";
-                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.08)";
-                }}
-              >
-                ✏ Edit
-              </a>
-            )}
+            ) : null}
             <a
               href={`/deck/${searchId}/compare`}
               style={{
