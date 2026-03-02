@@ -181,30 +181,53 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
           >
             Executive <em style={{ fontStyle: "italic" }}>Decision</em> Deck
           </span>
-          <a
-            href={`/deck/${searchId}/compare`}
-            style={{
-              fontSize: "0.72rem",
-              fontWeight: 600,
-              color: "rgba(197,165,114,0.6)",
-              textDecoration: "none",
-              letterSpacing: "0.5px",
-              padding: "6px 14px",
-              border: "1px solid rgba(197,165,114,0.15)",
-              borderRadius: "8px",
-              transition: "all 0.2s",
-            }}
-            onMouseOver={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.4)";
-            }}
-            onMouseOut={(e) => {
-              (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.6)";
-              (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.15)";
-            }}
-          >
-            Compare All →
-          </a>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <a
+              href={`/deck/${searchId}/compare`}
+              style={{
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: "rgba(197,165,114,0.6)",
+                textDecoration: "none",
+                letterSpacing: "0.5px",
+                padding: "6px 14px",
+                border: "1px solid rgba(197,165,114,0.15)",
+                borderRadius: "8px",
+                transition: "all 0.2s",
+              }}
+              onMouseOver={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.4)";
+              }}
+              onMouseOut={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.6)";
+                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.15)";
+              }}
+            >
+              Compare All →
+            </a>
+            <a
+              href={`/deck/${searchId}/settings`}
+              title="Deck settings"
+              style={{
+                fontSize: "0.85rem",
+                color: "rgba(197,165,114,0.35)",
+                textDecoration: "none",
+                padding: "6px 8px",
+                borderRadius: "8px",
+                transition: "color 0.2s",
+                lineHeight: 1,
+              }}
+              onMouseOver={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
+              }}
+              onMouseOut={(e) => {
+                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.35)";
+              }}
+            >
+              ⚙
+            </a>
+          </div>
         </div>
 
         <div style={{ padding: "40px 24px" }}>
@@ -215,6 +238,7 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
             key_criteria_names={data.key_criteria_names}
             search_lead={data.search_lead}
             client_logo_url={data.client_logo_url}
+            searchId={searchId}
           />
 
           <p

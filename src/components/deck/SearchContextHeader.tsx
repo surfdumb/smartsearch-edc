@@ -1,6 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useState, useEffect } from "react";
+
 interface SearchContextHeaderProps {
   search_name: string;
   client_company: string;
@@ -8,6 +10,7 @@ interface SearchContextHeaderProps {
   key_criteria_names: string[];
   search_lead: string;
   client_logo_url?: string;
+  searchId: string;
 }
 
 export default function SearchContextHeader({
@@ -17,7 +20,21 @@ export default function SearchContextHeader({
   key_criteria_names,
   search_lead,
   client_logo_url,
+  searchId,
 }: SearchContextHeaderProps) {
+  const storageKey = `search_logo_${searchId}`;
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  // Load persisted logo on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(storageKey);
+      setLogoUrl(stored ?? client_logo_url ?? null);
+    } catch {
+      setLogoUrl(client_logo_url ?? null);
+    }
+  }, [storageKey, client_logo_url]);
+
   return (
     <div
       style={{
@@ -41,6 +58,7 @@ export default function SearchContextHeader({
       >
         {search_name}
       </h1>
+
       <div
         style={{
           display: "flex",
@@ -49,19 +67,21 @@ export default function SearchContextHeader({
           marginBottom: "20px",
         }}
       >
-        {client_logo_url && (
+        {logoUrl && (
           <img
-            src={client_logo_url}
+            src={logoUrl}
             alt={client_company}
-            style={{
-              height: "22px",
-              opacity: 0.85,
-              flexShrink: 0,
-            }}
+            style={{ height: "22px", opacity: 0.85, flexShrink: 0 }}
           />
         )}
         <p style={{ fontSize: "0.95rem", color: "var(--ss-gold)", margin: 0 }}>
-          {client_company} · {client_location}
+          {client_company}
+          {client_location && (
+            <>
+              <span style={{ color: "rgba(197,165,114,0.3)", margin: "0 8px" }}>·</span>
+              {client_location}
+            </>
+          )}
         </p>
       </div>
 
@@ -91,7 +111,14 @@ export default function SearchContextHeader({
                 gap: "8px",
               }}
             >
-              <span style={{ color: "var(--ss-gold)", opacity: 0.6, fontWeight: 600, minWidth: "16px" }}>
+              <span
+                style={{
+                  color: "var(--ss-gold)",
+                  opacity: 0.6,
+                  fontWeight: 600,
+                  minWidth: "16px",
+                }}
+              >
                 {i + 1}.
               </span>
               {name}
