@@ -267,27 +267,29 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             >
               Compare All →
             </a>
-            <a
-              href={`/deck/${searchId}/settings`}
-              title="Deck settings"
-              style={{
-                fontSize: "0.85rem",
-                color: "rgba(197,165,114,0.35)",
-                textDecoration: "none",
-                padding: "6px 8px",
-                borderRadius: "8px",
-                transition: "color 0.2s",
-                lineHeight: 1,
-              }}
-              onMouseOver={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
-              }}
-              onMouseOut={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.35)";
-              }}
-            >
-              ⚙
-            </a>
+            {isEditRoute && (
+              <a
+                href={`/deck/${searchId}/settings`}
+                title="Deck settings"
+                style={{
+                  fontSize: "0.85rem",
+                  color: "rgba(197,165,114,0.35)",
+                  textDecoration: "none",
+                  padding: "6px 8px",
+                  borderRadius: "8px",
+                  transition: "color 0.2s",
+                  lineHeight: 1,
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.35)";
+                }}
+              >
+                ⚙
+              </a>
+            )}
           </div>
         </div>
 
