@@ -30,6 +30,7 @@ function Editable({
   onSave,
   originalValue,
   onReset,
+  editMode = false,
   as: Tag = "span",
   html = false,
   singleLine = false,
@@ -40,6 +41,7 @@ function Editable({
   onSave: (v: string) => void;
   originalValue?: string;
   onReset?: () => void;
+  editMode?: boolean;
   as?: "span" | "p" | "h3";
   html?: boolean;
   singleLine?: boolean;
@@ -52,6 +54,14 @@ function Editable({
   const [isModified, setIsModified] = useState(
     originalValue !== undefined && value.trim() !== originalValue.trim()
   );
+
+  // Static render when not in edit mode
+  if (!editMode) {
+    if (html) {
+      return <Tag className={className} style={style} dangerouslySetInnerHTML={{ __html: value }} />;
+    }
+    return <Tag className={className} style={style}>{value}</Tag>;
+  }
 
   const baseStyle: React.CSSProperties = {
     ...style,
@@ -105,7 +115,6 @@ function Editable({
     if (onReset) {
       onReset();
       setIsModified(false);
-      // Update DOM to fixture value
       const el = ref.current;
       if (el && originalValue !== undefined) {
         if (html) el.innerHTML = originalValue;
@@ -290,6 +299,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           onSave={(val) => save({ candidate_name: val })}
           originalValue={card.candidate_name}
           onReset={() => save({ candidate_name: undefined })}
+          editMode={editMode}
           as="h3"
           singleLine
           className="font-cormorant"
@@ -308,6 +318,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           onSave={(val) => save({ current_title: val })}
           originalValue={card.current_title}
           onReset={() => save({ current_title: undefined })}
+          editMode={editMode}
           as="p"
           singleLine
           style={{ fontSize: "0.78rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}
@@ -320,6 +331,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             onSave={(val) => save({ current_company: val })}
             originalValue={card.current_company}
             onReset={() => save({ current_company: undefined })}
+            editMode={editMode}
             singleLine
             style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
           />
@@ -331,6 +343,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onSave={(val) => save({ location: val })}
                 originalValue={card.location}
                 onReset={() => save({ location: undefined })}
+                editMode={editMode}
                 singleLine
                 style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
               />
@@ -349,6 +362,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             onSave={(val) => save({ flash_summary: val })}
             originalValue={card.flash_summary ?? ""}
             onReset={() => save({ flash_summary: undefined })}
+            editMode={editMode}
             as="p"
             html
             style={{
@@ -371,6 +385,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                   onSave={(val) => saveStrength(i, val)}
                   originalValue={(card.key_strengths ?? [])[i] ?? ""}
                   onReset={() => saveStrength(i, (card.key_strengths ?? [])[i] ?? "")}
+                  editMode={editMode}
                   style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}
                 />
               </div>
@@ -388,6 +403,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onSave={(val) => save({ notice_period: val })}
                 originalValue={card.notice_period ?? ""}
                 onReset={() => save({ notice_period: undefined })}
+                editMode={editMode}
                 singleLine
                 style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}
               />
