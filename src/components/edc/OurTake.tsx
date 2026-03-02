@@ -268,15 +268,34 @@ export default function OurTake({
           <>
             {/* Main assessment text */}
             <div style={{ padding: "22px 28px" }}>
-              <EditableField
-                value={text}
-                as="p"
-                style={{
-                  fontSize: "0.9rem",
-                  color: "var(--ss-gray)",
-                  lineHeight: 1.8,
-                }}
-              />
+              {isEditable ? (
+                <EditableField
+                  value={text}
+                  as="div"
+                  style={{
+                    fontSize: "0.9rem",
+                    color: "var(--ss-gray)",
+                    lineHeight: 1.8,
+                    whiteSpace: "pre-line",
+                  }}
+                />
+              ) : (
+                <div>
+                  {text.split("\n\n").map((para, i) => (
+                    <p
+                      key={i}
+                      style={{
+                        fontSize: "0.9rem",
+                        color: "var(--ss-gray)",
+                        lineHeight: 1.8,
+                        marginTop: i > 0 ? "1rem" : 0,
+                      }}
+                    >
+                      {para}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Discussion points */}
