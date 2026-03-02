@@ -13,7 +13,6 @@ interface OurTakeResult {
 
 interface OurTakeProps {
   text: string;
-  consultant_name: string;
   recommendation?: 'ADVANCE' | 'HOLD' | 'PASS';
   discussion_points?: string[];
   original_note?: string;
@@ -51,12 +50,11 @@ const BADGE_STYLES: Record<string, { bg: string; border: string; color: string; 
 
 export default function OurTake({
   text,
-  consultant_name,
   recommendation,
   discussion_points,
   original_note,
   ai_rationale,
-  isConsultantView = true,
+  isConsultantView = false,
   candidateId,
   candidateContext,
   onOurTakeGenerated,
@@ -147,6 +145,9 @@ export default function OurTake({
   const badge = recommendation ? BADGE_STYLES[recommendation] : null;
   const canGenerate = isConsultantView && candidateContext && onOurTakeGenerated;
 
+  // Client view with no content → don't show empty shell
+  if (!hasContent && !isConsultantView) return null;
+
   const handleGenerate = async () => {
     if (!candidateContext || !onOurTakeGenerated) return;
     setGenerating(true);
@@ -200,9 +201,6 @@ export default function OurTake({
           style={{ fontSize: "1.5rem", fontWeight: 600, color: "var(--ss-dark)" }}
         >
           Our Take
-        </span>
-        <span style={{ fontSize: "0.82rem", color: "var(--ss-gray-light)", fontWeight: 400, marginLeft: "4px" }}>
-          &mdash; {consultant_name}
         </span>
         {/* Recommendation badge */}
         {badge && (

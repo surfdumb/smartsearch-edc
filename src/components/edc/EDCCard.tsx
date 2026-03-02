@@ -103,7 +103,6 @@ export default function EDCCard({
 
         <OurTake
           text={data.our_take.text}
-          consultant_name={data.consultant_name}
           recommendation={data.our_take.recommendation}
           discussion_points={data.our_take.discussion_points}
           original_note={data.our_take.original_note}
