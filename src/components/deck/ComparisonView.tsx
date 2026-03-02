@@ -11,12 +11,16 @@ interface ComparisonViewProps {
   searchId: string;
 }
 
-/** Strip HTML tags and truncate plain text to a word boundary. */
-function snippet(html: string, maxChars = 110): string {
-  const plain = html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-  if (plain.length <= maxChars) return plain;
-  const cut = plain.slice(0, maxChars);
-  return cut.slice(0, cut.lastIndexOf(' ') || maxChars) + '…';
+/** Inject inline bold+italic styles onto <strong> tags for comparison cells. */
+function styleEvidence(html: string): string {
+  return html
+    .replace(/<strong>/gi, '<strong style="font-weight:700;font-style:italic;color:rgba(255,255,255,0.85)">')
+    .replace(/<b>/gi, '<b style="font-weight:700;font-style:italic;color:rgba(255,255,255,0.85)">');
+}
+
+/** Strip HTML to plain text. */
+function toPlain(html: string): string {
+  return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 }
 
 export default function ComparisonView({ data, searchId }: ComparisonViewProps) {
@@ -310,21 +314,35 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                           </span>
                         );
                       }
-                      const plain = entry.evidence.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-                      const displayText = isExpanded ? plain : snippet(plain);
+                      const styledHtml = styleEvidence(entry.evidence);
+                      const plain = toPlain(entry.evidence);
+                      const cellStyle: React.CSSProperties = {
+                        fontSize: "0.78rem",
+                        color: "rgba(255,255,255,0.55)",
+                        lineHeight: 1.6,
+                        margin: 0,
+                        ...(isExpanded ? {} : {
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical" as const,
+                          overflow: "hidden",
+                        }),
+                      };
                       return (
                         <div>
-                          <EditableField
-                            value={displayText}
-                            originalValue={displayText}
-                            as="p"
-                            style={{
-                              fontSize: "0.78rem",
-                              color: "rgba(255,255,255,0.55)",
-                              lineHeight: 1.6,
-                              margin: 0,
-                            }}
-                          />
+                          {isEditing ? (
+                            <EditableField
+                              value={plain}
+                              originalValue={plain}
+                              as="p"
+                              style={cellStyle}
+                            />
+                          ) : (
+                            <p
+                              style={cellStyle}
+                              dangerouslySetInnerHTML={{ __html: styledHtml }}
+                            />
+                          )}
                           {entry.context_anchor && (
                             <span
                               style={{
