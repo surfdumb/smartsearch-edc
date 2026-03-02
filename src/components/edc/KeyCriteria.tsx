@@ -59,6 +59,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
               </h4>
               <EditableField
                 value={item.evidence}
+                originalValue={item.evidence}
                 html
                 className="text-body text-ss-gray"
                 style={{ lineHeight: 1.65 }}

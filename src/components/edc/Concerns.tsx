@@ -167,6 +167,7 @@ export default function Concerns({ potential_concerns, candidateId }: ConcernsPr
               </span>
               <EditableField
                 value={item.concern}
+                originalValue={item.concern}
                 as="p"
                 style={{ fontSize: "0.87rem", color: "var(--ss-dark)", lineHeight: 1.65 }}
               />

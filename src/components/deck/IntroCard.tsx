@@ -18,6 +18,21 @@ type CardEdits = {
   flash_summary?: string;
   key_strengths?: string[];
   notice_period?: string;
+  compensation_alignment?: "green" | "amber" | "red" | "not_set";
+};
+
+const COMP_CYCLE: Array<"green" | "amber" | "red" | "not_set"> = ["green", "amber", "red", "not_set"];
+const COMP_LABEL: Record<string, string> = {
+  green: "Comp aligned",
+  amber: "Comp stretch",
+  red: "Comp gap",
+  not_set: "Comp not set",
+};
+const COMP_COLOR: Record<string, string> = {
+  green: "var(--ss-green)",
+  amber: "var(--ss-yellow)",
+  red: "var(--ss-red)",
+  not_set: "var(--ss-gray-light)",
 };
 
 function editsKey(id: string) {
@@ -217,14 +232,19 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
     flash_summary: edits.flash_summary ?? card.flash_summary ?? "",
     key_strengths: edits.key_strengths ?? card.key_strengths ?? [],
     notice_period: edits.notice_period ?? card.notice_period ?? "",
+    compensation_alignment: edits.compensation_alignment ?? card.compensation_alignment ?? "not_set",
   };
 
-  const alignmentColor = {
-    green: "var(--ss-green)",
-    amber: "var(--ss-yellow)",
-    red: "var(--ss-red)",
-    not_set: "var(--ss-gray-light)",
-  }[card.compensation_alignment ?? "not_set"];
+  const cycleAlignment = () => {
+    const curr = v.compensation_alignment as "green" | "amber" | "red" | "not_set";
+    const idx = COMP_CYCLE.indexOf(curr);
+    const next = COMP_CYCLE[(idx + 1) % COMP_CYCLE.length];
+    save({ compensation_alignment: next });
+  };
+
+  const alignmentIsModified =
+    v.compensation_alignment !== (card.compensation_alignment ?? "not_set");
+  const alignmentColor = COMP_COLOR[v.compensation_alignment];
 
   return (
     <div
@@ -397,12 +417,12 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         )}
 
         {/* Notice + comp alignment */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {v.notice_period && (
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "22px" }}>
+          {(v.notice_period || editMode) && (
             <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}>
               <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>Notice:</span>{" "}
               <Editable
-                value={v.notice_period}
+                value={v.notice_period || (editMode ? "—" : "")}
                 onSave={(val) => save({ notice_period: val })}
                 originalValue={card.notice_period ?? ""}
                 onReset={() => save({ notice_period: undefined })}
@@ -412,24 +432,68 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               />
             </span>
           )}
-          {card.compensation_alignment && card.compensation_alignment !== "not_set" && (
-            <span
-              style={{
-                fontSize: "0.68rem",
-                fontWeight: 600,
-                padding: "2px 8px",
-                borderRadius: "6px",
-                background: `${alignmentColor}18`,
-                color: alignmentColor,
-                letterSpacing: "0.5px",
-              }}
-            >
-              {card.compensation_alignment === "green"
-                ? "Comp aligned"
-                : card.compensation_alignment === "amber"
-                ? "Comp stretch"
-                : "Comp gap"}
+          {/* Comp alignment badge — static in client view, cycling button in edit mode */}
+          {editMode ? (
+            <span style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); cycleAlignment(); }}
+                title="Click to cycle compensation alignment"
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 600,
+                  padding: "2px 8px",
+                  borderRadius: "6px",
+                  background: `${alignmentColor}18`,
+                  color: alignmentColor,
+                  letterSpacing: "0.5px",
+                  border: `1px solid ${alignmentColor}40`,
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                {COMP_LABEL[v.compensation_alignment]}
+              </button>
+              {alignmentIsModified && (
+                <button
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    save({ compensation_alignment: undefined });
+                  }}
+                  title="Reset to original"
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    color: "rgba(197,165,114,0.5)",
+                    fontSize: "0.8rem",
+                    cursor: "pointer",
+                    padding: "1px 3px",
+                    lineHeight: 1,
+                    transition: "color 0.15s",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)"; }}
+                >
+                  ↺
+                </button>
+              )}
             </span>
+          ) : (
+            v.compensation_alignment !== "not_set" && (
+              <span
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 600,
+                  padding: "2px 8px",
+                  borderRadius: "6px",
+                  background: `${alignmentColor}18`,
+                  color: alignmentColor,
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {COMP_LABEL[v.compensation_alignment]}
+              </span>
+            )
           )}
         </div>
       </div>

@@ -53,6 +53,7 @@ export default function Motivation({ why_interested }: MotivationProps) {
               {" — "}
               <EditableField
                 value={item.detail}
+                originalValue={item.detail}
                 as="span"
                 style={{ color: "var(--ss-gray)", lineHeight: 1.65 }}
               />

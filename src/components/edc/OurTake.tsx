@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
+import OurTakeSourcePanel from "@/components/edc/OurTakeSourcePanel";
 
 interface OurTakeResult {
   text: string;
@@ -61,8 +62,6 @@ export default function OurTake({
 }: OurTakeProps) {
   const { isEditable } = useEditorContext();
   const [isHidden, setIsHidden] = useState(false);
-  const [noteOpen, setNoteOpen] = useState(false);
-  const [rationaleOpen, setRationaleOpen] = useState(false);
   const [notesInput, setNotesInput] = useState(original_note || "");
   const [notesExpanded, setNotesExpanded] = useState(!text || text.length === 0);
   const [generating, setGenerating] = useState(false);
@@ -281,19 +280,53 @@ export default function OurTake({
                 />
               ) : (
                 <div>
-                  {text.split("\n\n").map((para, i) => (
-                    <p
-                      key={i}
-                      style={{
-                        fontSize: "0.9rem",
-                        color: "var(--ss-gray)",
-                        lineHeight: 1.8,
-                        marginTop: i > 0 ? "1rem" : 0,
-                      }}
-                    >
-                      {para}
-                    </p>
-                  ))}
+                  {text.split("\n\n").map((para, i) => {
+                    // Bold the lead phrase only when separator appears before the first period.
+                    // This avoids mid-sentence dashes being treated as structural separators.
+                    const periodIdx = para.indexOf(".");
+                    const dashIdx = para.indexOf(" \u2014 "); // " — "
+                    const colonIdx = para.indexOf(": ");
+
+                    let lead = "";
+                    let rest = para;
+
+                    const useDash =
+                      dashIdx !== -1 &&
+                      (colonIdx === -1 || dashIdx <= colonIdx) &&
+                      (periodIdx === -1 || dashIdx < periodIdx);
+
+                    const useColon =
+                      !useDash &&
+                      colonIdx !== -1 &&
+                      (periodIdx === -1 || colonIdx < periodIdx);
+
+                    if (useDash) {
+                      lead = para.slice(0, dashIdx);
+                      rest = para.slice(dashIdx);
+                    } else if (useColon) {
+                      lead = para.slice(0, colonIdx + 1); // include colon in bold
+                      rest = para.slice(colonIdx + 1);
+                    }
+
+                    return (
+                      <p
+                        key={i}
+                        style={{
+                          fontSize: "0.9rem",
+                          color: "var(--ss-gray)",
+                          lineHeight: 1.8,
+                          marginTop: i > 0 ? "1rem" : 0,
+                        }}
+                      >
+                        {lead ? (
+                          <>
+                            <strong style={{ color: "var(--ss-dark)", fontWeight: 600 }}>{lead}</strong>
+                            {rest}
+                          </>
+                        ) : para}
+                      </p>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -525,118 +558,12 @@ export default function OurTake({
         </div>
       )}
 
-      {/* Consultant-only sections: Original Note + AI Rationale (shown only after Our Take is generated) */}
-      {isConsultantView && hasContent && (original_note || ai_rationale) && (
-        <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
-          {/* Original Note collapsible */}
-          {original_note && (
-            <div
-              style={{
-                border: "1px solid var(--ss-border)",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}
-            >
-              <button
-                onClick={() => setNoteOpen(!noteOpen)}
-                style={{
-                  width: "100%",
-                  padding: "12px 20px",
-                  background: "var(--ss-warm-tint)",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    color: "var(--ss-gray-light)",
-                  }}
-                >
-                  Consultant&apos;s Original Note
-                </span>
-                <span style={{ color: "var(--ss-gray-light)", fontSize: "0.8rem" }}>
-                  {noteOpen ? "\u2212" : "+"}
-                </span>
-              </button>
-              {noteOpen && (
-                <div style={{ padding: "16px 20px", background: "white" }}>
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "var(--ss-gray)",
-                      lineHeight: 1.7,
-                      fontStyle: "italic",
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {original_note}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* AI Rationale collapsible */}
-          {ai_rationale && (
-            <div
-              style={{
-                border: "1px solid var(--ss-border)",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}
-            >
-              <button
-                onClick={() => setRationaleOpen(!rationaleOpen)}
-                style={{
-                  width: "100%",
-                  padding: "12px 20px",
-                  background: "var(--ss-warm-tint)",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    letterSpacing: "1px",
-                    textTransform: "uppercase",
-                    color: "var(--ss-gray-light)",
-                  }}
-                >
-                  AI Rationale
-                </span>
-                <span style={{ color: "var(--ss-gray-light)", fontSize: "0.8rem" }}>
-                  {rationaleOpen ? "\u2212" : "+"}
-                </span>
-              </button>
-              {rationaleOpen && (
-                <div style={{ padding: "16px 20px", background: "white" }}>
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "var(--ss-gray)",
-                      lineHeight: 1.7,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {ai_rationale}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+      {/* Source notes + AI rationale — consultant view only, never in client DOM */}
+      {isConsultantView && (
+        <OurTakeSourcePanel
+          sourceNotes={original_note}
+          aiRationale={ai_rationale}
+        />
       )}
     </section>
   );
