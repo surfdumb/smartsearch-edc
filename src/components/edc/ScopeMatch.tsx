@@ -41,64 +41,71 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
         </div>
       )}
 
-      {/* Table header */}
-      <div
-        className="grid gap-4"
-        style={{
-          gridTemplateColumns: "160px 1fr 1fr 48px",
-          paddingBottom: "10px",
-          borderBottom: "1px solid #eeebe6",
-        }}
-      >
-        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
-          Dimension
-        </span>
-        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
-          Candidate
-        </span>
-        <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
-          Role Requirement
-        </span>
-        <span />
-      </div>
+      {/* Horizontally scrollable wrapper for mobile */}
+      <div className="scope-match-scroll">
+        <div className="scope-match-inner">
 
-      {/* Table rows — compact padding matching prototype */}
-      {scope_match.map((item, i) => (
-        <div
-          key={i}
-          className="grid gap-4 items-start"
-          style={{
-            gridTemplateColumns: "160px 1fr 1fr 48px",
-            padding: "12px 0",
-            borderBottom:
-              i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
-          }}
-        >
-          <span
+          {/* Table header */}
+          <div
+            className="grid gap-4"
             style={{
-              fontWeight: 500,
-              color: "var(--ss-dark)",
-              fontSize: "0.85rem",
+              gridTemplateColumns: "160px 1fr 1fr 48px",
+              paddingBottom: "10px",
+              borderBottom: "1px solid #eeebe6",
             }}
           >
-            {item.dimension}
-          </span>
-          <EditableField
-            value={item.candidate_actual}
-            as="span"
-            style={{ fontSize: "0.88rem", color: "var(--ss-dark)" }}
-          />
-          <EditableField
-            value={item.role_requirement}
-            as="span"
-            className="text-body text-ss-gray"
-            style={{ fontSize: "0.88rem" }}
-          />
-          <span className="flex items-center justify-center pt-1">
-            <AlignmentDot alignment={item.alignment} />
-          </span>
+            <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+              Dimension
+            </span>
+            <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+              Candidate
+            </span>
+            <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
+              Role Requirement
+            </span>
+            <span />
+          </div>
+
+          {/* Table rows — compact padding matching prototype */}
+          {scope_match.map((item, i) => (
+            <div
+              key={i}
+              className="grid gap-4 items-start"
+              style={{
+                gridTemplateColumns: "160px 1fr 1fr 48px",
+                padding: "12px 0",
+                borderBottom:
+                  i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
+              }}
+            >
+              <span
+                style={{
+                  fontWeight: 500,
+                  color: "var(--ss-dark)",
+                  fontSize: "0.85rem",
+                }}
+              >
+                {item.dimension}
+              </span>
+              <EditableField
+                value={item.candidate_actual}
+                as="span"
+                style={{ fontSize: "0.88rem", color: "var(--ss-dark)" }}
+              />
+              <EditableField
+                value={item.role_requirement}
+                as="span"
+                className="text-body text-ss-gray"
+                style={{ fontSize: "0.88rem" }}
+              />
+              <span className="flex items-center justify-center pt-1">
+                <AlignmentDot alignment={item.alignment} />
+              </span>
+            </div>
+          ))}
+
         </div>
-      ))}
+      </div>
     </section>
   );
 }

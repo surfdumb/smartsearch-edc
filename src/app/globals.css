@@ -57,3 +57,132 @@ body {
   color: var(--ss-dark);
   font-family: var(--font-inter), "Inter", sans-serif;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE OVERRIDES (≤768px)
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* ── Deck grid sticky header ── */
+  .deck-sticky-header {
+    padding: 12px 16px !important;
+  }
+  .deck-header-title {
+    display: none !important;
+  }
+
+  /* ── Deck main content padding ── */
+  .deck-main-pad {
+    padding: 20px 16px !important;
+  }
+
+  /* ── Candidate grid — single column ── */
+  .candidate-grid {
+    grid-template-columns: 1fr !important;
+    padding: 0 !important;
+    gap: 12px !important;
+  }
+
+  /* ── SearchContextHeader ── */
+  .search-context-header {
+    padding: 20px 18px !important;
+    margin-bottom: 20px !important;
+    border-radius: 12px !important;
+  }
+
+  /* ── EDC card — reduced radius on mobile ── */
+  .edc-card {
+    border-radius: 12px !important;
+  }
+
+  /* ── EDC card header ── */
+  .edc-header {
+    padding: 22px 20px 20px !important;
+  }
+  .edc-candidate-name {
+    font-size: 2.1rem !important;
+    letter-spacing: -0.2px !important;
+  }
+  .edc-flash-line {
+    font-size: 0.82rem !important;
+    line-height: 1.5 !important;
+  }
+  .edc-header-toprow {
+    margin-bottom: 18px !important;
+  }
+
+  /* ── EDC section padding (overrides Tailwind px-section-x / py-section-y) ── */
+  .px-section-x {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .py-section-y {
+    padding-top: 22px !important;
+    padding-bottom: 22px !important;
+  }
+
+  /* ── EDC outer wrapper (deck edc view) ── */
+  .deck-edc-wrapper {
+    padding: 0 0 40px !important;
+  }
+
+  /* ── ScopeMatch — horizontal scroll on mobile ── */
+  .scope-match-scroll {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 0 -16px !important;
+    padding: 0 16px !important;
+  }
+  .scope-match-inner {
+    min-width: 480px !important;
+  }
+
+  /* ── Compensation 3-col → 1-col ── */
+  .comp-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* ── DeckNavigation (EDC view nav bar) ── */
+  .deck-navigation {
+    display: flex !important;
+    justify-content: space-between !important;
+    padding: 10px 16px !important;
+    margin-bottom: 0 !important;
+    gap: 8px !important;
+    max-width: 100% !important;
+    border-bottom: 1px solid rgba(197,165,114,0.08) !important;
+  }
+  .deck-nav-role {
+    display: none !important;
+  }
+  .deck-nav-split-btn {
+    display: none !important;
+  }
+  .deck-nav-right {
+    gap: 6px !important;
+  }
+
+  /* ── ComparisonView nav ── */
+  .comparison-nav {
+    padding: 12px 16px !important;
+    gap: 12px !important;
+  }
+  .comparison-nav-logo {
+    display: none !important;
+  }
+  .comparison-context {
+    padding: 16px 16px 10px !important;
+  }
+  .comparison-table-wrap {
+    padding: 0 12px !important;
+  }
+
+  /* ── DeckSettings nav ── */
+  .deck-settings-nav {
+    padding: 12px 16px !important;
+  }
+  .deck-settings-content {
+    padding: 28px 16px 0 !important;
+  }
+}

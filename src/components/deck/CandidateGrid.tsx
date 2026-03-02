@@ -9,6 +9,7 @@ interface CandidateGridProps {
 export default function CandidateGrid({ children }: CandidateGridProps) {
   return (
     <div
+      className="candidate-grid"
       style={{
         display: "grid",
         gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",

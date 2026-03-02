@@ -23,6 +23,7 @@ export default function DeckNavigation({
 }: DeckNavigationProps) {
   return (
     <div
+      className="deck-navigation"
       style={{
         display: "grid",
         gridTemplateColumns: "1fr auto 1fr",
@@ -52,7 +53,7 @@ export default function DeckNavigation({
       {/* Centre — role title */}
       {roleTitle && (
         <span
-          className="font-cormorant"
+          className="deck-nav-role font-cormorant"
           style={{
             fontSize: "1.05rem",
             fontWeight: 400,
@@ -67,9 +68,10 @@ export default function DeckNavigation({
       )}
 
       {/* Right — controls */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "flex-end" }}>
+      <div className="deck-nav-right" style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "flex-end" }}>
         {onToggleSplit && (
           <button
+            className="deck-nav-split-btn"
             onClick={onToggleSplit}
             style={{
               background: splitActive ? "rgba(197, 165, 114, 0.15)" : "transparent",

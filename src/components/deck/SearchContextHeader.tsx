@@ -37,6 +37,7 @@ export default function SearchContextHeader({
 
   return (
     <div
+      className="search-context-header"
       style={{
         background: "rgba(26,26,26,0.95)",
         backdropFilter: "blur(20px)",

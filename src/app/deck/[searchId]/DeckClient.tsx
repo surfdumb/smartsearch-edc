@@ -5,9 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import SearchContextHeader from "@/components/deck/SearchContextHeader";
 import IntroCard from "@/components/deck/IntroCard";
 import CandidateGrid from "@/components/deck/CandidateGrid";
-import DeckNavigation from "@/components/deck/DeckNavigation";
-import SplitViewContainer from "@/components/split/SplitViewContainer";
-import EDCCard from "@/components/edc/EDCCard";
+import DeckEDCView from "@/components/deck/DeckEDCView";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
@@ -22,6 +20,7 @@ interface DeckClientProps {
 
 export default function DeckClient({ data, searchId }: DeckClientProps) {
   const [view, setView] = useState<DeckView>({ mode: "grid" });
+  const [editMode, setEditMode] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ── Card flip handler ───────────────────────────────────────────────────────
@@ -161,6 +160,7 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
       <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "20px" }}>
         {/* Sticky header */}
         <div
+          className="deck-sticky-header"
           style={{
             padding: "16px 32px",
             borderBottom: "1px solid rgba(197,165,114,0.1)",
@@ -176,12 +176,29 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
             style={{ height: "24px", opacity: 0.55 }}
           />
           <span
-            className="font-cormorant"
+            className="deck-header-title font-cormorant"
             style={{ fontSize: "1.05rem", color: "var(--ss-gold)", letterSpacing: "0.5px" }}
           >
             Executive <em style={{ fontStyle: "italic" }}>Decision</em> Deck
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <button
+              onClick={() => setEditMode((v) => !v)}
+              style={{
+                background: editMode ? "rgba(197,165,114,0.12)" : "transparent",
+                border: `1px solid ${editMode ? "rgba(197,165,114,0.45)" : "rgba(197,165,114,0.15)"}`,
+                borderRadius: "8px",
+                padding: "6px 14px",
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.5)",
+                cursor: "pointer",
+                letterSpacing: "0.5px",
+                transition: "all 0.2s",
+              }}
+            >
+              {editMode ? "🔓 Editing" : "Edit Cards"}
+            </button>
             <a
               href={`/deck/${searchId}/compare`}
               style={{
@@ -230,7 +247,7 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
           </div>
         </div>
 
-        <div style={{ padding: "40px 24px" }}>
+        <div className="deck-main-pad" style={{ padding: "40px 24px" }}>
           <SearchContextHeader
             search_name={data.search_name}
             client_company={data.client_company}
@@ -263,6 +280,7 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
                 <IntroCard
                   card={candidate}
                   onClick={() => handleCardClick(i)}
+                  editMode={editMode}
                 />
               </div>
             ))}
@@ -293,31 +311,18 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
 
   // ── EDC VIEW ────────────────────────────────────────────────────────────────
   const candidate = data.candidates[view.candidateIndex];
-  const edc = candidate.edc_data;
 
   return (
-    <main style={{ minHeight: "100vh", background: "#0a0a0a" }}>
-      <DeckNavigation
-        onBack={handleBack}
-        onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
-        onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}
-        onToggleSplit={handleToggleSplit}
-        currentIndex={view.candidateIndex}
-        totalCount={data.candidates.length}
-        splitActive={view.split}
-        roleTitle={edc.role_title}
-      />
-
-      <SplitViewContainer active={view.split} cvUrl={edc.cv_url} candidateId={candidate.candidate_id}>
-        <div style={{ padding: view.split ? "0" : "0 24px 80px" }}>
-          <EDCCard
-            data={edc}
-            isConsultantView={false}
-            fluid={view.split}
-            context="deck"
-          />
-        </div>
-      </SplitViewContainer>
-    </main>
+    <DeckEDCView
+      candidate={candidate}
+      candidateIndex={view.candidateIndex}
+      totalCount={data.candidates.length}
+      split={view.split}
+      searchId={searchId}
+      onBack={handleBack}
+      onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
+      onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}
+      onToggleSplit={handleToggleSplit}
+    />
   );
 }

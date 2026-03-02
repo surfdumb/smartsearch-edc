@@ -27,7 +27,7 @@ export default function Compensation({
 
       {/* Three-column grid — prototype: 1fr 1fr 1fr, gap 16px */}
       <div
-        className="grid grid-cols-3 mb-4"
+        className="comp-grid grid grid-cols-3 mb-4"
         style={{ gap: "16px" }}
       >
         {/* Current */}

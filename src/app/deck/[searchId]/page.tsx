@@ -1,6 +1,7 @@
 import { getDeckData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import DeckClient from "./DeckClient";
+import PasswordGate from "@/components/deck/PasswordGate";
 
 export default async function DeckPage({
   params,
@@ -13,5 +14,9 @@ export default async function DeckPage({
     notFound();
   }
 
-  return <DeckClient data={data} searchId={params.searchId} />;
+  return (
+    <PasswordGate>
+      <DeckClient data={data} searchId={params.searchId} />
+    </PasswordGate>
+  );
 }

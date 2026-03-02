@@ -37,6 +37,7 @@ export default function EDCCard({
 }: EDCCardProps) {
   return (
     <div
+      className="edc-card"
       style={{
         maxWidth: fluid ? "100%" : "820px",
         margin: "0 auto",

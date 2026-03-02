@@ -75,6 +75,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
 
       {/* Nav */}
       <div
+        className="deck-settings-nav"
         style={{
           padding: "14px 32px",
           borderBottom: "1px solid rgba(197,165,114,0.1)",
@@ -108,7 +109,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
         <span style={{ width: "100px" }} />
       </div>
 
-      <div style={{ maxWidth: "640px", margin: "0 auto", padding: "48px 24px 0" }}>
+      <div className="deck-settings-content" style={{ maxWidth: "640px", margin: "0 auto", padding: "48px 24px 0" }}>
 
         {/* Search context line */}
         <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.2)", marginBottom: "40px" }}>

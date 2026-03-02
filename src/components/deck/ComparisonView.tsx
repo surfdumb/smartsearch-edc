@@ -27,6 +27,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
 
       {/* ── Top nav ── */}
       <div
+        className="comparison-nav"
         style={{
           position: "sticky",
           top: 0,
@@ -42,6 +43,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
       >
         <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
           <img
+            className="comparison-nav-logo"
             src="/logos/smartsearch-white.png"
             alt="SmartSearch"
             style={{ height: "22px", opacity: 0.5 }}
@@ -76,7 +78,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
       </div>
 
       {/* ── Search context line ── */}
-      <div style={{ padding: "24px 32px 16px" }}>
+      <div className="comparison-context" style={{ padding: "24px 32px 16px" }}>
         <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.5px" }}>
           <span style={{ color: "var(--ss-gold)", fontWeight: 600 }}>{data.search_name}</span>
           {data.client_company && (
@@ -89,7 +91,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
       </div>
 
       {/* ── Comparison table ── */}
-      <div style={{ padding: "0 32px" }}>
+      <div className="comparison-table-wrap" style={{ padding: "0 32px" }}>
         <div
           style={{
             width: "100%",

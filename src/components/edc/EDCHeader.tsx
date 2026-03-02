@@ -71,7 +71,7 @@ export default function EDCHeader({
 
   return (
     <header
-      className="relative overflow-hidden rounded-t-card"
+      className="edc-header relative overflow-hidden rounded-t-card"
       style={{
         background: "var(--ss-header-bg)",
         padding: "36px 48px 32px",
@@ -91,7 +91,7 @@ export default function EDCHeader({
       />
 
       {/* Top row: brand logo + EDC badge */}
-      <div className="relative flex items-start justify-between" style={{ marginBottom: "28px" }}>
+      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "28px" }}>
         {/* SmartSearch logo */}
         <img
           src="/logos/smartsearch-white.png"
@@ -135,7 +135,7 @@ export default function EDCHeader({
 
       {/* Candidate name — Cormorant Garamond 3.2rem/500 */}
       <h1
-        className="relative font-cormorant"
+        className="edc-candidate-name relative font-cormorant"
         style={{
           fontSize: "3.2rem",
           fontWeight: 500,
@@ -149,7 +149,7 @@ export default function EDCHeader({
       </h1>
 
       {/* Flash line: company | title | location */}
-      <p className="relative" style={{ color: "rgba(255,255,255,0.55)" }}>
+      <p className="edc-flash-line relative" style={{ color: "rgba(255,255,255,0.55)" }}>
         <span
           style={{ fontSize: "0.95rem", fontWeight: 400, letterSpacing: "0.3px" }}
         >
