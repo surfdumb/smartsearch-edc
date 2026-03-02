@@ -322,6 +322,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               <div
                 key={candidate.candidate_id}
                 ref={(el) => { cardRefs.current[i] = el; }}
+                style={{ height: "100%" }}
               >
                 <IntroCard
                   card={candidate}

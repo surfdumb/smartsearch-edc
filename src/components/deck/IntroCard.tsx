@@ -236,6 +236,9 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
         transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
       }}
       onMouseOver={(e) => {
         const el = e.currentTarget as HTMLDivElement;
@@ -353,7 +356,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       </div>
 
       {/* ── Body zone ── */}
-      <div style={{ padding: "18px 24px 14px" }}>
+      <div style={{ padding: "18px 24px 14px", flex: 1 }}>
 
         {/* Flash summary — full text, no line clamp (editable = full view) */}
         {v.flash_summary && (
