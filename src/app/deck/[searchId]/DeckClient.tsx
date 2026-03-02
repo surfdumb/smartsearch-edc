@@ -281,9 +281,10 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
         currentIndex={view.candidateIndex}
         totalCount={data.candidates.length}
         splitActive={view.split}
+        roleTitle={edc.role_title}
       />
 
-      <SplitViewContainer active={view.split} cvUrl={edc.cv_url}>
+      <SplitViewContainer active={view.split} cvUrl={edc.cv_url} candidateId={candidate.candidate_id}>
         <div style={{ padding: view.split ? "0" : "0 24px 80px" }}>
           <EDCCard
             data={edc}

@@ -1,23 +1,53 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 interface CVPanelProps {
   cvUrl?: string;
+  candidateId?: string;
 }
 
-export default function CVPanel({ cvUrl }: CVPanelProps) {
+const storageKey = (id: string) => `cv_data_${id}`;
+
+export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
+
+  // On mount (or when candidateId changes): load persisted CV from localStorage
+  useEffect(() => {
+    if (!candidateId) return;
+    setUploadedUrl(null); // reset before loading new candidate's CV
+    try {
+      const stored = localStorage.getItem(storageKey(candidateId));
+      if (stored) setUploadedUrl(stored);
+    } catch {
+      // localStorage unavailable
+    }
+  }, [candidateId]);
+
   const displayUrl = uploadedUrl || cvUrl || null;
 
-  const handleFileUpload = useCallback((file: File) => {
-    if (!file.type.includes("pdf")) {
-      alert("Please upload a PDF file");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setUploadedUrl(url);
-  }, []);
+  const handleFileUpload = useCallback(
+    (file: File) => {
+      if (!file.type.includes("pdf")) {
+        alert("Please upload a PDF file");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setUploadedUrl(dataUrl);
+        if (candidateId) {
+          try {
+            localStorage.setItem(storageKey(candidateId), dataUrl);
+          } catch {
+            // Storage quota exceeded — still works in-session
+          }
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [candidateId]
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -27,6 +57,17 @@ export default function CVPanel({ cvUrl }: CVPanelProps) {
     },
     [handleFileUpload]
   );
+
+  const handleReplace = useCallback(() => {
+    setUploadedUrl(null);
+    if (candidateId) {
+      try {
+        localStorage.removeItem(storageKey(candidateId));
+      } catch {
+        // ignore
+      }
+    }
+  }, [candidateId]);
 
   if (displayUrl) {
     return (
@@ -38,7 +79,7 @@ export default function CVPanel({ cvUrl }: CVPanelProps) {
         />
         <div style={{ padding: "8px 16px", textAlign: "center" }}>
           <button
-            onClick={() => setUploadedUrl(null)}
+            onClick={handleReplace}
             style={{
               background: "transparent",
               border: "1px solid rgba(197,165,114,0.2)",

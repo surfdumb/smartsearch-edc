@@ -6,12 +6,14 @@ import CVPanel from "./CVPanel";
 interface SplitViewContainerProps {
   active: boolean;
   cvUrl?: string;
+  candidateId?: string;
   children: ReactNode;
 }
 
 export default function SplitViewContainer({
   active,
   cvUrl,
+  candidateId,
   children,
 }: SplitViewContainerProps) {
   if (!active) {
@@ -36,7 +38,7 @@ export default function SplitViewContainer({
           animation: "slideInLeft 0.4s ease-out",
         }}
       >
-        <CVPanel cvUrl={cvUrl} />
+        <CVPanel cvUrl={cvUrl} candidateId={candidateId} />
       </div>
 
       {/* EDC Panel — Right */}

@@ -8,6 +8,7 @@ interface DeckNavigationProps {
   currentIndex: number;
   totalCount: number;
   splitActive?: boolean;
+  roleTitle?: string;
 }
 
 export default function DeckNavigation({
@@ -18,18 +19,21 @@ export default function DeckNavigation({
   currentIndex,
   totalCount,
   splitActive,
+  roleTitle,
 }: DeckNavigationProps) {
   return (
     <div
       style={{
-        display: "flex",
-        justifyContent: "space-between",
+        display: "grid",
+        gridTemplateColumns: "1fr auto 1fr",
         alignItems: "center",
         padding: "12px 24px",
         maxWidth: "1200px",
         margin: "0 auto 16px",
+        gap: "16px",
       }}
     >
+      {/* Left — back button */}
       <button
         onClick={onBack}
         style={{
@@ -39,12 +43,31 @@ export default function DeckNavigation({
           fontSize: "0.9rem",
           cursor: "pointer",
           padding: "8px 0",
+          textAlign: "left",
         }}
       >
         ← Back to Deck
       </button>
 
-      <div className="flex items-center gap-4">
+      {/* Centre — role title */}
+      {roleTitle && (
+        <span
+          className="font-cormorant"
+          style={{
+            fontSize: "1.05rem",
+            fontWeight: 400,
+            color: "rgba(197,165,114,0.65)",
+            letterSpacing: "0.3px",
+            whiteSpace: "nowrap",
+            fontStyle: "italic",
+          }}
+        >
+          {roleTitle}
+        </span>
+      )}
+
+      {/* Right — controls */}
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "flex-end" }}>
         {onToggleSplit && (
           <button
             onClick={onToggleSplit}
@@ -62,7 +85,7 @@ export default function DeckNavigation({
           </button>
         )}
 
-        <div className="flex items-center gap-3">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {onPrev && (
             <button
               onClick={onPrev}

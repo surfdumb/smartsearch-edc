@@ -165,20 +165,22 @@ export default function EDCHeader({
         </span>
       </p>
 
-      {/* Meta row */}
-      <div
-        className="relative flex"
-        style={{
-          marginTop: "26px",
-          paddingTop: "20px",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
-          gap: "36px",
-        }}
-      >
-        <MetaItem label="Role" value={role_title} />
-        <MetaItem label="Search Lead" value={consultant_name} />
-        <MetaItem label="Generated" value={generated_date} />
-      </div>
+      {/* Meta row — standalone/print only */}
+      {context !== 'deck' && (
+        <div
+          className="relative flex"
+          style={{
+            marginTop: "26px",
+            paddingTop: "20px",
+            borderTop: "1px solid rgba(255,255,255,0.07)",
+            gap: "36px",
+          }}
+        >
+          <MetaItem label="Role" value={role_title} />
+          <MetaItem label="Search Lead" value={consultant_name} />
+          <MetaItem label="Generated" value={generated_date} />
+        </div>
+      )}
 
       {/* Bottom border — gold gradient */}
       <div
