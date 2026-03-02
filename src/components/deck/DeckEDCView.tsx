@@ -14,6 +14,7 @@ interface DeckEDCViewProps {
   totalCount: number;
   split: boolean;
   searchId: string;
+  isEditRoute?: boolean;
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -26,6 +27,7 @@ export default function DeckEDCView({
   totalCount,
   split,
   searchId,
+  isEditRoute = false,
   onBack,
   onPrev,
   onNext,
@@ -33,9 +35,10 @@ export default function DeckEDCView({
 }: DeckEDCViewProps) {
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const edc = candidate.edc_data;
+  const isEditable = isEditRoute && state === "draft";
 
   return (
-    <EditorContext.Provider value={{ isEditable: state === "draft" }}>
+    <EditorContext.Provider value={{ isEditable }}>
       <main style={{ minHeight: "100vh", background: "#0a0a0a" }}>
         <DeckNavigation
           onBack={onBack}
@@ -48,15 +51,17 @@ export default function DeckEDCView({
           roleTitle={edc.role_title}
         />
 
-        <EDCStatusBar
-          state={state}
-          candidateId={candidate.candidate_id}
-          searchId={searchId}
-          candidateName={edc.candidate_name}
-          roleTitle={edc.role_title}
-          onLock={lock}
-          onUnlock={unlock}
-        />
+        {isEditRoute && (
+          <EDCStatusBar
+            state={state}
+            candidateId={candidate.candidate_id}
+            searchId={searchId}
+            candidateName={edc.candidate_name}
+            roleTitle={edc.role_title}
+            onLock={lock}
+            onUnlock={unlock}
+          />
+        )}
 
         <SplitViewContainer
           active={split}
@@ -69,7 +74,7 @@ export default function DeckEDCView({
           >
             <EDCCard
               data={edc}
-              isConsultantView={state === "draft"}
+              isConsultantView={isEditable}
               fluid={split}
               context="deck"
               candidateId={candidate.candidate_id}

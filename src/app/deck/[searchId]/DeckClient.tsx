@@ -16,9 +16,10 @@ type DeckView =
 interface DeckClientProps {
   data: SearchContext;
   searchId: string;
+  isEditRoute?: boolean;
 }
 
-export default function DeckClient({ data, searchId }: DeckClientProps) {
+export default function DeckClient({ data, searchId, isEditRoute = false }: DeckClientProps) {
   const [view, setView] = useState<DeckView>({ mode: "grid" });
   const [editMode, setEditMode] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -182,23 +183,91 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
             Executive <em style={{ fontStyle: "italic" }}>Decision</em> Deck
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <button
-              onClick={() => setEditMode((v) => !v)}
-              style={{
-                background: editMode ? "rgba(197,165,114,0.12)" : "transparent",
-                border: `1px solid ${editMode ? "rgba(197,165,114,0.45)" : "rgba(197,165,114,0.15)"}`,
-                borderRadius: "8px",
-                padding: "6px 14px",
-                fontSize: "0.72rem",
-                fontWeight: 600,
-                color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.5)",
-                cursor: "pointer",
-                letterSpacing: "0.5px",
-                transition: "all 0.2s",
-              }}
-            >
-              {editMode ? "🔓 Editing" : "Edit Cards"}
-            </button>
+            {isEditRoute ? (
+              <>
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    fontWeight: 700,
+                    letterSpacing: "1.5px",
+                    textTransform: "uppercase",
+                    color: "rgba(201,149,58,0.7)",
+                    background: "rgba(201,149,58,0.08)",
+                    border: "1px solid rgba(201,149,58,0.2)",
+                    borderRadius: "6px",
+                    padding: "4px 10px",
+                  }}
+                >
+                  Edit Mode
+                </span>
+                <button
+                  onClick={() => setEditMode((v) => !v)}
+                  style={{
+                    background: editMode ? "rgba(197,165,114,0.12)" : "transparent",
+                    border: `1px solid ${editMode ? "rgba(197,165,114,0.45)" : "rgba(197,165,114,0.15)"}`,
+                    borderRadius: "8px",
+                    padding: "6px 14px",
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.5)",
+                    cursor: "pointer",
+                    letterSpacing: "0.5px",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {editMode ? "Cards: On" : "Cards: Off"}
+                </button>
+                <a
+                  href={`/deck/${searchId}`}
+                  style={{
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "rgba(197,165,114,0.45)",
+                    textDecoration: "none",
+                    letterSpacing: "0.5px",
+                    padding: "6px 14px",
+                    border: "1px solid rgba(197,165,114,0.12)",
+                    borderRadius: "8px",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.35)";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.45)";
+                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.12)";
+                  }}
+                >
+                  Client View →
+                </a>
+              </>
+            ) : (
+              <a
+                href={`/deck/${searchId}/edit`}
+                style={{
+                  fontSize: "0.72rem",
+                  fontWeight: 600,
+                  color: "rgba(197,165,114,0.3)",
+                  textDecoration: "none",
+                  letterSpacing: "0.5px",
+                  padding: "6px 14px",
+                  border: "1px solid rgba(197,165,114,0.08)",
+                  borderRadius: "8px",
+                  transition: "all 0.2s",
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.7)";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.25)";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.3)";
+                  (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.08)";
+                }}
+              >
+                ✏ Edit
+              </a>
+            )}
             <a
               href={`/deck/${searchId}/compare`}
               style={{
@@ -319,6 +388,7 @@ export default function DeckClient({ data, searchId }: DeckClientProps) {
       totalCount={data.candidates.length}
       split={view.split}
       searchId={searchId}
+      isEditRoute={isEditRoute}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}
