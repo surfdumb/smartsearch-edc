@@ -24,10 +24,12 @@ function editsKey(id: string) {
   return `card_edits_${id}`;
 }
 
-// ── Tiny editable span/p/h3 with gold focus ring ─────────────────────────────
+// ── Tiny editable span/p/h3 with gold focus ring + reset button ──────────────
 function Editable({
   value,
   onSave,
+  originalValue,
+  onReset,
   as: Tag = "span",
   html = false,
   singleLine = false,
@@ -36,6 +38,8 @@ function Editable({
 }: {
   value: string;
   onSave: (v: string) => void;
+  originalValue?: string;
+  onReset?: () => void;
   as?: "span" | "p" | "h3";
   html?: boolean;
   singleLine?: boolean;
@@ -45,6 +49,9 @@ function Editable({
   const ref = useRef<HTMLElement>(null);
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [isModified, setIsModified] = useState(
+    originalValue !== undefined && value.trim() !== originalValue.trim()
+  );
 
   const baseStyle: React.CSSProperties = {
     ...style,
@@ -74,11 +81,14 @@ function Editable({
       setFocused(false);
       const el = ref.current;
       if (!el) return;
-      onSave(html ? el.innerHTML : (el.textContent ?? "").trim());
+      const val = html ? el.innerHTML : (el.textContent ?? "").trim();
+      if (originalValue !== undefined) {
+        setIsModified(val.trim() !== originalValue.trim());
+      }
+      onSave(val);
     },
     onMouseEnter: () => setHovered(true),
     onMouseLeave: () => setHovered(false),
-    // Stop propagation so clicking a field doesn't trigger the card flip
     onClick: (e: React.MouseEvent) => e.stopPropagation(),
     onMouseDown: (e: React.MouseEvent) => e.stopPropagation(),
     onKeyDown: (e: React.KeyboardEvent) => {
@@ -89,11 +99,63 @@ function Editable({
     },
   };
 
-  if (html) {
-    return <Tag {...(sharedProps as React.HTMLAttributes<HTMLElement>)} dangerouslySetInnerHTML={{ __html: value }} />;
-  }
+  const handleReset = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onReset) {
+      onReset();
+      setIsModified(false);
+      // Update DOM to fixture value
+      const el = ref.current;
+      if (el && originalValue !== undefined) {
+        if (html) el.innerHTML = originalValue;
+        else el.textContent = originalValue;
+      }
+      return;
+    }
+  };
 
-  return <Tag {...(sharedProps as React.HTMLAttributes<HTMLElement>)}>{value}</Tag>;
+  const isBlock = Tag !== "span";
+  const WrapperTag: React.ElementType = isBlock ? "div" : "span";
+
+  const fieldEl = html
+    ? <Tag {...(sharedProps as React.HTMLAttributes<HTMLElement>)} dangerouslySetInnerHTML={{ __html: value }} />
+    : <Tag {...(sharedProps as React.HTMLAttributes<HTMLElement>)}>{value}</Tag>;
+
+  return (
+    <WrapperTag
+      style={{ position: "relative", display: isBlock ? "block" : "inline-block" }}
+    >
+      {fieldEl}
+      {isModified && onReset && (
+        <button
+          onMouseDown={handleReset}
+          title="Reset to original"
+          style={{
+            position: "absolute",
+            top: "1px",
+            right: isBlock ? "2px" : "-20px",
+            background: "transparent",
+            border: "none",
+            color: "rgba(197,165,114,0.5)",
+            fontSize: "0.8rem",
+            cursor: "pointer",
+            padding: "1px 3px",
+            lineHeight: 1,
+            transition: "color 0.15s",
+          }}
+          onMouseOver={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+          }}
+          onMouseOut={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)";
+          }}
+        >
+          ↺
+        </button>
+      )}
+    </WrapperTag>
+  );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
@@ -111,7 +173,11 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
   const save = useCallback(
     (updates: CardEdits) => {
       setEdits((prev) => {
-        const merged = { ...prev, ...updates };
+        const merged = { ...prev };
+        for (const [k, v] of Object.entries(updates)) {
+          if (v === undefined) delete merged[k as keyof CardEdits];
+          else (merged as Record<string, unknown>)[k] = v;
+        }
         try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); } catch { /* ignore */ }
         return merged;
       });
@@ -222,6 +288,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         <Editable
           value={v.candidate_name}
           onSave={(val) => save({ candidate_name: val })}
+          originalValue={card.candidate_name}
+          onReset={() => save({ candidate_name: undefined })}
           as="h3"
           singleLine
           className="font-cormorant"
@@ -238,6 +306,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         <Editable
           value={v.current_title}
           onSave={(val) => save({ current_title: val })}
+          originalValue={card.current_title}
+          onReset={() => save({ current_title: undefined })}
           as="p"
           singleLine
           style={{ fontSize: "0.78rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}
@@ -248,6 +318,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           <Editable
             value={v.current_company}
             onSave={(val) => save({ current_company: val })}
+            originalValue={card.current_company}
+            onReset={() => save({ current_company: undefined })}
             singleLine
             style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
           />
@@ -257,6 +329,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               <Editable
                 value={v.location}
                 onSave={(val) => save({ location: val })}
+                originalValue={card.location}
+                onReset={() => save({ location: undefined })}
                 singleLine
                 style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
               />
@@ -273,6 +347,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           <Editable
             value={v.flash_summary}
             onSave={(val) => save({ flash_summary: val })}
+            originalValue={card.flash_summary ?? ""}
+            onReset={() => save({ flash_summary: undefined })}
             as="p"
             html
             style={{
@@ -293,6 +369,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 <Editable
                   value={strength}
                   onSave={(val) => saveStrength(i, val)}
+                  originalValue={(card.key_strengths ?? [])[i] ?? ""}
+                  onReset={() => saveStrength(i, (card.key_strengths ?? [])[i] ?? "")}
                   style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}
                 />
               </div>
@@ -308,6 +386,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               <Editable
                 value={v.notice_period}
                 onSave={(val) => save({ notice_period: val })}
+                originalValue={card.notice_period ?? ""}
+                onReset={() => save({ notice_period: undefined })}
                 singleLine
                 style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}
               />

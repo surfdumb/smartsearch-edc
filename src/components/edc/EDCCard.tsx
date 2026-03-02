@@ -26,6 +26,8 @@ interface EDCCardProps {
   fluid?: boolean;
   /** Controls which header fields are rendered */
   context?: EDCContext;
+  /** Used to namespace localStorage edits/toggles per candidate */
+  candidateId?: string;
 }
 
 export default function EDCCard({
@@ -34,6 +36,7 @@ export default function EDCCard({
   onOurTakeGenerated,
   fluid = false,
   context = 'standalone',
+  candidateId,
 }: EDCCardProps) {
   return (
     <div
@@ -67,9 +70,10 @@ export default function EDCCard({
           compensation={data.compensation}
           notice_period={data.notice_period}
           earliest_start_date={data.earliest_start_date}
+          candidateId={candidateId}
         />
         <Motivation why_interested={data.why_interested} />
-        <Concerns potential_concerns={data.potential_concerns} />
+        <Concerns potential_concerns={data.potential_concerns} candidateId={candidateId} />
 
         {/* Gold divider between evidence and judgment */}
         <div
@@ -105,6 +109,7 @@ export default function EDCCard({
           original_note={data.our_take.original_note}
           ai_rationale={data.our_take.ai_rationale}
           isConsultantView={isConsultantView}
+          candidateId={candidateId}
           candidateContext={
             isConsultantView ? buildCandidateContext(data) : undefined
           }

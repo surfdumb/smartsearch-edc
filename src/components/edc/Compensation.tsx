@@ -1,57 +1,160 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import EditableField from "@/components/edc/EditableField";
+import { useEditorContext } from "@/contexts/EditorContext";
+
+interface CompensationData {
+  current_base: string;
+  current_total: string;
+  expected_base: string;
+  expected_total: string;
+  flexibility: string;
+  budget_range?: string;
+}
 
 interface CompensationProps {
-  compensation: {
-    current_base: string;
-    current_total: string;
-    expected_base: string;
-    expected_total: string;
-    flexibility: string;
-    budget_range?: string;
-  };
+  compensation: CompensationData;
   notice_period: string;
   earliest_start_date: string;
+  candidateId?: string;
+}
+
+type CompOverrides = Partial<{
+  current_base: string;
+  current_total: string;
+  expected_base: string;
+  expected_total: string;
+  budget_range: string;
+  flexibility: string;
+  notice_period: string;
+  earliest_start_date: string;
+}>;
+
+function compKey(id: string) {
+  return `edc_comp_${id}`;
 }
 
 export default function Compensation({
   compensation,
   notice_period,
   earliest_start_date,
+  candidateId,
 }: CompensationProps) {
+  const { isEditable } = useEditorContext();
+  const [overrides, setOverrides] = useState<CompOverrides>({});
+
+  useEffect(() => {
+    if (!candidateId) return;
+    try {
+      const stored = localStorage.getItem(compKey(candidateId));
+      if (stored) setOverrides(JSON.parse(stored));
+    } catch { /* ignore */ }
+  }, [candidateId]);
+
+  const save = useCallback(
+    (updates: CompOverrides) => {
+      if (!candidateId) return;
+      setOverrides((prev) => {
+        const merged = { ...prev };
+        for (const [k, v] of Object.entries(updates)) {
+          if (v === undefined) delete merged[k as keyof CompOverrides];
+          else (merged as Record<string, string>)[k] = v as string;
+        }
+        try { localStorage.setItem(compKey(candidateId), JSON.stringify(merged)); } catch { /* ignore */ }
+        return merged;
+      });
+    },
+    [candidateId]
+  );
+
+  const reset = useCallback(
+    (field: keyof CompOverrides) => save({ [field]: undefined }),
+    [save]
+  );
+
+  // Resolved values
+  const v = {
+    current_base: overrides.current_base ?? compensation.current_base,
+    current_total: overrides.current_total ?? compensation.current_total,
+    expected_base: overrides.expected_base ?? compensation.expected_base,
+    expected_total: overrides.expected_total ?? compensation.expected_total,
+    budget_range: overrides.budget_range ?? compensation.budget_range ?? "Not specified",
+    flexibility: overrides.flexibility ?? compensation.flexibility,
+    notice_period: overrides.notice_period ?? notice_period,
+    earliest_start_date: overrides.earliest_start_date ?? earliest_start_date,
+  };
+
   return (
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Compensation & Timeline" />
 
-      {/* Three-column grid — prototype: 1fr 1fr 1fr, gap 16px */}
-      <div
-        className="comp-grid grid grid-cols-3 mb-4"
-        style={{ gap: "16px" }}
-      >
-        {/* Current */}
+      {/* Three-column grid */}
+      <div className="comp-grid grid grid-cols-3 mb-4" style={{ gap: "16px" }}>
+        {/* Current Package */}
         <CompCard title="Current Package">
-          <CompValue value={compensation.current_base} />
-          <CompDetail text={compensation.current_total} />
+          <EditableField
+            value={v.current_base}
+            originalValue={compensation.current_base}
+            onUpdate={(val) => save({ current_base: val })}
+            onReset={() => reset("current_base")}
+            as="div"
+            className="font-cormorant"
+            style={{ fontSize: "1.7rem", fontWeight: 600, color: "var(--ss-dark)", textAlign: "center" }}
+          />
+          <EditableField
+            value={v.current_total}
+            originalValue={compensation.current_total}
+            onUpdate={(val) => save({ current_total: val })}
+            onReset={() => reset("current_total")}
+            as="div"
+            style={{ fontSize: "0.8rem", color: "var(--ss-gray)", marginTop: "4px", textAlign: "center" }}
+          />
         </CompCard>
 
         {/* Expectation */}
         <CompCard title="Expectation">
-          <CompValue value={compensation.expected_base} />
-          <CompDetail text={compensation.expected_total} />
+          <EditableField
+            value={v.expected_base}
+            originalValue={compensation.expected_base}
+            onUpdate={(val) => save({ expected_base: val })}
+            onReset={() => reset("expected_base")}
+            as="div"
+            className="font-cormorant"
+            style={{ fontSize: "1.7rem", fontWeight: 600, color: "var(--ss-dark)", textAlign: "center" }}
+          />
+          <EditableField
+            value={v.expected_total}
+            originalValue={compensation.expected_total}
+            onUpdate={(val) => save({ expected_total: val })}
+            onReset={() => reset("expected_total")}
+            as="div"
+            style={{ fontSize: "0.8rem", color: "var(--ss-gray)", marginTop: "4px", textAlign: "center" }}
+          />
         </CompCard>
 
-        {/* Budget — gold highlight */}
+        {/* Client Budget — gold highlight */}
         <CompCard title="Client Budget" highlighted>
-          <CompValue value={compensation.budget_range || "Not specified"} />
+          <EditableField
+            value={v.budget_range}
+            originalValue={compensation.budget_range ?? "Not specified"}
+            onUpdate={(val) => save({ budget_range: val })}
+            onReset={() => reset("budget_range")}
+            as="div"
+            className="font-cormorant"
+            style={{ fontSize: "1.7rem", fontWeight: 600, color: "var(--ss-dark)", textAlign: "center" }}
+          />
         </CompCard>
       </div>
 
       {/* Flexibility note */}
-      {compensation.flexibility && (
+      {v.flexibility && (
         <EditableField
-          value={compensation.flexibility}
+          value={v.flexibility}
+          originalValue={compensation.flexibility}
+          onUpdate={(val) => save({ flexibility: val })}
+          onReset={() => reset("flexibility")}
           as="p"
           className="text-body text-ss-gray mb-5"
           style={{ lineHeight: 1.65 }}
@@ -59,16 +162,16 @@ export default function Compensation({
       )}
 
       {/* Notice period and timeline */}
-      <div
-        className="flex gap-10 pt-4"
-        style={{ borderTop: "1px solid var(--ss-border-light)" }}
-      >
+      <div className="flex gap-10 pt-4" style={{ borderTop: "1px solid var(--ss-border-light)" }}>
         <div>
           <span className="text-meta-label uppercase text-ss-gray-light block mb-1">
             Notice Period
           </span>
           <EditableField
-            value={notice_period}
+            value={v.notice_period}
+            originalValue={notice_period}
+            onUpdate={(val) => save({ notice_period: val })}
+            onReset={() => reset("notice_period")}
             as="span"
             className="text-body text-ss-dark font-medium"
           />
@@ -78,12 +181,22 @@ export default function Compensation({
             Earliest Start
           </span>
           <EditableField
-            value={earliest_start_date}
+            value={v.earliest_start_date}
+            originalValue={earliest_start_date}
+            onUpdate={(val) => save({ earliest_start_date: val })}
+            onReset={() => reset("earliest_start_date")}
             as="span"
             className="text-body text-ss-dark font-medium"
           />
         </div>
       </div>
+
+      {/* Edit hint */}
+      {isEditable && !candidateId && (
+        <p style={{ fontSize: "0.7rem", color: "var(--ss-gray-light)", marginTop: "8px", fontStyle: "italic" }}>
+          Changes not persisted — candidateId not provided
+        </p>
+      )}
     </section>
   );
 }
@@ -121,35 +234,6 @@ function CompCard({
         {title}
       </div>
       {children}
-    </div>
-  );
-}
-
-function CompValue({ value }: { value: string }) {
-  return (
-    <div
-      className="font-cormorant"
-      style={{
-        fontSize: "1.7rem",
-        fontWeight: 600,
-        color: "var(--ss-dark)",
-      }}
-    >
-      {value}
-    </div>
-  );
-}
-
-function CompDetail({ text }: { text: string }) {
-  return (
-    <div
-      style={{
-        fontSize: "0.8rem",
-        color: "var(--ss-gray)",
-        marginTop: "4px",
-      }}
-    >
-      {text}
     </div>
   );
 }

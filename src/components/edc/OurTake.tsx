@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useEditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
 
 interface OurTakeResult {
@@ -18,9 +19,13 @@ interface OurTakeProps {
   original_note?: string;
   ai_rationale?: string;
   isConsultantView?: boolean;
-  // Callback to generate Our Take via API — parent provides candidate context
+  candidateId?: string;
   candidateContext?: string;
   onOurTakeGenerated?: (result: OurTakeResult & { original_note?: string }) => void;
+}
+
+function ourTakeHiddenKey(id: string) {
+  return `edc_ourtake_hidden_${id}`;
 }
 
 const BADGE_STYLES: Record<string, { bg: string; border: string; color: string; label: string }> = {
@@ -52,15 +57,91 @@ export default function OurTake({
   original_note,
   ai_rationale,
   isConsultantView = true,
+  candidateId,
   candidateContext,
   onOurTakeGenerated,
 }: OurTakeProps) {
+  const { isEditable } = useEditorContext();
+  const [isHidden, setIsHidden] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [rationaleOpen, setRationaleOpen] = useState(false);
   const [notesInput, setNotesInput] = useState(original_note || "");
   const [notesExpanded, setNotesExpanded] = useState(!text || text.length === 0);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!candidateId) return;
+    try {
+      setIsHidden(localStorage.getItem(ourTakeHiddenKey(candidateId)) === "true");
+    } catch { /* ignore */ }
+  }, [candidateId]);
+
+  const toggleHidden = () => {
+    const next = !isHidden;
+    setIsHidden(next);
+    if (candidateId) {
+      try { localStorage.setItem(ourTakeHiddenKey(candidateId), String(next)); } catch { /* ignore */ }
+    }
+  };
+
+  // Client view + hidden → nothing rendered
+  if (isHidden && !isEditable) return null;
+
+  // Edit mode + hidden → collapsed placeholder
+  if (isHidden && isEditable) {
+    return (
+      <section
+        style={{
+          padding: "16px 48px",
+          background: "linear-gradient(180deg, var(--ss-warm-tint) 0%, white 100%)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span
+            style={{
+              fontSize: "0.65rem",
+              fontWeight: 600,
+              letterSpacing: "2.5px",
+              textTransform: "uppercase",
+              color: "var(--ss-gray-pale)",
+            }}
+          >
+            Our Take
+          </span>
+          <button
+            onClick={toggleHidden}
+            style={{
+              background: "transparent",
+              border: "1px solid rgba(74,124,89,0.25)",
+              color: "rgba(74,124,89,0.6)",
+              fontSize: "0.68rem",
+              fontWeight: 600,
+              padding: "4px 12px",
+              borderRadius: "6px",
+              cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseOver={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = "rgba(74,124,89,0.06)";
+              b.style.color = "var(--ss-green)";
+            }}
+            onMouseOut={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = "transparent";
+              b.style.color = "rgba(74,124,89,0.6)";
+            }}
+          >
+            Show section ↓
+          </button>
+        </div>
+        <p style={{ fontSize: "0.72rem", color: "var(--ss-gray-pale)", fontStyle: "italic", marginTop: "6px" }}>
+          Hidden from client view
+        </p>
+      </section>
+    );
+  }
 
   const hasContent = text && text.length > 0;
   const badge = recommendation ? BADGE_STYLES[recommendation] : null;
@@ -116,22 +197,11 @@ export default function OurTake({
         <span style={{ color: "var(--ss-gold)", fontSize: "1.1rem" }}>&#10022;</span>
         <span
           className="font-cormorant"
-          style={{
-            fontSize: "1.5rem",
-            fontWeight: 600,
-            color: "var(--ss-dark)",
-          }}
+          style={{ fontSize: "1.5rem", fontWeight: 600, color: "var(--ss-dark)" }}
         >
           Our Take
         </span>
-        <span
-          style={{
-            fontSize: "0.82rem",
-            color: "var(--ss-gray-light)",
-            fontWeight: 400,
-            marginLeft: "4px",
-          }}
-        >
+        <span style={{ fontSize: "0.82rem", color: "var(--ss-gray-light)", fontWeight: 400, marginLeft: "4px" }}>
           &mdash; {consultant_name}
         </span>
         {/* Recommendation badge */}
@@ -152,6 +222,37 @@ export default function OurTake({
           >
             {badge.label}
           </span>
+        )}
+        {/* Hide toggle — edit mode only */}
+        {isEditable && (
+          <button
+            onClick={toggleHidden}
+            style={{
+              marginLeft: badge ? "8px" : "auto",
+              background: "transparent",
+              border: "1px solid rgba(74,124,89,0.2)",
+              color: "rgba(74,124,89,0.55)",
+              fontSize: "0.65rem",
+              fontWeight: 600,
+              padding: "3px 10px",
+              borderRadius: "5px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "all 0.15s",
+            }}
+            onMouseOver={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = "rgba(74,124,89,0.06)";
+              b.style.color = "var(--ss-green)";
+            }}
+            onMouseOut={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.background = "transparent";
+              b.style.color = "rgba(74,124,89,0.55)";
+            }}
+          >
+            Hide from client ↑
+          </button>
         )}
       </div>
 

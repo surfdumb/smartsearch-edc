@@ -72,6 +72,7 @@ export default function DeckEDCView({
               isConsultantView={state === "draft"}
               fluid={split}
               context="deck"
+              candidateId={candidate.candidate_id}
             />
           </div>
         </SplitViewContainer>
