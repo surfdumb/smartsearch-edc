@@ -9,6 +9,7 @@ import EditableField from "@/components/edc/EditableField";
 interface ComparisonViewProps {
   data: SearchContext;
   searchId: string;
+  isEditRoute?: boolean;
 }
 
 /** Inject inline bold+italic styles onto <strong> tags for comparison cells. */
@@ -23,9 +24,10 @@ function toPlain(html: string): string {
   return html.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 }
 
-export default function ComparisonView({ data, searchId }: ComparisonViewProps) {
+export default function ComparisonView({ data, searchId, isEditRoute = false }: ComparisonViewProps) {
   const { candidates, key_criteria_names } = data;
   const [isEditing, setIsEditing] = useState(false);
+  const isEditable = isEditRoute && isEditing;
 
   // For each candidate, build a map from criterion name → evidence + anchor
   const criteriaByCandidate = candidates.map((c) => {
@@ -39,7 +41,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
   const colWidth = `${Math.max(200, Math.floor((100 - 16) / candidates.length))}px`;
 
   return (
-    <EditorContext.Provider value={{ isEditable: isEditing }}>
+    <EditorContext.Provider value={{ isEditable: isEditable }}>
       <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "60px" }}>
 
         {/* ── Top nav ── */}
@@ -93,26 +95,28 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
             <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.2)" }}>
               {candidates.length} candidates
             </span>
-            <button
-              onClick={() => setIsEditing((v) => !v)}
-              style={{
-                fontSize: "0.65rem",
-                fontWeight: 600,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-                padding: "5px 12px",
-                borderRadius: "6px",
-                border: isEditing
-                  ? "1px solid rgba(197,165,114,0.5)"
-                  : "1px solid rgba(255,255,255,0.1)",
-                background: isEditing ? "rgba(197,165,114,0.08)" : "transparent",
-                color: isEditing ? "var(--ss-gold)" : "rgba(255,255,255,0.3)",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {isEditing ? "🔓 Editing" : "🔒 Edit"}
-            </button>
+            {isEditRoute && (
+              <button
+                onClick={() => setIsEditing((v) => !v)}
+                style={{
+                  fontSize: "0.65rem",
+                  fontWeight: 600,
+                  letterSpacing: "1px",
+                  textTransform: "uppercase",
+                  padding: "5px 12px",
+                  borderRadius: "6px",
+                  border: isEditing
+                    ? "1px solid rgba(197,165,114,0.5)"
+                    : "1px solid rgba(255,255,255,0.1)",
+                  background: isEditing ? "rgba(197,165,114,0.08)" : "transparent",
+                  color: isEditing ? "var(--ss-gold)" : "rgba(255,255,255,0.3)",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+              >
+                {isEditing ? "🔓 Editing" : "🔒 Edit"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -330,7 +334,7 @@ export default function ComparisonView({ data, searchId }: ComparisonViewProps) 
                       };
                       return (
                         <div>
-                          {isEditing ? (
+                          {isEditable ? (
                             <EditableField
                               value={plain}
                               originalValue={plain}

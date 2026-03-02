@@ -244,7 +244,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               </>
             ) : null}
             <a
-              href={`/deck/${searchId}/compare`}
+              href={isEditRoute ? `/deck/${searchId}/edit/compare` : `/deck/${searchId}/compare`}
               style={{
                 fontSize: "0.72rem",
                 fontWeight: 600,
