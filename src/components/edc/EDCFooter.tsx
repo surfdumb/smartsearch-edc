@@ -8,7 +8,7 @@ export default function EDCFooter({ search_name, generated_date }: EDCFooterProp
     <footer
       className="flex justify-between items-center rounded-b-card"
       style={{
-        padding: "20px 48px",
+        padding: "10px 48px",
         background: "#faf9f6",
         borderTop: "1px solid #f0ede8",
       }}

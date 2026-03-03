@@ -63,8 +63,6 @@ export default function EDCCard({
         current_title={data.current_title}
         current_company={data.current_company}
         location={data.location}
-        role_title={data.role_title}
-        generated_date={data.generated_date}
         context={context}
       />
       <div style={{ background: "white", minHeight: "460px" }}>

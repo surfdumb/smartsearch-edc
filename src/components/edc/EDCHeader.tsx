@@ -6,8 +6,6 @@ interface EDCHeaderProps {
   current_title: string;
   current_company: string;
   location: string;
-  role_title: string;
-  generated_date: string;
   context?: EDCContext;
 }
 
@@ -16,8 +14,6 @@ export default function EDCHeader({
   current_title,
   current_company,
   location,
-  role_title,
-  generated_date,
   context = 'standalone',
 }: EDCHeaderProps) {
   // Comparison context: compact — just name + title/company, no brand bar or meta row
@@ -72,7 +68,7 @@ export default function EDCHeader({
       className="edc-header relative overflow-hidden rounded-t-card"
       style={{
         background: "var(--ss-header-bg)",
-        padding: "24px 40px 20px",
+        padding: "20px 40px 16px",
       }}
     >
       {/* Radial gold glow — positioned top-right, matching prototype ::before */}
@@ -89,7 +85,7 @@ export default function EDCHeader({
       />
 
       {/* Top row: brand logo + EDC badge */}
-      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "16px" }}>
+      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "12px" }}>
         {/* SmartSearch logo */}
         <img
           src="/logos/smartsearch-white.png"
@@ -163,22 +159,6 @@ export default function EDCHeader({
         </span>
       </p>
 
-      {/* Meta row — standalone/print only */}
-      {context !== 'deck' && (
-        <div
-          className="relative flex"
-          style={{
-            marginTop: "18px",
-            paddingTop: "14px",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
-            gap: "24px",
-          }}
-        >
-          <MetaItem label="Role" value={role_title} />
-          <MetaItem label="Generated" value={generated_date} />
-        </div>
-      )}
-
       {/* Bottom border — gold gradient */}
       <div
         className="absolute bottom-0 left-0 right-0"
@@ -189,31 +169,5 @@ export default function EDCHeader({
         }}
       />
     </header>
-  );
-}
-
-function MetaItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col" style={{ gap: "3px" }}>
-      <div
-        className="uppercase font-semibold"
-        style={{
-          fontSize: "0.68rem",
-          letterSpacing: "1.5px",
-          color: "rgba(255,255,255,0.3)",
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontSize: "0.92rem",
-          color: "rgba(255,255,255,0.78)",
-          fontWeight: 400,
-        }}
-      >
-        {value}
-      </div>
-    </div>
   );
 }
