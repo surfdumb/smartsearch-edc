@@ -99,8 +99,6 @@ export default function EDCCard({
             <Compensation
               compensation={data.compensation}
               notice_period={data.notice_period}
-              earliest_start_date={data.earliest_start_date}
-              candidateId={candidateId}
             />
             <WhyInterested why_interested={data.why_interested} />
             {showOurTake && (
