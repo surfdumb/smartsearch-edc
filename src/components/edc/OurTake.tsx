@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
 import OurTakeSourcePanel from "@/components/edc/OurTakeSourcePanel";
@@ -49,6 +49,17 @@ const BADGE_STYLES: Record<string, { bg: string; border: string; color: string; 
   },
 };
 
+const PROGRESS_MESSAGES = [
+  "Reading candidate evidence...",
+  "Analysing key criteria performance...",
+  "Evaluating scope alignment...",
+  "Reviewing compensation positioning...",
+  "Structuring consultant perspective...",
+  "Weighing concerns against strengths...",
+  "Drafting professional assessment...",
+  "Refining language and tone...",
+];
+
 export default function OurTake({
   text,
   recommendation,
@@ -66,6 +77,8 @@ export default function OurTake({
   const [notesExpanded, setNotesExpanded] = useState(!text || text.length === 0);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
+  const [progressIdx, setProgressIdx] = useState(0);
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Reset all state when candidate changes (Prev/Next navigation)
   useEffect(() => {
@@ -78,12 +91,40 @@ export default function OurTake({
     } catch { /* ignore */ }
   }, [candidateId, original_note, text]);
 
+  // Cycle progress messages while generating
+  useEffect(() => {
+    if (generating) {
+      setProgressIdx(0);
+      progressTimer.current = setInterval(() => {
+        setProgressIdx((prev) =>
+          prev < PROGRESS_MESSAGES.length - 1 ? prev + 1 : prev
+        );
+      }, 2400);
+    } else {
+      if (progressTimer.current) clearInterval(progressTimer.current);
+    }
+    return () => {
+      if (progressTimer.current) clearInterval(progressTimer.current);
+    };
+  }, [generating]);
+
   const toggleHidden = () => {
     const next = !isHidden;
     setIsHidden(next);
     if (candidateId) {
       try { localStorage.setItem(ourTakeHiddenKey(candidateId), String(next)); } catch { /* ignore */ }
     }
+  };
+
+  const handleRemoveBadge = () => {
+    if (!onOurTakeGenerated) return;
+    onOurTakeGenerated({
+      text,
+      recommendation: undefined,
+      discussion_points,
+      ai_rationale,
+      original_note: original_note || notesInput || undefined,
+    });
   };
 
   // Client view + hidden → nothing rendered
@@ -219,9 +260,34 @@ export default function OurTake({
               background: badge.bg,
               border: `1.5px solid ${badge.border}`,
               color: badge.color,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
             }}
           >
             {badge.label}
+            {/* Remove badge button — edit mode only */}
+            {isEditable && (
+              <button
+                onClick={handleRemoveBadge}
+                title="Remove recommendation"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: badge.color,
+                  cursor: "pointer",
+                  padding: "0",
+                  fontSize: "0.85rem",
+                  lineHeight: 1,
+                  opacity: 0.5,
+                  transition: "opacity 0.15s",
+                }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.5"; }}
+              >
+                &times;
+              </button>
+            )}
           </span>
         )}
         {/* Hide toggle — edit mode only */}
@@ -262,12 +328,72 @@ export default function OurTake({
         style={{
           background: "white",
           borderRadius: "14px",
-          border: "1px solid #4a7c59",
-          boxShadow: "0 2px 12px rgba(0,0,0,0.02)",
+          border: generating ? "1px solid rgba(74, 124, 89, 0.4)" : "1px solid #4a7c59",
+          boxShadow: generating
+            ? "0 0 20px rgba(74, 124, 89, 0.08), 0 0 40px rgba(74, 124, 89, 0.04)"
+            : "0 2px 12px rgba(0,0,0,0.02)",
           overflow: "hidden",
+          transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+          position: "relative",
         }}
       >
-        {hasContent ? (
+        {/* Generation progress overlay */}
+        {generating && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(255, 255, 255, 0.92)",
+              zIndex: 10,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "40px 32px",
+              minHeight: "160px",
+            }}
+          >
+            {/* Animated gold line */}
+            <div
+              style={{
+                width: "48px",
+                height: "2px",
+                borderRadius: "1px",
+                background: "linear-gradient(90deg, transparent, var(--ss-gold), transparent)",
+                marginBottom: "24px",
+                animation: "shimmer 1.8s ease-in-out infinite",
+              }}
+            />
+
+            {/* Progress messages */}
+            <div style={{ textAlign: "center", minHeight: "60px" }}>
+              {PROGRESS_MESSAGES.slice(0, progressIdx + 1).map((msg, i) => {
+                const isLatest = i === progressIdx;
+                return (
+                  <p
+                    key={msg}
+                    style={{
+                      fontSize: "0.82rem",
+                      color: isLatest ? "var(--ss-dark)" : "var(--ss-gray-light)",
+                      fontWeight: isLatest ? 500 : 400,
+                      lineHeight: 1.8,
+                      margin: 0,
+                      transition: "color 0.4s ease, font-weight 0.4s ease",
+                      fontStyle: isLatest ? "normal" : "normal",
+                    }}
+                  >
+                    {isLatest && (
+                      <span style={{ color: "var(--ss-gold)", marginRight: "6px" }}>&#10022;</span>
+                    )}
+                    {msg}
+                  </p>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {hasContent && !generating ? (
           <>
             {/* Main assessment text */}
             <div style={{ padding: "22px 28px" }}>
@@ -296,10 +422,8 @@ export default function OurTake({
               ) : (
                 <div>
                   {text.split("\n\n").map((para, i) => {
-                    // Bold the lead phrase only when separator appears before the first period.
-                    // This avoids mid-sentence dashes being treated as structural separators.
                     const periodIdx = para.indexOf(".");
-                    const dashIdx = para.indexOf(" \u2014 "); // " — "
+                    const dashIdx = para.indexOf(" \u2014 ");
                     const colonIdx = para.indexOf(": ");
 
                     let lead = "";
@@ -319,7 +443,7 @@ export default function OurTake({
                       lead = para.slice(0, dashIdx);
                       rest = para.slice(dashIdx);
                     } else if (useColon) {
-                      lead = para.slice(0, colonIdx + 1); // include colon in bold
+                      lead = para.slice(0, colonIdx + 1);
                       rest = para.slice(colonIdx + 1);
                     }
 
@@ -385,7 +509,7 @@ export default function OurTake({
               </div>
             )}
           </>
-        ) : (
+        ) : !generating ? (
           /* Empty state — no Our Take yet */
           <div
             style={{
@@ -412,6 +536,9 @@ export default function OurTake({
               Add your consultant notes below and click &ldquo;Generate Our Take&rdquo; to create a structured assessment.
             </p>
           </div>
+        ) : (
+          /* Generating state — keep minimum height for overlay */
+          <div style={{ minHeight: "160px" }} />
         )}
       </div>
 
@@ -441,7 +568,6 @@ export default function OurTake({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "0.85rem" }}>📝</span>
                 <span
                   style={{
                     fontSize: "0.78rem",
@@ -451,7 +577,7 @@ export default function OurTake({
                     color: "var(--ss-gray)",
                   }}
                 >
-                  Consultant Notes
+                  All Raw Notes
                 </span>
                 {notesInput.trim().length > 0 && (
                   <span
@@ -508,30 +634,28 @@ export default function OurTake({
             )}
           </div>
 
-          {/* Generate button */}
-          <div style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "12px" }}>
+          {/* Regenerate button */}
+          <div style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "12px" }}>
             <button
               onClick={handleGenerate}
               disabled={generating}
+              className="regenerate-btn"
               style={{
-                background: generating
-                  ? "var(--ss-gold-pale)"
-                  : "linear-gradient(135deg, var(--ss-gold) 0%, var(--ss-gold-deep) 100%)",
-                color: generating ? "var(--ss-gray)" : "#1a1a1a",
-                border: "none",
-                padding: "10px 28px",
-                borderRadius: "10px",
-                fontSize: "0.82rem",
-                fontWeight: 700,
-                letterSpacing: "0.5px",
+                background: "transparent",
+                color: generating ? "var(--ss-gray-light)" : "var(--ss-gold-deep)",
+                border: generating
+                  ? "1px solid var(--ss-border)"
+                  : "1px solid var(--ss-gold)",
+                padding: "8px 22px",
+                borderRadius: "8px",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                letterSpacing: "0.8px",
                 cursor: generating ? "not-allowed" : "pointer",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: "8px",
-                transition: "all 0.2s ease",
-                boxShadow: generating
-                  ? "none"
-                  : "0 2px 8px rgba(197, 165, 114, 0.3)",
+                gap: "7px",
+                transition: "all 0.25s ease",
               }}
             >
               {generating ? (
@@ -539,26 +663,48 @@ export default function OurTake({
                   <span
                     style={{
                       display: "inline-block",
-                      width: "14px",
-                      height: "14px",
-                      border: "2px solid var(--ss-gray-light)",
-                      borderTopColor: "var(--ss-gold-deep)",
+                      width: "12px",
+                      height: "12px",
+                      border: "1.5px solid var(--ss-border)",
+                      borderTopColor: "var(--ss-gold)",
                       borderRadius: "50%",
                       animation: "spin 0.8s linear infinite",
                     }}
                   />
-                  Generating...
+                  Generating
                 </>
               ) : (
                 <>
-                  <span style={{ fontSize: "0.9rem" }}>&#10022;</span>
-                  {hasContent ? "Regenerate Our Take" : "Generate Our Take"}
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.85 }}>
+                    <path
+                      d="M13.5 2.5L6 10l-2-2"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ display: "none" }}
+                    />
+                    <path
+                      d="M2.5 10.5V13.5H5.5L13 6L10 3L2.5 10.5Z"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M8.5 4.5L11.5 7.5"
+                      stroke="currentColor"
+                      strokeWidth="1.3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  {hasContent ? "Regenerate" : "Generate"}
                 </>
               )}
             </button>
 
             {genError && (
-              <span style={{ fontSize: "0.8rem", color: "var(--ss-yellow)" }}>
+              <span style={{ fontSize: "0.78rem", color: "var(--ss-yellow)" }}>
                 {genError}
               </span>
             )}
@@ -568,6 +714,15 @@ export default function OurTake({
             @keyframes spin {
               from { transform: rotate(0deg); }
               to { transform: rotate(360deg); }
+            }
+            @keyframes shimmer {
+              0%, 100% { opacity: 0.3; width: 48px; }
+              50% { opacity: 1; width: 80px; }
+            }
+            .regenerate-btn:not(:disabled):hover {
+              background: rgba(197, 165, 114, 0.06) !important;
+              border-color: var(--ss-gold-deep) !important;
+              box-shadow: 0 0 12px rgba(197, 165, 114, 0.12);
             }
           `}</style>
         </div>

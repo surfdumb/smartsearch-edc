@@ -56,7 +56,7 @@ export default function OurTakeSourcePanel({ sourceNotes, aiRationale }: OurTake
             color: "var(--ss-gold-deep)",
           }}
         >
-          Source Notes
+          Relevant Raw Notes
         </span>
         <span
           style={{
