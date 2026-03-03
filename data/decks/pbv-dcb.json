@@ -10,6 +10,12 @@
     "Bottling, Beverage, or FMCG Background"
   ],
   "search_lead": "Jackie Wyard-Yates",
+  "deck_settings": {
+    "match_score_display": "HIDE",
+    "our_take_display": "HIDE",
+    "scope_narrative_display": "HIDE",
+    "edit_mode": false
+  },
   "candidates": [
     {
       "candidate_id": "c-snider",
@@ -35,31 +41,31 @@
         "location": "Lexington, NC",
         "scope_match": [
           {
-            "dimension": "Team Leadership",
+            "scope": "Team Leadership",
             "candidate_actual": "Manages 1 direct report; deliberately seeking people leadership experience",
             "role_requirement": "Director leading 3–5 comp and benefits analysts from day one",
             "alignment": "gap"
           },
           {
-            "dimension": "Employee Population",
+            "scope": "Employee Population",
             "candidate_actual": "Sales and service compensation for ~9,000 employees at Coca-Cola Consolidated",
             "role_requirement": "~3,500–4,000 employees, largely hourly and route sales",
             "alignment": "strong"
           },
           {
-            "dimension": "Commercial Compensation",
+            "scope": "Commercial Compensation",
             "candidate_actual": "Sales incentive structures for corporate-owned retail stores (~30% of workforce) at Ashley Furniture",
             "role_requirement": "Route driver and field sales incentive design as Year 1 priority",
             "alignment": "partial"
           },
           {
-            "dimension": "Benefits Ownership",
+            "scope": "Benefits Ownership",
             "candidate_actual": "4–5 years without benefits responsibility; self-described learning curve needed",
             "role_requirement": "Full benefits administration and vendor management",
             "alignment": "gap"
           },
           {
-            "dimension": "Industry Context",
+            "scope": "Industry Context",
             "candidate_actual": "Current role at largest independent Coca-Cola bottler (1+ year); prior FMCG-adjacent manufacturing",
             "role_requirement": "Bottling, beverage, or FMCG operational background",
             "alignment": "partial"
@@ -172,31 +178,31 @@
         "location": "Raleigh, NC",
         "scope_match": [
           {
-            "dimension": "Team Leadership",
+            "scope": "Team Leadership",
             "candidate_actual": "Manages 3 direct reports (stock plan admin, systems analyst, entry-level analyst) at Advance Auto Parts",
             "role_requirement": "Director leading 3–5 comp and benefits analysts from day one",
             "alignment": "strong"
           },
           {
-            "dimension": "Employee Population",
+            "scope": "Employee Population",
             "candidate_actual": "Bonus administration for 40,000+ field and pro sales team members",
             "role_requirement": "~3,500–4,000 employees, largely hourly and route sales",
             "alignment": "strong"
           },
           {
-            "dimension": "Commercial Compensation",
+            "scope": "Commercial Compensation",
             "candidate_actual": "Manages ~100 bonus plans for field and pro sales teams; rebuilt field team confidence in bonus calculations",
             "role_requirement": "Route driver and field sales incentive design as Year 1 priority",
             "alignment": "strong"
           },
           {
-            "dimension": "Benefits Ownership",
+            "scope": "Benefits Ownership",
             "candidate_actual": "Explicitly describes benefits as 'not where my passion is' with 'very little experience'",
             "role_requirement": "Full benefits administration and vendor management",
             "alignment": "gap"
           },
           {
-            "dimension": "Industry Context",
+            "scope": "Industry Context",
             "candidate_actual": "Entire 7.5-year compensation career in automotive retail parts distribution",
             "role_requirement": "Bottling, beverage, or FMCG operational background",
             "alignment": "gap"
@@ -315,31 +321,31 @@
         "location": "Winston-Salem, NC",
         "scope_match": [
           {
-            "dimension": "Team Leadership",
+            "scope": "Team Leadership",
             "candidate_actual": "Individual contributor since April 2024 — no direct reports; 2–4 reports in earlier roles",
             "role_requirement": "Director leading 3–5 comp and benefits analysts from day one",
             "alignment": "gap"
           },
           {
-            "dimension": "Employee Population",
+            "scope": "Employee Population",
             "candidate_actual": "Field sales compensation for ~2,500 employees across all 50 states at Reynolds American",
             "role_requirement": "~3,500–4,000 employees, largely hourly and route sales",
             "alignment": "partial"
           },
           {
-            "dimension": "Commercial Compensation",
+            "scope": "Commercial Compensation",
             "candidate_actual": "Built quarterly field sales bonus system from scratch; managed geographic wage differentials across 50 states",
             "role_requirement": "Route driver and field sales incentive design as Year 1 priority",
             "alignment": "strong"
           },
           {
-            "dimension": "Benefits Ownership",
+            "scope": "Benefits Ownership",
             "candidate_actual": "Has never held a benefits role — no benefits administration experience",
             "role_requirement": "Full benefits administration and vendor management",
             "alignment": "gap"
           },
           {
-            "dimension": "Industry Context",
+            "scope": "Industry Context",
             "candidate_actual": "Entire 9-year career in tobacco industry (BAT subsidiary Reynolds American)",
             "role_requirement": "Bottling, beverage, or FMCG operational background",
             "alignment": "gap"
@@ -448,7 +454,7 @@
         "Data-driven stakeholder navigator — US operations serve as global benchmark; navigated German HQ dynamics through Workday implementation"
       ],
       "notice_period": "2–3 weeks",
-      "compensation_alignment": "red",
+      "compensation_alignment": "amber",
       "career_trajectory": "Call center comp → Pharma comp",
       "industry_shorthand": "Pharma / Healthcare",
       "edc_data": {
@@ -458,31 +464,31 @@
         "location": "Charlotte, NC",
         "scope_match": [
           {
-            "dimension": "Team Leadership",
+            "scope": "Team Leadership",
             "candidate_actual": "Manages 3 compensation analysts plus dotted-line oversight; previously led team of 6 at Vocem",
             "role_requirement": "Director leading 3–5 comp and benefits analysts from day one",
             "alignment": "strong"
           },
           {
-            "dimension": "Employee Population",
+            "scope": "Employee Population",
             "candidate_actual": "Supported growth from 2,000 to 4,600+ employees at Fresenius Kabi; ~300 commercial staff",
             "role_requirement": "~3,500–4,000 employees, largely hourly and route sales",
             "alignment": "partial"
           },
           {
-            "dimension": "Commercial Compensation",
+            "scope": "Commercial Compensation",
             "candidate_actual": "Acknowledged 'most of my experience is with non-sales incentives'; early career commission revamp for collector agents at Vocem",
             "role_requirement": "Route driver and field sales incentive design as Year 1 priority",
             "alignment": "partial"
           },
           {
-            "dimension": "Benefits Ownership",
+            "scope": "Benefits Ownership",
             "candidate_actual": "Not mentioned — pharma benefits administration not evidenced",
             "role_requirement": "Full benefits administration and vendor management",
             "alignment": "not_assessed"
           },
           {
-            "dimension": "Industry Context",
+            "scope": "Industry Context",
             "candidate_actual": "Career spans pharmaceuticals, financial services, and call centre operations; no bottling or consumer goods exposure",
             "role_requirement": "Bottling, beverage, or FMCG operational background",
             "alignment": "gap"
@@ -601,31 +607,31 @@
         "location": "Greensboro, NC",
         "scope_match": [
           {
-            "dimension": "Team Leadership",
+            "scope": "Team Leadership",
             "candidate_actual": "Manages 5 direct reports (2 comp, 2 retirement, 1 T&A); built the Volvo total rewards function from scratch",
             "role_requirement": "Director leading 3–5 comp and benefits analysts from day one",
             "alignment": "strong"
           },
           {
-            "dimension": "Employee Population",
+            "scope": "Employee Population",
             "candidate_actual": "Job evaluation for ~175 top-level positions at dormakaba; Volvo Group is a global manufacturer with larger population",
             "role_requirement": "~3,500–4,000 employees, largely hourly and route sales",
             "alignment": "partial"
           },
           {
-            "dimension": "Commercial Compensation",
+            "scope": "Commercial Compensation",
             "candidate_actual": "Led harmonisation of sales incentive plans at dormakaba, using Monte Carlo analysis; comfortable walking in with commercial teams",
             "role_requirement": "Route driver and field sales incentive design as Year 1 priority",
             "alignment": "strong"
           },
           {
-            "dimension": "Benefits Ownership",
+            "scope": "Benefits Ownership",
             "candidate_actual": "Manages 2 retirement specialists and 1 T&A specialist; benefits 'not what gets his mojo going'",
             "role_requirement": "Full benefits administration and vendor management",
             "alignment": "partial"
           },
           {
-            "dimension": "Industry Context",
+            "scope": "Industry Context",
             "candidate_actual": "Career entirely in manufacturing: door hardware (dormakaba), textiles (Elevate), residential doors (Endura), heavy trucks (Volvo)",
             "role_requirement": "Bottling, beverage, or FMCG operational background",
             "alignment": "gap"

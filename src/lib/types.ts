@@ -17,7 +17,7 @@ export interface EDCData {
 
   // Scope Match
   scope_match: {
-    dimension: string;
+    scope: string;
     candidate_actual: string;
     role_requirement: string;
     alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
@@ -43,7 +43,7 @@ export interface EDCData {
     budget_range?: string;
   };
   notice_period: string;
-  earliest_start_date: string;
+  earliest_start_date?: string;
 
   // Motivation
   why_interested: {
@@ -77,6 +77,9 @@ export interface EDCData {
   match_score_percentage?: number;
   match_score_display?: 'SHOW' | 'HIDE';  // Default: 'HIDE'
 
+  // Miscellaneous — optional additional notes
+  miscellaneous?: { text: string; display: 'SHOW' | 'HIDE' };
+
   // Extensible — not used in v1.0 but keep in type
   cv_url?: string;
   linkedin_url?: string;
@@ -90,7 +93,14 @@ export interface SearchContext {
   client_logo_url?: string;
   key_criteria_names: string[];
   search_lead: string;
+  job_summary_url?: string;
   candidates: IntroCardData[];
+  deck_settings?: {
+    match_score_display: 'SHOW' | 'HIDE';
+    our_take_display: 'SHOW' | 'HIDE';
+    scope_narrative_display: 'SHOW' | 'HIDE';
+    edit_mode: boolean;
+  };
 }
 
 /**
@@ -109,7 +119,7 @@ export function buildCandidateContext(data: EDCData): string {
   if (data.scope_match.length > 0) {
     parts.push('SCOPE MATCH:');
     for (const s of data.scope_match) {
-      parts.push(`- ${s.dimension}: Candidate has "${s.candidate_actual}" vs requirement "${s.role_requirement}" → ${s.alignment}`);
+      parts.push(`- ${s.scope}: Candidate has "${s.candidate_actual}" vs requirement "${s.role_requirement}" → ${s.alignment}`);
     }
     if (data.scope_seasoning) {
       parts.push(`Scope seasoning: ${data.scope_seasoning.replace(/<[^>]+>/g, '')}`);
@@ -132,7 +142,7 @@ export function buildCandidateContext(data: EDCData): string {
   parts.push(`Expected: ${data.compensation.expected_base} base / ${data.compensation.expected_total} total`);
   parts.push(`Flexibility: ${data.compensation.flexibility}`);
   if (data.compensation.budget_range) parts.push(`Budget: ${data.compensation.budget_range}`);
-  parts.push(`Notice: ${data.notice_period}, Earliest start: ${data.earliest_start_date}`);
+  parts.push(`Notice: ${data.notice_period}${data.earliest_start_date ? `, Earliest start: ${data.earliest_start_date}` : ''}`);
   parts.push('');
 
   // Motivation
@@ -165,8 +175,9 @@ export interface IntroCardData {
   flash_summary: string;
   key_strengths: string[];
   notice_period?: string;
-  /** green = within range, amber = stretch, red = gap, not_set = unknown */
-  compensation_alignment?: 'green' | 'amber' | 'red' | 'not_set';
+  photo_url?: string;
+  /** green = within range, amber = stretch, not_set = unknown */
+  compensation_alignment?: 'green' | 'amber' | 'not_set';
   /** e.g. "Builder → Integrator", "Operator → Strategist" */
   career_trajectory?: string;
   /** Short industry label e.g. "FMCG", "FinTech", "Life Sciences" */
