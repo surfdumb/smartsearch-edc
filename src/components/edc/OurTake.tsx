@@ -281,6 +281,17 @@ export default function OurTake({
                     lineHeight: 1.8,
                     whiteSpace: "pre-line",
                   }}
+                  onUpdate={(newText) => {
+                    if (onOurTakeGenerated && newText.trim() !== text.trim()) {
+                      onOurTakeGenerated({
+                        text: newText,
+                        recommendation,
+                        discussion_points,
+                        ai_rationale,
+                        original_note: original_note || notesInput || undefined,
+                      });
+                    }
+                  }}
                 />
               ) : (
                 <div>
