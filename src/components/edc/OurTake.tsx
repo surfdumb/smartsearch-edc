@@ -116,6 +116,21 @@ export default function OurTake({
     }
   };
 
+  const BADGE_CYCLE: Array<'ADVANCE' | 'HOLD' | 'PASS'> = ['ADVANCE', 'HOLD', 'PASS'];
+
+  const handleCycleBadge = () => {
+    if (!onOurTakeGenerated) return;
+    const currentIdx = recommendation ? BADGE_CYCLE.indexOf(recommendation) : -1;
+    const nextRec = BADGE_CYCLE[(currentIdx + 1) % BADGE_CYCLE.length];
+    onOurTakeGenerated({
+      text,
+      recommendation: nextRec,
+      discussion_points,
+      ai_rationale,
+      original_note: original_note || notesInput || undefined,
+    });
+  };
+
   const handleRemoveBadge = () => {
     if (!onOurTakeGenerated) return;
     onOurTakeGenerated({
@@ -246,8 +261,8 @@ export default function OurTake({
         >
           Our Take
         </span>
-        {/* Recommendation badge */}
-        {badge && (
+        {/* Recommendation badge — clickable to cycle in edit mode */}
+        {badge ? (
           <span
             style={{
               marginLeft: "auto",
@@ -263,13 +278,16 @@ export default function OurTake({
               display: "inline-flex",
               alignItems: "center",
               gap: "8px",
+              cursor: isEditable ? "pointer" : "default",
+              transition: "all 0.2s ease",
             }}
+            onClick={isEditable ? handleCycleBadge : undefined}
+            title={isEditable ? "Click to cycle recommendation" : undefined}
           >
             {badge.label}
-            {/* Remove badge button — edit mode only */}
             {isEditable && (
               <button
-                onClick={handleRemoveBadge}
+                onClick={(e) => { e.stopPropagation(); handleRemoveBadge(); }}
                 title="Remove recommendation"
                 style={{
                   background: "none",
@@ -289,6 +307,37 @@ export default function OurTake({
               </button>
             )}
           </span>
+        ) : isEditable && (
+          <button
+            onClick={handleCycleBadge}
+            title="Add recommendation"
+            style={{
+              marginLeft: "auto",
+              padding: "4px 12px",
+              borderRadius: "6px",
+              fontSize: "0.65rem",
+              fontWeight: 600,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              background: "transparent",
+              border: "1px dashed var(--ss-gray-pale)",
+              color: "var(--ss-gray-light)",
+              cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+            onMouseOver={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.borderColor = "var(--ss-green)";
+              b.style.color = "var(--ss-green)";
+            }}
+            onMouseOut={(e) => {
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.borderColor = "var(--ss-gray-pale)";
+              b.style.color = "var(--ss-gray-light)";
+            }}
+          >
+            + Recommendation
+          </button>
         )}
         {/* Hide toggle — edit mode only */}
         {isEditable && (
@@ -478,20 +527,58 @@ export default function OurTake({
                   borderTop: "1px solid var(--ss-border-light)",
                 }}
               >
-                <p
+                <div
                   style={{
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    letterSpacing: "1.5px",
-                    textTransform: "uppercase",
-                    color: "var(--ss-gray-light)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                     marginTop: "16px",
                     marginBottom: "10px",
                   }}
                 >
-                  Discussion Points
-                </p>
-                <ul style={{ margin: 0, paddingLeft: "18px" }}>
+                  <p
+                    style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      letterSpacing: "1.5px",
+                      textTransform: "uppercase",
+                      color: "var(--ss-gray-light)",
+                      margin: 0,
+                    }}
+                  >
+                    Discussion Points
+                  </p>
+                  {isEditable && (
+                    <button
+                      onClick={() => {
+                        if (!onOurTakeGenerated) return;
+                        onOurTakeGenerated({
+                          text,
+                          recommendation,
+                          discussion_points: [],
+                          ai_rationale,
+                          original_note: original_note || notesInput || undefined,
+                        });
+                      }}
+                      title="Remove all discussion points"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--ss-gray-pale)",
+                        cursor: "pointer",
+                        fontSize: "0.68rem",
+                        fontWeight: 500,
+                        padding: "2px 6px",
+                        transition: "color 0.15s",
+                      }}
+                      onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
+                      onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-pale)"; }}
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <ul style={{ margin: 0, paddingLeft: isEditable ? "0" : "18px", listStyle: isEditable ? "none" : "disc" }}>
                   {discussion_points.map((point, i) => (
                     <li
                       key={i}
@@ -500,9 +587,70 @@ export default function OurTake({
                         color: "var(--ss-gray)",
                         lineHeight: 1.7,
                         marginBottom: "4px",
+                        display: isEditable ? "flex" : "list-item",
+                        alignItems: "flex-start",
+                        gap: "8px",
                       }}
                     >
-                      {point}
+                      {isEditable ? (
+                        <>
+                          <span style={{ color: "var(--ss-gray-light)", marginTop: "3px", flexShrink: 0 }}>&#8226;</span>
+                          <EditableField
+                            value={point}
+                            as="span"
+                            style={{
+                              fontSize: "0.85rem",
+                              color: "var(--ss-gray)",
+                              lineHeight: 1.7,
+                              flex: 1,
+                            }}
+                            onUpdate={(newVal) => {
+                              if (!onOurTakeGenerated) return;
+                              const updated = [...discussion_points];
+                              updated[i] = newVal;
+                              onOurTakeGenerated({
+                                text,
+                                recommendation,
+                                discussion_points: updated,
+                                ai_rationale,
+                                original_note: original_note || notesInput || undefined,
+                              });
+                            }}
+                          />
+                          <button
+                            onClick={() => {
+                              if (!onOurTakeGenerated) return;
+                              const updated = discussion_points.filter((_, idx) => idx !== i);
+                              onOurTakeGenerated({
+                                text,
+                                recommendation,
+                                discussion_points: updated,
+                                ai_rationale,
+                                original_note: original_note || notesInput || undefined,
+                              });
+                            }}
+                            title="Remove this point"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "var(--ss-gray-pale)",
+                              cursor: "pointer",
+                              padding: "2px 4px",
+                              fontSize: "0.82rem",
+                              lineHeight: 1,
+                              flexShrink: 0,
+                              marginTop: "4px",
+                              transition: "color 0.15s",
+                            }}
+                            onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
+                            onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-pale)"; }}
+                          >
+                            &times;
+                          </button>
+                        </>
+                      ) : (
+                        point
+                      )}
                     </li>
                   ))}
                 </ul>
