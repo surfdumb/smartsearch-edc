@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useEditorContext } from "@/contexts/EditorContext";
 
 interface OurTakePopoverProps {
   fragments?: string[];
@@ -8,15 +9,43 @@ interface OurTakePopoverProps {
   consultantName?: string;
 }
 
-export default function OurTakePopover({ fragments, text, consultantName }: OurTakePopoverProps) {
+export default function OurTakePopover({
+  fragments: initialFragments,
+  text: initialText,
+  consultantName: initialName,
+}: OurTakePopoverProps) {
+  const { isEditable } = useEditorContext();
   const [isOpen, setIsOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const iconRef = useRef<HTMLButtonElement>(null);
 
-  // Determine if there's any content to show
-  const hasFragments = fragments && fragments.length > 0;
-  const hasText = text && text.trim().length > 0;
-  if (!hasFragments && !hasText) return null;
+  // Editable local state
+  const [fragments, setFragments] = useState<string[]>(initialFragments ?? []);
+  const [text, setText] = useState(initialText ?? "");
+  const [name, setName] = useState(initialName ?? "");
+  const [showName, setShowName] = useState(!!initialName);
+
+  // Keep refs to originals for reset
+  const origFragments = useRef(initialFragments ?? []);
+  const origText = useRef(initialText ?? "");
+  const origName = useRef(initialName ?? "");
+
+  // Sync when props change (candidate navigation)
+  useEffect(() => {
+    setFragments(initialFragments ?? []);
+    setText(initialText ?? "");
+    setName(initialName ?? "");
+    setShowName(!!initialName);
+    origFragments.current = initialFragments ?? [];
+    origText.current = initialText ?? "";
+    origName.current = initialName ?? "";
+  }, [initialFragments, initialText, initialName]);
+
+  const hasFragments = fragments.length > 0;
+  const hasText = text.trim().length > 0;
+
+  // In edit mode, always show the icon so consultant can add content
+  if (!isEditable && !hasFragments && !hasText) return null;
 
   // Close on click outside or Escape
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -44,9 +73,30 @@ export default function OurTakePopover({ fragments, text, consultantName }: OurT
     };
   }, [isOpen]);
 
+  const updateFragment = (index: number, value: string) => {
+    setFragments(prev => prev.map((f, i) => i === index ? value : f));
+  };
+
+  const removeFragment = (index: number) => {
+    setFragments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addFragment = () => {
+    setFragments(prev => [...prev, ""]);
+  };
+
+  const resetFragment = (index: number) => {
+    const orig = origFragments.current[index];
+    if (orig !== undefined) {
+      setFragments(prev => prev.map((f, i) => i === index ? orig : f));
+    }
+  };
+
+  const hasContent = hasFragments || hasText;
+
   return (
     <>
-      {/* Floating icon — bottom-right of card */}
+      {/* Floating icon */}
       <button
         ref={iconRef}
         onClick={() => setIsOpen((v) => !v)}
@@ -58,8 +108,12 @@ export default function OurTakePopover({ fragments, text, consultantName }: OurT
           width: "44px",
           height: "44px",
           borderRadius: "50%",
-          background: "var(--ss-cream)",
-          border: isOpen ? "1.5px solid var(--ss-gold-light)" : "1.5px solid var(--ss-gold)",
+          background: hasContent ? "var(--ss-cream)" : "rgba(250,248,245,0.5)",
+          border: isOpen
+            ? "1.5px solid var(--ss-gold-light)"
+            : hasContent
+              ? "1.5px solid var(--ss-gold)"
+              : "1.5px dashed rgba(197,165,114,0.4)",
           boxShadow: isOpen
             ? "0 2px 16px rgba(0,0,0,0.12)"
             : "0 2px 12px rgba(0,0,0,0.08)",
@@ -70,10 +124,11 @@ export default function OurTakePopover({ fragments, text, consultantName }: OurT
           zIndex: 40,
           transition: "all 0.2s ease",
           transform: isOpen ? "scale(1.08)" : "scale(1)",
+          opacity: hasContent ? 1 : 0.7,
         }}
       >
         <span style={{ color: "var(--ss-gold)", fontSize: "18px", lineHeight: 1 }}>
-          ✦
+          {hasContent ? "✦" : "+"}
         </span>
       </button>
 
@@ -121,36 +176,258 @@ export default function OurTakePopover({ fragments, text, consultantName }: OurT
                 margin: "6px 0",
               }}
             />
-            {consultantName && (
-              <span
-                style={{
-                  fontSize: "0.72rem",
-                  color: "var(--ss-gray-light)",
-                  fontWeight: 400,
-                }}
-              >
-                {consultantName}
-              </span>
+
+            {/* Consultant name — editable */}
+            {isEditable ? (
+              showName ? (
+                <span className="editable-wrap" style={{ position: "relative", display: "inline-block" }}>
+                  <span
+                    contentEditable
+                    suppressContentEditableWarning
+                    className="editable-cell"
+                    onBlur={(e) => setName(e.currentTarget.textContent || "")}
+                    style={{
+                      fontSize: "0.72rem",
+                      color: "var(--ss-gray-light)",
+                      fontWeight: 400,
+                      display: "inline-block",
+                      padding: "1px 20px 1px 4px",
+                      margin: "-1px -4px",
+                    }}
+                  >
+                    {name}
+                  </span>
+                  {/* Remove name */}
+                  <button
+                    onClick={() => { setShowName(false); setName(""); }}
+                    style={{
+                      position: "absolute",
+                      right: "0",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "none",
+                      border: "none",
+                      fontSize: "0.7rem",
+                      color: "rgba(160,160,160,0.5)",
+                      cursor: "pointer",
+                      padding: "0 2px",
+                      lineHeight: 1,
+                      transition: "color 0.15s",
+                    }}
+                    onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
+                    onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(160,160,160,0.5)"; }}
+                    title="Remove name"
+                  >
+                    ×
+                  </button>
+                  {/* Reset name */}
+                  {origName.current && name !== origName.current && (
+                    <button
+                      className="editable-reset"
+                      style={{ opacity: 1, top: "-4px", right: "-12px" }}
+                      onMouseDown={(e) => { e.preventDefault(); setName(origName.current); }}
+                      title="Reset name"
+                    >
+                      ↺
+                    </button>
+                  )}
+                </span>
+              ) : (
+                <button
+                  onClick={() => { setShowName(true); setName(origName.current || "Consultant"); }}
+                  style={{
+                    background: "none",
+                    border: "1px dashed rgba(160,160,160,0.3)",
+                    borderRadius: "6px",
+                    padding: "2px 8px",
+                    fontSize: "0.68rem",
+                    color: "var(--ss-gray-light)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--ss-gold)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.3)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)";
+                  }}
+                >
+                  + Add name
+                </button>
+              )
+            ) : (
+              name && (
+                <span
+                  style={{
+                    fontSize: "0.72rem",
+                    color: "var(--ss-gray-light)",
+                    fontWeight: 400,
+                  }}
+                >
+                  {name}
+                </span>
+              )
             )}
           </div>
 
           {/* Fragment list */}
           {hasFragments ? (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {fragments!.map((fragment, i) => (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              {fragments.map((fragment, i) => {
+                const orig = origFragments.current[i];
+                const isModified = orig !== undefined && fragment !== orig;
+
+                return isEditable ? (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
+                    <span style={{ color: "var(--ss-gray-light)", fontSize: "0.85rem", lineHeight: 1.55, flexShrink: 0 }}>—</span>
+                    <span className="editable-wrap" style={{ position: "relative", display: "block", flex: 1 }}>
+                      <div
+                        contentEditable
+                        suppressContentEditableWarning
+                        className="editable-cell"
+                        onBlur={(e) => updateFragment(i, e.currentTarget.textContent || "")}
+                        style={{
+                          fontSize: "0.85rem",
+                          color: "var(--ss-dark)",
+                          lineHeight: 1.55,
+                          padding: "1px 6px",
+                          margin: "-1px -6px",
+                        }}
+                      >
+                        {fragment}
+                      </div>
+                      {isModified && (
+                        <button
+                          className="editable-reset"
+                          style={{ opacity: 1 }}
+                          onMouseDown={(e) => { e.preventDefault(); resetFragment(i); }}
+                          title="Reset fragment"
+                        >
+                          ↺
+                        </button>
+                      )}
+                    </span>
+                    {/* Remove fragment */}
+                    <button
+                      onClick={() => removeFragment(i)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        fontSize: "0.75rem",
+                        color: "rgba(160,160,160,0.4)",
+                        cursor: "pointer",
+                        padding: "2px",
+                        lineHeight: 1,
+                        flexShrink: 0,
+                        transition: "color 0.15s",
+                        marginTop: "2px",
+                      }}
+                      onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
+                      onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(160,160,160,0.4)"; }}
+                      title="Remove fragment"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    key={i}
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "var(--ss-dark)",
+                      lineHeight: 1.55,
+                    }}
+                    dangerouslySetInnerHTML={{ __html: `— ${fragment}` }}
+                  />
+                );
+              })}
+
+              {/* Add fragment — edit mode */}
+              {isEditable && (
+                <button
+                  onClick={addFragment}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    borderTop: "1px dashed rgba(197,165,114,0.15)",
+                    padding: "6px 0 0",
+                    fontSize: "0.75rem",
+                    color: "var(--ss-gray-light)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "color 0.15s",
+                    marginTop: "4px",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
+                >
+                  + Add observation
+                </button>
+              )}
+            </div>
+          ) : isEditable ? (
+            /* Editable text block or empty prompt */
+            <div>
+              <span className="editable-wrap" style={{ position: "relative", display: "block" }}>
                 <div
-                  key={i}
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="editable-cell"
+                  onBlur={(e) => setText(e.currentTarget.textContent || "")}
                   style={{
                     fontSize: "0.85rem",
-                    color: "var(--ss-dark)",
-                    lineHeight: 1.55,
+                    color: hasText ? "var(--ss-dark)" : "var(--ss-gray-light)",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-line",
+                    padding: "2px 6px",
+                    margin: "-2px -6px",
+                    minHeight: "40px",
                   }}
-                  dangerouslySetInnerHTML={{ __html: `— ${fragment}` }}
-                />
-              ))}
+                >
+                  {hasText ? text : "Write your take here..."}
+                </div>
+                {hasText && text !== origText.current && (
+                  <button
+                    className="editable-reset"
+                    style={{ opacity: 1 }}
+                    onMouseDown={(e) => { e.preventDefault(); setText(origText.current); }}
+                    title="Reset text"
+                  >
+                    ↺
+                  </button>
+                )}
+              </span>
+              {/* Switch to fragments mode */}
+              <button
+                onClick={() => {
+                  const lines = text.split("\n").filter(l => l.trim());
+                  if (lines.length > 0) {
+                    setFragments(lines);
+                    setText("");
+                  } else {
+                    setFragments([""]);
+                    setText("");
+                  }
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "0.68rem",
+                  color: "var(--ss-gray-light)",
+                  cursor: "pointer",
+                  padding: "6px 0 0",
+                  transition: "color 0.15s",
+                }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
+              >
+                Switch to bullet points
+              </button>
             </div>
           ) : (
-            /* Fallback: legacy single-block text */
+            /* Read-only text fallback */
             <div
               style={{
                 fontSize: "0.85rem",

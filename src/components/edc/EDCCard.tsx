@@ -6,7 +6,6 @@ import ScopeMatch from "@/components/edc/ScopeMatch";
 import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
 import WhyInterested from "@/components/edc/WhyInterested";
-import Concerns from "@/components/edc/Concerns";
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
 import OurTakePopover from "@/components/edc/OurTakePopover";
@@ -80,7 +79,7 @@ export default function EDCCard({
           <KeyCriteria key_criteria={data.key_criteria} />
         )}
 
-        {/* Page 3: Compensation + Motivation + Concerns */}
+        {/* Page 3: Compensation + Motivation */}
         {currentPage === 3 && (
           <>
             <Compensation
@@ -88,7 +87,6 @@ export default function EDCCard({
               notice_period={data.notice_period}
             />
             <WhyInterested why_interested={data.why_interested} />
-            <Concerns concerns={data.potential_concerns} />
             {data.miscellaneous && (
               <Miscellaneous
                 text={data.miscellaneous.text}

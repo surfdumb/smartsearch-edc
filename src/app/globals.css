@@ -59,6 +59,46 @@ body {
 }
 
 /* ============================================================
+   EDITABLE FIELD — hover treatment (edit mode)
+   ============================================================ */
+.editable-cell {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none'%3E%3Cpath d='M14.5 2l3.5 3.5-10.5 10.5-4.5 1.5 1.5-4.5z' stroke='%23b08f5a' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M12.5 4l3.5 3.5' stroke='%23b08f5a' stroke-width='1.3'/%3E%3C/svg%3E") 2 18, text;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.editable-cell:hover {
+  background-color: rgba(197, 165, 114, 0.045);
+}
+.editable-cell:focus {
+  background-color: rgba(197, 165, 114, 0.07);
+  box-shadow: 0 0 0 1.5px var(--ss-gold);
+  outline: none;
+}
+
+/* Reset icon inside editable wrapper */
+.editable-reset {
+  position: absolute;
+  top: 0;
+  right: 2px;
+  background: transparent;
+  border: none;
+  color: rgba(197,165,114,0.45);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 1px 3px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.editable-wrap:hover .editable-reset,
+.editable-wrap:focus-within .editable-reset {
+  opacity: 1;
+}
+.editable-reset:hover {
+  color: var(--ss-gold) !important;
+}
+
+/* ============================================================
    MOBILE RESPONSIVE OVERRIDES (≤768px)
    ============================================================ */
 @media (max-width: 768px) {

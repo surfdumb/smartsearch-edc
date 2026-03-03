@@ -29,15 +29,11 @@ export default function EditableField({
   const { isEditable } = useEditorContext();
   const ref = useRef<HTMLElement>(null);
   const original = useRef(originalValue ?? value);
-  const [isFocused, setIsFocused] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  // Track modification: if originalValue provided, compare against it; otherwise track if user edited
   const [isModified, setIsModified] = useState(
     originalValue !== undefined && value.trim() !== originalValue.trim()
   );
 
   const handleBlur = () => {
-    setIsFocused(false);
     const el = ref.current;
     if (!el) return;
     const newVal = html ? el.innerHTML : el.textContent || "";
@@ -47,7 +43,6 @@ export default function EditableField({
   };
 
   const handleReset = (e: React.MouseEvent) => {
-    // preventDefault keeps focus in contentEditable so blur doesn't fire first
     e.preventDefault();
     if (onReset) {
       onReset();
@@ -65,29 +60,15 @@ export default function EditableField({
 
   const editableStyles: React.CSSProperties = {
     ...style,
-    outline: "none",
-    borderRadius: isEditable ? "4px" : undefined,
-    padding: isEditable ? "2px 4px" : undefined,
-    margin: isEditable ? "-2px -4px" : undefined,
-    transition: isEditable ? "box-shadow 0.15s ease, background-color 0.15s ease" : undefined,
-    boxShadow: isEditable && isFocused ? "0 0 0 2px rgba(197, 165, 114, 0.5)" : "none",
-    backgroundColor: isEditable
-      ? isFocused
-        ? "rgba(197, 165, 114, 0.06)"
-        : isHovered
-          ? "rgba(197, 165, 114, 0.04)"
-          : "transparent"
-      : "transparent",
+    padding: isEditable ? "2px 6px" : undefined,
+    margin: isEditable ? "-2px -6px" : undefined,
   };
 
   const editProps = isEditable
     ? {
         contentEditable: true as const,
         suppressContentEditableWarning: true,
-        onFocus: () => setIsFocused(true),
         onBlur: handleBlur,
-        onMouseEnter: () => setIsHovered(true),
-        onMouseLeave: () => setIsHovered(false),
       }
     : {};
 
@@ -98,7 +79,7 @@ export default function EditableField({
     ? (
       <Tag
         ref={ref as unknown as React.RefObject<HTMLDivElement>}
-        className={className}
+        className={`${className} ${isEditable ? "editable-cell" : ""}`}
         style={editableStyles}
         {...(editProps as React.HTMLAttributes<HTMLElement>)}
         dangerouslySetInnerHTML={{ __html: value }}
@@ -107,7 +88,7 @@ export default function EditableField({
     : (
       <Tag
         ref={ref as unknown as React.RefObject<HTMLDivElement>}
-        className={className}
+        className={`${className} ${isEditable ? "editable-cell" : ""}`}
         style={editableStyles}
         {...(editProps as React.HTMLAttributes<HTMLElement>)}
       >
@@ -119,6 +100,7 @@ export default function EditableField({
 
   return (
     <WrapperTag
+      className="editable-wrap"
       style={{
         position: "relative",
         display: isBlock ? "block" : "inline-block",
@@ -127,23 +109,9 @@ export default function EditableField({
       {content}
       {isModified && (
         <button
+          className="editable-reset"
           onMouseDown={handleReset}
           title="Reset to original"
-          style={{
-            position: "absolute",
-            top: "1px",
-            right: isBlock ? "2px" : "-20px",
-            background: "transparent",
-            border: "none",
-            color: "rgba(197,165,114,0.55)",
-            fontSize: "0.82rem",
-            cursor: "pointer",
-            padding: "1px 3px",
-            lineHeight: 1,
-            transition: "color 0.15s",
-          }}
-          onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
-          onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.55)"; }}
         >
           ↺
         </button>
