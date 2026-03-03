@@ -30,7 +30,7 @@ OUTPUT FORMAT: Return ONLY a valid JSON object matching this exact interface:
   "location": "string",
   "scope_match": [
     {
-      "dimension": "string",
+      "scope": "string",
       "candidate_actual": "string — what the candidate has",
       "role_requirement": "string — what the role needs",
       "alignment": "strong | partial | gap | not_assessed"

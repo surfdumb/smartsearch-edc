@@ -7,7 +7,6 @@ interface EDCHeaderProps {
   current_company: string;
   location: string;
   role_title: string;
-  consultant_name: string;
   generated_date: string;
   context?: EDCContext;
 }
@@ -18,7 +17,6 @@ export default function EDCHeader({
   current_company,
   location,
   role_title,
-  consultant_name,
   generated_date,
   context = 'standalone',
 }: EDCHeaderProps) {

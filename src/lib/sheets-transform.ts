@@ -109,7 +109,7 @@ function parseScopeMatch(edsScopeText: string): EDCData['scope_match'] {
     .map((dim) => {
       const parts = dim.split(':').map((p) => p.trim());
       return {
-        dimension: parts[0] || dim,
+        scope: parts[0] || dim,
         candidate_actual: parts[1] || 'Not assessed',
         role_requirement: parts[2] || 'Not specified',
         alignment: 'not_assessed' as const,

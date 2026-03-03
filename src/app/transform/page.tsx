@@ -181,25 +181,7 @@ These notes are NEVER shown to clients. They're used to generate the professiona
           </div>
 
           {/* The EDC Card — using reusable component */}
-          <EDCCard
-            data={state.data}
-            isConsultantView={true}
-            onOurTakeGenerated={(result) => {
-              setState({
-                status: "success",
-                data: {
-                  ...state.data,
-                  our_take: {
-                    text: result.text,
-                    recommendation: result.recommendation,
-                    discussion_points: result.discussion_points,
-                    original_note: result.original_note,
-                    ai_rationale: result.ai_rationale,
-                  },
-                },
-              });
-            }}
-          />
+          <EDCCard data={state.data} />
         </div>
       )}
 

@@ -9,13 +9,13 @@ import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
 import type { IntroCardData, EDCData } from "@/lib/types";
 
-interface OurTakeResult {
+type OurTakeOverride = {
   text: string;
   recommendation?: "ADVANCE" | "HOLD" | "PASS";
   discussion_points?: string[];
   ai_rationale?: string;
   original_note?: string;
-}
+};
 
 function ourTakeStorageKey(candidateId: string) {
   return `edc_ourtake_result_${candidateId}`;
@@ -51,21 +51,15 @@ export default function DeckEDCView({
   const isEditable = isEditRoute && state === "draft";
 
   // Our Take result — persisted in localStorage so generated text survives page nav
-  const [ourTakeOverride, setOurTakeOverride] = useState<OurTakeResult | null>(null);
+  const [ourTakeOverride, setOurTakeOverride] = useState<OurTakeOverride | null>(null);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(ourTakeStorageKey(candidate.candidate_id));
       if (stored) setOurTakeOverride(JSON.parse(stored));
+      else setOurTakeOverride(null);
     } catch { /* ignore */ }
   }, [candidate.candidate_id]);
-
-  const handleOurTakeGenerated = (result: OurTakeResult) => {
-    setOurTakeOverride(result);
-    try {
-      localStorage.setItem(ourTakeStorageKey(candidate.candidate_id), JSON.stringify(result));
-    } catch { /* ignore */ }
-  };
 
   // Merge any generated/stored Our Take into the EDC data
   const edcWithOurTake: EDCData = ourTakeOverride
@@ -109,11 +103,9 @@ export default function DeckEDCView({
           >
             <EDCCard
               data={edcWithOurTake}
-              isConsultantView={isEditable}
               fluid={split}
               context="deck"
               candidateId={candidate.candidate_id}
-              onOurTakeGenerated={isEditable ? handleOurTakeGenerated : undefined}
             />
           </div>
         </SplitViewContainer>

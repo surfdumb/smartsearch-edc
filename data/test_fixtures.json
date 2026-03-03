@@ -7,31 +7,31 @@
       "location": "Boston, Massachusetts",
       "scope_match": [
         {
-          "dimension": "Revenue/P&L Scale",
+          "scope": "Revenue/P&L Scale",
           "candidate_actual": "Associate Director level at Alexion (large pharma)",
           "role_requirement": "Head of BD role targeting $200M to $500M innovative revenue growth",
           "alignment": "partial"
         },
         {
-          "dimension": "Team Size",
+          "scope": "Team Size",
           "candidate_actual": "Individual contributor with cross-functional team leadership",
           "role_requirement": "Senior individual contributor with German/Swiss team support",
           "alignment": "strong"
         },
         {
-          "dimension": "Geographic Scope",
+          "scope": "Geographic Scope",
           "candidate_actual": "US-based with expanding China biotech focus",
           "role_requirement": "US/China asset sourcing for European commercialization",
           "alignment": "strong"
         },
         {
-          "dimension": "Therapeutic Areas",
+          "scope": "Therapeutic Areas",
           "candidate_actual": "Nephrology, transplant, neurology, bone health, endocrinology",
           "role_requirement": "Nephrology, neurology, bone health focus",
           "alignment": "strong"
         },
         {
-          "dimension": "Deal Stage",
+          "scope": "Deal Stage",
           "candidate_actual": "Preclinical through Phase II complete experience",
           "role_requirement": "Post-Phase II late-stage assets",
           "alignment": "strong"
@@ -118,25 +118,25 @@
       "location": "Chicago, IL",
       "scope_match": [
         {
-          "dimension": "Deal Experience",
+          "scope": "Deal Experience",
           "candidate_actual": "3 completed in-licensing deals including $1.2B Aliada transaction; clinical-stage and discovery assets",
           "role_requirement": "Late-stage assets (post-Phase II and filed compounds)",
           "alignment": "gap"
         },
         {
-          "dimension": "Scientific Depth",
+          "scope": "Scientific Depth",
           "candidate_actual": "PhD biomedical engineering with neuroscience focus; 3 years evaluating neuroscience and eye care assets",
           "role_requirement": "PhD or MD background with technical fluency",
           "alignment": "strong"
         },
         {
-          "dimension": "Geographic Scope",
+          "scope": "Geographic Scope",
           "candidate_actual": "Global asset evaluation including significant China activity",
           "role_requirement": "US and Chinese biotech sourcing focus",
           "alignment": "strong"
         },
         {
-          "dimension": "Role Structure",
+          "scope": "Role Structure",
           "candidate_actual": "Seeking team leadership role and organizational growth",
           "role_requirement": "Individual contributor operating remotely without US office",
           "alignment": "gap"
@@ -223,31 +223,31 @@
       "location": "Princeton, New Jersey",
       "scope_match": [
         {
-          "dimension": "Years of Experience",
+          "scope": "Years of Experience",
           "candidate_actual": "2-3 years of active buy-side deal execution",
           "role_requirement": "5-10 years of buy-side BD experience",
           "alignment": "gap"
         },
         {
-          "dimension": "Deal Execution Scope",
+          "scope": "Deal Execution Scope",
           "candidate_actual": "Scientific due diligence and supporting negotiations/commercial evaluation",
           "role_requirement": "Full end-to-end deal execution capability as independent operator",
           "alignment": "partial"
         },
         {
-          "dimension": "Therapeutic Area Coverage",
+          "scope": "Therapeutic Area Coverage",
           "candidate_actual": "CNS, nephrology, immunology, rare diseases",
           "role_requirement": "Nephrology, neurology, oncology, immunology, bone health",
           "alignment": "strong"
         },
         {
-          "dimension": "Deal Size and Stage",
+          "scope": "Deal Size and Stage",
           "candidate_actual": "Preclinical to commercial, regularly Phase II/III, up to $600M-$1B deals",
           "role_requirement": "Late-stage post-Phase II assets",
           "alignment": "strong"
         },
         {
-          "dimension": "Scientific Fluency",
+          "scope": "Scientific Fluency",
           "candidate_actual": "Medicinal chemistry background, drug discovery at Pfizer/Novartis",
           "role_requirement": "Strong scientific fluency for technical discussions",
           "alignment": "strong"

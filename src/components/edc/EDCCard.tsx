@@ -64,7 +64,6 @@ export default function EDCCard({
         current_company={data.current_company}
         location={data.location}
         role_title={data.role_title}
-        consultant_name={data.consultant_name}
         generated_date={data.generated_date}
         context={context}
       />
