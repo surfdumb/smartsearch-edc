@@ -30,7 +30,7 @@ export default function DeckNavigation({
         alignItems: "center",
         padding: "12px 24px",
         maxWidth: "1200px",
-        margin: "0 auto 16px",
+        margin: "0 auto 8px",
         gap: "16px",
       }}
     >

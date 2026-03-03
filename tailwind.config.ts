@@ -89,7 +89,7 @@ const config: Config = {
         "header-top": "36px",
         "header-bottom": "32px",
         "section-x": "48px",
-        "section-y": "32px",
+        "section-y": "20px",
         "criteria-y": "18px",
         "seasoning-x": "20px",
         "seasoning-y": "14px",

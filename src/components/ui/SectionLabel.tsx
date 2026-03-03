@@ -4,7 +4,7 @@ interface SectionLabelProps {
 
 export default function SectionLabel({ label }: SectionLabelProps) {
   return (
-    <div className="flex items-center gap-[10px] mb-5">
+    <div className="flex items-center gap-[10px] mb-3">
       <span
         className="uppercase font-semibold whitespace-nowrap"
         style={{

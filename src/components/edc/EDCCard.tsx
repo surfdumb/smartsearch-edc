@@ -66,7 +66,7 @@ export default function EDCCard({
         location={data.location}
         context={context}
       />
-      <div style={{ background: "white", minHeight: "460px" }}>
+      <div style={{ background: "white" }}>
         {/* Page 1: Scope Match */}
         {currentPage === 1 && (
           <ScopeMatch

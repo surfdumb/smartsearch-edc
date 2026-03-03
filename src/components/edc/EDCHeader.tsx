@@ -68,7 +68,7 @@ export default function EDCHeader({
       className="edc-header relative overflow-hidden rounded-t-card"
       style={{
         background: "var(--ss-header-bg)",
-        padding: "20px 40px 16px",
+        padding: "16px 40px 12px",
       }}
     >
       {/* Radial gold glow — positioned top-right, matching prototype ::before */}
@@ -85,7 +85,7 @@ export default function EDCHeader({
       />
 
       {/* Top row: brand logo + EDC badge */}
-      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "12px" }}>
+      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "10px" }}>
         {/* SmartSearch logo */}
         <img
           src="/logos/smartsearch-white.png"
@@ -136,7 +136,7 @@ export default function EDCHeader({
           lineHeight: 1.05,
           letterSpacing: "-0.5px",
           color: "#f5f0ea",
-          marginBottom: "10px",
+          marginBottom: "6px",
         }}
       >
         {candidate_name}
