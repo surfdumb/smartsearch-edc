@@ -119,8 +119,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
 
       if (e.key === "Escape" && view.mode === "edc") { e.preventDefault(); handleBack(); }
-      if (e.key === "ArrowLeft" && view.mode === "edc") { e.preventDefault(); handlePrev(); }
-      if (e.key === "ArrowRight" && view.mode === "edc") { e.preventDefault(); handleNext(); }
+      if (e.key === "ArrowLeft" && e.shiftKey && view.mode === "edc") { e.preventDefault(); handlePrev(); }
+      if (e.key === "ArrowRight" && e.shiftKey && view.mode === "edc") { e.preventDefault(); handleNext(); }
       if (e.key === "s" && view.mode === "edc" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); handleToggleSplit(); }
     };
     window.addEventListener("keydown", handler);
