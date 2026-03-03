@@ -9,6 +9,7 @@ import WhyInterested from "@/components/edc/WhyInterested";
 import Concerns from "@/components/edc/Concerns";
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
+import OurTakePopover from "@/components/edc/OurTakePopover";
 import PageNavigation from "@/components/edc/PageNavigation";
 import { type EDCData, type EDCContext } from "@/lib/types";
 
@@ -49,10 +50,11 @@ export default function EDCCard({
     <div
       className="edc-card"
       style={{
+        position: "relative",
         maxWidth: fluid ? "100%" : "820px",
         margin: "0 auto",
         borderRadius: "20px",
-        overflow: "hidden",
+        overflow: "visible",
         boxShadow:
           "0 0 0 1px rgba(197,165,114,0.1), 0 8px 40px rgba(0,0,0,0.5), 0 30px 100px rgba(0,0,0,0.4), 0 0 120px rgba(197,165,114,0.04)",
       }}
@@ -96,6 +98,11 @@ export default function EDCCard({
           </>
         )}
       </div>
+      <OurTakePopover
+        fragments={data.our_take_fragments}
+        text={data.our_take?.text}
+        consultantName={data.consultant_name}
+      />
       <PageNavigation current={currentPage} total={3} onChange={setCurrentPage} />
       <EDCFooter
         search_name={data.search_name}
