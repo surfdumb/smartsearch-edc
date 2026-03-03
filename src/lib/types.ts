@@ -77,6 +77,9 @@ export interface EDCData {
   match_score_percentage?: number;
   match_score_display?: 'SHOW' | 'HIDE';  // Default: 'HIDE'
 
+  // Our Take fragments — discrete consultant observations (v1.1 popover format)
+  our_take_fragments?: string[];
+
   // Miscellaneous — optional additional notes
   miscellaneous?: { text: string; display: 'SHOW' | 'HIDE' };
 
