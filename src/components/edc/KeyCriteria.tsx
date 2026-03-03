@@ -22,10 +22,10 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
             key={i}
             style={{
               display: "grid",
-              gridTemplateColumns: "28px 1fr",
-              gap: "12px",
+              gridTemplateColumns: "24px 1fr",
+              gap: "10px",
               alignItems: "flex-start",
-              padding: "10px 0",
+              padding: "7px 0",
               borderBottom:
                 i < key_criteria.length - 1
                   ? "1px solid var(--ss-border-light)"
@@ -62,7 +62,6 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
               </h4>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
                 <div
-                  className="line-clamp-2"
                   style={{
                     fontSize: "0.82rem",
                     lineHeight: 1.5,
