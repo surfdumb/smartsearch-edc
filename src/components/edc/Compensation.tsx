@@ -1,7 +1,6 @@
 "use client";
 
 import SectionLabel from "@/components/ui/SectionLabel";
-import EditableField from "@/components/edc/EditableField";
 
 interface CompensationData {
   current_base: string;
@@ -15,97 +14,143 @@ interface CompensationData {
 interface CompensationProps {
   compensation: CompensationData;
   notice_period: string;
-  earliest_start_date?: string;
-  candidateId?: string;
 }
 
-const EMPTY_VALUES = ["Not mentioned", "Not available", "N/A", ""];
+const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Not specified", ""];
 
-function isEmptyValue(v: string | undefined): boolean {
-  return !v || EMPTY_VALUES.includes(v.trim());
+function isEmpty(v: string | undefined): boolean {
+  return !v || EMPTY.some((e) => v.trim().toLowerCase() === e.toLowerCase());
 }
 
-export default function Compensation({
-  compensation,
-  notice_period,
-}: CompensationProps) {
-  // Build rows, skipping empty values
-  const rows: { label: string; value: string }[] = [];
+interface CardData {
+  label: string;
+  bigNumber: string;
+  detail?: string;
+  isGold?: boolean;
+}
 
-  const currentPkg = isEmptyValue(compensation.current_total)
-    ? compensation.current_base
-    : `${compensation.current_base} (${compensation.current_total} total)`;
-  if (!isEmptyValue(compensation.current_base)) {
-    rows.push({ label: "Current Package", value: currentPkg });
+export default function Compensation({ compensation, notice_period }: CompensationProps) {
+  const cards: CardData[] = [];
+
+  // Card 1: Current
+  if (!isEmpty(compensation.current_total) || !isEmpty(compensation.current_base)) {
+    const big = !isEmpty(compensation.current_total)
+      ? compensation.current_total
+      : compensation.current_base;
+    const detail = !isEmpty(compensation.current_total) && !isEmpty(compensation.current_base)
+      ? `${compensation.current_base} base`
+      : undefined;
+    cards.push({ label: "Current", bigNumber: big, detail });
   }
 
-  const expectedPkg = isEmptyValue(compensation.expected_total)
-    ? compensation.expected_base
-    : `${compensation.expected_base} (${compensation.expected_total} total)`;
-  if (!isEmptyValue(compensation.expected_base)) {
-    rows.push({ label: "Expectation", value: expectedPkg });
+  // Card 2: Expectation
+  if (!isEmpty(compensation.expected_base) || !isEmpty(compensation.expected_total)) {
+    const big = !isEmpty(compensation.expected_base)
+      ? compensation.expected_base
+      : compensation.expected_total;
+    const detail = !isEmpty(compensation.expected_total) && !isEmpty(compensation.expected_base)
+      && compensation.expected_total !== compensation.expected_base
+      ? compensation.expected_total
+      : undefined;
+    cards.push({ label: "Expectation", bigNumber: big, detail });
   }
 
-  if (!isEmptyValue(compensation.budget_range)) {
-    rows.push({ label: "Client Budget", value: compensation.budget_range! });
-  }
-
-  if (!isEmptyValue(notice_period)) {
-    rows.push({ label: "Notice Period", value: notice_period });
+  // Card 3: Client Budget
+  if (!isEmpty(compensation.budget_range)) {
+    cards.push({ label: "Client Budget", bigNumber: compensation.budget_range!, isGold: true });
   }
 
   return (
     <section className="px-section-x py-section-y border-b border-ss-border">
-      <SectionLabel label="Compensation & Timeline" />
+      <SectionLabel label="Compensation" />
 
-      <div className="flex flex-col" style={{ gap: "8px" }}>
-        {rows.map((row, i) => (
+      {/* Three-card grid */}
+      <div
+        className="comp-grid"
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.min(cards.length, 3)}, 1fr)`,
+          gap: "12px",
+        }}
+      >
+        {cards.map((card, i) => (
           <div
             key={i}
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              padding: "4px 0",
+              background: "var(--ss-warm-white)",
+              borderRadius: "10px",
+              padding: "14px 18px",
+              border: card.isGold
+                ? "1px solid rgba(197,165,114,0.3)"
+                : "1px solid var(--ss-border-light)",
+              boxShadow: card.isGold
+                ? "0 0 0 1px rgba(197,165,114,0.15)"
+                : undefined,
             }}
           >
-            <span
+            <div
               className="uppercase font-semibold"
               style={{
-                fontSize: "0.65rem",
+                fontSize: "0.62rem",
                 letterSpacing: "1.5px",
                 color: "var(--ss-gray-light)",
+                marginBottom: "6px",
               }}
             >
-              {row.label}
-            </span>
-            <EditableField
-              value={row.value}
-              as="span"
+              {card.label}
+            </div>
+            <div
+              className="font-cormorant"
               style={{
-                fontSize: "0.88rem",
+                fontSize: "1.35rem",
                 fontWeight: 600,
                 color: "var(--ss-dark)",
-                textAlign: "right",
+                lineHeight: 1.2,
               }}
-            />
+            >
+              {card.bigNumber}
+            </div>
+            {card.detail && (
+              <div
+                style={{
+                  fontSize: "0.75rem",
+                  color: "var(--ss-gray)",
+                  marginTop: "3px",
+                }}
+              >
+                {card.detail}
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* Flexibility note */}
-      {!isEmptyValue(compensation.flexibility) && (
+      {!isEmpty(compensation.flexibility) && (
         <p
           style={{
-            fontSize: "0.78rem",
+            fontSize: "0.75rem",
             fontStyle: "italic",
             color: "var(--ss-gray)",
-            marginTop: "12px",
-            lineHeight: 1.5,
+            marginTop: "8px",
+            lineHeight: 1.4,
           }}
         >
           {compensation.flexibility}
         </p>
+      )}
+
+      {/* Notice + timeline metadata line */}
+      {!isEmpty(notice_period) && (
+        <div
+          style={{
+            fontSize: "0.72rem",
+            color: "var(--ss-gray-light)",
+            marginTop: "6px",
+          }}
+        >
+          Notice: {notice_period}
+        </div>
       )}
     </section>
   );
