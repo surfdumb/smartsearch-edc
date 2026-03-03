@@ -6,7 +6,7 @@ import EditableField from "@/components/edc/EditableField";
 
 interface ScopeMatchProps {
   scope_match: {
-    dimension: string;
+    scope: string;
     candidate_actual: string;
     role_requirement: string;
     alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
@@ -19,7 +19,7 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Scope Match" />
 
-      {/* Scope seasoning callout — ABOVE table */}
+      {/* Scope seasoning callout — only rendered when showNarrative is true (controlled by parent) */}
       {scope_seasoning && (
         <div
           style={{
@@ -55,7 +55,7 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
             }}
           >
             <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
-              Dimension
+              Scope
             </span>
             <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.7rem" }}>
               Candidate
@@ -66,43 +66,48 @@ export default function ScopeMatch({ scope_match, scope_seasoning }: ScopeMatchP
             <span />
           </div>
 
-          {/* Table rows — compact padding matching prototype */}
-          {scope_match.map((item, i) => (
-            <div
-              key={i}
-              className="grid gap-4 items-start"
-              style={{
-                gridTemplateColumns: "160px 1fr 1fr 48px",
-                padding: "12px 0",
-                borderBottom:
-                  i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
-              }}
-            >
-              <span
+          {/* Table rows */}
+          {scope_match.map((item, i) => {
+            // Map 'gap' → 'partial' for client view (no red)
+            const dotAlignment = item.alignment === 'gap' ? 'partial' : item.alignment;
+            return (
+              <div
+                key={i}
+                className="grid gap-4 items-start"
                 style={{
-                  fontWeight: 500,
-                  color: "var(--ss-dark)",
-                  fontSize: "0.85rem",
+                  gridTemplateColumns: "160px 1fr 1fr 48px",
+                  padding: "10px 0",
+                  borderBottom:
+                    i < scope_match.length - 1 ? "1px solid var(--ss-border-light)" : "none",
                 }}
               >
-                {item.dimension}
-              </span>
-              <EditableField
-                value={item.candidate_actual}
-                as="span"
-                style={{ fontSize: "0.88rem", color: "var(--ss-dark)" }}
-              />
-              <EditableField
-                value={item.role_requirement}
-                as="span"
-                className="text-body text-ss-gray"
-                style={{ fontSize: "0.88rem" }}
-              />
-              <span className="flex items-center justify-center pt-1">
-                <AlignmentDot alignment={item.alignment} />
-              </span>
-            </div>
-          ))}
+                <span
+                  style={{
+                    fontWeight: 500,
+                    color: "var(--ss-dark)",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  {item.scope}
+                </span>
+                <EditableField
+                  value={item.candidate_actual}
+                  as="span"
+                  className="line-clamp-2"
+                  style={{ fontSize: "0.88rem", color: "var(--ss-dark)" }}
+                />
+                <EditableField
+                  value={item.role_requirement}
+                  as="span"
+                  className="text-body text-ss-gray line-clamp-2"
+                  style={{ fontSize: "0.88rem" }}
+                />
+                <span className="flex items-center justify-center pt-1">
+                  <AlignmentDot alignment={dotAlignment} />
+                </span>
+              </div>
+            );
+          })}
 
         </div>
       </div>
