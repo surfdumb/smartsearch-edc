@@ -11,10 +11,8 @@
   ],
   "search_lead": "Jackie Wyard-Yates",
   "deck_settings": {
-    "match_score_display": "HIDE",
     "our_take_display": "HIDE",
-    "scope_narrative_display": "HIDE",
-    "edit_mode": false
+    "scope_narrative_display": "HIDE"
   },
   "candidates": [
     {
@@ -75,27 +73,27 @@
         "key_criteria": [
           {
             "name": "Compensation Structure Builder",
-            "evidence": "Christopher <strong>built Ashley Furniture's first compensation department from scratch</strong>, modernising a decades-old pay framework for 10,000 employees across multiple manufacturing facilities. He replaced an outdated Hays system with market-based pricing and built all salary structures, grade bands, and merit processes without external consultants.",
+            "evidence": "<strong>Built Ashley Furniture's first compensation department from scratch</strong> — replaced a decades-old Hays framework with market-based pricing and salary structures for 10,000 employees, no external consultants.",
             "context_anchor": "at Ashley Furniture"
           },
           {
             "name": "Commercial Compensation Expertise",
-            "evidence": "Worked on <strong>sales incentive structures for corporate-owned retail stores</strong> covering approximately 30% of the 10,000-person workforce at Ashley Furniture. Experience is more weighted toward corporate compensation transformation than specialised commercial or route sales incentive design — field sales bonus mechanics are not his primary background.",
+            "evidence": "Designed <strong>sales incentive structures for ~30% of Ashley Furniture's 10,000-person workforce</strong> in corporate-owned retail stores — more corporate comp transformation than specialised field sales incentive design.",
             "context_anchor": "at Ashley Furniture"
           },
           {
             "name": "Executive Presence & Partnership",
-            "evidence": "Transformed compensation's relationship with business units at Coca-Cola Consolidated, <strong>gaining leadership buy-in for major structural changes</strong> within a family-run, change-resistant culture. Has not yet held a director-level title and the board-level communication experience typical of that level is not evidenced.",
+            "evidence": "<strong>Gained leadership buy-in for major structural changes</strong> within Coca-Cola Consolidated's change-resistant, family-run culture — no director-level title or board-level communication evidence yet.",
             "context_anchor": "at Coca-Cola Consolidated"
           },
           {
             "name": "Hands-On Team Leadership",
-            "evidence": "Currently manages <strong>1 direct report</strong> at Coca-Cola Consolidated versus the 3–5 this role requires from day one. Deliberately sought this role to gain people leadership experience — his motivation to grow into the management scope is clearly articulated but the track record at scale is not yet there.",
+            "evidence": "Currently manages <strong>1 direct report</strong> versus the 3–5 this role requires — deliberately seeking people leadership growth, but the track record at scale isn't there yet.",
             "context_anchor": "at Coca-Cola Consolidated"
           },
           {
             "name": "Bottling, Beverage, or FMCG Background",
-            "evidence": "Current role at <strong>Coca-Cola Consolidated, the largest independent Coca-Cola bottler in the United States</strong>, provides direct bottling and route operations context. Tenure is 1+ year. Prior Ashley Furniture background is FMCG-adjacent (manufacturing) but not beverages.",
+            "evidence": "1+ year at <strong>Coca-Cola Consolidated, the largest independent Coca-Cola bottler in the US</strong> — direct bottling context, though prior experience is FMCG-adjacent manufacturing (Ashley Furniture).",
             "context_anchor": "at Coca-Cola Consolidated"
           }
         ],
@@ -108,7 +106,6 @@
           "budget_range": "$180,000–$200,000 base"
         },
         "notice_period": "Not mentioned",
-        "earliest_start_date": "Not mentioned",
         "why_interested": [
           {
             "type": "pull",
@@ -128,19 +125,23 @@
         ],
         "potential_concerns": [
           {
-            "concern": "Benefits gap — 4–5 years without benefits responsibility; self-described learning curve needed before confident ownership",
-            "severity": "development"
-          },
-          {
-            "concern": "Team leadership scale — manages 1 direct report today; role requires 3–5 from day one with no ramp period",
-            "severity": "development"
-          },
-          {
-            "concern": "Commute sustainability — 1.5-hour drive from Lexington; not open to relocation; prefers 3-2 hybrid versus the expected 3-4 days onsite",
+            "concern": "Team leadership gap — manages 1 direct report versus 3–5 required from day one; no evidence of managing a multi-person compensation function",
             "severity": "significant"
           },
           {
-            "concern": "Bottling tenure is shallow — only 1+ year at Coca-Cola Consolidated; the industry context is present but not deeply embedded",
+            "concern": "Benefits gap — 4–5 years without any benefits responsibility; openly acknowledged the learning curve",
+            "severity": "significant"
+          },
+          {
+            "concern": "Commute sustainability — lives in Lexington (1.5 hours from Raleigh); relocation not an option; 3-2 hybrid is the stated minimum",
+            "severity": "significant"
+          },
+          {
+            "concern": "Commercial compensation depth — retail store sales incentives at Ashley are not field sales / route driver incentive design",
+            "severity": "development"
+          },
+          {
+            "concern": "Short tenure at current employer — 1+ year at Coca-Cola Consolidated; may raise questions about commitment if moving again quickly",
             "severity": "development"
           }
         ],
@@ -150,7 +151,6 @@
         "search_name": "Pepsi Bottling Ventures — Director of Compensation & Benefits",
         "role_title": "Director of Compensation & Benefits",
         "generated_date": "2 March 2026",
-        "consultant_name": "Jackie Wyard-Yates",
         "match_score_display": "HIDE"
       }
     },
@@ -212,27 +212,27 @@
         "key_criteria": [
           {
             "name": "Compensation Structure Builder",
-            "evidence": "Experience <strong>unifying disparate structures and bonus plans post-acquisition</strong> at Advance Auto Parts, but no clear evidence of designing comprehensive compensation architecture from the ground up for a 3,500+ employee organisation. His strength is in refining and implementing inherited structures, not greenfield design.",
+            "evidence": "Experience <strong>unifying disparate structures and bonus plans post-acquisition</strong> — strength is refining inherited structures rather than greenfield design for a 3,500+ employee organisation.",
             "context_anchor": "at Advance Auto Parts"
           },
           {
             "name": "Commercial Compensation Expertise",
-            "evidence": "Nirav manages <strong>bonus calculations for 40,000+ field and pro sales team members across approximately 100 bonus plans</strong> at Advance Auto Parts. Early career at Washington Post calculating commissions for digital advertising revenue. Rebuilt field team confidence in incentive accuracy after systemic calculation failures — directly relevant to PBV's route driver challenges.",
+            "evidence": "Manages <strong>bonus calculations for 40,000+ field and pro sales employees across ~100 plans</strong> — rebuilt field team confidence in incentive accuracy after systemic calculation failures.",
             "context_anchor": "at Advance Auto Parts"
           },
           {
             "name": "Executive Presence & Partnership",
-            "evidence": "Daily interaction with VPs and directors on <strong>executive pay decisions, retention planning, and SEC disclosure requirements</strong> at Advance Auto Parts. Participates in executive compensation review meetings. Describes current position as 'corporate purgatory' — oscillating between entry-level execution and executive-level strategy.",
+            "evidence": "Daily interaction with VPs and directors on <strong>executive pay, retention planning, and SEC disclosure</strong> — describes current position as oscillating between entry-level execution and executive-level strategy.",
             "context_anchor": "at Advance Auto Parts"
           },
           {
             "name": "Hands-On Team Leadership",
-            "evidence": "Manages a team of <strong>3 direct reports</strong> — stock plan administrator, systems analyst, and entry-level analyst — at Advance Auto Parts. Hands-on approach: spends roughly half the day working alongside analysts and half in VP-level strategic meetings. Falls within the 2–4 direct report range PBV needs.",
+            "evidence": "Manages <strong>3 direct reports</strong> (stock plan admin, systems analyst, entry-level analyst) — splits time between hands-on analyst work and VP-level strategic meetings.",
             "context_anchor": "at Advance Auto Parts"
           },
           {
             "name": "Bottling, Beverage, or FMCG Background",
-            "evidence": "Entire 7.5-year compensation career in <strong>automotive retail parts distribution at Advance Auto Parts</strong>. Different supply chain model and product category than beverage bottling, despite surface-level similarities in field sales structure.",
+            "evidence": "Entire 7.5-year compensation career in <strong>automotive retail parts distribution</strong> — different supply chain model, though field sales structure has surface-level similarities.",
             "context_anchor": "at Advance Auto Parts"
           }
         ],
@@ -245,7 +245,6 @@
           "budget_range": "$180,000–$200,000 base"
         },
         "notice_period": "Not mentioned",
-        "earliest_start_date": "Timing sensitive — competing offer at CEO interview stage",
         "why_interested": [
           {
             "type": "push",
@@ -269,31 +268,30 @@
             "severity": "significant"
           },
           {
-            "concern": "No greenfield compensation architecture — experience is unifying and implementing inherited structures post-acquisition, not building from scratch",
-            "severity": "development"
-          },
-          {
-            "concern": "Industry mismatch — entire career in automotive retail parts distribution, not bottling, beverage, or FMCG",
-            "severity": "development"
-          },
-          {
-            "concern": "Competing offer — in fourth-round interviews at a Charlotte company with a CEO meeting imminent; process timing is critical",
+            "concern": "Competing offer — at CEO interview stage with another company; genuine timeline pressure on SmartSearch process",
             "severity": "significant"
           },
           {
-            "concern": "Total compensation expectations — upper end of $250–300K target is approximately $50–70K above likely role budget",
+            "concern": "Total compensation expectations — upper target of $250–300K total is $50–70K above likely PBV budget",
+            "severity": "significant"
+          },
+          {
+            "concern": "Greenfield design experience unclear — strength appears to be refining inherited structures rather than building from scratch",
+            "severity": "development"
+          },
+          {
+            "concern": "Industry background entirely automotive retail — no bottling, beverage, or consumer goods operational context",
             "severity": "development"
           }
         ],
         "our_take": {
-          "text": "A quiet builder with exactly the right operational complexity in his background. Seven years managing bonus calculations and wage scenarios for 40,000 field and pro team members at Advance Auto Parts — a field-first organization whose scale and structure mirror PBV closely. His pivot from 15 years in FP&A into incentive compensation was deliberate, not default, and gives him a financial rigour that pure HR-track professionals often lack.\n\nWorth noting: he describes his current position as \"corporate purgatory\" and is actively in process elsewhere — fourth-round interviews with a CEO meeting next week. The window to engage him is narrow. Benefits is not his depth area and he'd lean on analysts there, but his self-awareness about that gap is honest rather than evasive.",
-          "original_note": "Builder not a polisher. 15 yrs FP&A then pivoted into comp — deliberate move, not accidental. Manages bonus calcs for 40k field + pro team at Advance Auto. Scale mirrors PBV closely.\n\nHe literally called his current role \"corporate purgatory.\" Actively interviewing elsewhere — 4th round with CEO meeting next week. Window is tight.\n\nBenefits is a gap. He knows it, said he'd lean on analysts. Honest about it which I respect.\n\nFinancial rigour is his differentiator vs pure HR-track people. He thinks in spreadsheets and scenarios, not policies.",
+          "text": "Nirav's trajectory tells the story. He started in media commissions at the Washington Post, moved into corporate compensation at Advance Auto Parts, and found his groove managing field sales incentives at scale — 40,000+ employees, 100 bonus plans, daily VP-level conversations. He is not a generalist who drifted into compensation; this is someone who chose the field and built deep technical expertise within it. The FP&A foundation gives him a financial rigour that most compensation professionals lack.\n\nThe urgency is real. He's at CEO-interview stage with another company and describes his current role as 'corporate purgatory.' Benefits experience is a genuine gap — he's honest about it rather than overselling — and the total compensation expectation needs a direct conversation. But the commercial compensation depth is the strongest in this shortlist, and PBV's Year 1 priority is exactly where he's spent his career building credibility.",
+          "original_note": "Career trajectory is the differentiator — media commissions at WaPo → corporate comp at AAP → found his groove in field sales incentives. Not a generalist who drifted into comp. He CHOSE this.\n\nFP&A background gives him financial rigour most comp people don't have.\n\nUrgent: at CEO interview stage somewhere else. Describes current role as 'corporate purgatory.' Need to move fast if we want him.\n\nBenefits gap is real but he's honest about it rather than overselling. Total comp expectation needs direct conversation — $250-300K target is above budget.\n\nCommercial comp depth is strongest in shortlist. PBV Year 1 priority is exactly his wheelhouse.",
           "ai_rationale": "Structured around two themes: (1) the deliberate FP&A-to-comp pivot as a differentiating strength, emphasising the financial rigour angle the consultant flagged, and (2) urgency — the consultant's note about 'corporate purgatory' and active process elsewhere is critical intel the client needs to act on. Positioned benefits gap as self-aware honesty rather than disqualifying weakness, matching the consultant's positive framing."
         },
         "search_name": "Pepsi Bottling Ventures — Director of Compensation & Benefits",
         "role_title": "Director of Compensation & Benefits",
         "generated_date": "2 March 2026",
-        "consultant_name": "Jackie Wyard-Yates",
         "match_score_display": "HIDE"
       }
     },
@@ -355,27 +353,27 @@
         "key_criteria": [
           {
             "name": "Compensation Structure Builder",
-            "evidence": "Adrian <strong>built Reynolds American's quarterly field sales bonus system from scratch</strong> — it remains in use more than five years later. Led SuccessFactors implementation post-BAT acquisition. His compensation architecture experience is concentrated within a single organisation across nine years rather than across multiple companies.",
+            "evidence": "<strong>Built Reynolds American's quarterly field sales bonus system from scratch</strong> — still in use 5+ years later. Led SuccessFactors implementation post-BAT acquisition. Nine years at one organisation.",
             "context_anchor": "at Reynolds American"
           },
           {
             "name": "Commercial Compensation Expertise",
-            "evidence": "Personally built and managed the <strong>quarterly field sales bonus system for approximately 2,500 employees across all 50 states</strong> at Reynolds American, including geographic wage differentials. Attended World at Work sales compensation conference. This is his clearest area of strength and the most direct analogue to PBV's route driver incentive challenge.",
+            "evidence": "Personally built and managed a <strong>quarterly field sales bonus system for ~2,500 employees across all 50 states</strong> including geographic wage differentials — the most direct analogue to PBV's route driver challenge.",
             "context_anchor": "at Reynolds American"
           },
           {
             "name": "Executive Presence & Partnership",
-            "evidence": "Built strategic partnerships across functions as HRBP at Reynolds American. Most recent compensation role was as an <strong>individual contributor reporting to Senior Director</strong> — meaningful executive influence at director level is not clearly evidenced in his recent history.",
+            "evidence": "Built strategic partnerships across functions as HRBP — most recent compensation role was as an <strong>individual contributor reporting to Senior Director</strong>, limiting recent executive-level influence evidence.",
             "context_anchor": "at Reynolds American"
           },
           {
             "name": "Hands-On Team Leadership",
-            "evidence": "Most recent compensation role at Reynolds American was as an <strong>individual contributor with no direct reports</strong> (April 2024–October 2025). Has managed 2–4 people in prior roles but would be returning to people management after 18+ months as an IC — a genuine step-up from his current position.",
+            "evidence": "<strong>Individual contributor with no direct reports since April 2024</strong> — managed 2–4 in prior roles but returning to people management after 18+ months as an IC.",
             "context_anchor": "at Reynolds American"
           },
           {
             "name": "Bottling, Beverage, or FMCG Background",
-            "evidence": "Entire nine-year career at <strong>Reynolds American, a BAT subsidiary in the tobacco industry</strong>. Has commercial sales compensation experience but in tobacco, not bottling or beverage. The operational model (field sales, geographic territories) has structural similarities to PBV but the product category and channel dynamics are distinct.",
+            "evidence": "Entire nine-year career at <strong>Reynolds American (BAT subsidiary)</strong> in tobacco — operational model (field sales, geographic territories) is structurally similar but distinct product category.",
             "context_anchor": "at Reynolds American"
           }
         ],
@@ -388,7 +386,6 @@
           "budget_range": "$180,000–$200,000 base"
         },
         "notice_period": "Not mentioned",
-        "earliest_start_date": "Timing complex — currently leading global HRIS reimplementation; role being elevated to Global Data Lead",
         "why_interested": [
           {
             "type": "pull",
@@ -436,7 +433,6 @@
         "search_name": "Pepsi Bottling Ventures — Director of Compensation & Benefits",
         "role_title": "Director of Compensation & Benefits",
         "generated_date": "2 March 2026",
-        "consultant_name": "Jackie Wyard-Yates",
         "match_score_display": "HIDE"
       }
     },
@@ -498,27 +494,27 @@
         "key_criteria": [
           {
             "name": "Compensation Structure Builder",
-            "evidence": "Julian <strong>supported Fresenius Kabi USA's growth from 2,000 to 4,600+ employees</strong>, rebuilding the compensation architecture as the organisation scaled. Previously rebuilt a dormant compensation department at Vocem (6,000-person call centre) — setting up frameworks, policies, and evaluation procedures for every position in the organisation.",
+            "evidence": "<strong>Supported Fresenius Kabi USA's growth from 2,000 to 4,600+ employees</strong>, rebuilding compensation architecture through acquisitions. Previously rebuilt a dormant comp department at Vocem (6,000-person call centre).",
             "context_anchor": "at Fresenius Kabi USA"
           },
           {
             "name": "Commercial Compensation Expertise",
-            "evidence": "Julian explicitly acknowledged at Fresenius Kabi: <strong>'Most of my experience is with non-sales incentives, but I know enough to feel comfortable.'</strong> Early career included a commission programme revamp for collector agents at Vocem. Approximately 300 commercial staff in current population — limited depth in pure field sales incentive design.",
+            "evidence": "Explicitly acknowledged <strong>'most of my experience is with non-sales incentives'</strong> — early career included a commission revamp for collector agents at Vocem; ~300 commercial staff in current population.",
             "context_anchor": "at Fresenius Kabi USA"
           },
           {
             "name": "Executive Presence & Partnership",
-            "evidence": "US operations at Fresenius Kabi USA <strong>serve as the global benchmark for the rest of the world</strong>. Navigated complex stakeholder dynamics with German headquarters during global Workday implementation. Data-driven approach: 'I tend to make decisions based on data, not hunches.' Strong credibility as an analytical partner to senior leadership.",
+            "evidence": "US operations at Fresenius Kabi <strong>serve as the global benchmark</strong> — navigated German HQ dynamics during global Workday implementation with a data-driven, analytical approach to senior stakeholder management.",
             "context_anchor": "at Fresenius Kabi USA"
           },
           {
             "name": "Hands-On Team Leadership",
-            "evidence": "Manages <strong>3 compensation analysts with dotted-line oversight for job evaluations</strong> at Fresenius Kabi USA. Previously managed a team of 6 at Vocem. Characterised internally as 'the doer' — knows all processes and can execute as well as direct. Falls within the required scope.",
+            "evidence": "Manages <strong>3 compensation analysts with dotted-line oversight</strong> for job evaluations — previously led a team of 6 at Vocem. Characterised internally as 'the doer' who knows all processes.",
             "context_anchor": "at Fresenius Kabi USA"
           },
           {
             "name": "Bottling, Beverage, or FMCG Background",
-            "evidence": "Julian's career spans <strong>pharmaceuticals, financial services, and call centre operations</strong> — no exposure to bottling, beverage, or FMCG sectors. The operational dynamics of a high-volume beverage distribution business are materially different from his background.",
+            "evidence": "Career spans <strong>pharmaceuticals, financial services, and call centre operations</strong> — no bottling, beverage, or FMCG exposure. Operational dynamics are materially different from beverage distribution.",
             "context_anchor": "at Fresenius Kabi USA"
           }
         ],
@@ -531,7 +527,6 @@
           "budget_range": "$180,000–$200,000 base"
         },
         "notice_period": "2–3 weeks",
-        "earliest_start_date": "Not before end of March (annual bonus timing)",
         "why_interested": [
           {
             "type": "push",
@@ -579,7 +574,6 @@
         "search_name": "Pepsi Bottling Ventures — Director of Compensation & Benefits",
         "role_title": "Director of Compensation & Benefits",
         "generated_date": "2 March 2026",
-        "consultant_name": "Jackie Wyard-Yates",
         "match_score_display": "HIDE"
       }
     },
@@ -641,27 +635,27 @@
         "key_criteria": [
           {
             "name": "Compensation Structure Builder",
-            "evidence": "Benjamin <strong>implemented the full job structure and salary ranges for the integrated AS Americas business at dormakaba</strong>, completing job evaluation for approximately 175 top-level positions using Hay methodology and establishing evaluation procedures for every position in the organisation. Most recent structure-building work was 5–7 years ago at dormakaba.",
+            "evidence": "<strong>Implemented full job structure and salary ranges for integrated AS Americas business</strong> using Hay methodology — evaluated ~175 top-level positions and established procedures for every role. Most recent structure work was 5–7 years ago.",
             "context_anchor": "at dormakaba"
           },
           {
             "name": "Commercial Compensation Expertise",
-            "evidence": "Led the <strong>harmonisation of sales incentive plans at dormakaba, moving commission-based structures to tiered bonus payouts</strong> and conducting Monte Carlo analysis to model win-win scenarios for the sales team. Comfortable 'walking in with a commercial team and talking about their sales process.' This work is 5+ years behind him but the methodology and confidence are clearly retained.",
+            "evidence": "Led <strong>harmonisation of sales incentive plans at dormakaba</strong> — moved commission structures to tiered bonus payouts using Monte Carlo analysis. Work is 5+ years behind him but methodology and confidence clearly retained.",
             "context_anchor": "at dormakaba"
           },
           {
             "name": "Executive Presence & Partnership",
-            "evidence": "Self-describes his brand as <strong>'jeans and spreadsheets' rather than 'sports coats and PowerPoints'</strong> — strong technical credibility but limited evidence of formal executive-level presentation or board-level communication. Reports to VP People Services (shared services model) rather than CHRO at Volvo Group.",
+            "evidence": "Self-describes as <strong>'jeans and spreadsheets' rather than 'sports coats and PowerPoints'</strong> — strong technical credibility but limited evidence of board-level communication. Reports to VP People Services, not CHRO.",
             "context_anchor": "at Volvo Group"
           },
           {
             "name": "Hands-On Team Leadership",
-            "evidence": "Manages <strong>5 direct reports at Volvo Group</strong> — 2 compensation analysts, 2 retirement specialists, and 1 time-and-attendance specialist — with an SME pairing structure. Built this team from scratch when Volvo had no total rewards function. Stays close to operational details and never managed 10+ people, but the hands-on leadership track record is solid.",
+            "evidence": "Manages <strong>5 direct reports</strong> (2 comp, 2 retirement, 1 T&A) with SME pairing structure — built this team from scratch when Volvo had no total rewards function.",
             "context_anchor": "at Volvo Group"
           },
           {
             "name": "Bottling, Beverage, or FMCG Background",
-            "evidence": "Benjamin's career spans <strong>four manufacturing companies — door hardware, textiles, residential doors, and heavy-duty trucks</strong>. He acknowledged 'consumer goods is a little bit different.' Commercial sales experience is B2B manufacturing, not retail-facing or beverage distribution.",
+            "evidence": "Career spans <strong>four manufacturing companies — door hardware, textiles, residential doors, heavy trucks</strong>. Acknowledged 'consumer goods is a little bit different.' All commercial experience is B2B, not retail-facing.",
             "context_anchor": "at Volvo Group"
           }
         ],
@@ -674,7 +668,6 @@
           "budget_range": "$180,000–$200,000 base"
         },
         "notice_period": "Not specified — Volvo transformation within 6 weeks may create a natural transition point",
-        "earliest_start_date": "Possibly within 6 weeks depending on Volvo restructuring outcome",
         "why_interested": [
           {
             "type": "pull",
@@ -720,7 +713,6 @@
         "search_name": "Pepsi Bottling Ventures — Director of Compensation & Benefits",
         "role_title": "Director of Compensation & Benefits",
         "generated_date": "2 March 2026",
-        "consultant_name": "Jackie Wyard-Yates",
         "match_score_display": "HIDE"
       }
     }
