@@ -15,21 +15,21 @@ export default function WhyInterested({ why_interested }: WhyInterestedProps) {
     <section className="px-section-x py-section-y border-b border-ss-border">
       <SectionLabel label="Why Are They Interested?" />
 
-      <div className="flex flex-col" style={{ gap: "8px" }}>
+      <div className="flex flex-col" style={{ gap: "5px" }}>
         {why_interested.slice(0, 4).map((item, i) => (
           <div
             key={i}
             className="flex items-center"
-            style={{ gap: "10px" }}
+            style={{ gap: "8px" }}
           >
             {/* Directional arrow */}
             <span
               className="shrink-0 inline-flex items-center justify-center"
               style={{
-                width: "20px",
-                height: "20px",
-                borderRadius: "5px",
-                fontSize: "0.65rem",
+                width: "18px",
+                height: "18px",
+                borderRadius: "4px",
+                fontSize: "0.6rem",
                 background:
                   item.type === "pull"
                     ? "var(--ss-green-light)"

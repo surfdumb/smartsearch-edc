@@ -6,7 +6,7 @@ import ScopeMatch from "@/components/edc/ScopeMatch";
 import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
 import WhyInterested from "@/components/edc/WhyInterested";
-import OurTake from "@/components/edc/OurTake";
+import Concerns from "@/components/edc/Concerns";
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
 import PageNavigation from "@/components/edc/PageNavigation";
@@ -43,7 +43,6 @@ export default function EDCCard({
     setCurrentPage(1);
   }, [candidateId]);
 
-  const showOurTake = deckSettings?.our_take_display !== 'HIDE' && data.our_take.text;
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
 
   return (
@@ -79,7 +78,7 @@ export default function EDCCard({
           <KeyCriteria key_criteria={data.key_criteria} />
         )}
 
-        {/* Page 3: Compensation + Motivation + optional Our Take */}
+        {/* Page 3: Compensation + Motivation + Concerns */}
         {currentPage === 3 && (
           <>
             <Compensation
@@ -87,9 +86,7 @@ export default function EDCCard({
               notice_period={data.notice_period}
             />
             <WhyInterested why_interested={data.why_interested} />
-            {showOurTake && (
-              <OurTake text={data.our_take.text} />
-            )}
+            <Concerns concerns={data.potential_concerns} />
             {data.miscellaneous && (
               <Miscellaneous
                 text={data.miscellaneous.text}
