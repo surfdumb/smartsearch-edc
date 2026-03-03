@@ -1,13 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import EDCHeader from "@/components/edc/EDCHeader";
 import ScopeMatch from "@/components/edc/ScopeMatch";
 import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
 import Motivation from "@/components/edc/Motivation";
-import Concerns from "@/components/edc/Concerns";
 import OurTake from "@/components/edc/OurTake";
 import EDCFooter from "@/components/edc/EDCFooter";
+import PageNavigation from "@/components/edc/PageNavigation";
 import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
 
 interface OurTakeResult {
@@ -16,6 +17,11 @@ interface OurTakeResult {
   discussion_points?: string[];
   ai_rationale?: string;
   original_note?: string;
+}
+
+interface DeckSettings {
+  our_take_display?: 'SHOW' | 'HIDE';
+  scope_narrative_display?: 'SHOW' | 'HIDE';
 }
 
 interface EDCCardProps {
@@ -28,6 +34,8 @@ interface EDCCardProps {
   context?: EDCContext;
   /** Used to namespace localStorage edits/toggles per candidate */
   candidateId?: string;
+  /** Deck-level settings for toggling sections */
+  deckSettings?: DeckSettings;
 }
 
 export default function EDCCard({
@@ -37,7 +45,18 @@ export default function EDCCard({
   fluid = false,
   context = 'standalone',
   candidateId,
+  deckSettings,
 }: EDCCardProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 when candidate changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [candidateId]);
+
+  const showOurTake = deckSettings?.our_take_display !== 'HIDE' && data.our_take.text;
+  const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
+
   return (
     <div
       className="edc-card"
@@ -60,61 +79,49 @@ export default function EDCCard({
         generated_date={data.generated_date}
         context={context}
       />
-      <div style={{ background: "white" }}>
-        <ScopeMatch
-          scope_match={data.scope_match}
-          scope_seasoning={data.scope_seasoning}
-        />
-        <KeyCriteria key_criteria={data.key_criteria} />
-        <Compensation
-          compensation={data.compensation}
-          notice_period={data.notice_period}
-          earliest_start_date={data.earliest_start_date}
-          candidateId={candidateId}
-        />
-        <Motivation why_interested={data.why_interested} />
-        <Concerns potential_concerns={data.potential_concerns} candidateId={candidateId} />
+      <div style={{ background: "white", minHeight: "460px" }}>
+        {/* Page 1: Scope Match */}
+        {currentPage === 1 && (
+          <ScopeMatch
+            scope_match={data.scope_match}
+            scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+          />
+        )}
 
-        {/* Gold divider between evidence and judgment */}
-        <div
-          style={{
-            height: "4px",
-            background:
-              "linear-gradient(90deg, transparent 0%, var(--ss-gold-pale) 15%, var(--ss-gold) 50%, var(--ss-gold-pale) 85%, transparent 100%)",
-            position: "relative",
-          }}
-        >
-          <span
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              background: "white",
-              color: "var(--ss-gold)",
-              fontSize: "1rem",
-              padding: "0 16px",
-              zIndex: 1,
-            }}
-          >
-            &#10022;
-          </span>
-        </div>
+        {/* Page 2: Key Criteria */}
+        {currentPage === 2 && (
+          <KeyCriteria key_criteria={data.key_criteria} />
+        )}
 
-        <OurTake
-          text={data.our_take.text}
-          recommendation={data.our_take.recommendation}
-          discussion_points={data.our_take.discussion_points}
-          original_note={data.our_take.original_note}
-          ai_rationale={data.our_take.ai_rationale}
-          isConsultantView={isConsultantView}
-          candidateId={candidateId}
-          candidateContext={
-            isConsultantView ? buildCandidateContext(data) : undefined
-          }
-          onOurTakeGenerated={onOurTakeGenerated}
-        />
+        {/* Page 3: Compensation + Motivation + optional Our Take */}
+        {currentPage === 3 && (
+          <>
+            <Compensation
+              compensation={data.compensation}
+              notice_period={data.notice_period}
+              earliest_start_date={data.earliest_start_date}
+              candidateId={candidateId}
+            />
+            <Motivation why_interested={data.why_interested} />
+            {showOurTake && (
+              <OurTake
+                text={data.our_take.text}
+                recommendation={data.our_take.recommendation}
+                discussion_points={data.our_take.discussion_points}
+                original_note={data.our_take.original_note}
+                ai_rationale={data.our_take.ai_rationale}
+                isConsultantView={isConsultantView}
+                candidateId={candidateId}
+                candidateContext={
+                  isConsultantView ? buildCandidateContext(data) : undefined
+                }
+                onOurTakeGenerated={onOurTakeGenerated}
+              />
+            )}
+          </>
+        )}
       </div>
+      <PageNavigation current={currentPage} total={3} onChange={setCurrentPage} />
       <EDCFooter
         search_name={data.search_name}
         generated_date={data.generated_date}
