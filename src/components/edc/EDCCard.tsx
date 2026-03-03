@@ -5,7 +5,7 @@ import EDCHeader from "@/components/edc/EDCHeader";
 import ScopeMatch from "@/components/edc/ScopeMatch";
 import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
-import Motivation from "@/components/edc/Motivation";
+import WhyInterested from "@/components/edc/WhyInterested";
 import OurTake from "@/components/edc/OurTake";
 import EDCFooter from "@/components/edc/EDCFooter";
 import PageNavigation from "@/components/edc/PageNavigation";
@@ -102,7 +102,7 @@ export default function EDCCard({
               earliest_start_date={data.earliest_start_date}
               candidateId={candidateId}
             />
-            <Motivation why_interested={data.why_interested} />
+            <WhyInterested why_interested={data.why_interested} />
             {showOurTake && (
               <OurTake
                 text={data.our_take.text}
