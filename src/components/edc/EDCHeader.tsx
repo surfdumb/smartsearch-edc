@@ -74,7 +74,7 @@ export default function EDCHeader({
       className="edc-header relative overflow-hidden rounded-t-card"
       style={{
         background: "var(--ss-header-bg)",
-        padding: "36px 48px 32px",
+        padding: "24px 40px 20px",
       }}
     >
       {/* Radial gold glow — positioned top-right, matching prototype ::before */}
@@ -91,13 +91,13 @@ export default function EDCHeader({
       />
 
       {/* Top row: brand logo + EDC badge */}
-      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "28px" }}>
+      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "16px" }}>
         {/* SmartSearch logo */}
         <img
           src="/logos/smartsearch-white.png"
           alt="SmartSearch"
           style={{
-            height: "28px",
+            height: "24px",
             opacity: 0.55,
           }}
         />
@@ -137,7 +137,7 @@ export default function EDCHeader({
       <h1
         className="edc-candidate-name relative font-cormorant"
         style={{
-          fontSize: "3.2rem",
+          fontSize: "2.0rem",
           fontWeight: 500,
           lineHeight: 1.05,
           letterSpacing: "-0.5px",
@@ -151,7 +151,7 @@ export default function EDCHeader({
       {/* Flash line: company | title | location */}
       <p className="edc-flash-line relative" style={{ color: "rgba(255,255,255,0.55)" }}>
         <span
-          style={{ fontSize: "0.95rem", fontWeight: 400, letterSpacing: "0.3px" }}
+          style={{ fontSize: "0.88rem", fontWeight: 400, letterSpacing: "0.3px" }}
         >
           {current_company}
           <span style={{ color: "rgba(197, 165, 114, 0.5)", margin: "0 10px" }}>
@@ -170,14 +170,13 @@ export default function EDCHeader({
         <div
           className="relative flex"
           style={{
-            marginTop: "26px",
-            paddingTop: "20px",
+            marginTop: "18px",
+            paddingTop: "14px",
             borderTop: "1px solid rgba(255,255,255,0.07)",
-            gap: "36px",
+            gap: "24px",
           }}
         >
           <MetaItem label="Role" value={role_title} />
-          <MetaItem label="Search Lead" value={consultant_name} />
           <MetaItem label="Generated" value={generated_date} />
         </div>
       )}
