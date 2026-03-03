@@ -18,20 +18,18 @@ type CardEdits = {
   flash_summary?: string;
   key_strengths?: string[];
   notice_period?: string;
-  compensation_alignment?: "green" | "amber" | "red" | "not_set";
+  compensation_alignment?: "green" | "amber" | "not_set";
 };
 
-const COMP_CYCLE: Array<"green" | "amber" | "red" | "not_set"> = ["green", "amber", "red", "not_set"];
+const COMP_CYCLE: Array<"green" | "amber" | "not_set"> = ["green", "amber", "not_set"];
 const COMP_LABEL: Record<string, string> = {
   green: "Comp aligned",
   amber: "Comp stretch",
-  red: "Comp gap",
   not_set: "Comp not set",
 };
 const COMP_COLOR: Record<string, string> = {
   green: "var(--ss-green)",
   amber: "var(--ss-yellow)",
-  red: "var(--ss-red)",
   not_set: "var(--ss-gray-light)",
 };
 
@@ -236,7 +234,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
   };
 
   const cycleAlignment = () => {
-    const curr = v.compensation_alignment as "green" | "amber" | "red" | "not_set";
+    const curr = v.compensation_alignment;
     const idx = COMP_CYCLE.indexOf(curr);
     const next = COMP_CYCLE[(idx + 1) % COMP_CYCLE.length];
     save({ compensation_alignment: next });

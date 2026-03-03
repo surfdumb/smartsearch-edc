@@ -1,5 +1,7 @@
 interface AlignmentDotProps {
   alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
+  /** When true (default), 'gap' renders as amber instead of red */
+  clientView?: boolean;
 }
 
 const dotStyles: Record<string, { bg: string; shadow: string }> = {
@@ -21,8 +23,9 @@ const dotStyles: Record<string, { bg: string; shadow: string }> = {
   },
 };
 
-export default function AlignmentDot({ alignment }: AlignmentDotProps) {
-  const style = dotStyles[alignment];
+export default function AlignmentDot({ alignment, clientView = true }: AlignmentDotProps) {
+  const effectiveAlignment = clientView && alignment === 'gap' ? 'partial' : alignment;
+  const style = dotStyles[effectiveAlignment];
   return (
     <span
       className="inline-block rounded-full shrink-0"
