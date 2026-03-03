@@ -24,6 +24,52 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [editMode, setEditMode] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  // ── Sync URL hash with selected candidate ─────────────────────────────────
+  // On mount: if URL has #candidateId, jump straight to that EDC (no flip)
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (!hash) return;
+    const index = data.candidates.findIndex((c) => c.candidate_id === hash);
+    if (index !== -1) {
+      setView({ mode: "edc", candidateIndex: index, split: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When view changes, update URL hash
+  useEffect(() => {
+    if (view.mode === "edc") {
+      const candidateId = data.candidates[view.candidateIndex]?.candidate_id;
+      if (candidateId) {
+        const newHash = `#${candidateId}`;
+        if (window.location.hash !== newHash) {
+          window.history.pushState(null, "", newHash);
+        }
+      }
+    } else if (view.mode === "grid") {
+      if (window.location.hash) {
+        window.history.pushState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+  }, [view, data.candidates]);
+
+  // Handle browser back/forward
+  useEffect(() => {
+    const handler = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash) {
+        const index = data.candidates.findIndex((c) => c.candidate_id === hash);
+        if (index !== -1) {
+          setView({ mode: "edc", candidateIndex: index, split: false });
+          return;
+        }
+      }
+      setView({ mode: "grid" });
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, [data.candidates]);
+
   // ── Card flip handler ───────────────────────────────────────────────────────
   const handleCardClick = (index: number) => {
     const el = cardRefs.current[index];

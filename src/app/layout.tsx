@@ -31,7 +31,7 @@ const sortsMillGoudy = Sorts_Mill_Goudy({
 });
 
 export const metadata: Metadata = {
-  title: "SmartSearch — Executive Decision Card",
+  title: "EDC - SmartSearch",
   description: "Executive Decision Cards for SmartSearch executive search",
   icons: {
     icon: "/logos/Logos_SmartSearch_SecondarySymbol_Gold 2.png",

@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExecFlow Intelligence — Quick Reference</title>
+<link rel="icon" href="/logos/Logos_SmartSearch_SecondarySymbol_Gold 2.png" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --obsidian: #1a1a1a;
+    --charcoal: #2a2a2a;
+    --surface: #222222;
+    --gold: #c5a572;
+    --gold-light: #d4ba8a;
+    --gold-warm: #b08f5a;
+    --gold-glow: rgba(197,165,114,0.12);
+    --gold-glow2: rgba(197,165,114,0.06);
+    --cream: #faf8f5;
+    --warm-white: #e8e4de;
+    --green: #4a7c59;
+    --green-bg: rgba(74,124,89,0.12);
+    --red: #c45c5c;
+    --red-bg: rgba(196,92,92,0.10);
+    --amber: #d4a543;
+    --amber-bg: rgba(212,165,67,0.10);
+    --grey: #888;
+    --grey-light: #a0a0a0;
+    --grey-dim: #555;
+    --border: rgba(255,255,255,0.06);
+    --sans: 'Outfit', sans-serif;
+    --serif: 'Cormorant Garamond', serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html, body {
+    height: 100%; overflow: hidden;
+    background: var(--obsidian);
+    color: var(--cream);
+    font-family: var(--sans);
+  }
+
+  /* ==================== LAYOUT ==================== */
+  .app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ==================== HEADER ==================== */
+  header {
+    padding: 20px 40px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo-area {
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--gold);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-weight: 700; font-size: 1.1rem;
+    color: var(--obsidian);
+  }
+
+  .logo-text {
+    font-family: var(--serif); font-size: 1.15rem; font-weight: 600;
+    color: var(--cream); letter-spacing: 0.5px;
+  }
+
+  .logo-text span { color: var(--gold); }
+
+  .header-meta {
+    font-size: 0.72rem; color: var(--grey-dim);
+    letter-spacing: 1.5px; text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  /* ==================== NAV TABS ==================== */
+  nav {
+    padding: 16px 40px 0;
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    padding: 10px 20px 12px;
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--grey);
+    background: none; border: none;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.25s;
+    white-space: nowrap;
+  }
+
+  .tab:hover { color: var(--gold-light); }
+
+  .tab.active {
+    color: var(--gold);
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    border-radius: 2px 2px 0 0;
+  }
+
+  /* ==================== MAIN CONTENT ==================== */
+  main {
+    padding: 0 40px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .panel {
+    display: none;
+    height: 100%;
+    padding-top: 28px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ==================== TYPOGRAPHY ==================== */
+  .panel-title {
+    font-family: var(--serif);
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+
+  .panel-sub {
+    font-size: 0.82rem;
+    color: var(--grey);
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  /* ==================== GRID LAYOUTS ==================== */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  /* ==================== CARDS ==================== */
+  .card {
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .card-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .card p, .card li {
+    font-size: 0.82rem;
+    color: var(--warm-white);
+    line-height: 1.55;
+  }
+
+  .card li { margin-bottom: 4px; list-style: none; padding-left: 14px; position: relative; }
+  .card li::before { content: '\00B7'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+
+  /* ==================== FLOW STEPS ==================== */
+  .flow-step {
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step .step-num {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .flow-step .step-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 3px;
+  }
+
+  .flow-step .step-detail {
+    font-size: 0.7rem;
+    color: var(--grey);
+    line-height: 1.35;
+  }
+
+  /* Connector arrows between flow steps */
+  .flow-step:not(:last-child)::after {
+    content: '\2192';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold-warm);
+    font-size: 0.9rem;
+    z-index: 1;
+  }
+
+  /* ==================== CALLOUT ==================== */
+  .callout {
+    border-left: 3px solid var(--gold);
+    background: var(--gold-glow2);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    font-size: 0.8rem;
+    color: var(--warm-white);
+    line-height: 1.5;
+  }
+
+  .callout strong { color: var(--gold); font-weight: 600; }
+
+  .callout.green { border-left-color: var(--green); background: var(--green-bg); }
+  .callout.red { border-left-color: var(--red); background: var(--red-bg); }
+  .callout.amber { border-left-color: var(--amber); background: var(--amber-bg); }
+
+  /* ==================== SOURCE BADGES ==================== */
+  .source-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+    background: var(--charcoal);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  .source-badge {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.72rem; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 14px 12px;
+  }
+
+  .source-badge.primary { background: var(--green); color: #fff; }
+  .source-badge.cross { background: var(--grey-dim); color: var(--cream); }
+  .source-badge.quarantined { background: var(--gold-warm); color: var(--obsidian); }
+
+  .source-what, .source-where {
+    padding: 14px 16px;
+    font-size: 0.78rem;
+    color: var(--warm-white);
+    line-height: 1.4;
+    display: flex; align-items: center;
+    border-left: 1px solid var(--border);
+  }
+
+  .source-where { color: var(--grey-light); font-size: 0.75rem; }
+
+  /* ==================== DO / DON'T ==================== */
+  .do-dont {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+
+  .example {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: -0.3px;
+  }
+
+  .example.do { background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,124,89,0.25); }
+  .example.dont { background: var(--red-bg); color: var(--red); border: 1px solid rgba(196,92,92,0.2); }
+  .example .tag {
+    font-family: var(--sans); font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    margin-bottom: 4px; display: block; opacity: 0.7;
+  }
+
+  /* ==================== FAQ GRID ==================== */
+  .faq-item {
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    cursor: default;
+    transition: border-color 0.2s;
+  }
+
+  .faq-item:hover { border-color: rgba(197,165,114,0.3); }
+
+  .faq-q {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+
+  .faq-a {
+    font-size: 0.78rem;
+    color: var(--grey-light);
+    line-height: 1.45;
+  }
+
+  .faq-a strong { color: var(--gold); font-weight: 600; }
+
+  /* ==================== EDC SECTIONS ==================== */
+  .edc-section {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .edc-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--gold-glow);
+    border: 1px solid rgba(197,165,114,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-weight: 700; font-size: 0.85rem;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .edc-name {
+    font-size: 0.82rem; font-weight: 600; color: var(--cream);
+    flex-shrink: 0; min-width: 130px;
+  }
+
+  .edc-desc {
+    font-size: 0.75rem; color: var(--grey-light); line-height: 1.4;
+  }
+
+  /* ==================== MINI PILL TAGS ==================== */
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .pill.gold { background: var(--gold-glow); color: var(--gold); border: 1px solid rgba(197,165,114,0.3); }
+  .pill.green { background: var(--green-bg); color: var(--green); border: 1px solid rgba(74,124,89,0.3); }
+  .pill.red { background: var(--red-bg); color: var(--red); border: 1px solid rgba(196,92,92,0.25); }
+
+  /* ==================== KEYBOARD HINT ==================== */
+  .keyboard-hint {
+    position: fixed;
+    bottom: 16px;
+    right: 24px;
+    font-size: 0.65rem;
+    color: var(--grey-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .keyboard-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--charcoal);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    color: var(--grey);
+  }
+
+  /* ==================== SPACING HELPERS ==================== */
+  .mb-sm { margin-bottom: 10px; }
+  .mb-md { margin-bottom: 16px; }
+  .mb-lg { margin-bottom: 24px; }
+  .mt-sm { margin-top: 10px; }
+  .mt-md { margin-top: 16px; }
+  .gap-sm { gap: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div>
+    <header>
+      <div class="logo-area">
+        <div class="logo-mark">S</div>
+        <div class="logo-text"><span>ExecFlow</span> Intelligence</div>
+      </div>
+      <div class="header-meta">Quick Reference &middot; March 2026</div>
+    </header>
+
+    <!-- NAV -->
+    <nav id="tabNav">
+      <button class="tab active" data-tab="flow">The Flow</button>
+      <button class="tab" data-tab="granola">Granola</button>
+      <button class="tab" data-tab="sources">Sources</button>
+      <button class="tab" data-tab="files">Files &amp; Folders</button>
+      <button class="tab" data-tab="edc">EDC</button>
+      <button class="tab" data-tab="faq">Quick Answers</button>
+    </nav>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+
+    <!-- ============================== TAB 1: THE FLOW ============================== -->
+    <div class="panel active" id="panel-flow">
+      <div class="panel-title">Call &rarr; Card in 5 Steps</div>
+      <div class="panel-sub">Every interview and job spec call follows the same path. Nothing changes in how you work.</div>
+
+      <div class="grid-5 mb-lg">
+        <div class="flow-step">
+          <div class="step-num">1</div>
+          <div class="step-label">Call</div>
+          <div class="step-detail">Take notes in Granola as usual</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">2</div>
+          <div class="step-label">Zap</div>
+          <div class="step-detail">Three-dot menu &rarr; Send to Zapier</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">3</div>
+          <div class="step-label">AI</div>
+          <div class="step-detail">EDS or JS generated in ~5 min</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">4</div>
+          <div class="step-label">SharePoint</div>
+          <div class="step-detail">Draft lands in the right folder</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-num">5</div>
+          <div class="step-label">Review</div>
+          <div class="step-detail">Edit, finalise, deliver</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3>When to Zap</h3>
+          <div class="callout green mb-md">
+            <strong>Zap every interview call.</strong> The EDS generates in ~5 minutes with no effort from you. Even if a candidate doesn't progress, the intelligence is banked for the future.
+          </div>
+          <div class="callout red mb-md">
+            <strong>Don't zap after only part 1</strong> of a multi-part interview. Combine all parts in one Granola note first, then zap once at the end.
+          </div>
+          <div class="callout amber">
+            <strong>Talent mapping</strong> (no interview) continues with the current presentation format. EDS/EDC needs a transcript to work from.
+          </div>
+        </div>
+
+        <div>
+          <h3>Multi-Part Interviews</h3>
+          <div class="card">
+            <ul>
+              <li>Create the note for the first call as normal</li>
+              <li>When the second call starts, go back to that <strong style="color:var(--gold)">original note</strong> in Granola and resume from there</li>
+              <li>Once all parts are done, zap it <strong style="color:var(--gold)">once</strong></li>
+            </ul>
+          </div>
+          <div class="mt-md">
+            <h3>Legacy Warning</h3>
+            <div class="callout">
+              There's a legacy test option in the Zapier menu. <strong>Ignore it</strong> &mdash; always select the main workflow.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== TAB 2: GRANOLA ============================== -->
+    <div class="panel" id="panel-granola">
+      <div class="panel-title">Granola Title Format</div>
+      <div class="panel-sub">The title is how the system knows what to do. Two prefixes. That's it.</div>
+
+      <div class="grid-2 mb-lg">
+        <div class="card">
+          <div class="card-label" style="color:var(--gold);">Interview</div>
+          <p style="font-size:1.15rem; font-weight:600; color:var(--cream); font-family:var(--serif); margin-bottom:6px;">
+            IV <span style="color:var(--grey-light)">[Candidate Name]</span>
+          </p>
+          <p style="font-size:0.78rem; color:var(--grey);">
+            e.g. <em>IV Sarah Chen</em> or <em>IV Sarah Chen PBV VP Sales</em>
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-label" style="color:var(--gold);">Job Spec</div>
+          <p style="font-size:1.15rem; font-weight:600; color:var(--cream); font-family:var(--serif); margin-bottom:6px;">
+            JS <span style="color:var(--grey-light)">[Client] [Role]</span>
+          </p>
+          <p style="font-size:0.78rem; color:var(--grey);">
+            e.g. <em>JS Pepsi VP Sales</em> or <em>JS BorgWarner Plant Controller</em>
+          </p>
+        </div>
+      </div>
+
+      <h3>Nothing Between IV and the Name</h3>
+      <div class="do-dont mb-lg">
+        <div class="example dont">
+          <span class="tag">&times; breaks matching</span>
+          IV 1 Sarah Chen<br>IV #1 Sarah Chen
+        </div>
+        <div class="example do">
+          <span class="tag">&check; works perfectly</span>
+          IV Sarah Chen<br>IV Sarah Chen PBV VP Sales
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3>Keyword Matching</h3>
+          <div class="callout">
+            The system uses <strong>keyword matching</strong> to figure out which search a note belongs to. Including the company or role after the candidate name is helpful but optional. The candidate name immediately after IV is what matters most.
+          </div>
+        </div>
+        <div>
+          <h3>Granola Folders</h3>
+          <div class="callout">
+            Folders have <strong>zero impact</strong> on the backend. The zap triggers from "Send to Zapier" regardless of folder. Organise Granola however works best for you. No need to auto-invite the team when creating new folders.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== TAB 3: SOURCES ============================== -->
+    <div class="panel" id="panel-sources">
+      <div class="panel-title">What the AI Uses</div>
+      <div class="panel-sub">Three source layers, each handled differently. This separation is the core product principle.</div>
+
+      <div class="mb-lg">
+        <div class="source-row">
+          <div class="source-badge primary">Transcript</div>
+          <div class="source-what">The raw conversation &mdash; what was actually said on the call</div>
+          <div class="source-where">&rarr; All factual sections: Scope Match, Key Criteria, Comp, Motivation</div>
+        </div>
+        <div class="source-row">
+          <div class="source-badge cross">Enhanced</div>
+          <div class="source-what">Granola's AI summary of the call</div>
+          <div class="source-where">&rarr; Cross-reference only &mdash; used when the transcript is unclear</div>
+        </div>
+        <div class="source-row">
+          <div class="source-badge quarantined">Manual Notes</div>
+          <div class="source-what">Your typed notes before / during the call</div>
+          <div class="source-where">&rarr; "Our Take" section ONLY. Never leaks into factual sections</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3>The Quarantine Rule</h3>
+          <div class="callout green mb-md">
+            <strong>Write freely.</strong> Personality reads, gut feel, priority signals &mdash; the system keeps manual notes completely separate from client-facing evidence. Nothing leaks.
+          </div>
+          <h3>Show Evidence. Let Humans Judge.</h3>
+          <div class="card">
+            <p>Evidence sections are factual, from the transcript. <strong style="color:var(--gold)">"Our Take"</strong> is the only section with consultant judgment. Clients see the evidence; you add the lens.</p>
+          </div>
+        </div>
+        <div>
+          <h3>CV &amp; LinkedIn</h3>
+          <div class="card mb-md">
+            <p>The system <strong style="color:var(--cream)">does not pull from CVs or LinkedIn</strong> right now. When it mentions companies or achievements, that's because the candidate said them out loud. The transcript is surprisingly rich.</p>
+          </div>
+          <div class="callout">
+            <strong>Pro tip:</strong> Pasting a candidate's LinkedIn profile into the manual notes section before a call enriches the data. Not required, but a useful habit. Formal integration is on the roadmap.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== TAB 4: FILES & FOLDERS ============================== -->
+    <div class="panel" id="panel-files">
+      <div class="panel-title">Files &amp; Folders</div>
+      <div class="panel-sub">Where everything lands and how to access it from your desktop.</div>
+
+      <div class="grid-2 mb-lg">
+        <div>
+          <h3>OneDrive Shortcuts &mdash; 3 Steps, One Time</h3>
+          <div class="card mb-md">
+            <ul>
+              <li>Open SharePoint &rarr; navigate to ExecFlow Intelligence</li>
+              <li>Click the folder &rarr; <strong style="color:var(--gold)">"Add shortcut to OneDrive"</strong></li>
+              <li>It appears in your File Explorer. Files sync automatically.</li>
+            </ul>
+          </div>
+          <div class="callout amber">
+            <strong>Sync lagging?</strong> Shortcut the specific subfolder directly (e.g. "EDSs AI Drafts"), not the parent folder. This is more reliable.
+          </div>
+        </div>
+        <div>
+          <h3>Four Folders to Shortcut</h3>
+          <div class="edc-section mb-sm">
+            <div class="edc-num">E</div>
+            <div class="edc-name"><a href="https://smartsearchexec.sharepoint.com/sites/SmartSearch/EDS%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FEDSs%2FEDSs%20%28AI%20Drafts%29&viewid=29288546%2D0077%2D4a2e%2D91e4%2Db2e58da9ff8d&newTargetListUrl=%2Fsites%2FSmartSearch%2FEDS%20Documents&viewpath=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FForms%2FAllItems%2Easpx" target="_blank" style="color:var(--cream);text-decoration:none;border-bottom:1px dotted var(--gold);">EDSs (AI Drafts)</a></div>
+            <div class="edc-desc">Interview assessments &mdash; auto-generated</div>
+          </div>
+          <div class="edc-section mb-sm">
+            <div class="edc-num">J</div>
+            <div class="edc-name"><a href="https://smartsearchexec.sharepoint.com/sites/SmartSearch/EDS%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FJob%20Summaries%2FJS%20AI%20Drafts&viewid=29288546%2D0077%2D4a2e%2D91e4%2Db2e58da9ff8d&newTargetListUrl=%2Fsites%2FSmartSearch%2FEDS%20Documents&viewpath=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FForms%2FAllItems%2Easpx" target="_blank" style="color:var(--cream);text-decoration:none;border-bottom:1px dotted var(--gold);">JS (AI Drafts)</a></div>
+            <div class="edc-desc">Job spec summaries &mdash; auto-generated</div>
+          </div>
+          <div class="edc-section mb-sm">
+            <div class="edc-num" style="background:var(--green-bg); border-color:rgba(74,124,89,0.3); color:var(--green);">&check;</div>
+            <div class="edc-name">JS (Finalised PDFs)</div>
+            <div class="edc-desc">Reviewed, client-ready</div>
+          </div>
+          <div class="edc-section">
+            <div class="edc-num">C</div>
+            <div class="edc-name">EDCs</div>
+            <div class="edc-desc">Executive Decision Cards</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <h3>Job Summary Workflow</h3>
+          <div class="card">
+            <ul>
+              <li>Title with <strong style="color:var(--gold)">JS</strong> prefix &rarr; Zap after the call</li>
+              <li>Two docs land in SharePoint: the <strong style="color:var(--gold)">Job Summary</strong> (client-ready) and a separate <strong style="color:var(--red)">DO NOT SHARE</strong> internal intelligence doc</li>
+              <li>Open the Job Summary .docx in Word &rarr; review and edit</li>
+              <li>Convert to PDF &rarr; move to Finalised folder</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h3>Invenias Independence</h3>
+          <div class="callout green mb-md">
+            <strong>No Invenias? Still zap.</strong> The EDS generates and lands in SharePoint regardless. The only thing skipped is the automatic journal link &mdash; which can be added later.
+          </div>
+          <div class="callout">
+            <strong>Can I rename finalised JS files?</strong> Yes. The system used to depend on the filename but now reads from a structured data store. Keep names consistent for your own indexing, though.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== TAB 5: EDC ============================== -->
+    <div class="panel" id="panel-edc">
+      <div class="panel-title">The Executive Decision Card</div>
+      <div class="panel-sub">One page. 90 seconds to scan. Evidence first, judgment last.</div>
+
+      <div class="grid-2">
+        <div>
+          <h3>What's on the Card</h3>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <div class="edc-section">
+              <div class="edc-num">&diams;</div>
+              <div class="edc-name">Scope Match</div>
+              <div class="edc-desc">Seasoning line summarising the candidate's fit, plus dimension-level match indicators</div>
+            </div>
+            <div class="edc-section">
+              <div class="edc-num">1</div>
+              <div class="edc-name">Key Criteria Assessment</div>
+              <div class="edc-desc">Top criteria with evidence + context anchors showing where the achievement happened</div>
+            </div>
+            <div class="edc-section">
+              <div class="edc-num">2</div>
+              <div class="edc-name">Compensation &amp; Timeline</div>
+              <div class="edc-desc">Current package, expectations, notice period &mdash; structured, not just a total number</div>
+            </div>
+            <div class="edc-section">
+              <div class="edc-num">3</div>
+              <div class="edc-name">Why Interested?</div>
+              <div class="edc-desc">Push and pull factors from the conversation</div>
+            </div>
+            <div class="edc-section">
+              <div class="edc-num" style="background:var(--red-bg); border-color:rgba(196,92,92,0.25); color:var(--red);">4</div>
+              <div class="edc-name">Potential Concerns</div>
+              <div class="edc-desc">Development areas or gaps &mdash; the single red-adjacent element</div>
+            </div>
+            <div class="edc-section">
+              <div class="edc-num" style="background:var(--gold-glow); color:var(--gold);">&starf;</div>
+              <div class="edc-name">Our Take</div>
+              <div class="edc-desc">Your voice. Your judgment. Editable, generated from manual notes only</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3>The Core Principle</h3>
+          <div class="card mb-md" style="border-left: 3px solid var(--gold);">
+            <p style="font-family:var(--serif); font-size:1.05rem; font-style:italic; color:var(--gold-light); line-height:1.5; margin-bottom:10px;">
+              "Show evidence. Let humans judge."
+            </p>
+            <p>Evidence sections come from the transcript only. "Our Take" comes from manual notes only. The client sees structured intelligence. You provide the lens.</p>
+          </div>
+
+          <h3>What's NOT on the Card</h3>
+          <div class="card">
+            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+              <span class="pill red">No numeric scores</span>
+              <span class="pill red">No recommendation badges</span>
+              <span class="pill red">No interview dates</span>
+              <span class="pill red">No emojis</span>
+              <span class="pill red">No grey readiness scan</span>
+            </div>
+            <p class="mt-sm" style="font-size:0.75rem; color:var(--grey);">Match scores exist in the data layer but are hidden by default. Toggle on per-search if needed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================== TAB 6: QUICK ANSWERS ============================== -->
+    <div class="panel" id="panel-faq">
+      <div class="panel-title">Quick Answers</div>
+      <div class="panel-sub">The top questions &mdash; answered in one line each.</div>
+
+      <div class="grid-3" style="gap:12px;">
+        <div class="faq-item">
+          <div class="faq-q">Zap every IV?</div>
+          <div class="faq-a"><strong>Yes</strong> &mdash; every single one. No cost, builds the dataset.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Zap after part 1 of multi-call?</div>
+          <div class="faq-a"><strong>No</strong> &mdash; combine all parts in one note, then zap once.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Need Invenias first?</div>
+          <div class="faq-a"><strong>No</strong> &mdash; EDS generates without it. Journal link added later.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Do Granola folders matter?</div>
+          <div class="faq-a"><strong>No</strong> &mdash; purely for your own organisation. Zero backend impact.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Does the system use CVs?</div>
+          <div class="faq-a"><strong>Not yet.</strong> Paste LinkedIn into manual notes as a workaround.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Can I rename finalised JS files?</div>
+          <div class="faq-a"><strong>Yes</strong> &mdash; the system no longer depends on the filename.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">IV 1 or IV #1 in the title?</div>
+          <div class="faq-a"><strong>No</strong> &mdash; nothing between IV and the candidate name.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Talent mapping (no IV)?</div>
+          <div class="faq-a">Continue with current format. EDS/EDC needs a transcript.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">OneDrive not syncing?</div>
+          <div class="faq-a">Shortcut the <strong>specific folder</strong> directly, not the parent.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Where do EDSs land?</div>
+          <div class="faq-a">SharePoint &rarr; <a href="https://smartsearchexec.sharepoint.com/sites/SmartSearch/EDS%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FEDSs%2FEDSs%20%28AI%20Drafts%29&viewid=29288546%2D0077%2D4a2e%2D91e4%2Db2e58da9ff8d&newTargetListUrl=%2Fsites%2FSmartSearch%2FEDS%20Documents&viewpath=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FForms%2FAllItems%2Easpx" target="_blank" style="color:var(--gold);"><strong>EDSs (AI Drafts)</strong></a> folder.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">Where do JS docs land?</div>
+          <div class="faq-a">SharePoint &rarr; <a href="https://smartsearchexec.sharepoint.com/sites/SmartSearch/EDS%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FJob%20Summaries%2FJS%20AI%20Drafts&viewid=29288546%2D0077%2D4a2e%2D91e4%2Db2e58da9ff8d&newTargetListUrl=%2Fsites%2FSmartSearch%2FEDS%20Documents&viewpath=%2Fsites%2FSmartSearch%2FEDS%20Documents%2FForms%2FAllItems%2Easpx" target="_blank" style="color:var(--gold);"><strong>Job Summaries (AI Drafts)</strong></a> folder.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q">New Granola folder &mdash; invite team?</div>
+          <div class="faq-a"><strong>Optional.</strong> Folder sharing is per-user, not required for backend.</div>
+        </div>
+      </div>
+
+      <div class="callout mt-md" style="max-width:600px;">
+        <strong>Got more questions?</strong> These are the ones that help us improve the system for everyone. Flag them anytime.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="keyboard-hint"><kbd>&larr;</kbd> <kbd>&rarr;</kbd> to navigate tabs</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  const tabIds = Array.from(tabs).map(t => t.dataset.tab);
+
+  function activate(tabId) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+    panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + tabId));
+  }
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => activate(tab.dataset.tab));
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const currentIdx = tabIds.findIndex(id => document.getElementById('panel-' + id).classList.contains('active'));
+    if (e.key === 'ArrowRight' && currentIdx < tabIds.length - 1) {
+      activate(tabIds[currentIdx + 1]);
+    } else if (e.key === 'ArrowLeft' && currentIdx > 0) {
+      activate(tabIds[currentIdx - 1]);
+    }
+  });
+</script>
+</body>
+</html>

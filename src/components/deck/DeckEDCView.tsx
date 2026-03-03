@@ -105,7 +105,7 @@ export default function DeckEDCView({
         >
           <div
             className={split ? "" : "deck-edc-wrapper"}
-            style={{ padding: split ? "0" : "0 24px 80px" }}
+            style={{ padding: split ? "0 0 40px" : "0 24px 80px" }}
           >
             <EDCCard
               data={edcWithOurTake}

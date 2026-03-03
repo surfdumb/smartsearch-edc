@@ -67,12 +67,16 @@ export default function OurTake({
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
 
+  // Reset all state when candidate changes (Prev/Next navigation)
   useEffect(() => {
+    setNotesInput(original_note || "");
+    setNotesExpanded(!text || text.length === 0);
+    setGenError(null);
     if (!candidateId) return;
     try {
       setIsHidden(localStorage.getItem(ourTakeHiddenKey(candidateId)) === "true");
     } catch { /* ignore */ }
-  }, [candidateId]);
+  }, [candidateId, original_note, text]);
 
   const toggleHidden = () => {
     const next = !isHidden;

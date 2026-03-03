@@ -20,10 +20,7 @@ export default function OurTakeSourcePanel({ sourceNotes, aiRationale }: OurTake
 
   if (!sourceNotes && !aiRationale) return null;
 
-  // Split source notes on blank lines into separate quote blocks
-  const noteBlocks = sourceNotes
-    ? sourceNotes.split(/\n{2,}/).map((b) => b.trim()).filter(Boolean)
-    : [];
+  const hasNotes = sourceNotes && sourceNotes.trim().length > 0;
 
   return (
     <div
@@ -84,52 +81,28 @@ export default function OurTakeSourcePanel({ sourceNotes, aiRationale }: OurTake
       >
         <div style={{ padding: "0 16px 14px" }}>
 
-          {/* Source note blockquotes */}
-          {noteBlocks.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              {noteBlocks.map((block, i) => (
-                <blockquote
-                  key={i}
-                  style={{
-                    margin: 0,
-                    padding: "8px 14px",
-                    background: "white",
-                    borderRadius: "6px",
-                    border: "1px solid rgba(197,165,114,0.12)",
-                    position: "relative",
-                  }}
-                >
-                  {/* Gold opening quote */}
-                  <span
-                    aria-hidden
-                    style={{
-                      position: "absolute",
-                      top: "2px",
-                      left: "6px",
-                      fontSize: "1.4rem",
-                      lineHeight: 1,
-                      color: "var(--ss-gold)",
-                      opacity: 0.35,
-                      fontFamily: "Georgia, serif",
-                    }}
-                  >
-                    &ldquo;
-                  </span>
-                  <p
-                    style={{
-                      margin: 0,
-                      paddingLeft: "14px",
-                      fontSize: "0.82rem",
-                      color: "var(--ss-gray)",
-                      lineHeight: 1.65,
-                      fontStyle: "italic",
-                      whiteSpace: "pre-wrap",
-                    }}
-                  >
-                    {block}
-                  </p>
-                </blockquote>
-              ))}
+          {/* Source notes — verbatim */}
+          {hasNotes && (
+            <div
+              style={{
+                margin: 0,
+                padding: "10px 14px",
+                background: "white",
+                borderRadius: "6px",
+                border: "1px solid rgba(197,165,114,0.12)",
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.82rem",
+                  color: "var(--ss-gray)",
+                  lineHeight: 1.65,
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {sourceNotes}
+              </p>
             </div>
           )}
 
@@ -137,9 +110,9 @@ export default function OurTakeSourcePanel({ sourceNotes, aiRationale }: OurTake
           {aiRationale && (
             <div
               style={{
-                marginTop: noteBlocks.length > 0 ? "10px" : "0",
-                paddingTop: noteBlocks.length > 0 ? "10px" : "0",
-                borderTop: noteBlocks.length > 0 ? "1px solid rgba(197,165,114,0.12)" : "none",
+                marginTop: hasNotes ? "10px" : "0",
+                paddingTop: hasNotes ? "10px" : "0",
+                borderTop: hasNotes ? "1px solid rgba(197,165,114,0.12)" : "none",
               }}
             >
               <p
