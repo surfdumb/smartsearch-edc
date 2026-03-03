@@ -61,7 +61,7 @@ export default function EDCStatusBar({
       <div
         style={{
           maxWidth: "820px",
-          margin: "0 auto 12px",
+          margin: "0 auto 8px",
           padding: "0 24px",
           display: "flex",
           alignItems: "center",
