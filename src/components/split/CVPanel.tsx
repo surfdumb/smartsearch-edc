@@ -26,10 +26,16 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
 
   const displayUrl = uploadedUrl || cvUrl || null;
 
+  const ACCEPTED_TYPES = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+    "application/msword", // .doc
+  ];
+
   const handleFileUpload = useCallback(
     (file: File) => {
-      if (!file.type.includes("pdf")) {
-        alert("Please upload a PDF file");
+      if (!ACCEPTED_TYPES.some((t) => file.type === t) && !file.name.match(/\.(pdf|docx?)$/i)) {
+        alert("Please upload a PDF or Word document (.pdf, .docx)");
         return;
       }
       const reader = new FileReader();
@@ -69,14 +75,58 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
     }
   }, [candidateId]);
 
+  // Check if the file is a Word doc (data URL will contain the MIME type)
+  const isWordDoc = displayUrl
+    ? displayUrl.startsWith("data:application/vnd.openxmlformats") ||
+      displayUrl.startsWith("data:application/msword")
+    : false;
+
   if (displayUrl) {
     return (
       <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <iframe
-          src={displayUrl}
-          style={{ width: "100%", flex: 1, border: "none" }}
-          title="Candidate CV"
-        />
+        {isWordDoc ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "16px",
+              padding: "32px",
+            }}
+          >
+            <span style={{ fontSize: "3rem", opacity: 0.5 }}>📄</span>
+            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.95rem", textAlign: "center" }}>
+              Word document uploaded
+            </p>
+            <a
+              href={displayUrl}
+              download="cv.docx"
+              style={{
+                background: "linear-gradient(135deg, var(--ss-gold) 0%, var(--ss-gold-deep) 100%)",
+                color: "#1a1a1a",
+                padding: "10px 24px",
+                borderRadius: "8px",
+                fontSize: "0.82rem",
+                fontWeight: 600,
+                textDecoration: "none",
+                cursor: "pointer",
+              }}
+            >
+              Download to View
+            </a>
+            <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "0.75rem", fontStyle: "italic" }}>
+              Word files cannot be previewed inline — download to open in Word/Pages
+            </p>
+          </div>
+        ) : (
+          <iframe
+            src={displayUrl}
+            style={{ width: "100%", flex: 1, border: "none" }}
+            title="Candidate CV"
+          />
+        )}
         <div style={{ padding: "8px 16px", textAlign: "center" }}>
           <button
             onClick={handleReplace}
@@ -104,7 +154,7 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
       onClick={() => {
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".pdf";
+        input.accept = ".pdf,.doc,.docx";
         input.onchange = (e) => {
           const file = (e.target as HTMLInputElement).files?.[0];
           if (file) handleFileUpload(file);
@@ -137,7 +187,7 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
         Upload CV
       </span>
       <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.85rem", marginTop: "8px" }}>
-        Click or drag & drop (.pdf only)
+        Click or drag & drop (.pdf, .docx)
       </span>
     </div>
   );

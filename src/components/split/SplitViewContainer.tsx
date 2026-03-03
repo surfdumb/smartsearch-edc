@@ -31,7 +31,7 @@ export default function SplitViewContainer({
       {/* CV Panel — Left */}
       <div
         style={{
-          width: "50%",
+          width: "40%",
           overflowY: "auto",
           borderRight: "1px solid rgba(197, 165, 114, 0.15)",
           background: "#111111",
@@ -44,7 +44,7 @@ export default function SplitViewContainer({
       {/* EDC Panel — Right */}
       <div
         style={{
-          width: "50%",
+          width: "60%",
           overflowY: "auto",
           padding: "24px",
           background: "#0a0a0a",
