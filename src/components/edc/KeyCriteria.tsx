@@ -2,7 +2,6 @@
 
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
-import EditableField from "@/components/edc/EditableField";
 
 interface KeyCriteriaProps {
   key_criteria: {
@@ -15,7 +14,7 @@ interface KeyCriteriaProps {
 export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
   return (
     <section className="px-section-x py-section-y border-b border-ss-border">
-      <SectionLabel label="Key Criteria Assessment" />
+      <SectionLabel label="Key Criteria" />
 
       <div className="flex flex-col gap-0">
         {key_criteria.map((item, i) => (
@@ -23,10 +22,10 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
             key={i}
             style={{
               display: "grid",
-              gridTemplateColumns: "32px 1fr",
-              gap: "14px",
+              gridTemplateColumns: "28px 1fr",
+              gap: "12px",
               alignItems: "flex-start",
-              padding: "18px 0",
+              padding: "10px 0",
               borderBottom:
                 i < key_criteria.length - 1
                   ? "1px solid var(--ss-border-light)"
@@ -37,38 +36,48 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
             <span
               className="inline-flex items-center justify-center shrink-0 font-bold"
               style={{
-                width: "28px",
-                height: "28px",
-                fontSize: "0.72rem",
+                width: "24px",
+                height: "24px",
+                fontSize: "0.68rem",
                 borderRadius: "50%",
                 background: "var(--ss-green-badge)",
                 color: "var(--ss-green)",
-                marginTop: "1px",
+                marginTop: "2px",
               }}
             >
               {i + 1}
             </span>
 
-            {/* Content — name + evidence + context anchor pill stacked below */}
+            {/* Content — name + evidence bullet + inline context pill */}
             <div>
               <h4
-                className="text-criteria-heading text-ss-dark"
-                style={{ marginBottom: "5px" }}
+                style={{
+                  fontSize: "0.88rem",
+                  fontWeight: 600,
+                  color: "var(--ss-dark)",
+                  marginBottom: "3px",
+                }}
               >
                 {item.name}
               </h4>
-              <EditableField
-                value={item.evidence}
-                originalValue={item.evidence}
-                html
-                className="text-body text-ss-gray"
-                style={{ lineHeight: 1.65 }}
-              />
-              {item.context_anchor && (
-                <div style={{ marginTop: "8px" }}>
-                  <ContextAnchorPill text={item.context_anchor} />
-                </div>
-              )}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
+                <div
+                  className="line-clamp-2"
+                  style={{
+                    fontSize: "0.82rem",
+                    lineHeight: 1.5,
+                    color: "var(--ss-gray)",
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                  dangerouslySetInnerHTML={{ __html: item.evidence }}
+                />
+                {item.context_anchor && (
+                  <div style={{ flexShrink: 0, marginTop: "1px" }}>
+                    <ContextAnchorPill text={item.context_anchor} />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
