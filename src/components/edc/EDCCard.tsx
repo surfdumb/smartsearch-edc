@@ -7,17 +7,10 @@ import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
 import WhyInterested from "@/components/edc/WhyInterested";
 import OurTake from "@/components/edc/OurTake";
+import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
 import PageNavigation from "@/components/edc/PageNavigation";
-import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
-
-interface OurTakeResult {
-  text: string;
-  recommendation?: "ADVANCE" | "HOLD" | "PASS";
-  discussion_points?: string[];
-  ai_rationale?: string;
-  original_note?: string;
-}
+import { type EDCData, type EDCContext } from "@/lib/types";
 
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
@@ -26,8 +19,6 @@ interface DeckSettings {
 
 interface EDCCardProps {
   data: EDCData;
-  isConsultantView?: boolean;
-  onOurTakeGenerated?: (result: OurTakeResult) => void;
   /** When true, card stretches to 100% (for split view) */
   fluid?: boolean;
   /** Controls which header fields are rendered */
@@ -40,8 +31,6 @@ interface EDCCardProps {
 
 export default function EDCCard({
   data,
-  isConsultantView = false,
-  onOurTakeGenerated,
   fluid = false,
   context = 'standalone',
   candidateId,
@@ -102,18 +91,12 @@ export default function EDCCard({
             />
             <WhyInterested why_interested={data.why_interested} />
             {showOurTake && (
-              <OurTake
-                text={data.our_take.text}
-                recommendation={data.our_take.recommendation}
-                discussion_points={data.our_take.discussion_points}
-                original_note={data.our_take.original_note}
-                ai_rationale={data.our_take.ai_rationale}
-                isConsultantView={isConsultantView}
-                candidateId={candidateId}
-                candidateContext={
-                  isConsultantView ? buildCandidateContext(data) : undefined
-                }
-                onOurTakeGenerated={onOurTakeGenerated}
+              <OurTake text={data.our_take.text} />
+            )}
+            {data.miscellaneous && (
+              <Miscellaneous
+                text={data.miscellaneous.text}
+                display={data.miscellaneous.display}
               />
             )}
           </>
