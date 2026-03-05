@@ -1,0 +1,624 @@
+{
+  "search_name": "Chief Commercial Officer",
+  "client_company": "Fertiberia Group",
+  "client_location": "Madrid, Spain",
+  "client_logo_url": null,
+  "key_criteria_names": [
+    "Commercial Transformation & Go-to-Market Redesign",
+    "Fertilizer / Agchem Industry Expertise",
+    "Sales & P&L Leadership at Scale",
+    "Iberian Market Knowledge & Spanish Fluency",
+    "International Growth & Market Expansion"
+  ],
+  "search_lead": "Kalum Gillett",
+  "deck_settings": {
+    "match_score_display": "HIDE",
+    "our_take_display": "SHOW",
+    "scope_narrative_display": "HIDE",
+    "edit_mode": false
+  },
+  "candidates": [
+    {
+      "candidate_id": "r8p3k7",
+      "initials": "RP",
+      "candidate_name": "Ramon Pelegrí",
+      "current_title": "Regional Director, Southern Europe, Middle East & Africa",
+      "current_company": "Compo Expert",
+      "location": "Barcelona, Spain",
+      "flash_summary": "<strong>30+ years in specialty fertilizers</strong> with full P&L for €170M across 10+ countries. Led commodity-to-specialty transformation and Triton-era commercial restructuring at Compo Expert.",
+      "key_strengths": [
+        "Led commodity-to-specialty transformation at Compo Expert — restructured distributor networks across Southern Europe, Middle East, and Africa",
+        "Full P&L for €170M business spanning 10+ countries with 170-person team; previously grew Iberian business to €75M as GM Spain & Portugal",
+        "Direct Triton PE experience — promoted during Triton's 2011–2015 ownership of Compo Expert, understands exit timeline expectations"
+      ],
+      "notice_period": "3 months (negotiable)",
+      "compensation_alignment": "amber",
+      "career_trajectory": "Product Mgmt → GM Iberia → Regional Director",
+      "industry_shorthand": "Specialty Fertilizers",
+      "edc_data": {
+        "candidate_name": "Ramon Pelegrí",
+        "current_title": "Regional Director, Southern Europe, Middle East & Africa",
+        "current_company": "Compo Expert",
+        "location": "Barcelona, Spain",
+        "photo_url": null,
+
+        "scope_match": [
+          {
+            "scope": "Revenue",
+            "candidate_actual": "€170M P&L across Southern Europe, ME & Africa",
+            "role_requirement": "€1B+ group revenue",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Team Size",
+            "candidate_actual": "170 people across 10+ markets",
+            "role_requirement": "150–200 commercial organisation",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "Spain, Portugal, Italy, Greece, Turkey, Lebanon, Egypt, Africa",
+            "role_requirement": "Spain/Portugal + expansion (France, Belgium, Germany, Poland, Greece)",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports to Group CEO (Compo Expert)",
+            "role_requirement": "Reports to Group CEO (Fertiberia)",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Product Scope",
+            "candidate_actual": "Specialty fertilizers & biostimulants",
+            "role_requirement": "Fertilizer + biological platforms",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Triton Exposure",
+            "candidate_actual": "Promoted during Triton's 2011–2015 ownership of Compo Expert",
+            "role_requirement": "PE-backed transformation",
+            "alignment": "strong"
+          }
+        ],
+
+        "key_criteria": [
+          {
+            "name": "Commercial Transformation & Go-to-Market Redesign",
+            "evidence": "<strong>Led commodity-to-specialty transformation</strong> at Compo Expert — restructured distributor networks, shifted product portfolio focus, and optimised working capital across culturally diverse markets.",
+            "context_anchor": "at Compo Expert"
+          },
+          {
+            "name": "Fertilizer / Agchem Industry Expertise",
+            "evidence": "<strong>30+ year career exclusively in specialty fertilizers and biostimulants</strong> — deep technical product knowledge from BASF-era product management through to regional P&L leadership.",
+            "context_anchor": "at Compo Expert"
+          },
+          {
+            "name": "Sales & P&L Leadership at Scale",
+            "evidence": "<strong>Full P&L for €170M business</strong> spanning 10+ countries — previously grew Iberian business to €75M as GM Spain & Portugal with consistent profitability.",
+            "context_anchor": "at Compo Expert"
+          },
+          {
+            "name": "Iberian Market Knowledge & Spanish Fluency",
+            "evidence": "<strong>Native Spanish speaker with 30+ years in Iberian fertilizer market</strong> — built and restructured distributor networks across Spain, Portugal, and North Africa.",
+            "context_anchor": "at Compo Expert"
+          },
+          {
+            "name": "International Growth & Market Expansion",
+            "evidence": "<strong>Expanded from Iberia into Southern Europe, Middle East, and Africa</strong> — currently restructuring go-to-market country by country, traveling to each market to lead transformation in person.",
+            "context_anchor": "at Compo Expert"
+          }
+        ],
+
+        "compensation": {
+          "current_base": "€230K",
+          "current_total": "~€345K (base + ~€85K bonus at 125% payout + car + pension)",
+          "expected_base": "Not specified",
+          "expected_total": "Not specified",
+          "flexibility": "Company car and pension plan expected. Higher compensation level — unclear if Fertiberia's offer can match.",
+          "budget_range": "Base €220–300K + ~50% variable + MIP eligible"
+        },
+        "notice_period": "3 months (negotiable)",
+        "earliest_start_date": "Q3 2025 if negotiated down",
+
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Final transformation challenge before retirement",
+            "detail": "Interested in one last 3–4 year transformation project — sees Fertiberia's commercial challenges as the kind of work that would cap his career."
+          },
+          {
+            "type": "push",
+            "headline": "35 years at one company",
+            "detail": "Has spent entire career at Compo Expert — interested in seeing what he can achieve outside the only organisation he's known."
+          },
+          {
+            "type": "pull",
+            "headline": "Triton familiarity",
+            "detail": "Was promoted during Triton's 2011–2015 ownership of Compo Expert — understands the PE operating model and exit timeline expectations."
+          }
+        ],
+
+        "potential_concerns": [
+          {
+            "concern": "Based in Barcelona, not open to relocating to Madrid — would commute frequently during the week.",
+            "severity": "development"
+          },
+          {
+            "concern": "Approximately 60 years old — transformation timeline of 3–4 years aligns with his career horizon, but board may question longevity.",
+            "severity": "development"
+          },
+          {
+            "concern": "Higher compensation expectations — current total package (~€345K) is at the upper end of the budget range.",
+            "severity": "development"
+          }
+        ],
+
+        "our_take": {
+          "text": "Ramon is the strongest candidate in this shortlist for the CCO role at Fertiberia. His 30+ years of specialty fertilizer expertise, hands-on transformation leadership, and direct Triton PE experience create a unique fit. He understands the Iberian market at a level none of the other candidates match, and his commodity-to-specialty transformation at Compo Expert is directly analogous to what Fertiberia needs. The fact that he was on the ground in Lebanon during the interview — leading regional transformation face-to-face — demonstrates the operational intensity this role requires.",
+          "recommendation": "ADVANCE",
+          "discussion_points": [
+            "Progress to final interviews — recommend meeting with Group CEO and Triton partners"
+          ]
+        },
+        "our_take_fragments": [
+          "Strongest candidate in the shortlist — 30+ years of specialty fertilizer expertise with direct Triton PE experience",
+          "Commodity-to-specialty transformation at Compo Expert is directly analogous to what Fertiberia needs",
+          "On the ground in Lebanon during interview — leading regional transformation face-to-face demonstrates operational intensity",
+          "Iberian market knowledge unmatched by other candidates",
+          "Barcelona-based, won't relocate to Madrid — commuting arrangement needed"
+        ],
+
+        "search_name": "Fertiberia Group — Chief Commercial Officer",
+        "role_title": "Chief Commercial Officer",
+        "generated_date": "5 March 2026",
+        "consultant_name": "Kalum Gillett"
+      }
+    },
+    {
+      "candidate_id": "s4g9n2",
+      "initials": "SG",
+      "candidate_name": "Sergio Godoy",
+      "current_title": "Founder & Principal",
+      "current_company": "Cropsignal Advisory",
+      "location": "Madrid, Spain",
+      "flash_summary": "<strong>22 years at Yara International</strong> across Iberia, Africa, and Latin America. Led business turnarounds in Ghana and Ecuador, built organic fertilizer strategy and M&A integration.",
+      "key_strengths": [
+        "Multiple business turnarounds at Yara — shifted Ghana from government tenders to private distributors, rebuilt Ecuador's route-to-market",
+        "P&L for $200M as Regional Director Central America with 110-person team across Costa Rica, Guatemala, and Panama",
+        "Native Spanish speaker with 8 years as Commercial Director Iberia & Maghreb — deep distributor network knowledge"
+      ],
+      "notice_period": "Immediate to 4 weeks",
+      "compensation_alignment": "green",
+      "career_trajectory": "Agronomist → Commercial Dir → Regional Dir → Strategy → Consulting",
+      "industry_shorthand": "Fertilizers / Agchem",
+      "edc_data": {
+        "candidate_name": "Sergio Godoy",
+        "current_title": "Founder & Principal",
+        "current_company": "Cropsignal Advisory",
+        "location": "Madrid, Spain",
+        "photo_url": null,
+
+        "scope_match": [
+          {
+            "scope": "Revenue",
+            "candidate_actual": "$200M as Regional Director Central America (Yara)",
+            "role_requirement": "€1B+ group revenue",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Team Size",
+            "candidate_actual": "110 people as Regional Director; 5 in strategy role",
+            "role_requirement": "150–200 commercial organisation",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "Spain, Portugal, Maghreb, Ghana, Ecuador, Central America",
+            "role_requirement": "Spain/Portugal + expansion markets",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reported to BU President (Americas) at Yara",
+            "role_requirement": "Reports to Group CEO",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Product Scope",
+            "candidate_actual": "Solid & liquid specialty fertilizers, biostimulants, organics",
+            "role_requirement": "Fertilizer + biological platforms",
+            "alignment": "strong"
+          }
+        ],
+
+        "key_criteria": [
+          {
+            "name": "Commercial Transformation & Go-to-Market Redesign",
+            "evidence": "<strong>Multiple business turnarounds</strong> — shifted Ghana from government tenders to private distributors (became Yara's most profitable African country), rebuilt Ecuador's route-to-market from commodity to specialty sales.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "Fertilizer / Agchem Industry Expertise",
+            "evidence": "<strong>Agronomist by training with 22 years at Yara</strong> — career spans solid and liquid specialty fertilizers, biostimulants, and foliar products. Built Yara's organic fertilizer strategy and portfolio.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "Sales & P&L Leadership at Scale",
+            "evidence": "<strong>P&L responsibility for $200M at Regional Director level</strong> — managed 110-person teams across three countries (Costa Rica, Guatemala, Panama), integrated operations and closed underperforming offices.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "Iberian Market Knowledge & Spanish Fluency",
+            "evidence": "<strong>Native Spanish speaker, 8 years as Commercial Director Iberia & Maghreb</strong> at Yara — managed distributor network and commercial sales across Spain, Portugal, and North Africa.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "International Growth & Market Expansion",
+            "evidence": "<strong>Executed M&A and integration across Italy, Norway, and Finland</strong> for Yara's organomineral portfolio — grew revenues by €36M with fivefold EBITDA improvement.",
+            "context_anchor": "at Yara International"
+          }
+        ],
+
+        "compensation": {
+          "current_base": "€170K (at Yara)",
+          "current_total": "~€220K (base + 30% STI, no LTI)",
+          "expected_base": "Not specified",
+          "expected_total": "Not specified",
+          "flexibility": "Currently consulting — compensation expectations likely benchmarked to prior Yara package. No LTI component previously.",
+          "budget_range": "Base €220–300K + ~50% variable + MIP eligible"
+        },
+        "notice_period": "Can start relatively soon",
+        "earliest_start_date": "Immediate to 4 weeks",
+
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Return to commercial P&L leadership",
+            "detail": "Interested in returning to a senior commercial role after consulting — the scale and transformation challenge at Fertiberia attracted him."
+          },
+          {
+            "type": "push",
+            "headline": "Left Yara in company-wide restructuring",
+            "detail": "Yara cut nearly 3,000 of its 17,000 employees — Sergio was among senior leaders let go with an exit package in early 2025."
+          },
+          {
+            "type": "pull",
+            "headline": "Deep industry and market fit",
+            "detail": "Entire career in fertilizers with extensive Iberian and international experience — sees this as the natural culmination of his expertise."
+          }
+        ],
+
+        "potential_concerns": [
+          {
+            "concern": "Currently running a small consultancy — has not been in a corporate leadership role since departing Yara. Transition back to P&L accountability needs assessment.",
+            "severity": "development"
+          },
+          {
+            "concern": "Last corporate role was in strategy and M&A integration (team of 5), not front-line commercial leadership — most recent large-team P&L was Regional Director Central America.",
+            "severity": "development"
+          }
+        ],
+
+        "our_take": {
+          "text": "Sergio brings deep fertilizer expertise and a proven track record of commercial turnarounds across diverse markets. His Iberian market knowledge from 8 years as Commercial Director at Yara, combined with successful turnarounds in Ghana and Ecuador, demonstrates the transformation capability Fertiberia needs. The M&A integration work on Yara's organic portfolio shows he can execute at the strategic level while remaining hands-on. The question is whether the gap since his last large-scale P&L role matters — his consulting period has kept him connected to the industry but not in an operational seat.",
+          "recommendation": "ADVANCE",
+          "discussion_points": [
+            "Progress to next stage — explore transition readiness and current commercial network currency"
+          ]
+        },
+        "our_take_fragments": [
+          "Deep fertilizer expertise — 22 years at Yara with proven turnarounds in Ghana and Ecuador",
+          "8 years as Commercial Director Iberia gives direct market knowledge relevant to Fertiberia",
+          "M&A integration work on organic portfolio shows strategic and hands-on execution capability",
+          "Gap since last large-scale P&L role — consulting period maintained industry connection but not operational seat",
+          "Madrid-based — no relocation friction"
+        ],
+
+        "search_name": "Fertiberia Group — Chief Commercial Officer",
+        "role_title": "Chief Commercial Officer",
+        "generated_date": "5 March 2026",
+        "consultant_name": "Kalum Gillett"
+      }
+    },
+    {
+      "candidate_id": "g6m1t5",
+      "initials": "GM",
+      "candidate_name": "Germán Martos",
+      "current_title": "Commercial Director, EMEA",
+      "current_company": "Lindsay Corporation",
+      "location": "Netherlands (family in Madrid)",
+      "flash_summary": "<strong>6 years as Commercial Director Spain & Portugal at Yara</strong> (€230M portfolio, 400+ distributors). Now leads €200M EMEA commercial at Lindsay — channel restructuring and key account transformation.",
+      "key_strengths": [
+        "Professionalised Yara's Iberian distributor network — classification scorecard across 400+ distributors with €230M portfolio",
+        "Currently leads €200M EMEA commercial at Lindsay Corporation across 40+ countries",
+        "Native Spanish speaker with family in Madrid — strong personal commitment to relocate"
+      ],
+      "notice_period": "2–3 months",
+      "compensation_alignment": "green",
+      "career_trajectory": "Sales → Commercial Dir Iberia → EMEA Commercial Dir",
+      "industry_shorthand": "Fertilizers / Irrigation",
+      "edc_data": {
+        "candidate_name": "Germán Martos",
+        "current_title": "Commercial Director, EMEA",
+        "current_company": "Lindsay Corporation",
+        "location": "Netherlands (family in Madrid, Spain)",
+        "photo_url": null,
+
+        "scope_match": [
+          {
+            "scope": "Revenue",
+            "candidate_actual": "€200M EMEA business at Lindsay; €230M at Yara Iberia",
+            "role_requirement": "€1B+ group revenue",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Team Size",
+            "candidate_actual": "50 commercial professionals across 40+ countries",
+            "role_requirement": "150–200 commercial organisation",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "EMEA + Asia Pacific; previously Spain & Portugal",
+            "role_requirement": "Spain/Portugal + expansion markets",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports to President EMEA (Lindsay)",
+            "role_requirement": "Reports to Group CEO",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Product Scope",
+            "candidate_actual": "Irrigation & water management (Lindsay); fertilizers & animal nutrition (Yara)",
+            "role_requirement": "Fertilizer + biological platforms",
+            "alignment": "partial"
+          }
+        ],
+
+        "key_criteria": [
+          {
+            "name": "Commercial Transformation & Go-to-Market Redesign",
+            "evidence": "<strong>Professionalised Yara's Iberian distributor network</strong> — implemented classification scorecard and benefit model across 400+ distributors. At Lindsay, restructured dealer and key account models across EMEA.",
+            "context_anchor": "at Yara / Lindsay"
+          },
+          {
+            "name": "Fertilizer / Agchem Industry Expertise",
+            "evidence": "<strong>6 years at Yara managing fertilizers, animal nutrition, and biologicals</strong> in Spain and Portugal — though has been in irrigation/water management at Lindsay for the past several years.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "Sales & P&L Leadership at Scale",
+            "evidence": "<strong>€230M portfolio as Commercial Director Iberia</strong> with 17 direct reports — drove sales through hands-on B2B engagement and distributor management. Currently €200M EMEA scope at Lindsay.",
+            "context_anchor": "at Yara / Lindsay"
+          },
+          {
+            "name": "Iberian Market Knowledge & Spanish Fluency",
+            "evidence": "<strong>Native Spanish speaker, family based in Madrid</strong> — 6 years leading Yara's full commercial portfolio for Spain and Portugal with deep distributor relationships.",
+            "context_anchor": "at Yara International"
+          },
+          {
+            "name": "International Growth & Market Expansion",
+            "evidence": "<strong>EMEA-wide commercial leadership across 40+ countries</strong> at Lindsay — expanded online selling, transformed key account strategy, and managed complex multi-million euro projects.",
+            "context_anchor": "at Lindsay Corporation"
+          }
+        ],
+
+        "compensation": {
+          "current_base": "~€215K",
+          "current_total": "~€280K+ (base + 30% bonus at >100% payout + stock vesting every 3 years)",
+          "expected_base": "Not specified",
+          "expected_total": "Not specified",
+          "flexibility": "Stock component vests every three years — may need buy-out consideration. Family relocation to Madrid would be a personal advantage.",
+          "budget_range": "Base €220–300K + ~50% variable + MIP eligible"
+        },
+        "notice_period": "2–3 months",
+        "earliest_start_date": "Q3 2025",
+
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Return to Madrid and reunite with family",
+            "detail": "Wife and children based in Madrid while he commutes weekly to the Netherlands — this role would bring him home full-time."
+          },
+          {
+            "type": "pull",
+            "headline": "Significant increase in revenue scope",
+            "detail": "Interested in leading a €1B+ commercial organisation — a material step up from current €200M EMEA scope."
+          },
+          {
+            "type": "pull",
+            "headline": "Fertigation and Netherlands knowledge",
+            "detail": "His irrigation expertise and Dutch market knowledge could add value to Fertiberia's expansion into the Netherlands and adjacent markets."
+          }
+        ],
+
+        "potential_concerns": [
+          {
+            "concern": "Has been outside the fertilizer industry for several years at Lindsay Corporation — maintains an older 'Yara timing' perspective and may be less connected to current specialty and biologicals trends.",
+            "severity": "development"
+          },
+          {
+            "concern": "Hogan assessment indicates modest commercial drive (44) and low power motivation (10) — less driven by market competition and bold growth targets compared to Ramon.",
+            "severity": "significant"
+          },
+          {
+            "concern": "In interview, stayed at a high level and struggled to provide concrete, granular examples of execution — concern about whether he can 'get into the mud' and drive execution rather than wait for the team.",
+            "severity": "significant"
+          }
+        ],
+
+        "our_take": {
+          "text": "Germán is the most balanced leadership profile of the three shortlisted candidates, with strong emotional stability and process discipline. His Yara Iberia experience gives him direct market knowledge, and his distributor professionalisation work is directly relevant to Fertiberia's channel challenges. However, the Hogan results flag modest commercial drive and the interview raised questions about execution depth — he presents well at a strategic level but may lack the intensity needed to drive a full commercial transformation. His family situation in Madrid is a genuine pull factor that would support commitment.",
+          "recommendation": "HOLD",
+          "discussion_points": [
+            "Proceed with caution — recommend structured case study to test execution depth and commercial intensity"
+          ]
+        },
+        "our_take_fragments": [
+          "Most balanced leadership profile — strong emotional stability and process discipline",
+          "Yara Iberia distributor professionalisation directly relevant to Fertiberia's channel challenges",
+          "Hogan flags: modest commercial drive (44) and low power motivation (10)",
+          "Interview raised questions about execution depth — stayed at high level, lacked granular examples",
+          "Family in Madrid is a genuine pull factor supporting commitment"
+        ],
+
+        "search_name": "Fertiberia Group — Chief Commercial Officer",
+        "role_title": "Chief Commercial Officer",
+        "generated_date": "5 March 2026",
+        "consultant_name": "Kalum Gillett"
+      }
+    },
+    {
+      "candidate_id": "p2c8v6",
+      "initials": "PC",
+      "candidate_name": "Paulo Costa",
+      "current_title": "Global Commercial Director",
+      "current_company": "Sipcam Oxon",
+      "location": "Milan, Italy (open to relocating to Madrid)",
+      "flash_summary": "<strong>Global commercial leader driving 40% gross profit growth</strong> at Sipcam Oxon (€300M, 32 countries). Led Dow–DuPont–Corteva integration in Brazil — 12% annual growth on a $1.3B business.",
+      "key_strengths": [
+        "Led Dow–DuPont–Corteva commercial integration on a $1.3B LATAM business — redefined structures, aligned pricing, reshaped go-to-market",
+        "Designed global commercial governance at Sipcam Oxon linking pricing, supply chain, and demand planning — 40% gross profit growth",
+        "Fluent in Spanish, Portuguese, English, and Italian — early career in Iberia, open to relocating family to Madrid"
+      ],
+      "notice_period": "1–2 months",
+      "compensation_alignment": "green",
+      "career_trajectory": "Sales Coord → Country Mgr → Regional Dir → Global Commercial Dir",
+      "industry_shorthand": "Agchem / Crop Protection",
+      "edc_data": {
+        "candidate_name": "Paulo Costa",
+        "current_title": "Global Commercial Director",
+        "current_company": "Sipcam Oxon",
+        "location": "Milan, Italy",
+        "photo_url": null,
+
+        "scope_match": [
+          {
+            "scope": "Revenue",
+            "candidate_actual": "€300M global B2B sales (Sipcam); $1.3B at Corteva LATAM",
+            "role_requirement": "€1B+ group revenue",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Team Size",
+            "candidate_actual": "26 commercial professionals globally; 60+ at Corteva",
+            "role_requirement": "150–200 commercial organisation",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "32 countries across Europe, LATAM, Asia",
+            "role_requirement": "Spain/Portugal + expansion markets",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports directly to Group CEO (Sipcam Oxon)",
+            "role_requirement": "Reports to Group CEO",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Product Scope",
+            "candidate_actual": "Crop protection, generics, biologicals (45%)",
+            "role_requirement": "Fertilizer + biological platforms",
+            "alignment": "partial"
+          }
+        ],
+
+        "key_criteria": [
+          {
+            "name": "Commercial Transformation & Go-to-Market Redesign",
+            "evidence": "<strong>Led Dow–DuPont–Corteva commercial integration</strong> on a $1.3B LATAM business — redefined commercial structures, aligned pricing, reshaped go-to-market strategies. At Sipcam, designed global commercial governance linking pricing, supply chain, and demand planning, driving 40% gross profit growth.",
+            "context_anchor": "at Corteva / Sipcam Oxon"
+          },
+          {
+            "name": "Fertilizer / Agchem Industry Expertise",
+            "evidence": "<strong>20+ years in agrichemicals</strong> — primarily crop protection and generics rather than fertilizers, though Sipcam's portfolio includes 45% biologicals. Not a pure fertilizer background.",
+            "context_anchor": "at Sipcam Oxon"
+          },
+          {
+            "name": "Sales & P&L Leadership at Scale",
+            "evidence": "<strong>€300M global business with 56 B2B customers</strong> including Corteva, Syngenta, BASF — manages complex multinational key accounts. Previously $1.3B scope at Corteva Brazil/Paraguay.",
+            "context_anchor": "at Sipcam Oxon"
+          },
+          {
+            "name": "Iberian Market Knowledge & Spanish Fluency",
+            "evidence": "<strong>Fluent in Spanish, Portuguese, English, and Italian</strong> — early career as Sales & Marketing Coordinator for Dow AgroSciences Spain/Portugal. Sipcam's third-largest affiliate is in Spain with a Commercial Director reporting to him.",
+            "context_anchor": "at Dow AgroSciences / Sipcam"
+          },
+          {
+            "name": "International Growth & Market Expansion",
+            "evidence": "<strong>Built LATAM B2B sales from zero</strong> for Sipcam Oxon — opened affiliate channels across Chile, Mexico, Paraguay. Grew the business exponentially, leading to promotion to global role.",
+            "context_anchor": "at Sipcam Oxon"
+          }
+        ],
+
+        "compensation": {
+          "current_base": "€200K",
+          "current_total": "~€300K (base + 50% bonus at 100% payout, no LTI)",
+          "expected_base": "Not specified",
+          "expected_total": "Not specified",
+          "flexibility": "No LTI in current package — MIP participation would be attractive. Open to relocating family to Madrid.",
+          "budget_range": "Base €220–300K + ~50% variable + MIP eligible"
+        },
+        "notice_period": "1–2 months (Italian employment law)",
+        "earliest_start_date": "Within 2 months",
+
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Step up to a larger commercial transformation",
+            "detail": "Interested in leading a €1B+ commercial organisation — sees Fertiberia as a logical career progression from his current €300M scope."
+          },
+          {
+            "type": "pull",
+            "headline": "Open to Madrid relocation",
+            "detail": "Can commute 3 days initially and is prepared to relocate the family permanently to Madrid — a differentiator versus Barcelona-based candidates."
+          },
+          {
+            "type": "pull",
+            "headline": "Masters degree from Madrid — personal connection",
+            "detail": "Completed a Masters in Marketing in Madrid and has early-career Iberian experience — the market is not unfamiliar."
+          }
+        ],
+
+        "potential_concerns": [
+          {
+            "concern": "Primary expertise is in crop protection and generics, not fertilizers — while biologicals overlap exists, he lacks deep fertilizer-specific product knowledge.",
+            "severity": "development"
+          },
+          {
+            "concern": "Knows the Iberian agriculture industry well but does not personally know the distributor network — his Spanish Commercial Director handles those relationships.",
+            "severity": "development"
+          },
+          {
+            "concern": "Described as 'marketing guy first, sales second' — may need time to build direct commercial credibility with a legacy fertilizer sales team.",
+            "severity": "development"
+          }
+        ],
+
+        "our_take": {
+          "text": "Paulo brings the largest-scale transformation experience and strongest integration credentials in the shortlist. The Corteva integration work on a $1.3B business demonstrates he can operate at the scale Fertiberia requires, and his global commercial governance framework at Sipcam — which drove 40% gross profit growth — is precisely the kind of structural transformation the CCO role demands. His willingness to relocate to Madrid is a practical advantage. The main gap is fertilizer-specific expertise — his career has been in crop protection rather than fertilizers, and while there's biological overlap, the core product knowledge would need to develop quickly.",
+          "recommendation": "ADVANCE",
+          "discussion_points": [
+            "Progress to next stage — explore fertilizer knowledge depth and distributor network currency in Iberia"
+          ]
+        },
+        "our_take_fragments": [
+          "Largest-scale transformation experience in the shortlist — Corteva $1.3B integration + Sipcam 40% GP growth",
+          "Global commercial governance framework is precisely what the CCO role demands",
+          "Willing to relocate family to Madrid — practical advantage over Barcelona-based candidates",
+          "Main gap: crop protection career, not fertilizers — biological overlap exists but core product knowledge needs to develop",
+          "Quad-lingual (Spanish, Portuguese, English, Italian) with early Iberian career"
+        ],
+
+        "search_name": "Fertiberia Group — Chief Commercial Officer",
+        "role_title": "Chief Commercial Officer",
+        "generated_date": "5 March 2026",
+        "consultant_name": "Kalum Gillett"
+      }
+    }
+  ]
+}
