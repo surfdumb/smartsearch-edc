@@ -73,8 +73,18 @@
   --deck-bg: #f5f2ed;
   --deck-surface: rgba(255, 255, 255, 0.92);
   --deck-card-bg: #ffffff;
-  --deck-text-rgb: 30, 30, 30;
+  --deck-text-rgb: 0, 0, 0;
   --deck-gold-border-alpha: 0.25;
+  --ss-gold: #7a5f30;
+  --ss-gold-light: #96783e;
+}
+
+/* Light mode: darken white logos + soften card shadows */
+[data-deck-theme="light"] img[alt="SmartSearch"] {
+  filter: brightness(0.15);
+}
+[data-deck-theme="light"] .search-context-header {
+  box-shadow: 0 2px 20px rgba(0,0,0,0.06);
 }
 
 body {
