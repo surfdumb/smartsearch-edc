@@ -46,36 +46,26 @@ export default function SearchContextHeader({
         padding: "32px 40px",
         maxWidth: "800px",
         margin: "0 auto 40px",
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "32px",
       }}
     >
-      <h1
-        className="font-cormorant"
-        style={{
-          fontSize: "1.8rem",
-          fontWeight: 600,
-          color: "rgba(var(--deck-text-rgb),0.9)",
-          marginBottom: "4px",
-        }}
-      >
-        {search_name}
-      </h1>
+      {/* Left — text content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <h1
+          className="font-cormorant"
+          style={{
+            fontSize: "1.8rem",
+            fontWeight: 600,
+            color: "rgba(var(--deck-text-rgb),0.9)",
+            marginBottom: "4px",
+          }}
+        >
+          {search_name}
+        </h1>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "14px",
-          marginBottom: "20px",
-        }}
-      >
-        {logoUrl && (
-          <img
-            src={logoUrl}
-            alt={client_company}
-            style={{ height: "22px", opacity: 0.85, flexShrink: 0 }}
-          />
-        )}
-        <p style={{ fontSize: "0.95rem", color: "var(--ss-gold)", margin: 0 }}>
+        <p style={{ fontSize: "0.95rem", color: "var(--ss-gold)", margin: "0 0 20px" }}>
           {client_company}
           {client_location && (
             <>
@@ -84,53 +74,77 @@ export default function SearchContextHeader({
             </>
           )}
         </p>
-      </div>
 
-      <div style={{ marginBottom: "16px" }}>
-        <p
-          style={{
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            letterSpacing: "1.5px",
-            textTransform: "uppercase",
-            color: "rgba(var(--deck-text-rgb),0.4)",
-            marginBottom: "10px",
-          }}
-        >
-          Key Criteria
-        </p>
-        <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {key_criteria_names.map((name, i) => (
-            <li
-              key={i}
-              style={{
-                fontSize: "0.85rem",
-                fontWeight: 500,
-                color: "rgba(var(--deck-text-rgb),0.7)",
-                padding: "3px 0",
-                display: "flex",
-                gap: "8px",
-              }}
-            >
-              <span
+        <div style={{ marginBottom: "16px" }}>
+          <p
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "rgba(var(--deck-text-rgb),0.4)",
+              marginBottom: "10px",
+            }}
+          >
+            Key Criteria
+          </p>
+          <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
+            {key_criteria_names.map((name, i) => (
+              <li
+                key={i}
                 style={{
-                  color: "var(--ss-gold)",
-                  opacity: 0.6,
-                  fontWeight: 600,
-                  minWidth: "16px",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                  color: "rgba(var(--deck-text-rgb),0.7)",
+                  padding: "3px 0",
+                  display: "flex",
+                  gap: "8px",
                 }}
               >
-                {i + 1}.
-              </span>
-              {name}
-            </li>
-          ))}
-        </ol>
+                <span
+                  style={{
+                    color: "var(--ss-gold)",
+                    opacity: 0.6,
+                    fontWeight: 600,
+                    minWidth: "16px",
+                  }}
+                >
+                  {i + 1}.
+                </span>
+                {name}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <p style={{ fontSize: "0.8rem", color: "rgba(var(--deck-text-rgb),0.4)" }}>
+          Search Lead: {search_lead}
+        </p>
       </div>
 
-      <p style={{ fontSize: "0.8rem", color: "rgba(var(--deck-text-rgb),0.4)" }}>
-        Search Lead: {search_lead}
-      </p>
+      {/* Right — client logo */}
+      {logoUrl && (
+        <div
+          style={{
+            flexShrink: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            alignSelf: "center",
+          }}
+        >
+          <img
+            src={logoUrl}
+            alt={client_company}
+            style={{
+              maxHeight: "80px",
+              maxWidth: "180px",
+              objectFit: "contain",
+              opacity: 0.85,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
