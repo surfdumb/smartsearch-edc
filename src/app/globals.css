@@ -87,6 +87,11 @@
   box-shadow: 0 2px 20px rgba(0,0,0,0.06);
 }
 
+/* Intro card: arrow nudge on hover */
+.intro-card-cta:hover .intro-card-arrow {
+  transform: translateX(4px);
+}
+
 body {
   background: var(--ss-page-bg);
   color: var(--ss-dark);

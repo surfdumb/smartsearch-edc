@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -15,8 +16,10 @@ type CardEdits = {
   current_title?: string;
   current_company?: string;
   location?: string;
-  flash_summary?: string;
-  key_strengths?: string[];
+  headline?: string;
+  motivation?: string;
+  scope_pills?: string[];
+  placed?: boolean;
   notice_period?: string;
   compensation_alignment?: "green" | "amber" | "not_set";
 };
@@ -183,6 +186,8 @@ function Editable({
 // ── Main component ────────────────────────────────────────────────────────────
 export default function IntroCard({ card, onClick, editMode = false }: IntroCardProps) {
   const [edits, setEdits] = useState<CardEdits>({});
+  const [addingPill, setAddingPill] = useState(false);
+  const pillInputRef = useRef<HTMLInputElement>(null);
 
   // Load persisted edits on mount
   useEffect(() => {
@@ -207,28 +212,16 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
     [card.candidate_id]
   );
 
-  const saveStrength = useCallback(
-    (index: number, value: string) => {
-      setEdits((prev) => {
-        const base = prev.key_strengths ?? card.key_strengths ?? [];
-        const next = [...base];
-        next[index] = value;
-        const merged = { ...prev, key_strengths: next };
-        try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); } catch { /* ignore */ }
-        return merged;
-      });
-    },
-    [card.candidate_id, card.key_strengths]
-  );
-
   // Resolved values (edit override → fixture fallback)
   const v = {
     candidate_name: edits.candidate_name ?? card.candidate_name,
     current_title: edits.current_title ?? card.current_title,
     current_company: edits.current_company ?? card.current_company,
     location: edits.location ?? card.location,
-    flash_summary: edits.flash_summary ?? card.flash_summary ?? "",
-    key_strengths: edits.key_strengths ?? card.key_strengths ?? [],
+    headline: edits.headline ?? card.headline ?? card.flash_summary ?? "",
+    motivation: edits.motivation ?? card.motivation ?? "",
+    scope_pills: edits.scope_pills ?? card.scope_pills ?? [],
+    placed: edits.placed ?? card.placed ?? false,
     notice_period: edits.notice_period ?? card.notice_period ?? "",
     compensation_alignment: edits.compensation_alignment ?? card.compensation_alignment ?? "not_set",
   };
@@ -244,12 +237,36 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
     v.compensation_alignment !== (card.compensation_alignment ?? "not_set");
   const alignmentColor = COMP_COLOR[v.compensation_alignment];
 
+  // Photo URL: check intro card level first, then fall back to edc_data
+  const photoUrl = card.photo_url ?? card.edc_data?.photo_url;
+
+  // Our Take fragment — show first one as a quote teaser
+  const ourTakeQuote = card.edc_data?.our_take_fragments?.[0] ?? card.edc_data?.our_take?.text;
+
+  // Pill editing
+  const savePill = (index: number, value: string) => {
+    const pills = [...v.scope_pills];
+    pills[index] = value;
+    save({ scope_pills: pills });
+  };
+  const removePill = (index: number) => {
+    if (v.scope_pills.length <= 1) return; // min 1
+    const pills = v.scope_pills.filter((_, i) => i !== index);
+    save({ scope_pills: pills });
+  };
+  const addPill = (text: string) => {
+    if (v.scope_pills.length >= 6) return; // max 6
+    const pills = [...v.scope_pills, text];
+    save({ scope_pills: pills });
+    setAddingPill(false);
+  };
+
   return (
     <div
       onClick={editMode ? undefined : onClick}
       style={{
         background: "var(--deck-surface)",
-        border: `1px solid rgba(197, 165, 114, var(--deck-gold-border-alpha))`,
+        border: "1px solid rgba(197, 165, 114, var(--deck-gold-border-alpha))",
         borderRadius: "16px",
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
@@ -257,6 +274,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         display: "flex",
         flexDirection: "column",
         height: "100%",
+        position: "relative",
       }}
       onMouseOver={(e) => {
         const el = e.currentTarget as HTMLDivElement;
@@ -266,16 +284,46 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       }}
       onMouseOut={(e) => {
         const el = e.currentTarget as HTMLDivElement;
-        el.style.borderColor = "rgba(197, 165, 114, 0.12)";
+        el.style.borderColor = `rgba(197, 165, 114, var(--deck-gold-border-alpha))`;
         el.style.transform = "translateY(0)";
         el.style.boxShadow = "none";
       }}
     >
-      {/* ── Header zone — warm charcoal ── */}
+      {/* ── Placed badge ── */}
+      {(v.placed || editMode) && (
+        <div
+          onClick={editMode ? (e) => { e.stopPropagation(); save({ placed: !v.placed }); } : undefined}
+          style={{
+            position: "absolute",
+            top: "14px",
+            right: "14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            fontSize: "0.68rem",
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.8px",
+            color: "var(--ss-gold)",
+            background: v.placed ? "rgba(197,165,114,0.1)" : "transparent",
+            padding: "4px 10px",
+            borderRadius: "4px",
+            border: v.placed ? "1px solid rgba(197,165,114,0.2)" : "1px dashed rgba(197,165,114,0.15)",
+            opacity: v.placed ? 1 : 0.4,
+            cursor: editMode ? "pointer" : "default",
+            zIndex: 2,
+            transition: "all 0.2s",
+          }}
+        >
+          <span style={{ fontSize: "0.72rem" }}>✦</span> Placed
+        </div>
+      )}
+
+      {/* ── Header zone ── */}
       <div
         style={{
           background: "var(--deck-card-bg)",
-          padding: "28px 24px 24px",
+          padding: "28px 24px 18px",
           textAlign: "center",
           position: "relative",
           overflow: "hidden",
@@ -292,26 +340,35 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           }}
         />
 
-        {/* Avatar */}
+        {/* Avatar — photo or initials */}
         <div
           style={{
-            width: "64px",
-            height: "64px",
+            width: "60px",
+            height: "60px",
             borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--ss-gold), var(--ss-gold-light))",
+            background: photoUrl ? "transparent" : "linear-gradient(135deg, var(--ss-gold), var(--ss-gold-light))",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 auto 12px",
+            margin: "0 auto 14px",
             boxShadow: "0 0 0 3px rgba(197,165,114,0.15)",
+            overflow: "hidden",
           }}
         >
-          <span
-            className="font-cormorant"
-            style={{ fontSize: "22px", fontWeight: 600, color: "var(--ss-dark)", lineHeight: 1 }}
-          >
-            {card.initials}
-          </span>
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={v.candidate_name}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <span
+              className="font-cormorant"
+              style={{ fontSize: "22px", fontWeight: 600, color: "var(--ss-dark)", lineHeight: 1 }}
+            >
+              {card.initials}
+            </span>
+          )}
         </div>
 
         {/* Candidate name */}
@@ -328,7 +385,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             fontSize: "1.35rem",
             fontWeight: 500,
             color: "rgba(var(--deck-text-rgb),0.9)",
-            marginBottom: "4px",
+            marginBottom: "5px",
             letterSpacing: "-0.2px",
           }}
         />
@@ -342,11 +399,11 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           editMode={editMode}
           as="p"
           singleLine
-          style={{ fontSize: "0.78rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}
+          style={{ fontSize: "0.8rem", color: "var(--ss-gold)", marginBottom: "3px", fontWeight: 500 }}
         />
 
         {/* Company · Location */}
-        <p style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}>
+        <p style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}>
           <Editable
             value={v.current_company}
             onSave={(val) => save({ current_company: val })}
@@ -354,7 +411,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             onReset={() => save({ current_company: undefined })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
+            style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
           />
           {v.location && (
             <>
@@ -366,7 +423,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onReset={() => save({ location: undefined })}
                 editMode={editMode}
                 singleLine
-                style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
+                style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
               />
             </>
           )}
@@ -374,51 +431,181 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       </div>
 
       {/* ── Body zone ── */}
-      <div style={{ padding: "18px 24px 14px", flex: 1 }}>
+      <div style={{ padding: "16px 24px 14px", flex: 1, display: "flex", flexDirection: "column" }}>
 
-        {/* Flash summary — full text, no line clamp (editable = full view) */}
-        {v.flash_summary && (
+        {/* Headline — single sentence */}
+        {v.headline && (
           <Editable
-            value={v.flash_summary}
-            onSave={(val) => save({ flash_summary: val })}
-            originalValue={card.flash_summary ?? ""}
-            onReset={() => save({ flash_summary: undefined })}
+            value={v.headline}
+            onSave={(val) => save({ headline: val })}
+            originalValue={card.headline ?? card.flash_summary ?? ""}
+            onReset={() => save({ headline: undefined })}
             editMode={editMode}
             as="p"
             html
             style={{
-              fontSize: "0.82rem",
-              color: "rgba(var(--deck-text-rgb),0.45)",
-              lineHeight: 1.6,
-              marginBottom: "14px",
+              fontSize: "0.84rem",
+              color: "rgba(var(--deck-text-rgb),0.7)",
+              lineHeight: 1.55,
+              textAlign: "center",
+              marginBottom: "0",
             }}
           />
         )}
 
-        {/* Key strengths */}
-        {v.key_strengths.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "14px" }}>
-            {v.key_strengths.map((strength, i) => (
-              <div key={i} style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
-                <span style={{ color: "var(--ss-gold)", fontSize: "0.7rem", flexShrink: 0 }}>▸</span>
-                <Editable
-                  value={strength}
-                  onSave={(val) => saveStrength(i, val)}
-                  originalValue={(card.key_strengths ?? [])[i] ?? ""}
-                  onReset={() => saveStrength(i, (card.key_strengths ?? [])[i] ?? "")}
-                  editMode={editMode}
-                  style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.5)", lineHeight: 1.4 }}
-                />
-              </div>
+        {/* Motivation hook — Cormorant italic */}
+        {v.motivation && (
+          <Editable
+            value={v.motivation}
+            onSave={(val) => save({ motivation: val })}
+            originalValue={card.motivation ?? ""}
+            onReset={() => save({ motivation: undefined })}
+            editMode={editMode}
+            as="p"
+            style={{
+              fontSize: "0.88rem",
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: "var(--ss-gold-light)",
+              lineHeight: 1.5,
+              textAlign: "center",
+              marginTop: "12px",
+              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', serif",
+            }}
+          />
+        )}
+
+        {/* Our Take quote — Cormorant italic in speech marks */}
+        {ourTakeQuote && !editMode && (
+          <p
+            className="font-cormorant"
+            style={{
+              fontSize: "0.82rem",
+              fontStyle: "italic",
+              fontWeight: 400,
+              color: "rgba(var(--deck-text-rgb), 0.35)",
+              lineHeight: 1.5,
+              textAlign: "center",
+              marginTop: "14px",
+              padding: "0 8px",
+            }}
+          >
+            &ldquo;{ourTakeQuote}&rdquo;
+          </p>
+        )}
+
+        {/* Scope pills */}
+        {v.scope_pills.length > 0 && (
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: "6px",
+            marginTop: "16px",
+          }}>
+            {v.scope_pills.map((pill, i) => (
+              <span
+                key={i}
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 500,
+                  letterSpacing: "0.3px",
+                  padding: "5px 12px",
+                  borderRadius: "100px",
+                  background: "rgba(197,165,114,0.08)",
+                  border: "1px solid rgba(197,165,114,0.18)",
+                  color: "rgba(var(--deck-text-rgb),0.55)",
+                  whiteSpace: "nowrap",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  position: "relative",
+                }}
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                onClick={editMode ? (e) => e.stopPropagation() : undefined}
+                onBlur={editMode ? (e) => {
+                  const text = (e.currentTarget.textContent ?? "").trim();
+                  if (text && text !== pill) savePill(i, text);
+                } : undefined}
+              >
+                {pill}
+                {editMode && v.scope_pills.length > 1 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removePill(i); }}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: "rgba(197,165,114,0.4)",
+                      fontSize: "0.7rem",
+                      cursor: "pointer",
+                      padding: "0 0 0 2px",
+                      lineHeight: 1,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
             ))}
+            {editMode && v.scope_pills.length < 6 && !addingPill && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setAddingPill(true); setTimeout(() => pillInputRef.current?.focus(), 50); }}
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 500,
+                  padding: "5px 12px",
+                  borderRadius: "100px",
+                  background: "transparent",
+                  border: "1px dashed rgba(197,165,114,0.2)",
+                  color: "rgba(197,165,114,0.4)",
+                  cursor: "pointer",
+                }}
+              >
+                +
+              </button>
+            )}
+            {addingPill && (
+              <input
+                ref={pillInputRef}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const text = (e.currentTarget.value ?? "").trim();
+                    if (text) addPill(text);
+                  }
+                  if (e.key === "Escape") setAddingPill(false);
+                }}
+                onBlur={(e) => {
+                  const text = (e.currentTarget.value ?? "").trim();
+                  if (text) addPill(text);
+                  else setAddingPill(false);
+                }}
+                style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 500,
+                  padding: "4px 10px",
+                  borderRadius: "100px",
+                  background: "rgba(197,165,114,0.04)",
+                  border: "1px solid rgba(197,165,114,0.3)",
+                  color: "rgba(var(--deck-text-rgb),0.7)",
+                  outline: "none",
+                  width: "100px",
+                }}
+                placeholder="New pill"
+              />
+            )}
           </div>
         )}
 
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
         {/* Notice + comp alignment */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "22px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "22px", marginTop: "14px" }}>
           {(v.notice_period || editMode) && (
-            <span style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.3)" }}>
-              <span style={{ fontWeight: 600, color: "rgba(var(--deck-text-rgb),0.4)" }}>Notice:</span>{" "}
+            <span style={{ fontSize: "0.73rem", color: "rgba(var(--deck-text-rgb),0.3)" }}>
+              <span style={{ fontWeight: 500, color: "rgba(var(--deck-text-rgb),0.4)" }}>Notice:</span>{" "}
               <Editable
                 value={v.notice_period || (editMode ? "—" : "")}
                 onSave={(val) => save({ notice_period: val })}
@@ -426,11 +613,11 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onReset={() => save({ notice_period: undefined })}
                 editMode={editMode}
                 singleLine
-                style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.3)" }}
+                style={{ fontSize: "0.73rem", color: "rgba(var(--deck-text-rgb),0.3)" }}
               />
             </span>
           )}
-          {/* Comp alignment badge — static in client view, cycling button in edit mode */}
+          {/* Comp alignment badge */}
           {editMode ? (
             <span style={{ position: "relative", display: "inline-flex", alignItems: "center", gap: "4px" }}>
               <button
@@ -499,8 +686,9 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       {/* ── Footer CTA ── */}
       <div
         onClick={editMode ? onClick : undefined}
+        className="intro-card-cta"
         style={{
-          padding: "10px 24px",
+          padding: "12px 24px",
           borderTop: "1px solid rgba(197,165,114,0.08)",
           display: "flex",
           justifyContent: "space-between",
@@ -516,17 +704,20 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         }}
       >
         <span
+          className="font-cormorant"
           style={{
-            fontSize: "0.68rem",
-            color: "rgba(var(--deck-text-rgb),0.2)",
-            letterSpacing: "1.5px",
-            textTransform: "uppercase",
-            fontWeight: 600,
+            fontSize: "0.78rem",
+            fontStyle: "italic",
+            color: "rgba(var(--deck-text-rgb),0.25)",
+            fontWeight: 400,
           }}
         >
           Executive Decision Card
         </span>
-        <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--ss-gold)" }}>
+        <span
+          className="intro-card-arrow"
+          style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--ss-gold)", transition: "transform 0.2s" }}
+        >
           View →
         </span>
       </div>

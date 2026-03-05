@@ -175,8 +175,18 @@ export interface IntroCardData {
   current_company: string;
   location: string;
   initials: string;
-  flash_summary: string;
-  key_strengths: string[];
+  /** @deprecated Use `headline` for v2 cards. Kept for backward compatibility. */
+  flash_summary?: string;
+  /** @deprecated Use `scope_pills` for v2 cards. Kept for backward compatibility. */
+  key_strengths?: string[];
+  /** Single compelling sentence (≤25 words) replacing summary + bullets */
+  headline?: string;
+  /** "Interested in..." motivation hook */
+  motivation?: string;
+  /** 3-5 scope dimension pills */
+  scope_pills?: string[];
+  /** Shows ✦ Placed badge if true */
+  placed?: boolean;
   notice_period?: string;
   photo_url?: string;
   /** green = within range, amber = stretch, not_set = unknown */
