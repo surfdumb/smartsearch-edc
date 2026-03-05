@@ -480,10 +480,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           <p
             className="font-cormorant"
             style={{
-              fontSize: "0.82rem",
+              fontSize: "0.92rem",
               fontStyle: "italic",
-              fontWeight: 400,
-              color: "rgba(var(--deck-text-rgb), 0.35)",
+              fontWeight: 500,
+              color: "rgba(var(--deck-text-rgb), 0.55)",
               lineHeight: 1.5,
               textAlign: "center",
               marginTop: "14px",

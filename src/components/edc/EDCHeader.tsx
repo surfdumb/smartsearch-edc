@@ -97,9 +97,9 @@ export default function EDCHeader({
           {/* Photo circle or initials */}
           <div
             style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "10px",
+              width: "66px",
+              height: "66px",
+              borderRadius: "14px",
               border: "2px solid rgba(197, 165, 114, 0.3)",
               overflow: "hidden",
               flexShrink: 0,

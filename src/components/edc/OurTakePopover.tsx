@@ -309,13 +309,17 @@ export default function OurTakePopover({
             ) : (
               <div
                 key={i}
+                className="font-cormorant"
                 style={{
-                  fontSize: "0.85rem",
+                  fontSize: "0.95rem",
+                  fontStyle: "italic",
+                  fontWeight: 400,
                   color: "var(--ss-dark)",
                   lineHeight: 1.55,
                 }}
-                dangerouslySetInnerHTML={{ __html: `— ${fragment}` }}
-              />
+              >
+                &ldquo;{fragment}&rdquo;
+              </div>
             );
           })}
 
@@ -404,14 +408,17 @@ export default function OurTakePopover({
       ) : (
         /* Read-only text fallback */
         <div
+          className="font-cormorant"
           style={{
-            fontSize: "0.85rem",
+            fontSize: "0.95rem",
+            fontStyle: "italic",
+            fontWeight: 400,
             color: "var(--ss-dark)",
             lineHeight: 1.6,
             whiteSpace: "pre-line",
           }}
         >
-          {text}
+          &ldquo;{text}&rdquo;
         </div>
       )}
     </div>

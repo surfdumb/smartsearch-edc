@@ -53,29 +53,57 @@ export default function SearchContextHeader({
     >
       {/* Left — text content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <h1
-          className="font-cormorant"
-          style={{
-            fontSize: "1.8rem",
-            fontWeight: 600,
-            color: "rgba(var(--deck-text-rgb),0.9)",
-            marginBottom: "4px",
-          }}
-        >
-          {search_name}
-        </h1>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "28px" }}>
+          {/* Role info */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h1
+              className="font-cormorant"
+              style={{
+                fontSize: "1.8rem",
+                fontWeight: 600,
+                color: "rgba(var(--deck-text-rgb),0.9)",
+                marginBottom: "4px",
+              }}
+            >
+              {search_name}
+            </h1>
 
-        <p style={{ fontSize: "0.95rem", color: "var(--ss-gold)", margin: "0 0 20px" }}>
-          {client_company}
-          {client_location && (
-            <>
-              <span style={{ color: "rgba(197,165,114,0.3)", margin: "0 8px" }}>·</span>
-              {client_location}
-            </>
+            <p style={{ fontSize: "0.95rem", color: "var(--ss-gold)", margin: "0 0 0" }}>
+              {client_company}
+              {client_location && (
+                <>
+                  <span style={{ color: "rgba(197,165,114,0.3)", margin: "0 8px" }}>·</span>
+                  {client_location}
+                </>
+              )}
+            </p>
+          </div>
+
+          {/* Client logo — aligned with role/company info */}
+          {logoUrl && (
+            <div
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={logoUrl}
+                alt={client_company}
+                style={{
+                  maxHeight: "56px",
+                  maxWidth: "140px",
+                  objectFit: "contain",
+                  opacity: 0.85,
+                }}
+              />
+            </div>
           )}
-        </p>
+        </div>
 
-        <div style={{ marginBottom: "16px" }}>
+        <div style={{ marginTop: "20px", marginBottom: "16px" }}>
           <p
             style={{
               fontSize: "0.75rem",
@@ -121,30 +149,6 @@ export default function SearchContextHeader({
           Search Lead: {search_lead}
         </p>
       </div>
-
-      {/* Right — client logo */}
-      {logoUrl && (
-        <div
-          style={{
-            flexShrink: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            alignSelf: "center",
-          }}
-        >
-          <img
-            src={logoUrl}
-            alt={client_company}
-            style={{
-              maxHeight: "80px",
-              maxWidth: "180px",
-              objectFit: "contain",
-              opacity: 0.85,
-            }}
-          />
-        </div>
-      )}
     </div>
   );
 }
