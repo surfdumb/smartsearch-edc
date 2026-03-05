@@ -135,7 +135,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
   };
 
   return (
-    <section className="px-section-x py-section-y border-b border-ss-border">
+    <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Key Criteria" />
 
       <div className="flex flex-col gap-0">
@@ -186,7 +186,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                       className="editable-cell"
                       onBlur={(e) => updateField(i, "name", e.currentTarget.textContent || "")}
                       style={{
-                        fontSize: "0.88rem",
+                        fontSize: "14px",
                         fontWeight: 600,
                         color: "var(--ss-dark)",
                         marginBottom: "3px",
@@ -212,7 +212,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                 ) : (
                   <h4
                     style={{
-                      fontSize: "0.88rem",
+                      fontSize: "14px",
                       fontWeight: 600,
                       color: "var(--ss-dark)",
                       marginBottom: "3px",
@@ -232,7 +232,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                         className="editable-cell"
                         onBlur={(e) => updateField(i, "evidence", e.currentTarget.innerHTML)}
                         style={{
-                          fontSize: "0.82rem",
+                          fontSize: "13px",
                           lineHeight: 1.5,
                           color: "var(--ss-gray)",
                           padding: "1px 6px",

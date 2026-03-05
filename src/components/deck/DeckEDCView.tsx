@@ -7,6 +7,7 @@ import EDCCard from "@/components/edc/EDCCard";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
+import CandidateNavigation from "@/components/deck/CandidateNavigation";
 import type { IntroCardData, EDCData } from "@/lib/types";
 
 type OurTakeOverride = {
@@ -28,6 +29,8 @@ interface DeckEDCViewProps {
   split: boolean;
   searchId: string;
   isEditRoute?: boolean;
+  prevCandidateName?: string;
+  nextCandidateName?: string;
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -41,6 +44,8 @@ export default function DeckEDCView({
   split,
   searchId,
   isEditRoute = false,
+  prevCandidateName,
+  nextCandidateName,
   onBack,
   onPrev,
   onNext,
@@ -107,6 +112,16 @@ export default function DeckEDCView({
               context="deck"
               candidateId={candidate.candidate_id}
             />
+            {!split && (
+              <CandidateNavigation
+                currentIndex={candidateIndex}
+                totalCount={totalCount}
+                prevName={prevCandidateName}
+                nextName={nextCandidateName}
+                onPrev={onPrev}
+                onNext={onNext}
+              />
+            )}
           </div>
         </SplitViewContainer>
       </main>

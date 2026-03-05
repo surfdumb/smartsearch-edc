@@ -12,7 +12,7 @@ interface WhyInterestedProps {
 
 export default function WhyInterested({ why_interested }: WhyInterestedProps) {
   return (
-    <section className="px-section-x py-section-y border-b border-ss-border">
+    <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Why Are They Interested?" />
 
       <div className="flex flex-col" style={{ gap: "5px" }}>

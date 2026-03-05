@@ -8,8 +8,9 @@ import Compensation from "@/components/edc/Compensation";
 import WhyInterested from "@/components/edc/WhyInterested";
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
-import OurTakePopover from "@/components/edc/OurTakePopover";
-import PageNavigation from "@/components/edc/PageNavigation";
+import TabNavigation from "@/components/edc/TabNavigation";
+import MotivationStrip from "@/components/edc/MotivationStrip";
+import CompTicker from "@/components/edc/CompTicker";
 import { type EDCData, type EDCContext } from "@/lib/types";
 
 interface DeckSettings {
@@ -36,26 +37,38 @@ export default function EDCCard({
   candidateId,
   deckSettings,
 }: EDCCardProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(1);
+  const [slideDirection, setSlideDirection] = useState<'right' | 'left'>('right');
 
-  // Reset to page 1 when candidate changes
+  // Reset to panel 1 when candidate changes
   useEffect(() => {
-    setCurrentPage(1);
+    setCurrentPanel(1);
   }, [candidateId]);
+
+  const navigateToPanel = (target: 1 | 2 | 3) => {
+    if (target === currentPanel) return;
+    setSlideDirection(target > currentPanel ? 'right' : 'left');
+    setCurrentPanel(target);
+  };
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
 
   return (
     <div
-      className="edc-card"
+      className="edc-card font-outfit"
       style={{
         position: "relative",
         maxWidth: fluid ? "100%" : "820px",
         margin: "0 auto",
-        borderRadius: "20px",
-        overflow: "visible",
+        borderRadius: "var(--edc-card-radius)",
+        overflow: "hidden",
         boxShadow:
           "0 0 0 1px rgba(197,165,114,0.1), 0 8px 40px rgba(0,0,0,0.5), 0 30px 100px rgba(0,0,0,0.4), 0 0 120px rgba(197,165,114,0.04)",
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - 140px)",
+        minHeight: "520px",
+        maxHeight: "720px",
       }}
     >
       <EDCHeader
@@ -63,48 +76,74 @@ export default function EDCCard({
         current_title={data.current_title}
         current_company={data.current_company}
         location={data.location}
+        photo_url={data.photo_url}
         context={context}
       />
-      <div style={{ background: "white" }}>
-        {/* Page 1: Scope Match */}
-        {currentPage === 1 && (
-          <ScopeMatch
-            scope_match={data.scope_match}
-            scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+
+      {/* Motivation strip — dark bg continuing from header */}
+      {data.why_interested && data.why_interested.length > 0 && (
+        <MotivationStrip why_interested={data.why_interested} />
+      )}
+
+      {/* Comp ticker — visible on panels 1 & 2, collapses on panel 3 */}
+      {currentPanel !== 3 && (
+        <div style={{ transition: "opacity 0.3s, max-height 0.3s", opacity: 1, maxHeight: "40px", overflow: "hidden" }}>
+          <CompTicker
+            currentTotal={data.compensation?.current_total}
+            expectedTotal={data.compensation?.expected_total}
+            onNavigateToComp={() => navigateToPanel(3)}
           />
-        )}
+        </div>
+      )}
 
-        {/* Page 2: Key Criteria */}
-        {currentPage === 2 && (
-          <KeyCriteria key_criteria={data.key_criteria} />
-        )}
-
-        {/* Page 3: Compensation + Motivation */}
-        {currentPage === 3 && (
-          <>
-            <Compensation
-              compensation={data.compensation}
-              notice_period={data.notice_period}
+      {/* Content area */}
+      <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+        <div
+          key={`${candidateId}-panel-${currentPanel}`}
+          className={slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}
+          style={{
+            height: "100%",
+            overflowY: "auto",
+            background: "white",
+          }}
+        >
+          {currentPanel === 1 && (
+            <ScopeMatch
+              scope_match={data.scope_match}
+              scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
             />
-            <WhyInterested why_interested={data.why_interested} />
-            {data.miscellaneous && (
-              <Miscellaneous
-                text={data.miscellaneous.text}
-                display={data.miscellaneous.display}
+          )}
+
+          {currentPanel === 2 && (
+            <KeyCriteria key_criteria={data.key_criteria} />
+          )}
+
+          {currentPanel === 3 && (
+            <>
+              <Compensation
+                compensation={data.compensation}
+                notice_period={data.notice_period}
               />
-            )}
-          </>
-        )}
+              <WhyInterested why_interested={data.why_interested} />
+              {data.miscellaneous && (
+                <Miscellaneous
+                  text={data.miscellaneous.text}
+                  display={data.miscellaneous.display}
+                />
+              )}
+            </>
+          )}
+        </div>
       </div>
-      <OurTakePopover
-        fragments={data.our_take_fragments}
-        text={data.our_take?.text}
-        consultantName={data.consultant_name}
-      />
-      <PageNavigation current={currentPage} total={3} onChange={setCurrentPage} />
+
+      <TabNavigation current={currentPanel} onChange={navigateToPanel} />
+
       <EDCFooter
         search_name={data.search_name}
-        generated_date={data.generated_date}
+        roleTitle={data.role_title}
+        ourTakeFragments={data.our_take_fragments}
+        ourTakeText={data.our_take?.text}
+        consultantName={data.consultant_name}
       />
     </div>
   );

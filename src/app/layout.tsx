@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Cormorant_Garamond, Sorts_Mill_Goudy } from "next/font/google";
+import { Inter, Cormorant_Garamond, Sorts_Mill_Goudy, Outfit } from "next/font/google";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -30,6 +30,13 @@ const sortsMillGoudy = Sorts_Mill_Goudy({
   display: "swap",
 });
 
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-outfit",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "EDC - SmartSearch",
   description: "Executive Decision Cards for SmartSearch executive search",
@@ -46,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${cormorant.variable} ${sortsMillGoudy.variable} font-inter antialiased`}>
+      <body className={`${inter.variable} ${cormorant.variable} ${sortsMillGoudy.variable} ${outfit.variable} font-inter antialiased`}>
         {children}
       </body>
     </html>

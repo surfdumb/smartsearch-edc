@@ -42,9 +42,16 @@
   --ss-blue: #4a6a8c;
   --ss-blue-light: rgba(74, 106, 140, 0.10);
 
+  /* === Amber (alignment dots, comp flags) === */
+  --ss-amber: #d4a543;
+  --ss-amber-light: rgba(212, 165, 67, 0.10);
+
   /* === Borders === */
   --ss-border: #f0ede8;
   --ss-border-light: #f7f5f1;
+
+  /* === Card Layout === */
+  --edc-card-radius: 16px;
 
   /* === Transform Page (dark theme) === */
   --ss-obsidian: #0a0a0a;
@@ -96,6 +103,32 @@ body {
 }
 .editable-reset:hover {
   color: var(--ss-gold) !important;
+}
+
+/* ============================================================
+   PANEL SLIDE TRANSITIONS
+   ============================================================ */
+@keyframes panelSlideInFromRight {
+  from { transform: translateX(30px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes panelSlideInFromLeft {
+  from { transform: translateX(-30px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.panel-enter-right {
+  animation: panelSlideInFromRight 250ms ease-out;
+}
+.panel-enter-left {
+  animation: panelSlideInFromLeft 250ms ease-out;
+}
+
+/* ============================================================
+   OUR TAKE SHIMMER (footer trigger)
+   ============================================================ */
+@keyframes ourTakeShimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 /* ============================================================

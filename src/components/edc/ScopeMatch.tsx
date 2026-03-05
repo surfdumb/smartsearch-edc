@@ -112,7 +112,7 @@ export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
   };
 
   return (
-    <section className="px-section-x py-section-y border-b border-ss-border">
+    <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Scope Match" />
 
       {/* Horizontally scrollable wrapper for mobile */}

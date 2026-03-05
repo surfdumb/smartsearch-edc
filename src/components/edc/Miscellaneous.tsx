@@ -12,7 +12,7 @@ export default function Miscellaneous({ text, display }: MiscellaneousProps) {
   if (display !== 'SHOW' || !text || text.trim().length === 0) return null;
 
   return (
-    <section className="px-section-x py-section-y" style={{ borderTop: "1px solid var(--ss-border)" }}>
+    <section className="px-8 py-5" style={{ borderTop: "1px solid var(--ss-border)" }}>
       <SectionLabel label="Additional Notes" />
       <EditableField
         value={text}

@@ -22,129 +22,170 @@ function isEmpty(v: string | undefined): boolean {
   return !v || EMPTY.some((e) => v.trim().toLowerCase() === e.toLowerCase());
 }
 
-interface CardData {
-  label: string;
-  bigNumber: string;
-  detail?: string;
-  isGold?: boolean;
-}
-
 export default function Compensation({ compensation, notice_period }: CompensationProps) {
-  const cards: CardData[] = [];
-
-  // Card 1: Current
-  if (!isEmpty(compensation.current_total) || !isEmpty(compensation.current_base)) {
-    const big = !isEmpty(compensation.current_total)
-      ? compensation.current_total
-      : compensation.current_base;
-    const detail = !isEmpty(compensation.current_total) && !isEmpty(compensation.current_base)
-      ? `${compensation.current_base} base`
-      : undefined;
-    cards.push({ label: "Current", bigNumber: big, detail });
-  }
-
-  // Card 2: Expectation
-  if (!isEmpty(compensation.expected_base) || !isEmpty(compensation.expected_total)) {
-    const big = !isEmpty(compensation.expected_base)
-      ? compensation.expected_base
-      : compensation.expected_total;
-    const detail = !isEmpty(compensation.expected_total) && !isEmpty(compensation.expected_base)
-      && compensation.expected_total !== compensation.expected_base
-      ? compensation.expected_total
-      : undefined;
-    cards.push({ label: "Expectation", bigNumber: big, detail });
-  }
-
-  // Card 3: Client Budget
-  if (!isEmpty(compensation.budget_range)) {
-    cards.push({ label: "Client Budget", bigNumber: compensation.budget_range!, isGold: true });
-  }
+  const hasBase = !isEmpty(compensation.current_base) || !isEmpty(compensation.expected_base);
+  const hasTotal = !isEmpty(compensation.current_total) || !isEmpty(compensation.expected_total);
+  const hasBudget = !isEmpty(compensation.budget_range);
 
   return (
-    <section className="px-section-x py-section-y border-b border-ss-border">
+    <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Compensation" />
 
-      {/* Three-card grid */}
-      <div
-        className="comp-grid"
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${Math.min(cards.length, 3)}, 1fr)`,
-          gap: "12px",
-        }}
-      >
-        {cards.map((card, i) => (
-          <div
-            key={i}
+      {/* 3-column table: Label | Current | Expectation */}
+      <div style={{ width: "100%" }}>
+        {/* Header row */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "120px 1fr 1fr",
+            gap: "12px",
+            paddingBottom: "6px",
+            borderBottom: "1px solid #eeebe6",
+          }}
+        >
+          <span />
+          <span
             style={{
-              background: "var(--ss-warm-white)",
-              borderRadius: "10px",
-              padding: "14px 18px",
-              border: card.isGold
-                ? "1px solid rgba(197,165,114,0.3)"
-                : "1px solid var(--ss-border-light)",
-              boxShadow: card.isGold
-                ? "0 0 0 1px rgba(197,165,114,0.15)"
-                : undefined,
+              fontSize: "8px",
+              fontWeight: 600,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "var(--ss-gray-light)",
             }}
           >
-            <div
-              className="uppercase font-semibold"
+            Current
+          </span>
+          <span
+            style={{
+              fontSize: "8px",
+              fontWeight: 600,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase",
+              color: "var(--ss-gray-light)",
+            }}
+          >
+            Expectation
+          </span>
+        </div>
+
+        {/* Base row */}
+        {hasBase && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "120px 1fr 1fr",
+              gap: "12px",
+              padding: "8px 0",
+              borderBottom: "1px solid var(--ss-border-light)",
+            }}
+          >
+            <span
               style={{
-                fontSize: "0.62rem",
-                letterSpacing: "1.5px",
-                color: "var(--ss-gray-light)",
-                marginBottom: "6px",
+                fontSize: "11px",
+                fontWeight: 500,
+                color: "var(--ss-gray)",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
               }}
             >
-              {card.label}
-            </div>
-            <div
-              className="font-cormorant"
+              Base
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-dark)" }}>
+              {isEmpty(compensation.current_base) ? "—" : compensation.current_base}
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-dark)" }}>
+              {isEmpty(compensation.expected_base) ? "—" : compensation.expected_base}
+            </span>
+          </div>
+        )}
+
+        {/* Total row — bold, top border emphasis */}
+        {hasTotal && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "120px 1fr 1fr",
+              gap: "12px",
+              padding: "8px 0",
+              borderTop: hasBase ? "1.5px solid #e0ddd8" : undefined,
+              borderBottom: "1px solid var(--ss-border-light)",
+            }}
+          >
+            <span
               style={{
-                fontSize: "1.35rem",
+                fontSize: "11px",
                 fontWeight: 600,
                 color: "var(--ss-dark)",
-                lineHeight: 1.2,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
               }}
             >
-              {card.bigNumber}
-            </div>
-            {card.detail && (
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  color: "var(--ss-gray)",
-                  marginTop: "3px",
-                }}
-              >
-                {card.detail}
-              </div>
-            )}
+              Total
+            </span>
+            <span
+              className="font-cormorant"
+              style={{ fontSize: "18px", fontWeight: 600, color: "var(--ss-dark)" }}
+            >
+              {isEmpty(compensation.current_total) ? "—" : compensation.current_total}
+            </span>
+            <span
+              className="font-cormorant"
+              style={{ fontSize: "18px", fontWeight: 600, color: "var(--ss-dark)" }}
+            >
+              {isEmpty(compensation.expected_total) ? "—" : compensation.expected_total}
+            </span>
           </div>
-        ))}
+        )}
+
+        {/* Budget row */}
+        {hasBudget && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "120px 1fr",
+              gap: "12px",
+              padding: "8px 0",
+              borderBottom: "1px solid var(--ss-border-light)",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: 500,
+                color: "var(--ss-gold-deep)",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Budget
+            </span>
+            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-gold-deep)" }}>
+              {compensation.budget_range}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Flexibility note */}
       {!isEmpty(compensation.flexibility) && (
         <p
           style={{
-            fontSize: "0.75rem",
+            fontSize: "12px",
             fontStyle: "italic",
             color: "var(--ss-gray)",
-            marginTop: "8px",
-            lineHeight: 1.4,
+            marginTop: "10px",
+            lineHeight: 1.5,
           }}
         >
           {compensation.flexibility}
         </p>
       )}
 
-      {/* Notice + timeline metadata line */}
+      {/* Notice period */}
       {!isEmpty(notice_period) && (
         <div
           style={{
-            fontSize: "0.72rem",
+            fontSize: "11px",
             color: "var(--ss-gray-light)",
             marginTop: "6px",
           }}

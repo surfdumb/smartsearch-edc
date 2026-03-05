@@ -404,6 +404,12 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   // ── EDC VIEW ────────────────────────────────────────────────────────────────
   const candidate = data.candidates[view.candidateIndex];
+  const prevCandidate = view.candidateIndex > 0
+    ? data.candidates[view.candidateIndex - 1]
+    : undefined;
+  const nextCandidate = view.candidateIndex < data.candidates.length - 1
+    ? data.candidates[view.candidateIndex + 1]
+    : undefined;
 
   return (
     <DeckEDCView
@@ -413,6 +419,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       split={view.split}
       searchId={searchId}
       isEditRoute={isEditRoute}
+      prevCandidateName={prevCandidate?.candidate_name}
+      nextCandidateName={nextCandidate?.candidate_name}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}

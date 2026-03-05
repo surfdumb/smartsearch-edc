@@ -6,6 +6,8 @@ interface EDCHeaderProps {
   current_title: string;
   current_company: string;
   location: string;
+  photo_url?: string;
+  initials?: string;
   context?: EDCContext;
 }
 
@@ -14,15 +16,18 @@ export default function EDCHeader({
   current_title,
   current_company,
   location,
+  photo_url,
+  initials,
   context = 'standalone',
 }: EDCHeaderProps) {
-  // Comparison context: compact — just name + title/company, no brand bar or meta row
+  // Comparison context: compact — just name + title/company
   if (context === 'comparison') {
     return (
       <header
-        className="relative overflow-hidden rounded-t-card"
+        className="relative overflow-hidden"
         style={{
           background: "var(--ss-header-bg)",
+          borderRadius: "var(--edc-card-radius) var(--edc-card-radius) 0 0",
           padding: "24px 32px 20px",
         }}
       >
@@ -63,15 +68,18 @@ export default function EDCHeader({
     );
   }
 
+  // Default: single-row header with photo/initials + name + branding
   return (
     <header
-      className="edc-header relative overflow-hidden rounded-t-card"
+      className="edc-header relative overflow-hidden"
       style={{
         background: "var(--ss-header-bg)",
-        padding: "16px 40px 12px",
+        borderRadius: "var(--edc-card-radius) var(--edc-card-radius) 0 0",
+        padding: "16px 32px 12px",
+        flexShrink: 0,
       }}
     >
-      {/* Radial gold glow — positioned top-right, matching prototype ::before */}
+      {/* Radial gold glow */}
       <div
         className="absolute pointer-events-none"
         style={{
@@ -79,93 +87,132 @@ export default function EDCHeader({
           right: "-80px",
           width: "340px",
           height: "340px",
-          background:
-            "radial-gradient(circle, rgba(197, 165, 114, 0.08) 0%, transparent 65%)",
+          background: "radial-gradient(circle, rgba(197, 165, 114, 0.08) 0%, transparent 65%)",
         }}
       />
 
-      {/* Top row: brand logo + EDC badge */}
-      <div className="edc-header-toprow relative flex items-start justify-between" style={{ marginBottom: "10px" }}>
-        {/* SmartSearch logo */}
-        <img
-          src="/logos/smartsearch-white.png"
-          alt="SmartSearch"
-          style={{
-            height: "24px",
-            opacity: 0.55,
-          }}
-        />
+      <div className="relative flex items-center justify-between">
+        {/* Left: Photo + Name + Bio */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
+          {/* Photo circle or initials */}
+          <div
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "10px",
+              border: "2px solid rgba(197, 165, 114, 0.3)",
+              overflow: "hidden",
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: photo_url ? "transparent" : "rgba(197, 165, 114, 0.12)",
+            }}
+          >
+            {photo_url ? (
+              <img
+                src={photo_url}
+                alt={candidate_name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <span
+                className="font-outfit"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "var(--ss-gold)",
+                  letterSpacing: "0.5px",
+                }}
+              >
+                {initials || candidate_name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+              </span>
+            )}
+          </div>
 
-        {/* EDC Badge — Sorts Mill Goudy treatment */}
-        <div className="flex flex-col items-end gap-0">
+          {/* Name + bio line */}
+          <div style={{ minWidth: 0 }}>
+            <h1
+              className="font-cormorant"
+              style={{
+                fontSize: "24px",
+                fontWeight: 600,
+                lineHeight: 1.1,
+                letterSpacing: "-0.3px",
+                color: "#faf8f5",
+                margin: 0,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {candidate_name}
+            </h1>
+            <p
+              className="font-outfit"
+              style={{
+                fontSize: "12px",
+                fontWeight: 400,
+                color: "var(--ss-gray-light)",
+                margin: "2px 0 0",
+                lineHeight: 1.3,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {current_company}
+              <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
+              {current_title}
+              <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
+              {location}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: SmartSearch symbol + Intelligence Card */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, marginLeft: "16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <img
+              src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"
+              alt="SmartSearch"
+              style={{ height: "30px", opacity: 0.8 }}
+            />
+            <span
+              className="font-cormorant"
+              style={{
+                fontSize: "15px",
+                fontStyle: "italic",
+                fontWeight: 500,
+                color: "var(--ss-gold)",
+                lineHeight: 1.1,
+              }}
+            >
+              SmartSearch
+            </span>
+          </div>
           <span
-            className="font-sorts-mill"
+            className="font-outfit"
             style={{
-              fontSize: "1.15rem",
-              fontWeight: 400,
-              color: "var(--ss-gold-light)",
-              letterSpacing: "0.5px",
-              lineHeight: 1.15,
+              fontSize: "8px",
+              fontWeight: 600,
+              letterSpacing: "3px",
+              textTransform: "uppercase" as const,
+              color: "var(--ss-gray-light)",
+              marginTop: "3px",
             }}
           >
-            Executive{" "}
-            <em style={{ fontStyle: "italic", color: "var(--ss-gold)" }}>
-              Decision
-            </em>
-          </span>
-          <span
-            className="uppercase font-semibold"
-            style={{
-              fontSize: "0.58rem",
-              letterSpacing: "2.5px",
-              color: "rgba(197, 165, 114, 0.4)",
-              marginTop: "1px",
-            }}
-          >
-            Card
+            Intelligence Card
           </span>
         </div>
       </div>
 
-      {/* Candidate name — Cormorant Garamond 3.2rem/500 */}
-      <h1
-        className="edc-candidate-name relative font-cormorant"
-        style={{
-          fontSize: "2.0rem",
-          fontWeight: 500,
-          lineHeight: 1.05,
-          letterSpacing: "-0.5px",
-          color: "#f5f0ea",
-          marginBottom: "6px",
-        }}
-      >
-        {candidate_name}
-      </h1>
-
-      {/* Flash line: company | title | location */}
-      <p className="edc-flash-line relative" style={{ color: "rgba(255,255,255,0.55)" }}>
-        <span
-          style={{ fontSize: "0.88rem", fontWeight: 400, letterSpacing: "0.3px" }}
-        >
-          {current_company}
-          <span style={{ color: "rgba(197, 165, 114, 0.5)", margin: "0 10px" }}>
-            |
-          </span>
-          {current_title}
-          <span style={{ color: "rgba(197, 165, 114, 0.5)", margin: "0 10px" }}>
-            |
-          </span>
-          {location}
-        </span>
-      </p>
-
-      {/* Bottom border — gold gradient */}
+      {/* Bottom gold accent line */}
       <div
         className="absolute bottom-0 left-0 right-0"
         style={{
           height: "1px",
-          background:
-            "linear-gradient(90deg, transparent, rgba(197, 165, 114, 0.35), transparent)",
+          background: "linear-gradient(90deg, var(--ss-gold) 0%, rgba(197,165,114,0.2) 100%)",
         }}
       />
     </header>

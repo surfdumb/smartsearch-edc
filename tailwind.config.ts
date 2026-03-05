@@ -12,6 +12,7 @@ const config: Config = {
         inter: ["var(--font-inter)", "Inter", "sans-serif"],
         cormorant: ["var(--font-cormorant)", "Cormorant Garamond", "serif"],
         "sorts-mill": ["var(--font-sorts-mill)", "Sorts Mill Goudy", "serif"],
+        outfit: ["var(--font-outfit)", "Outfit", "sans-serif"],
       },
       colors: {
         // Core
