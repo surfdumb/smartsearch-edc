@@ -53,10 +53,28 @@
   /* === Card Layout === */
   --edc-card-radius: 16px;
 
+  /* === Deck Theme (default: dark) === */
+  --deck-bg: #0a0a0a;
+  --deck-surface: rgba(26, 26, 26, 0.95);
+  --deck-card-bg: #2d2824;
+  --deck-text-rgb: 255, 255, 255;
+  --deck-gold-border-alpha: 0.1;
+
   /* === Transform Page (dark theme) === */
   --ss-obsidian: #0a0a0a;
   --ss-obsidian-card: #111111;
   --ss-obsidian-elevated: #161616;
+}
+
+/* ============================================================
+   DECK LIGHT MODE OVERRIDES
+   ============================================================ */
+[data-deck-theme="light"] {
+  --deck-bg: #f5f2ed;
+  --deck-surface: rgba(255, 255, 255, 0.92);
+  --deck-card-bg: #ffffff;
+  --deck-text-rgb: 30, 30, 30;
+  --deck-gold-border-alpha: 0.25;
 }
 
 body {

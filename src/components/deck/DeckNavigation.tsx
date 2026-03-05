@@ -104,7 +104,7 @@ export default function DeckNavigation({
               ← Prev
             </button>
           )}
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>
+          <span style={{ color: "rgba(var(--deck-text-rgb),0.5)", fontSize: "0.85rem" }}>
             {currentIndex + 1} / {totalCount}
           </span>
           {onNext && (

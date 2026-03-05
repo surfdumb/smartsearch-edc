@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
+import { useDeckTheme } from "@/hooks/useDeckTheme";
 
 interface ComparisonViewProps {
   data: SearchContext;
@@ -15,8 +16,8 @@ interface ComparisonViewProps {
 /** Inject inline bold+italic styles onto <strong> tags for comparison cells. */
 function styleEvidence(html: string): string {
   return html
-    .replace(/<strong>/gi, '<strong style="font-weight:700;font-style:italic;color:rgba(255,255,255,0.85)">')
-    .replace(/<b>/gi, '<b style="font-weight:700;font-style:italic;color:rgba(255,255,255,0.85)">');
+    .replace(/<strong>/gi, '<strong style="font-weight:700;font-style:italic;color:rgba(var(--deck-text-rgb),0.85)">')
+    .replace(/<b>/gi, '<b style="font-weight:700;font-style:italic;color:rgba(var(--deck-text-rgb),0.85)">');
 }
 
 /** Strip HTML to plain text. */
@@ -26,6 +27,7 @@ function toPlain(html: string): string {
 
 export default function ComparisonView({ data, searchId, isEditRoute = false }: ComparisonViewProps) {
   const { candidates, key_criteria_names } = data;
+  const { theme } = useDeckTheme(searchId);
   const [isEditing, setIsEditing] = useState(false);
   const isEditable = isEditRoute && isEditing;
 
@@ -42,7 +44,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
 
   return (
     <EditorContext.Provider value={{ isEditable: isEditable }}>
-      <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "60px" }}>
+      <main data-deck-theme={theme} style={{ minHeight: "100vh", background: "var(--deck-bg)", paddingBottom: "60px" }}>
 
         {/* ── Top nav ── */}
         <div
@@ -55,8 +57,8 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "rgba(10,10,10,0.96)",
-            borderBottom: "1px solid rgba(197,165,114,0.1)",
+            background: "var(--deck-bg)",
+            borderBottom: `1px solid rgba(197,165,114,var(--deck-gold-border-alpha))`,
             backdropFilter: "blur(12px)",
           }}
         >
@@ -86,13 +88,13 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
 
           <span
             className="font-cormorant"
-            style={{ fontSize: "1rem", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px" }}
+            style={{ fontSize: "1rem", color: "rgba(var(--deck-text-rgb),0.4)", letterSpacing: "0.5px" }}
           >
             Candidate <em style={{ fontStyle: "italic", color: "var(--ss-gold)" }}>Comparison</em>
           </span>
 
           <div style={{ display: "flex", alignItems: "center", gap: "16px", minWidth: "120px", justifyContent: "flex-end" }}>
-            <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.2)" }}>
+            <span style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.2)" }}>
               {candidates.length} candidates
             </span>
             {isEditRoute && (
@@ -107,9 +109,9 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                   borderRadius: "6px",
                   border: isEditing
                     ? "1px solid rgba(197,165,114,0.5)"
-                    : "1px solid rgba(255,255,255,0.1)",
+                    : "1px solid rgba(var(--deck-text-rgb),0.1)",
                   background: isEditing ? "rgba(197,165,114,0.08)" : "transparent",
-                  color: isEditing ? "var(--ss-gold)" : "rgba(255,255,255,0.3)",
+                  color: isEditing ? "var(--ss-gold)" : "rgba(var(--deck-text-rgb),0.3)",
                   cursor: "pointer",
                   transition: "all 0.2s",
                 }}
@@ -122,7 +124,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
 
         {/* ── Search context line ── */}
         <div className="comparison-context" style={{ padding: "24px 32px 16px" }}>
-          <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.25)", letterSpacing: "0.5px" }}>
+          <p style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.25)", letterSpacing: "0.5px" }}>
             <span style={{ color: "var(--ss-gold)", fontWeight: 600 }}>{data.search_name}</span>
             {data.client_company && (
               <>
@@ -161,7 +163,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                     style={{
                       width: "180px",
                       minWidth: "180px",
-                      background: "var(--ss-header-bg)",
+                      background: "var(--deck-card-bg)",
                       padding: "20px 20px",
                       borderRight: "1px solid rgba(197,165,114,0.08)",
                       borderBottom: "1px solid rgba(197,165,114,0.15)",
@@ -175,7 +177,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                         fontWeight: 600,
                         letterSpacing: "2px",
                         textTransform: "uppercase",
-                        color: "rgba(255,255,255,0.25)",
+                        color: "rgba(var(--deck-text-rgb),0.25)",
                       }}
                     >
                       Criterion
@@ -187,7 +189,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                     <th
                       key={candidate.candidate_id}
                       style={{
-                        background: "var(--ss-header-bg)",
+                        background: "var(--deck-card-bg)",
                         padding: "24px 24px 16px",
                         borderRight: i < candidates.length - 1 ? "1px solid rgba(197,165,114,0.08)" : undefined,
                         borderBottom: "1px solid rgba(197,165,114,0.06)",
@@ -223,7 +225,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                         style={{
                           fontSize: "1.2rem",
                           fontWeight: 500,
-                          color: "#f5f0ea",
+                          color: "rgba(var(--deck-text-rgb),0.9)",
                           marginBottom: "3px",
                           letterSpacing: "-0.1px",
                           lineHeight: 1.2,
@@ -234,7 +236,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                       <p style={{ fontSize: "0.72rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}>
                         {candidate.current_title}
                       </p>
-                      <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)" }}>
+                      <p style={{ fontSize: "0.7rem", color: "rgba(var(--deck-text-rgb),0.3)" }}>
                         {candidate.current_company}
                       </p>
                     </th>
@@ -247,7 +249,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                     <th
                       key={`btn-${candidate.candidate_id}`}
                       style={{
-                        background: "var(--ss-header-bg)",
+                        background: "var(--deck-card-bg)",
                         padding: "12px 24px 20px",
                         borderRight: i < candidates.length - 1 ? "1px solid rgba(197,165,114,0.08)" : undefined,
                         borderBottom: "1px solid rgba(197,165,114,0.15)",
@@ -293,10 +295,10 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                   label="Current Role"
                   candidates={candidates}
                   renderCell={(c, _i, _expanded) => (
-                    <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
+                    <span style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.55)", lineHeight: 1.5 }}>
                       {c.current_title}
                       <br />
-                      <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.72rem" }}>{c.current_company}</span>
+                      <span style={{ color: "rgba(var(--deck-text-rgb),0.3)", fontSize: "0.72rem" }}>{c.current_company}</span>
                     </span>
                   )}
                 />
@@ -313,7 +315,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                       const entry = criteriaByCandidate[i][criterionName];
                       if (!entry) {
                         return (
-                          <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.2)", fontStyle: "italic" }}>
+                          <span style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.2)", fontStyle: "italic" }}>
                             Not assessed
                           </span>
                         );
@@ -322,7 +324,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                       const plain = toPlain(entry.evidence);
                       const cellStyle: React.CSSProperties = {
                         fontSize: "0.78rem",
-                        color: "rgba(255,255,255,0.55)",
+                        color: "rgba(var(--deck-text-rgb),0.55)",
                         lineHeight: 1.6,
                         margin: 0,
                         ...(isExpanded ? {} : {
@@ -376,16 +378,16 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                   renderCell={(c, _i, _expanded) => (
                     <div style={{ fontSize: "0.78rem", lineHeight: 1.7 }}>
                       <div>
-                        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
+                        <span style={{ color: "rgba(var(--deck-text-rgb),0.3)", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
                           Current
                         </span>
                         <br />
-                        <span style={{ color: "rgba(255,255,255,0.6)" }}>
+                        <span style={{ color: "rgba(var(--deck-text-rgb),0.6)" }}>
                           {c.edc_data.compensation.current_total || c.edc_data.compensation.current_base}
                         </span>
                       </div>
                       <div style={{ marginTop: "6px" }}>
-                        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
+                        <span style={{ color: "rgba(var(--deck-text-rgb),0.3)", fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 600 }}>
                           Expected
                         </span>
                         <br />
@@ -403,7 +405,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
                   candidates={candidates}
                   isLast
                   renderCell={(c, _i, _expanded) => (
-                    <span style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.55)" }}>
+                    <span style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.55)" }}>
                       {c.edc_data.notice_period}
                     </span>
                   )}
@@ -421,13 +423,13 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
               display: "block",
               fontStyle: "italic",
               fontSize: "0.9rem",
-              color: "rgba(255,255,255,0.15)",
+              color: "rgba(var(--deck-text-rgb),0.15)",
               marginBottom: "6px",
             }}
           >
             Show Evidence. Let Humans Judge.
           </span>
-          <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.1)" }}>
+          <span style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.1)" }}>
             SmartSearch &copy; 2026
           </span>
         </div>
@@ -448,7 +450,7 @@ interface CompareRowProps {
 }
 
 function CompareRow({ label, candidates, renderCell, isAlt, isLast, expandable }: CompareRowProps) {
-  const rowBg = isAlt ? "rgba(255,255,255,0.015)" : "transparent";
+  const rowBg = isAlt ? "rgba(var(--deck-text-rgb),0.015)" : "transparent";
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -456,10 +458,10 @@ function CompareRow({ label, candidates, renderCell, isAlt, isLast, expandable }
       {/* Label cell */}
       <td
         style={{
-          background: "rgba(45,40,36,0.4)",
+          background: "var(--deck-surface)",
           padding: "16px 20px",
           borderRight: "1px solid rgba(197,165,114,0.08)",
-          borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.04)",
+          borderBottom: isLast ? "none" : "1px solid rgba(var(--deck-text-rgb),0.04)",
           verticalAlign: "top",
           width: "180px",
           minWidth: "180px",
@@ -487,7 +489,7 @@ function CompareRow({ label, candidates, renderCell, isAlt, isLast, expandable }
               fontWeight: 600,
               letterSpacing: "0.8px",
               textTransform: "uppercase",
-              color: isExpanded ? "var(--ss-gold)" : "rgba(255,255,255,0.2)",
+              color: isExpanded ? "var(--ss-gold)" : "rgba(var(--deck-text-rgb),0.2)",
               background: "transparent",
               border: "none",
               padding: 0,
@@ -511,7 +513,7 @@ function CompareRow({ label, candidates, renderCell, isAlt, isLast, expandable }
             background: rowBg,
             padding: "16px 20px",
             borderRight: i < candidates.length - 1 ? "1px solid rgba(197,165,114,0.06)" : undefined,
-            borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.04)",
+            borderBottom: isLast ? "none" : "1px solid rgba(var(--deck-text-rgb),0.04)",
             verticalAlign: "top",
           }}
         >

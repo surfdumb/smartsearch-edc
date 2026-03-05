@@ -6,6 +6,7 @@ import SearchContextHeader from "@/components/deck/SearchContextHeader";
 import IntroCard from "@/components/deck/IntroCard";
 import CandidateGrid from "@/components/deck/CandidateGrid";
 import DeckEDCView from "@/components/deck/DeckEDCView";
+import { useDeckTheme } from "@/hooks/useDeckTheme";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
@@ -23,6 +24,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [view, setView] = useState<DeckView>({ mode: "grid" });
   const [editMode, setEditMode] = useState(false);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
+  const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
@@ -208,13 +210,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // ── GRID VIEW ───────────────────────────────────────────────────────────────
   if (view.mode === "grid") {
     return (
-      <main style={{ minHeight: "100vh", background: "#0a0a0a", paddingBottom: "20px" }}>
+      <main data-deck-theme={theme} style={{ minHeight: "100vh", background: "var(--deck-bg)", paddingBottom: "20px" }}>
         {/* Sticky header */}
         <div
           className="deck-sticky-header"
           style={{
             padding: "16px 32px",
-            borderBottom: "1px solid rgba(197,165,114,0.1)",
+            borderBottom: `1px solid rgba(197,165,114,var(--deck-gold-border-alpha))`,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
@@ -360,7 +362,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               textAlign: "center",
               fontSize: "1.05rem",
               fontStyle: "italic",
-              color: "rgba(255,255,255,0.25)",
+              color: "rgba(var(--deck-text-rgb),0.25)",
               marginBottom: "32px",
             }}
           >
@@ -392,13 +394,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               display: "block",
               fontStyle: "italic",
               fontSize: "0.95rem",
-              color: "rgba(255,255,255,0.2)",
+              color: "rgba(var(--deck-text-rgb),0.2)",
               marginBottom: "8px",
             }}
           >
             Show Evidence. Let Humans Judge.
           </span>
-          <span style={{ display: "block", fontSize: "0.75rem", color: "rgba(255,255,255,0.15)" }}>
+          <span style={{ display: "block", fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.15)" }}>
             SmartSearch &copy; 2026
           </span>
         </div>
@@ -426,6 +428,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       prevCandidateName={prevCandidate?.candidate_name}
       nextCandidateName={nextCandidate?.candidate_name}
       candidateSlideFrom={candidateSlide}
+      deckTheme={theme}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}

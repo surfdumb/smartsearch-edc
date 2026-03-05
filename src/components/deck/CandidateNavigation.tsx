@@ -61,7 +61,7 @@ export default function CandidateNavigation({
         style={{
           fontSize: "11px",
           fontWeight: 500,
-          color: "rgba(255,255,255,0.3)",
+          color: "rgba(var(--deck-text-rgb),0.3)",
           letterSpacing: "0.5px",
         }}
       >

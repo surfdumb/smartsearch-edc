@@ -32,6 +32,7 @@ interface DeckEDCViewProps {
   prevCandidateName?: string;
   nextCandidateName?: string;
   candidateSlideFrom?: 'left' | 'right' | null;
+  deckTheme?: 'dark' | 'light';
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -48,6 +49,7 @@ export default function DeckEDCView({
   prevCandidateName,
   nextCandidateName,
   candidateSlideFrom,
+  deckTheme,
   onBack,
   onPrev,
   onNext,
@@ -75,7 +77,7 @@ export default function DeckEDCView({
 
   return (
     <EditorContext.Provider value={{ isEditable }}>
-      <main style={{ minHeight: "100vh", background: "#0a0a0a" }}>
+      <main data-deck-theme={deckTheme} style={{ minHeight: "100vh", background: "var(--deck-bg)" }}>
         <DeckNavigation
           onBack={onBack}
           onPrev={onPrev}

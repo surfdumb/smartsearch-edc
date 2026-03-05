@@ -248,8 +248,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
     <div
       onClick={editMode ? undefined : onClick}
       style={{
-        background: "rgba(26, 26, 26, 0.95)",
-        border: "1px solid rgba(197, 165, 114, 0.12)",
+        background: "var(--deck-surface)",
+        border: `1px solid rgba(197, 165, 114, var(--deck-gold-border-alpha))`,
         borderRadius: "16px",
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
@@ -274,7 +274,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       {/* ── Header zone — warm charcoal ── */}
       <div
         style={{
-          background: "var(--ss-header-bg)",
+          background: "var(--deck-card-bg)",
           padding: "28px 24px 24px",
           textAlign: "center",
           position: "relative",
@@ -327,7 +327,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           style={{
             fontSize: "1.35rem",
             fontWeight: 500,
-            color: "#f5f0ea",
+            color: "rgba(var(--deck-text-rgb),0.9)",
             marginBottom: "4px",
             letterSpacing: "-0.2px",
           }}
@@ -346,7 +346,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         />
 
         {/* Company · Location */}
-        <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}>
+        <p style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}>
           <Editable
             value={v.current_company}
             onSave={(val) => save({ current_company: val })}
@@ -354,7 +354,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             onReset={() => save({ current_company: undefined })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
+            style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
           />
           {v.location && (
             <>
@@ -366,7 +366,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onReset={() => save({ location: undefined })}
                 editMode={editMode}
                 singleLine
-                style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.35)" }}
+                style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
               />
             </>
           )}
@@ -388,7 +388,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             html
             style={{
               fontSize: "0.82rem",
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(var(--deck-text-rgb),0.45)",
               lineHeight: 1.6,
               marginBottom: "14px",
             }}
@@ -407,7 +407,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                   originalValue={(card.key_strengths ?? [])[i] ?? ""}
                   onReset={() => saveStrength(i, (card.key_strengths ?? [])[i] ?? "")}
                   editMode={editMode}
-                  style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.5)", lineHeight: 1.4 }}
+                  style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.5)", lineHeight: 1.4 }}
                 />
               </div>
             ))}
@@ -417,8 +417,8 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {/* Notice + comp alignment */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", minHeight: "22px" }}>
           {(v.notice_period || editMode) && (
-            <span style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}>
-              <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.4)" }}>Notice:</span>{" "}
+            <span style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.3)" }}>
+              <span style={{ fontWeight: 600, color: "rgba(var(--deck-text-rgb),0.4)" }}>Notice:</span>{" "}
               <Editable
                 value={v.notice_period || (editMode ? "—" : "")}
                 onSave={(val) => save({ notice_period: val })}
@@ -426,7 +426,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
                 onReset={() => save({ notice_period: undefined })}
                 editMode={editMode}
                 singleLine
-                style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.3)" }}
+                style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.3)" }}
               />
             </span>
           )}
@@ -518,7 +518,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         <span
           style={{
             fontSize: "0.68rem",
-            color: "rgba(255,255,255,0.2)",
+            color: "rgba(var(--deck-text-rgb),0.2)",
             letterSpacing: "1.5px",
             textTransform: "uppercase",
             fontWeight: 600,

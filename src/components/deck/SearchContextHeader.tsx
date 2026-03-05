@@ -39,9 +39,9 @@ export default function SearchContextHeader({
     <div
       className="search-context-header"
       style={{
-        background: "rgba(26,26,26,0.95)",
+        background: "var(--deck-surface)",
         backdropFilter: "blur(20px)",
-        border: "1px solid rgba(197,165,114,0.15)",
+        border: `1px solid rgba(197,165,114,var(--deck-gold-border-alpha))`,
         borderRadius: "16px",
         padding: "32px 40px",
         maxWidth: "800px",
@@ -53,7 +53,7 @@ export default function SearchContextHeader({
         style={{
           fontSize: "1.8rem",
           fontWeight: 600,
-          color: "#f5f0ea",
+          color: "rgba(var(--deck-text-rgb),0.9)",
           marginBottom: "4px",
         }}
       >
@@ -93,7 +93,7 @@ export default function SearchContextHeader({
             fontWeight: 600,
             letterSpacing: "1.5px",
             textTransform: "uppercase",
-            color: "rgba(255,255,255,0.4)",
+            color: "rgba(var(--deck-text-rgb),0.4)",
             marginBottom: "10px",
           }}
         >
@@ -106,7 +106,7 @@ export default function SearchContextHeader({
               style={{
                 fontSize: "0.85rem",
                 fontWeight: 500,
-                color: "rgba(255,255,255,0.7)",
+                color: "rgba(var(--deck-text-rgb),0.7)",
                 padding: "3px 0",
                 display: "flex",
                 gap: "8px",
@@ -128,7 +128,7 @@ export default function SearchContextHeader({
         </ol>
       </div>
 
-      <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.4)" }}>
+      <p style={{ fontSize: "0.8rem", color: "rgba(var(--deck-text-rgb),0.4)" }}>
         Search Lead: {search_lead}
       </p>
     </div>
