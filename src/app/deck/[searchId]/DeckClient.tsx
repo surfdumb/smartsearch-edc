@@ -22,6 +22,7 @@ interface DeckClientProps {
 export default function DeckClient({ data, searchId, isEditRoute = false }: DeckClientProps) {
   const [view, setView] = useState<DeckView>({ mode: "grid" });
   const [editMode, setEditMode] = useState(false);
+  const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
@@ -72,6 +73,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   // ── Card flip handler ───────────────────────────────────────────────────────
   const handleCardClick = (index: number) => {
+    setCandidateSlide(null);
     const el = cardRefs.current[index];
     if (!el) {
       // Fallback: skip animation
@@ -96,12 +98,14 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   const handlePrev = useCallback(() => {
     if (view.mode === "edc" && view.candidateIndex > 0) {
+      setCandidateSlide('left');
       setView({ ...view, candidateIndex: view.candidateIndex - 1 });
     }
   }, [view]);
 
   const handleNext = useCallback(() => {
     if (view.mode === "edc" && view.candidateIndex < data.candidates.length - 1) {
+      setCandidateSlide('right');
       setView({ ...view, candidateIndex: view.candidateIndex + 1 });
     }
   }, [view, data.candidates.length]);
@@ -421,6 +425,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       isEditRoute={isEditRoute}
       prevCandidateName={prevCandidate?.candidate_name}
       nextCandidateName={nextCandidate?.candidate_name}
+      candidateSlideFrom={candidateSlide}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}

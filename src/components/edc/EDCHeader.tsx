@@ -192,17 +192,18 @@ export default function EDCHeader({
             </span>
           </div>
           <span
-            className="font-outfit"
+            className="font-cormorant"
             style={{
-              fontSize: "8px",
-              fontWeight: 600,
-              letterSpacing: "3px",
-              textTransform: "uppercase" as const,
-              color: "var(--ss-gray-light)",
-              marginTop: "3px",
+              fontSize: "13px",
+              fontWeight: 400,
+              fontStyle: "italic",
+              color: "rgba(197, 165, 114, 0.55)",
+              marginTop: "2px",
+              lineHeight: 1.2,
+              textAlign: "right" as const,
             }}
           >
-            Intelligence Card
+            Executive Decision<br />Card
           </span>
         </div>
       </div>

@@ -31,6 +31,7 @@ interface DeckEDCViewProps {
   isEditRoute?: boolean;
   prevCandidateName?: string;
   nextCandidateName?: string;
+  candidateSlideFrom?: 'left' | 'right' | null;
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -46,6 +47,7 @@ export default function DeckEDCView({
   isEditRoute = false,
   prevCandidateName,
   nextCandidateName,
+  candidateSlideFrom,
   onBack,
   onPrev,
   onNext,
@@ -111,6 +113,9 @@ export default function DeckEDCView({
               fluid={split}
               context="deck"
               candidateId={candidate.candidate_id}
+              onSwipePrev={onPrev}
+              onSwipeNext={onNext}
+              candidateSlideFrom={candidateSlideFrom}
             />
             {!split && (
               <CandidateNavigation

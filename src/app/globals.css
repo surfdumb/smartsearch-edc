@@ -124,6 +124,24 @@ body {
 }
 
 /* ============================================================
+   CANDIDATE SLIDE TRANSITIONS (swipe between candidates)
+   ============================================================ */
+@keyframes candidateSlideInFromRight {
+  from { transform: translateX(50px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes candidateSlideInFromLeft {
+  from { transform: translateX(-50px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.candidate-enter-right {
+  animation: candidateSlideInFromRight 220ms ease-out;
+}
+.candidate-enter-left {
+  animation: candidateSlideInFromLeft 220ms ease-out;
+}
+
+/* ============================================================
    OUR TAKE SHIMMER (footer trigger)
    ============================================================ */
 @keyframes ourTakeShimmer {

@@ -24,10 +24,10 @@ export default function MotivationStrip({ why_interested }: MotivationStripProps
       <p
         className="font-cormorant"
         style={{
-          fontSize: "14.5px",
+          fontSize: "17px",
           fontStyle: "italic",
           fontWeight: 400,
-          color: "rgba(250,248,245,0.65)",
+          color: "rgba(250,248,245,0.75)",
           lineHeight: 1.4,
           margin: 0,
         }}
