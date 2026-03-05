@@ -37,6 +37,7 @@
         "current_title": "Compensation Manager",
         "current_company": "Coca-Cola Consolidated",
         "location": "Lexington, NC",
+        "photo_url": "/photos/christopher-snider.jpg",
         "consultant_name": "Jackie Wyard-Yates",
         "scope_match": [
           {
@@ -169,6 +170,7 @@
         "current_title": "Senior Manager of Compensation",
         "current_company": "Advance Auto Parts",
         "location": "Raleigh, NC",
+        "photo_url": "/photos/nirav-patel.jpg",
         "consultant_name": "Jackie Wyard-Yates",
         "scope_match": [
           {
@@ -310,6 +312,7 @@
         "current_title": "U.S. Data Lead",
         "current_company": "Reynolds American Inc.",
         "location": "Winston-Salem, NC",
+        "photo_url": "/photos/adrian-wilkinson.jpg",
         "consultant_name": "Jackie Wyard-Yates",
         "scope_match": [
           {
@@ -451,6 +454,7 @@
         "current_title": "Senior Manager, Compensation",
         "current_company": "Fresenius Kabi USA",
         "location": "Charlotte, NC",
+        "photo_url": "/photos/julian-vivas-reveron.jpg",
         "consultant_name": "Jackie Wyard-Yates",
         "scope_match": [
           {
@@ -592,6 +596,7 @@
         "current_title": "Manager of Total Rewards/Compensation",
         "current_company": "Volvo Group",
         "location": "Greensboro, NC",
+        "photo_url": "/photos/benjamin-garrison.jpg",
         "consultant_name": "Jackie Wyard-Yates",
         "scope_match": [
           {
