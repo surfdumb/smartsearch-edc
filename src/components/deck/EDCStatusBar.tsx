@@ -11,6 +11,7 @@ interface EDCStatusBarProps {
   roleTitle: string;
   onLock: () => void;
   onUnlock: () => void;
+  onReset?: () => void;
 }
 
 export default function EDCStatusBar({
@@ -21,8 +22,10 @@ export default function EDCStatusBar({
   roleTitle,
   onLock,
   onUnlock,
+  onReset,
 }: EDCStatusBarProps) {
   const [showLockModal, setShowLockModal] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -115,6 +118,33 @@ export default function EDCStatusBar({
 
         {/* Right: actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {state === "draft" && onReset && (
+            <button
+              onClick={() => setShowResetConfirm(true)}
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.3)",
+                fontSize: "0.72rem",
+                fontWeight: 500,
+                padding: "6px 14px",
+                borderRadius: "8px",
+                cursor: "pointer",
+                letterSpacing: "0.3px",
+                transition: "all 0.15s",
+              }}
+              onMouseOver={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.2)";
+              }}
+              onMouseOut={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.3)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+              }}
+            >
+              ↺ Reset Edits
+            </button>
+          )}
           {state === "draft" ? (
             <button
               onClick={() => setShowLockModal(true)}
@@ -475,6 +505,101 @@ export default function EDCStatusBar({
             >
               Password: <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>ExecFlow2026!</span>
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* ── Reset confirmation ── */}
+      {showResetConfirm && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 3000,
+            background: "rgba(0,0,0,0.7)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+          onClick={() => setShowResetConfirm(false)}
+        >
+          <div
+            style={{
+              background: "#1a1a1a",
+              border: "1px solid rgba(197,165,114,0.2)",
+              borderRadius: "16px",
+              padding: "32px",
+              maxWidth: "400px",
+              width: "100%",
+              textAlign: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2
+              className="font-cormorant"
+              style={{
+                fontSize: "1.4rem",
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.9)",
+                marginBottom: "10px",
+                fontStyle: "italic",
+              }}
+            >
+              Reset all edits?
+            </h2>
+            <p
+              style={{
+                fontSize: "0.82rem",
+                color: "rgba(255,255,255,0.45)",
+                lineHeight: 1.6,
+                marginBottom: "28px",
+              }}
+            >
+              This will discard all changes to {candidateName}&rsquo;s card and restore the original data.
+            </p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                style={{
+                  background: "transparent",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "rgba(255,255,255,0.4)",
+                  padding: "10px 24px",
+                  borderRadius: "10px",
+                  fontSize: "0.82rem",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowResetConfirm(false);
+                  onReset?.();
+                }}
+                style={{
+                  background: "rgba(184,84,80,0.12)",
+                  border: "1px solid rgba(184,84,80,0.4)",
+                  color: "var(--ss-red)",
+                  padding: "10px 28px",
+                  borderRadius: "10px",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(184,84,80,0.2)";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(184,84,80,0.12)";
+                }}
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       )}

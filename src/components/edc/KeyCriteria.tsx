@@ -40,7 +40,7 @@ function EditablePill({
         onBlur={(e) => onUpdate(e.currentTarget.textContent || "")}
         style={{
           display: "inline-block",
-          fontSize: "0.68rem",
+          fontSize: "0.72rem",
           fontWeight: 600,
           padding: "4px 22px 4px 11px",
           borderRadius: "12px",
@@ -186,7 +186,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                       className="editable-cell"
                       onBlur={(e) => updateField(i, "name", e.currentTarget.textContent || "")}
                       style={{
-                        fontSize: "14px",
+                        fontSize: "0.95rem",
                         fontWeight: 600,
                         color: "var(--ss-dark)",
                         marginBottom: "3px",
@@ -212,7 +212,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                 ) : (
                   <h4
                     style={{
-                      fontSize: "14px",
+                      fontSize: "0.95rem",
                       fontWeight: 600,
                       color: "var(--ss-dark)",
                       marginBottom: "3px",
@@ -232,7 +232,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                         className="editable-cell"
                         onBlur={(e) => updateField(i, "evidence", e.currentTarget.innerHTML)}
                         style={{
-                          fontSize: "13px",
+                          fontSize: "0.95rem",
                           lineHeight: 1.5,
                           color: "var(--ss-gray)",
                           padding: "1px 6px",
@@ -256,7 +256,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
                   ) : (
                     <div
                       style={{
-                        fontSize: "0.82rem",
+                        fontSize: "0.95rem",
                         lineHeight: 1.5,
                         color: "var(--ss-gray)",
                         flex: 1,

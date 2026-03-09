@@ -135,7 +135,7 @@ export default function EDCHeader({
             <h1
               className="font-cormorant"
               style={{
-                fontSize: "24px",
+                fontSize: "1.6rem",
                 fontWeight: 600,
                 lineHeight: 1.1,
                 letterSpacing: "-0.3px",
@@ -151,7 +151,7 @@ export default function EDCHeader({
             <p
               className="font-outfit"
               style={{
-                fontSize: "12px",
+                fontSize: "0.82rem",
                 fontWeight: 400,
                 color: "var(--ss-gray-light)",
                 margin: "2px 0 0",
@@ -204,6 +204,21 @@ export default function EDCHeader({
             }}
           >
             Executive Decision<br />Card
+          </span>
+          <span
+            style={{
+              fontSize: "0.55rem",
+              fontWeight: 500,
+              letterSpacing: "1.5px",
+              textTransform: "uppercase" as const,
+              color: "rgba(197, 165, 114, 0.35)",
+              border: "1px solid rgba(197, 165, 114, 0.15)",
+              borderRadius: "8px",
+              padding: "2px 8px",
+              marginTop: "6px",
+            }}
+          >
+            Confidential
           </span>
         </div>
       </div>

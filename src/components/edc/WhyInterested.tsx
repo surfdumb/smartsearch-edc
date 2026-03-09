@@ -46,7 +46,7 @@ export default function WhyInterested({ why_interested }: WhyInterestedProps) {
             {/* Headline only — no detail */}
             <span
               style={{
-                fontSize: "0.82rem",
+                fontSize: "0.95rem",
                 fontWeight: 500,
                 color: "var(--ss-dark)",
                 lineHeight: 1.3,

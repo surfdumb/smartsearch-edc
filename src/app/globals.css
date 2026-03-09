@@ -67,6 +67,17 @@
 }
 
 /* ============================================================
+   DECK HYBRID MODE (default) — charcoal bg, cream cards
+   ============================================================ */
+[data-deck-theme="hybrid"] {
+  --deck-bg: #2d2824;
+  --deck-surface: #faf8f5;
+  --deck-card-bg: #faf8f5;
+  --deck-text-rgb: 26, 26, 26;
+  --deck-gold-border-alpha: 0.3;
+}
+
+/* ============================================================
    DECK LIGHT MODE OVERRIDES
    ============================================================ */
 [data-deck-theme="light"] {
@@ -85,6 +96,11 @@
 }
 [data-deck-theme="light"] .search-context-header {
   box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+}
+
+/* Hybrid mode: search context header shadow for depth */
+[data-deck-theme="hybrid"] .search-context-header {
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
 }
 
 /* Intro card: arrow nudge on hover */
@@ -180,6 +196,33 @@ body {
 @keyframes ourTakeShimmer {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
+}
+
+@keyframes ourTakeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   CRITERIA SCROLLABLE CONTAINER
+   ============================================================ */
+.criteria-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(197,165,114,0.2) transparent;
+}
+.criteria-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.criteria-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.criteria-scroll::-webkit-scrollbar-thumb {
+  background: rgba(197,165,114,0.2);
+  border-radius: 4px;
+}
+.criteria-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(197,165,114,0.35);
 }
 
 /* ============================================================

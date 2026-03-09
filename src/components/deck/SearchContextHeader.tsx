@@ -121,7 +121,7 @@ export default function SearchContextHeader({
               <li
                 key={i}
                 style={{
-                  fontSize: "0.85rem",
+                  fontSize: "0.9rem",
                   fontWeight: 500,
                   color: "rgba(var(--deck-text-rgb),0.7)",
                   padding: "3px 0",
@@ -145,7 +145,7 @@ export default function SearchContextHeader({
           </ol>
         </div>
 
-        <p style={{ fontSize: "0.8rem", color: "rgba(var(--deck-text-rgb),0.4)" }}>
+        <p style={{ fontSize: "0.85rem", color: "rgba(var(--deck-text-rgb),0.4)" }}>
           Search Lead: {search_lead}
         </p>
       </div>

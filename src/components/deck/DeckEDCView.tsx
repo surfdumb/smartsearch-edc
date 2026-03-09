@@ -32,7 +32,8 @@ interface DeckEDCViewProps {
   prevCandidateName?: string;
   nextCandidateName?: string;
   candidateSlideFrom?: 'left' | 'right' | null;
-  deckTheme?: 'dark' | 'light';
+  deckTheme?: 'dark' | 'hybrid' | 'light';
+  showMotivation?: boolean;
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -50,12 +51,14 @@ export default function DeckEDCView({
   nextCandidateName,
   candidateSlideFrom,
   deckTheme,
+  showMotivation,
   onBack,
   onPrev,
   onNext,
   onToggleSplit,
 }: DeckEDCViewProps) {
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
+  const [resetKey, setResetKey] = useState(0);
   const edc = candidate.edc_data;
   const isEditable = isEditRoute && state === "draft";
 
@@ -98,6 +101,7 @@ export default function DeckEDCView({
             roleTitle={edc.role_title}
             onLock={lock}
             onUnlock={unlock}
+            onReset={() => setResetKey(k => k + 1)}
           />
         )}
 
@@ -111,6 +115,7 @@ export default function DeckEDCView({
             style={{ padding: split ? "0 0 40px" : "0 24px 24px" }}
           >
             <EDCCard
+              key={`${candidate.candidate_id}-${resetKey}`}
               data={edcWithOurTake}
               fluid={split}
               context="deck"
@@ -118,6 +123,7 @@ export default function DeckEDCView({
               onSwipePrev={onPrev}
               onSwipeNext={onNext}
               candidateSlideFrom={candidateSlideFrom}
+              showMotivation={showMotivation}
             />
             {!split && (
               <CandidateNavigation

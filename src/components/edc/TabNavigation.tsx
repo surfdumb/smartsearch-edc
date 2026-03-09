@@ -65,7 +65,7 @@ export default function TabNavigation({ current, onChange }: TabNavigationProps)
               ? "1px solid rgba(0,0,0,0.06)"
               : "none",
             color: tab.id === current ? "var(--ss-gold-deep)" : "var(--ss-gray-light)",
-            fontSize: "11px",
+            fontSize: "0.75rem",
             fontWeight: 500,
             letterSpacing: "1px",
             textTransform: "uppercase" as const,

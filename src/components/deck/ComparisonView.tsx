@@ -70,7 +70,7 @@ export default function ComparisonView({ data, searchId, isEditRoute = false }: 
               style={{ height: "22px", opacity: 0.5 }}
             />
             <a
-              href={`/deck/${searchId}`}
+              href={isEditRoute ? `/deck/${searchId}/edit` : `/deck/${searchId}`}
               style={{
                 fontSize: "0.78rem",
                 color: "var(--ss-gold)",

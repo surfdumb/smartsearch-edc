@@ -270,6 +270,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         borderRadius: "16px",
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.25), 0 1px 4px rgba(0,0,0,0.15)",
         transition: "all 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         flexDirection: "column",
@@ -382,7 +383,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           singleLine
           className="font-cormorant"
           style={{
-            fontSize: "1.35rem",
+            fontSize: "1.25rem",
             fontWeight: 500,
             color: "rgba(var(--deck-text-rgb),0.9)",
             marginBottom: "5px",
@@ -390,20 +391,18 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           }}
         />
 
-        {/* Current title */}
-        <Editable
-          value={v.current_title}
-          onSave={(val) => save({ current_title: val })}
-          originalValue={card.current_title}
-          onReset={() => save({ current_title: undefined })}
-          editMode={editMode}
-          as="p"
-          singleLine
-          style={{ fontSize: "0.8rem", color: "var(--ss-gold)", marginBottom: "3px", fontWeight: 500 }}
-        />
-
-        {/* Company · Location */}
-        <p style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}>
+        {/* Title at Company */}
+        <p style={{ fontSize: "0.9rem", color: "rgba(var(--deck-text-rgb),0.75)", marginBottom: "3px", lineHeight: 1.4, textAlign: "center" }}>
+          <Editable
+            value={v.current_title}
+            onSave={(val) => save({ current_title: val })}
+            originalValue={card.current_title}
+            onReset={() => save({ current_title: undefined })}
+            editMode={editMode}
+            singleLine
+            style={{ fontSize: "0.9rem", color: "var(--ss-gold)", fontWeight: 500 }}
+          />
+          <span style={{ fontWeight: 400, color: "rgba(var(--deck-text-rgb),0.45)" }}> at </span>
           <Editable
             value={v.current_company}
             onSave={(val) => save({ current_company: val })}
@@ -411,23 +410,24 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             onReset={() => save({ current_company: undefined })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
+            style={{ fontSize: "0.9rem", color: "rgba(var(--deck-text-rgb),0.75)", fontWeight: 500 }}
           />
-          {v.location && (
-            <>
-              <span style={{ margin: "0 6px", color: "rgba(197,165,114,0.3)" }}>·</span>
-              <Editable
-                value={v.location}
-                onSave={(val) => save({ location: val })}
-                originalValue={card.location}
-                onReset={() => save({ location: undefined })}
-                editMode={editMode}
-                singleLine
-                style={{ fontSize: "0.74rem", color: "rgba(var(--deck-text-rgb),0.35)" }}
-              />
-            </>
-          )}
         </p>
+
+        {/* Location */}
+        {v.location && (
+          <p style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.4)", textAlign: "center" }}>
+            <Editable
+              value={v.location}
+              onSave={(val) => save({ location: val })}
+              originalValue={card.location}
+              onReset={() => save({ location: undefined })}
+              editMode={editMode}
+              singleLine
+              style={{ fontSize: "0.78rem", color: "rgba(var(--deck-text-rgb),0.4)" }}
+            />
+          </p>
+        )}
       </div>
 
       {/* ── Body zone ── */}
@@ -444,7 +444,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             as="p"
             html
             style={{
-              fontSize: "0.84rem",
+              fontSize: "1rem",
               color: "rgba(var(--deck-text-rgb),0.7)",
               lineHeight: 1.55,
               textAlign: "center",
@@ -463,14 +463,13 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             editMode={editMode}
             as="p"
             style={{
-              fontSize: "0.88rem",
+              fontSize: "0.9rem",
               fontStyle: "italic",
               fontWeight: 400,
               color: "var(--ss-gold-light)",
               lineHeight: 1.5,
               textAlign: "center",
               marginTop: "12px",
-              fontFamily: "var(--font-cormorant), 'Cormorant Garamond', serif",
             }}
           />
         )}
@@ -478,12 +477,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {/* Our Take quote — Cormorant italic in speech marks */}
         {ourTakeQuote && !editMode && (
           <p
-            className="font-cormorant"
             style={{
               fontSize: "0.92rem",
-              fontStyle: "italic",
-              fontWeight: 500,
-              color: "rgba(var(--deck-text-rgb), 0.55)",
+              fontWeight: 400,
+              color: "rgba(var(--deck-text-rgb), 0.65)",
               lineHeight: 1.5,
               textAlign: "center",
               marginTop: "14px",
@@ -507,7 +504,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               <span
                 key={i}
                 style={{
-                  fontSize: "0.68rem",
+                  fontSize: "0.78rem",
                   fontWeight: 500,
                   letterSpacing: "0.3px",
                   padding: "5px 12px",

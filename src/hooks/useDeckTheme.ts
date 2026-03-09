@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 
-type DeckTheme = "dark" | "light";
+type DeckTheme = "dark" | "hybrid" | "light";
 
 function storageKey(searchId: string) {
   return `deck_theme_${searchId}`;
 }
 
 export function useDeckTheme(searchId: string) {
-  const [theme, setThemeState] = useState<DeckTheme>("dark");
+  const [theme, setThemeState] = useState<DeckTheme>("hybrid");
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(storageKey(searchId));
-      if (stored === "light") setThemeState("light");
+      if (stored === "dark" || stored === "light") setThemeState(stored);
     } catch { /* ignore */ }
   }, [searchId]);
 
@@ -20,7 +20,7 @@ export function useDeckTheme(searchId: string) {
     (next: DeckTheme) => {
       setThemeState(next);
       try {
-        if (next === "dark") localStorage.removeItem(storageKey(searchId));
+        if (next === "hybrid") localStorage.removeItem(storageKey(searchId));
         else localStorage.setItem(storageKey(searchId), next);
       } catch { /* ignore */ }
     },

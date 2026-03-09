@@ -7,6 +7,7 @@ import IntroCard from "@/components/deck/IntroCard";
 import CandidateGrid from "@/components/deck/CandidateGrid";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
+import { useDeckMotivation } from "@/hooks/useDeckMotivation";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
@@ -25,6 +26,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [editMode, setEditMode] = useState(false);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   const { theme } = useDeckTheme(searchId);
+  const { showMotivation } = useDeckMotivation(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
@@ -429,6 +431,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       nextCandidateName={nextCandidate?.candidate_name}
       candidateSlideFrom={candidateSlide}
       deckTheme={theme}
+      showMotivation={showMotivation}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}

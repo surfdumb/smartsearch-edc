@@ -309,10 +309,8 @@ export default function OurTakePopover({
             ) : (
               <div
                 key={i}
-                className="font-cormorant"
                 style={{
                   fontSize: "0.95rem",
-                  fontStyle: "italic",
                   fontWeight: 400,
                   color: "var(--ss-dark)",
                   lineHeight: 1.55,
@@ -408,10 +406,8 @@ export default function OurTakePopover({
       ) : (
         /* Read-only text fallback */
         <div
-          className="font-cormorant"
           style={{
             fontSize: "0.95rem",
-            fontStyle: "italic",
             fontWeight: 400,
             color: "var(--ss-dark)",
             lineHeight: 1.6,

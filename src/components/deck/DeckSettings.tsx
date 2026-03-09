@@ -4,6 +4,7 @@
 import { useState, useCallback, useEffect } from "react";
 import type { SearchContext } from "@/lib/types";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
+import { useDeckMotivation } from "@/hooks/useDeckMotivation";
 
 interface DeckSettingsProps {
   data: SearchContext;
@@ -12,6 +13,7 @@ interface DeckSettingsProps {
 
 export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
   const { theme, setTheme } = useDeckTheme(searchId);
+  const { showMotivation, setShowMotivation } = useDeckMotivation(searchId);
   const storageKey = `search_logo_${searchId}`;
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -91,17 +93,21 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
           zIndex: 100,
         }}
       >
-        <a
-          href={`/deck/${searchId}`}
+        <button
+          onClick={() => window.history.back()}
           style={{
             fontSize: "0.78rem",
             color: "var(--ss-gold)",
-            textDecoration: "none",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
             fontWeight: 600,
+            fontFamily: "inherit",
+            padding: 0,
           }}
         >
           ← Back to Deck
-        </a>
+        </button>
         <span
           className="font-cormorant"
           style={{ fontSize: "1rem", color: "rgba(var(--deck-text-rgb),0.35)", fontStyle: "italic" }}
@@ -138,7 +144,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
           </div>
 
           <div style={{ display: "flex", gap: "10px" }}>
-            {(["dark", "light"] as const).map((opt) => {
+            {(["dark", "hybrid", "light"] as const).map((opt) => {
               const active = theme === opt;
               return (
                 <button
@@ -168,6 +174,57 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
 
           <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.15)", marginTop: "14px" }}>
             Applies to this deck in this browser.
+          </p>
+        </section>
+
+        {/* ── Motivation tagline toggle ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-text-rgb),0.3)",
+              }}
+            >
+              Motivation Tagline
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+          </div>
+
+          <div style={{ display: "flex", gap: "10px" }}>
+            {(["off", "on"] as const).map((opt) => {
+              const active = opt === "on" ? showMotivation : !showMotivation;
+              return (
+                <button
+                  key={opt}
+                  onClick={() => setShowMotivation(opt === "on")}
+                  style={{
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.5px",
+                    textTransform: "capitalize",
+                    padding: "8px 22px",
+                    borderRadius: "8px",
+                    border: active
+                      ? "1px solid rgba(197,165,114,0.5)"
+                      : "1px solid rgba(var(--deck-text-rgb),0.1)",
+                    background: active ? "rgba(197,165,114,0.08)" : "transparent",
+                    color: active ? "var(--ss-gold)" : "rgba(var(--deck-text-rgb),0.3)",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.15)", marginTop: "14px" }}>
+            Shows a motivation quote below the candidate header on each card.
           </p>
         </section>
 

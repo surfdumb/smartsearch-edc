@@ -46,25 +46,25 @@ export default function Compensation({ compensation, notice_period }: Compensati
           <span />
           <span
             style={{
-              fontSize: "8px",
+              fontSize: "0.72rem",
               fontWeight: 600,
               letterSpacing: "1.5px",
               textTransform: "uppercase",
               color: "var(--ss-gray-light)",
             }}
           >
-            Current
+            Current Compensation
           </span>
           <span
             style={{
-              fontSize: "8px",
+              fontSize: "0.72rem",
               fontWeight: 600,
               letterSpacing: "1.5px",
               textTransform: "uppercase",
               color: "var(--ss-gray-light)",
             }}
           >
-            Expectation
+            Expectations
           </span>
         </div>
 
@@ -81,7 +81,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
           >
             <span
               style={{
-                fontSize: "11px",
+                fontSize: "0.82rem",
                 fontWeight: 500,
                 color: "var(--ss-gray)",
                 textTransform: "uppercase",
@@ -90,10 +90,10 @@ export default function Compensation({ compensation, notice_period }: Compensati
             >
               Base
             </span>
-            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-dark)" }}>
+            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-dark)" }}>
               {isEmpty(compensation.current_base) ? "—" : compensation.current_base}
             </span>
-            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-dark)" }}>
+            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-dark)" }}>
               {isEmpty(compensation.expected_base) ? "—" : compensation.expected_base}
             </span>
           </div>
@@ -113,7 +113,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
           >
             <span
               style={{
-                fontSize: "11px",
+                fontSize: "0.82rem",
                 fontWeight: 600,
                 color: "var(--ss-dark)",
                 textTransform: "uppercase",
@@ -150,7 +150,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
           >
             <span
               style={{
-                fontSize: "11px",
+                fontSize: "0.82rem",
                 fontWeight: 500,
                 color: "var(--ss-gold-deep)",
                 textTransform: "uppercase",
@@ -159,7 +159,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
             >
               Budget
             </span>
-            <span style={{ fontSize: "14px", fontWeight: 500, color: "var(--ss-gold-deep)" }}>
+            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-gold-deep)" }}>
               {compensation.budget_range}
             </span>
           </div>
@@ -170,7 +170,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
       {!isEmpty(compensation.flexibility) && (
         <p
           style={{
-            fontSize: "12px",
+            fontSize: "0.85rem",
             fontStyle: "italic",
             color: "var(--ss-gray)",
             marginTop: "10px",
@@ -185,7 +185,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
       {!isEmpty(notice_period) && (
         <div
           style={{
-            fontSize: "11px",
+            fontSize: "0.82rem",
             color: "var(--ss-gray-light)",
             marginTop: "6px",
           }}

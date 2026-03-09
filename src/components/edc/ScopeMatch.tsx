@@ -162,10 +162,10 @@ export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
                     value={item.scope}
                     originalValue={orig?.scope ?? item.scope}
                     onUpdate={(v) => updateCell(i, "scope", v)}
-                    style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.82rem" }}
+                    style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}
                   />
                 ) : (
-                  <span style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.82rem" }}>
+                  <span style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}>
                     {item.scope}
                   </span>
                 )}
@@ -176,10 +176,10 @@ export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
                     value={item.candidate_actual}
                     originalValue={orig?.candidate_actual ?? item.candidate_actual}
                     onUpdate={(v) => updateCell(i, "candidate_actual", v)}
-                    style={{ fontSize: "0.82rem", color: "var(--ss-dark)" }}
+                    style={{ fontSize: "0.9rem", color: "var(--ss-dark)" }}
                   />
                 ) : (
-                  <span style={{ fontSize: "0.82rem", color: "var(--ss-dark)" }}>
+                  <span style={{ fontSize: "0.9rem", color: "var(--ss-dark)" }}>
                     {item.candidate_actual}
                   </span>
                 )}
@@ -190,10 +190,10 @@ export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
                     value={item.role_requirement}
                     originalValue={orig?.role_requirement ?? item.role_requirement}
                     onUpdate={(v) => updateCell(i, "role_requirement", v)}
-                    style={{ fontSize: "0.82rem", color: "var(--ss-gray)" }}
+                    style={{ fontSize: "0.9rem", color: "var(--ss-gray)" }}
                   />
                 ) : (
-                  <span className="text-body text-ss-gray" style={{ fontSize: "0.82rem" }}>
+                  <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
                     {item.role_requirement}
                   </span>
                 )}
