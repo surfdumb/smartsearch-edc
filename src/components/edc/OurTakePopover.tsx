@@ -28,8 +28,8 @@ export default function OurTakePopover({
   const [name, setName] = useState(initialName ?? "");
   const [showName, setShowName] = useState(!!initialName);
 
-  // Position state — calculated from triggerRef
-  const [pos, setPos] = useState<{ bottom: number; right: number } | null>(null);
+  // Position state — calculated from triggerRef (drops DOWN from pill)
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
 
   // Keep refs to originals for reset
   const origFragments = useRef(initialFragments ?? []);
@@ -47,13 +47,13 @@ export default function OurTakePopover({
     origName.current = initialName ?? "";
   }, [initialFragments, initialText, initialName]);
 
-  // Position popover above the trigger button
+  // Position popover BELOW the trigger button (drops down)
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
     const rect = trigger.getBoundingClientRect();
     setPos({
-      bottom: window.innerHeight - rect.top + 8,
+      top: rect.bottom + 8,
       right: window.innerWidth - rect.right,
     });
   }, [triggerRef]);
@@ -108,27 +108,33 @@ export default function OurTakePopover({
   if (!pos) return null;
 
   const popover = (
-    <div
-      ref={popoverRef}
-      style={{
-        position: "fixed",
-        bottom: `${pos.bottom}px`,
-        right: `${pos.right}px`,
-        maxWidth: "400px",
-        width: "380px",
-        maxHeight: "60vh",
-        overflowY: "auto",
-        borderRadius: "14px",
-        padding: "24px 24px 20px",
-        background: "#faf7f2",
-        border: "1px solid rgba(197,165,114,0.2)",
-        borderLeft: "3px solid var(--ss-green)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-        zIndex: 9999,
-        animation: "ourTakeSlideUp 0.25s ease-out forwards",
-        fontFamily: "var(--font-outfit), Outfit, sans-serif",
-      }}
-    >
+    <>
+      {/* Click-away backdrop */}
+      <div
+        onClick={handleClose}
+        style={{ position: "fixed", inset: 0, zIndex: 9998 }}
+      />
+      <div
+        ref={popoverRef}
+        style={{
+          position: "fixed",
+          top: `${pos.top}px`,
+          right: `${pos.right}px`,
+          maxWidth: "400px",
+          width: "380px",
+          maxHeight: "360px",
+          overflowY: "auto",
+          borderRadius: "14px",
+          padding: "24px 24px 20px",
+          background: "#faf7f2",
+          border: "1px solid rgba(197,165,114,0.2)",
+          borderLeft: "3px solid var(--ss-green)",
+          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+          zIndex: 9999,
+          animation: "ourTakeDropDown 0.25s ease-out forwards",
+          fontFamily: "var(--font-outfit), Outfit, sans-serif",
+        }}
+      >
       {/* Header */}
       <div style={{ marginBottom: "14px" }}>
         <span
@@ -417,7 +423,8 @@ export default function OurTakePopover({
           &ldquo;{text}&rdquo;
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 
   return createPortal(popover, document.body);

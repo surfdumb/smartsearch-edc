@@ -33,7 +33,6 @@ interface DeckEDCViewProps {
   nextCandidateName?: string;
   candidateSlideFrom?: 'left' | 'right' | null;
   deckTheme?: 'dark' | 'hybrid' | 'light';
-  showMotivation?: boolean;
   onBack: () => void;
   onPrev?: () => void;
   onNext?: () => void;
@@ -51,7 +50,6 @@ export default function DeckEDCView({
   nextCandidateName,
   candidateSlideFrom,
   deckTheme,
-  showMotivation,
   onBack,
   onPrev,
   onNext,
@@ -123,7 +121,6 @@ export default function DeckEDCView({
               onSwipePrev={onPrev}
               onSwipeNext={onNext}
               candidateSlideFrom={candidateSlideFrom}
-              showMotivation={showMotivation}
             />
             {!split && (
               <CandidateNavigation

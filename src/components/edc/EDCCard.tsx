@@ -10,7 +10,6 @@ import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
 import TabNavigation from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
-import CompTicker from "@/components/edc/CompTicker";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { type EDCData, type EDCContext } from "@/lib/types";
@@ -35,8 +34,6 @@ interface EDCCardProps {
   onSwipeNext?: () => void;
   /** Direction the new candidate content should enter from */
   candidateSlideFrom?: 'left' | 'right' | null;
-  /** Whether to show the motivation tagline strip (default: false) */
-  showMotivation?: boolean;
 }
 
 export default function EDCCard({
@@ -48,19 +45,16 @@ export default function EDCCard({
   onSwipePrev,
   onSwipeNext,
   candidateSlideFrom,
-  showMotivation = false,
 }: EDCCardProps) {
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(1);
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>('right');
   const [ourTakeOpen, setOurTakeOpen] = useState(false);
-  const [interestOpen, setInterestOpen] = useState(false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Reset to panel 1 when candidate changes
   useEffect(() => {
     setCurrentPanel(1);
     setOurTakeOpen(false);
-    setInterestOpen(false);
   }, [candidateId]);
 
   const navigateToPanel = (target: 1 | 2 | 3) => {
@@ -86,8 +80,6 @@ export default function EDCCard({
 
   const hasOurTake = (data.our_take_fragments && data.our_take_fragments.length > 0) ||
     (data.our_take?.text && data.our_take.text.trim().length > 0);
-
-  const hasInterest = data.why_interested && data.why_interested.length > 0;
 
   return (
     <div
@@ -122,20 +114,12 @@ export default function EDCCard({
             context={context}
           />
 
-          {/* Motivation strip — dark bg continuing from header (toggled via settings) */}
-          {showMotivation && data.why_interested && data.why_interested.length > 0 && (
-            <MotivationStrip why_interested={data.why_interested} />
-          )}
-
-          {/* Comp ticker — visible on panel 2 only */}
-          {currentPanel === 2 && (
-            <div style={{ transition: "opacity 0.3s, max-height 0.3s", opacity: 1, maxHeight: "40px", overflow: "hidden" }}>
-              <CompTicker
-                currentTotal={data.compensation?.current_total}
-                expectedTotal={data.compensation?.expected_total}
-                onNavigateToComp={() => navigateToPanel(3)}
-              />
-            </div>
+          {/* Motivation scrambler — always visible, cycles through motivation hooks */}
+          {data.why_interested && data.why_interested.length > 0 && (
+            <MotivationStrip
+              why_interested={data.why_interested}
+              our_take_fragments={data.our_take_fragments}
+            />
           )}
 
           {/* Content area */}
@@ -150,8 +134,9 @@ export default function EDCCard({
             >
               {currentPanel === 1 && (
                 <div style={{ position: "relative" }}>
-                  {/* Our Take + Interest pills — top-right of scope page */}
-                  {(hasOurTake || hasInterest) && (
+                  {/* Our Take pill — top-right of scope page */}
+                  {/* Why Interested placement TBD — awaiting March 10 team decision */}
+                  {hasOurTake && (
                     <div
                       style={{
                         position: "absolute",
@@ -162,118 +147,37 @@ export default function EDCCard({
                         zIndex: 10,
                       }}
                     >
-                      {hasOurTake && (
-                        <button
-                          ref={ourTakeTriggerRef}
-                          onClick={() => { setOurTakeOpen(v => !v); setInterestOpen(false); }}
-                          style={{
-                            fontSize: "0.78rem",
-                            fontWeight: 600,
-                            color: "var(--ss-gold)",
-                            background: "rgba(197,165,114,0.06)",
-                            border: "1px solid rgba(197,165,114,0.2)",
-                            borderRadius: "22px",
-                            padding: "8px 18px",
-                            height: "38px",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            transition: "all 0.15s",
-                            fontFamily: "inherit",
-                          }}
-                          onMouseOver={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
-                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
-                          }}
-                          onMouseOut={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
-                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
-                          }}
-                        >
-                          <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
-                          Our Take
-                        </button>
-                      )}
-
-                      {hasInterest && (
-                        <div style={{ position: "relative" }}>
-                          <button
-                            onClick={() => { setInterestOpen(v => !v); setOurTakeOpen(false); }}
-                            style={{
-                              fontSize: "0.78rem",
-                              fontWeight: 600,
-                              color: "var(--ss-green)",
-                              background: "rgba(74, 124, 89, 0.06)",
-                              border: "1px solid rgba(74, 124, 89, 0.2)",
-                              borderRadius: "22px",
-                              padding: "8px 18px",
-                              height: "38px",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                              transition: "all 0.15s",
-                              fontFamily: "inherit",
-                            }}
-                            onMouseOver={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74, 124, 89, 0.12)";
-                              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(74, 124, 89, 0.35)";
-                            }}
-                            onMouseOut={(e) => {
-                              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74, 124, 89, 0.06)";
-                              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(74, 124, 89, 0.2)";
-                            }}
-                          >
-                            Interest
-                          </button>
-
-                          {/* Interest dropdown */}
-                          {interestOpen && (
-                            <div
-                              style={{
-                                position: "absolute",
-                                top: "calc(100% + 8px)",
-                                right: 0,
-                                minWidth: "280px",
-                                background: "#faf8f5",
-                                border: "1px solid rgba(74, 124, 89, 0.15)",
-                                borderRadius: "12px",
-                                padding: "16px 20px",
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                                zIndex: 20,
-                                animation: "ourTakeSlideUp 0.2s ease-out forwards",
-                              }}
-                            >
-                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                {data.why_interested.slice(0, 4).map((item, i) => (
-                                  <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    <span
-                                      style={{
-                                        width: "18px",
-                                        height: "18px",
-                                        borderRadius: "4px",
-                                        fontSize: "0.6rem",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        background: item.type === "pull" ? "var(--ss-green-light)" : "var(--ss-yellow-light)",
-                                        color: item.type === "pull" ? "var(--ss-green)" : "var(--ss-yellow)",
-                                        flexShrink: 0,
-                                      }}
-                                    >
-                                      {item.type === "pull" ? "↗" : "↙"}
-                                    </span>
-                                    <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "var(--ss-dark)", lineHeight: 1.3 }}>
-                                      {item.headline}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <button
+                        ref={ourTakeTriggerRef}
+                        onClick={() => setOurTakeOpen(v => !v)}
+                        style={{
+                          fontSize: "0.78rem",
+                          fontWeight: 600,
+                          color: "var(--ss-gold)",
+                          background: "rgba(197,165,114,0.06)",
+                          border: "1px solid rgba(197,165,114,0.2)",
+                          borderRadius: "22px",
+                          padding: "8px 18px",
+                          height: "38px",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          transition: "all 0.15s",
+                          fontFamily: "inherit",
+                        }}
+                        onMouseOver={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+                        }}
+                        onMouseOut={(e) => {
+                          (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
+                          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                        }}
+                      >
+                        <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
+                        Our Take
+                      </button>
                     </div>
                   )}
 

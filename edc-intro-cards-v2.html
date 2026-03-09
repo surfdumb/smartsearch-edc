@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDC Intro Cards — v2 Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ss-obsidian: #1a1a1a;
+    --ss-charcoal: #2a2a2a;
+    --ss-gold: #c5a572;
+    --ss-gold-light: #d4ba8a;
+    --ss-gold-warm: #b08f5a;
+    --ss-gold-glow: rgba(197, 165, 114, 0.15);
+    --ss-cream: #faf8f5;
+    --ss-warm-white: #fdfbf7;
+    --ss-ivory: #f5f0ea;
+    --ss-green: #4a7c59;
+    --ss-green-light: #5a9469;
+    --ss-amber: #d4a543;
+    --ss-grey-mid: #6b6b6b;
+    --ss-grey-light: #a0a0a0;
+    --ss-grey-border: #d4d2ce;
+    --ss-warm-grey: #f0ede8;
+    --ss-font-sans: 'Outfit', sans-serif;
+    --ss-font-serif: 'Cormorant Garamond', serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--ss-obsidian);
+    font-family: var(--ss-font-sans);
+    color: var(--ss-cream);
+    min-height: 100vh;
+    padding: 40px 24px 80px;
+  }
+
+  /* === VERSION TOGGLE === */
+  .version-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 48px;
+  }
+  .version-toggle button {
+    font-family: var(--ss-font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    border: 1px solid rgba(197,165,114,0.3);
+    background: transparent;
+    color: var(--ss-grey-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .version-toggle button:first-child { border-radius: 6px 0 0 6px; }
+  .version-toggle button:last-child { border-radius: 0 6px 6px 0; }
+  .version-toggle button.active {
+    background: var(--ss-gold);
+    color: var(--ss-obsidian);
+    border-color: var(--ss-gold);
+    font-weight: 600;
+  }
+
+  /* === SECTION HEADER === */
+  .section-label {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .section-label h2 {
+    font-family: var(--ss-font-serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: var(--ss-grey-light);
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+
+  /* === GRID === */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  /* ============================================================
+     OLD CARD (Current Design)
+     ============================================================ */
+  .card-old {
+    background: var(--ss-charcoal);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(197,165,114,0.12);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-old:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    border-color: rgba(197,165,114,0.3);
+  }
+
+  .card-old .card-header {
+    padding: 28px 24px 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(197,165,114,0.08);
+  }
+  .card-old .avatar {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ss-gold), var(--ss-gold-light));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--ss-font-serif);
+    font-size: 24px; font-weight: 600;
+    color: var(--ss-obsidian);
+    margin: 0 auto 14px;
+  }
+  .card-old .name {
+    font-family: var(--ss-font-serif);
+    font-size: 1.35rem; font-weight: 600;
+    color: var(--ss-cream);
+    margin-bottom: 6px;
+  }
+  .card-old .title {
+    font-size: 0.82rem; font-weight: 500;
+    color: var(--ss-gold);
+    margin-bottom: 4px;
+  }
+  .card-old .meta {
+    font-size: 0.75rem;
+    color: var(--ss-grey-light);
+  }
+
+  .card-old .card-body {
+    padding: 20px 24px;
+    flex: 1;
+  }
+  .card-old .summary-para {
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: rgba(250,248,245,0.8);
+    margin-bottom: 16px;
+  }
+  .card-old .summary-para strong {
+    color: var(--ss-cream);
+    font-weight: 600;
+  }
+  .card-old .bullet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .card-old .bullet-list li {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: rgba(250,248,245,0.7);
+    padding-left: 16px;
+    position: relative;
+  }
+  .card-old .bullet-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--ss-grey-light);
+  }
+
+  .card-old .card-footer {
+    padding: 14px 24px;
+    border-top: 1px solid rgba(197,165,114,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-old .notice-text {
+    font-size: 0.75rem;
+    color: var(--ss-grey-light);
+  }
+  .card-old .notice-text strong {
+    color: rgba(250,248,245,0.8);
+    font-weight: 500;
+  }
+  .card-old .comp-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+  .comp-stretch { background: rgba(212,165,67,0.15); color: var(--ss-amber); }
+  .comp-aligned { background: rgba(74,124,89,0.12); color: var(--ss-green); }
+
+  .card-old .cta-row {
+    padding: 12px 24px;
+    border-top: 1px solid rgba(197,165,114,0.06);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cta-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--ss-grey-light);
+  }
+  .cta-arrow {
+    font-size: 0.82rem;
+    color: var(--ss-gold);
+    font-weight: 500;
+    transition: transform 0.2s;
+  }
+  .card-old:hover .cta-arrow,
+  .card-new:hover .cta-arrow { transform: translateX(4px); }
+
+
+  /* ============================================================
+     NEW CARD (Redesigned)
+     ============================================================ */
+  .card-new {
+    background: var(--ss-charcoal);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(197,165,114,0.12);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .card-new:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 56px rgba(0,0,0,0.45);
+    border-color: rgba(197,165,114,0.35);
+  }
+
+  /* Placed indicator */
+  .placed-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--ss-gold);
+    background: rgba(197,165,114,0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(197,165,114,0.2);
+  }
+  .placed-badge .check {
+    font-size: 0.72rem;
+  }
+
+  .card-new .card-header {
+    padding: 28px 24px 18px;
+    text-align: center;
+  }
+  .card-new .avatar {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ss-gold), var(--ss-gold-light));
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--ss-font-serif);
+    font-size: 22px; font-weight: 600;
+    color: var(--ss-obsidian);
+    margin: 0 auto 14px;
+  }
+  .card-new .name {
+    font-family: var(--ss-font-serif);
+    font-size: 1.35rem; font-weight: 600;
+    color: var(--ss-cream);
+    margin-bottom: 5px;
+  }
+  .card-new .title {
+    font-size: 0.8rem; font-weight: 500;
+    color: var(--ss-gold);
+    margin-bottom: 3px;
+  }
+  .card-new .meta {
+    font-size: 0.74rem;
+    color: var(--ss-grey-light);
+  }
+
+  /* Headline — the single killer sentence */
+  .card-new .headline {
+    padding: 16px 24px 0;
+    text-align: center;
+  }
+  .card-new .headline p {
+    font-family: var(--ss-font-sans);
+    font-size: 0.84rem;
+    font-weight: 400;
+    line-height: 1.55;
+    color: rgba(250,248,245,0.85);
+  }
+
+  /* Motivation hook */
+  .card-new .motivation {
+    padding: 12px 24px 0;
+    text-align: center;
+  }
+  .card-new .motivation p {
+    font-family: var(--ss-font-serif);
+    font-size: 0.88rem;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--ss-gold-light);
+    line-height: 1.5;
+  }
+
+  /* Scope pills */
+  .card-new .pills {
+    padding: 18px 24px 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  .card-new .pill {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    background: rgba(197,165,114,0.08);
+    border: 1px solid rgba(197,165,114,0.18);
+    color: rgba(250,248,245,0.7);
+    white-space: nowrap;
+  }
+
+  /* Footer */
+  .card-new .card-footer {
+    padding: 16px 24px 12px;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-new .notice-text {
+    font-size: 0.73rem;
+    color: var(--ss-grey-light);
+  }
+  .card-new .notice-text strong {
+    color: rgba(250,248,245,0.75);
+    font-weight: 500;
+  }
+  .card-new .comp-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+  }
+
+  .card-new .cta-row {
+    padding: 12px 24px;
+    border-top: 1px solid rgba(197,165,114,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* === VIEW CONTAINERS === */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* === RESPONSIVE === */
+  @media (max-width: 720px) {
+    .cards-grid { grid-template-columns: 1fr; max-width: 400px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="version-toggle">
+  <button class="active" onclick="switchView('old')">Current</button>
+  <button onclick="switchView('new')">Redesigned</button>
+</div>
+
+<!-- ===================== CURRENT (OLD) CARDS ===================== -->
+<div class="view active" id="view-old">
+  <div class="section-label">
+    <h2>Click any candidate to view their full assessment</h2>
+  </div>
+  <div class="cards-grid">
+
+    <!-- Ramon — OLD -->
+    <div class="card-old">
+      <div class="card-header">
+        <div class="avatar">RP</div>
+        <div class="name">Ramón Pelegrí</div>
+        <div class="title">Regional Director, Southern Europe, Middle East & Africa</div>
+        <div class="meta">Compo Expert · Barcelona, Spain</div>
+      </div>
+      <div class="card-body">
+        <p class="summary-para"><strong>30+ years in specialty fertilizers</strong> with full P&L for €170M across 10+ countries. Led commodity-to-specialty transformation and Triton-era commercial restructuring at Compo Expert.</p>
+        <ul class="bullet-list">
+          <li>Led commodity-to-specialty transformation at Compo Expert — restructured distributor networks across Southern Europe, Middle East, and Africa</li>
+          <li>Full P&L for €170M business spanning 10+ countries with 170-person team; previously grew Iberian business to €75M as GM Spain & Portugal</li>
+          <li>Direct Triton PE experience — promoted during Triton's 2011–2015 ownership of Compo Expert, understands exit timeline expectations</li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> 3 months (negotiable)</span>
+        <span class="comp-badge comp-stretch">Comp concern</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+    <!-- Sergio — OLD -->
+    <div class="card-old">
+      <div class="card-header">
+        <div class="avatar">SG</div>
+        <div class="name">Sergio Godoy</div>
+        <div class="title">Founder & Principal</div>
+        <div class="meta">Cropsignal Advisory · Madrid, Spain</div>
+      </div>
+      <div class="card-body">
+        <p class="summary-para"><strong>22 years at Yara International</strong> across Iberia, Africa, and Latin America. Led business turnarounds in Ghana and Ecuador, built organic fertilizer strategy and M&A integration.</p>
+        <ul class="bullet-list">
+          <li>Multiple business turnarounds at Yara — shifted Ghana from government tenders to private distributors, rebuilt Ecuador's route-to-market</li>
+          <li>P&L for $200M as Regional Director Central America with 110-person team across Costa Rica, Guatemala, and Panama</li>
+          <li>Native Spanish speaker with 8 years as Commercial Director Iberia & Maghreb — deep distributor network knowledge</li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> Immediate to 4 weeks</span>
+        <span class="comp-badge comp-aligned">Comp aligned</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+    <!-- Germán — OLD -->
+    <div class="card-old">
+      <div class="card-header">
+        <div class="avatar">GM</div>
+        <div class="name">Germán Martos</div>
+        <div class="title">Commercial Director, EMEA</div>
+        <div class="meta">Lindsay Corporation · Netherlands (family in Madrid)</div>
+      </div>
+      <div class="card-body">
+        <p class="summary-para"><strong>6 years as Commercial Director Spain & Portugal at Yara</strong> (€230M portfolio, 400+ distributors). Now leads €200M EMEA commercial at Lindsay — channel restructuring and key account transformation.</p>
+        <ul class="bullet-list">
+          <li>Professionalised Yara's Iberian distributor network — classification scorecard across 400+ distributors with €230M portfolio</li>
+          <li>Currently leads €200M EMEA commercial at Lindsay Corporation across 40+ countries</li>
+          <li>Native Spanish speaker with family in Madrid — strong personal commitment to relocate</li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> 2–3 months</span>
+        <span class="comp-badge comp-aligned">Comp aligned</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== REDESIGNED (NEW) CARDS ===================== -->
+<div class="view" id="view-new">
+  <div class="section-label">
+    <h2>Click any candidate to view their full EDC</h2>
+  </div>
+  <div class="cards-grid">
+
+    <!-- Ramon — NEW -->
+    <div class="card-new">
+      <div class="placed-badge"><span class="check">✦</span> Placed</div>
+      <div class="card-header">
+        <div class="avatar">RP</div>
+        <div class="name">Ramón Pelegrí</div>
+        <div class="title">Regional Director, Southern Europe, ME & Africa</div>
+        <div class="meta">Compo Expert · Barcelona, Spain</div>
+      </div>
+      <div class="headline">
+        <p>Led €170M commodity-to-specialty transformation at Compo Expert under Triton PE ownership across 10+ countries.</p>
+      </div>
+      <div class="motivation">
+        <p>Interested in a specialty fertilizer growth mandate after Compo Expert's post-integration phase</p>
+      </div>
+      <div class="pills">
+        <span class="pill">P&L Ownership</span>
+        <span class="pill">Distribution Networks</span>
+        <span class="pill">PE Experience</span>
+        <span class="pill">Iberia + EMEA</span>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> 3 months</span>
+        <span class="comp-badge comp-stretch">Comp concern</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+    <!-- Sergio — NEW -->
+    <div class="card-new">
+      <div class="card-header">
+        <div class="avatar">SG</div>
+        <div class="name">Sergio Godoy</div>
+        <div class="title">Founder & Principal</div>
+        <div class="meta">Cropsignal Advisory · Madrid, Spain</div>
+      </div>
+      <div class="headline">
+        <p>22-year Yara career spanning Iberia, Africa, and LatAm — led multiple market turnarounds and $200M regional P&L.</p>
+      </div>
+      <div class="motivation">
+        <p>Interested in returning to an operational CCO mandate after 18 months of independent advisory</p>
+      </div>
+      <div class="pills">
+        <span class="pill">Turnaround</span>
+        <span class="pill">Route-to-Market</span>
+        <span class="pill">M&A Integration</span>
+        <span class="pill">LatAm + Africa</span>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> Immediate</span>
+        <span class="comp-badge comp-aligned">Comp aligned</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+    <!-- Germán — NEW -->
+    <div class="card-new">
+      <div class="card-header">
+        <div class="avatar">GM</div>
+        <div class="name">Germán Martos</div>
+        <div class="title">Commercial Director, EMEA</div>
+        <div class="meta">Lindsay Corporation · Netherlands (family in Madrid)</div>
+      </div>
+      <div class="headline">
+        <p>Built Yara's Iberian channel scorecard across 400+ distributors — now running €200M EMEA commercial at Lindsay.</p>
+      </div>
+      <div class="motivation">
+        <p>Interested in a CCO role closer to family in Madrid with a specialty agriculture focus</p>
+      </div>
+      <div class="pills">
+        <span class="pill">Channel Strategy</span>
+        <span class="pill">Key Accounts</span>
+        <span class="pill">EMEA Scale</span>
+        <span class="pill">Relocating to Madrid</span>
+      </div>
+      <div class="card-footer">
+        <span class="notice-text"><strong>Notice:</strong> 2–3 months</span>
+        <span class="comp-badge comp-aligned">Comp aligned</span>
+      </div>
+      <div class="cta-row">
+        <span class="cta-label">Executive Decision Card</span>
+        <span class="cta-arrow">View →</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function switchView(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.version-toggle button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  if (view === 'old') {
+    document.querySelector('.version-toggle button:first-child').classList.add('active');
+  } else {
+    document.querySelector('.version-toggle button:last-child').classList.add('active');
+  }
+}
+</script>
+
+</body>
+</html>

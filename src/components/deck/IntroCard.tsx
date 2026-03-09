@@ -27,7 +27,7 @@ type CardEdits = {
 const COMP_CYCLE: Array<"green" | "amber" | "not_set"> = ["green", "amber", "not_set"];
 const COMP_LABEL: Record<string, string> = {
   green: "Comp aligned",
-  amber: "Comp stretch",
+  amber: "Comp concern",
   not_set: "Comp not set",
 };
 const COMP_COLOR: Record<string, string> = {
