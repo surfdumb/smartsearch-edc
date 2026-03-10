@@ -83,6 +83,12 @@ export interface EDCData {
   // Miscellaneous — optional additional notes
   miscellaneous?: { text: string; display: 'SHOW' | 'HIDE' };
 
+  // Candidate Status (landing page)
+  status?: 'new' | 'active' | 'rejected' | 'hold';
+
+  // Motivation (simplified)
+  motivation_hook?: string;
+
   // Extensible — not used in v1.0 but keep in type
   cv_url?: string;
   linkedin_url?: string;

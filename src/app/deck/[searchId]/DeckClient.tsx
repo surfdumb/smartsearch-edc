@@ -226,14 +226,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           <img
             src="/logos/smartsearch-white.png"
             alt="SmartSearch"
-            style={{ height: "24px", opacity: 0.55 }}
+            style={{ height: "32px", opacity: 0.7 }}
           />
-          <span
-            className="deck-header-title font-cormorant"
-            style={{ fontSize: "1.05rem", color: "var(--ss-gold)", letterSpacing: "0.5px" }}
-          >
-            Executive <em style={{ fontStyle: "italic" }}>Decision</em> Deck
-          </span>
+          <span />{/* Logo is sufficient branding — no text label */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {isEditRoute ? (
               <>
@@ -357,13 +352,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           />
 
           <p
-            className="font-cormorant"
             style={{
               textAlign: "center",
-              fontSize: "1.05rem",
-              fontStyle: "italic",
-              color: "rgba(var(--deck-text-rgb),0.25)",
+              fontSize: "0.95rem",
+              fontWeight: 400,
+              color: "rgba(var(--deck-text-rgb),0.55)",
               marginBottom: "32px",
+              letterSpacing: "0.2px",
             }}
           >
             Click any candidate to view their full assessment

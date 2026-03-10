@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 
 interface MotivationStripProps {
@@ -16,38 +15,14 @@ interface MotivationStripProps {
 export default function MotivationStrip({
   why_interested,
   motivation,
-  our_take_fragments,
 }: MotivationStripProps) {
   const { isEditable } = useEditorContext();
 
-  // Build fragments array from available motivation data
-  const buildFragments = useCallback((): string[] => {
-    const frags: string[] = [];
-    if (motivation && motivation.trim()) frags.push(motivation.trim());
-    for (const item of why_interested) {
-      if (item.headline && item.headline.trim()) frags.push(item.headline.trim());
-    }
-    // Include any motivation-adjacent our_take_fragments
-    if (our_take_fragments) {
-      for (const f of our_take_fragments) {
-        if (f && f.trim() && !frags.includes(f.trim())) frags.push(f.trim());
-      }
-    }
-    return frags;
-  }, [why_interested, motivation, our_take_fragments]);
+  // Build a single motivation hook: prefer explicit motivation field, else first headline
+  const hookText = motivation?.trim()
+    || (why_interested.length > 0 ? why_interested[0].headline.trim() : "");
 
-  const fragments = buildFragments();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [customText, setCustomText] = useState<string | null>(null);
-
-  if (fragments.length === 0) return null;
-
-  const displayText = customText !== null ? customText : (fragments[currentIndex % fragments.length] || "");
-
-  const handleRefresh = () => {
-    setCustomText(null);
-    setCurrentIndex(prev => (prev + 1) % fragments.length);
-  };
+  if (!hookText) return null;
 
   return (
     <div
@@ -65,15 +40,10 @@ export default function MotivationStrip({
           contentEditable
           suppressContentEditableWarning
           className="editable-cell"
-          onBlur={(e) => {
-            const val = e.currentTarget.textContent || "";
-            if (val.trim() !== displayText) setCustomText(val.trim());
-          }}
           style={{
             fontSize: "0.85rem",
-            fontStyle: "italic",
             fontWeight: 400,
-            color: "var(--ss-gold)",
+            color: "rgba(255,255,255,0.75)",
             lineHeight: 1.4,
             margin: 0,
             flex: 1,
@@ -82,64 +52,22 @@ export default function MotivationStrip({
             fontFamily: "var(--font-outfit), Outfit, sans-serif",
           }}
         >
-          {displayText}
+          <strong style={{ fontWeight: 600 }}>Motivation</strong> — {hookText}
         </p>
       ) : (
         <p
           style={{
             fontSize: "0.85rem",
-            fontStyle: "italic",
             fontWeight: 400,
-            color: "var(--ss-gold)",
+            color: "rgba(255,255,255,0.75)",
             lineHeight: 1.4,
             margin: 0,
             flex: 1,
             fontFamily: "var(--font-outfit), Outfit, sans-serif",
           }}
         >
-          {displayText}
+          <strong style={{ fontWeight: 600 }}>Motivation</strong> — {hookText}
         </p>
-      )}
-
-      {/* Refresh/cycle button */}
-      {fragments.length > 1 && (
-        <button
-          onClick={handleRefresh}
-          title="Cycle motivation hook"
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "2px",
-            lineHeight: 1,
-            flexShrink: 0,
-            opacity: 0.4,
-            transition: "opacity 0.15s, transform 0.3s",
-            color: "var(--ss-gold)",
-            fontSize: "0.8rem",
-          }}
-          onMouseOver={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.8";
-          }}
-          onMouseOut={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.opacity = "0.4";
-          }}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="23 4 23 10 17 10" />
-            <polyline points="1 20 1 14 7 14" />
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-          </svg>
-        </button>
       )}
     </div>
   );

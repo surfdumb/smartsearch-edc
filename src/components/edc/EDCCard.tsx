@@ -132,6 +132,8 @@ export default function EDCCard({
                 background: "white",
               }}
             >
+            {/* Scroll fade indicator — signals content extends below */}
+            <div className="scroll-fade-indicator" />
               {currentPanel === 1 && (
                 <div style={{ position: "relative" }}>
                   {/* Our Take pill — top-right of scope page */}

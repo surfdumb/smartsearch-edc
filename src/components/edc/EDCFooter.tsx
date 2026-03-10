@@ -42,7 +42,18 @@ export default function EDCFooter({
         )}
       </span>
 
-      {/* Right side intentionally empty — Our Take pill moved to scope panel */}
+      {/* Right: confidential disclaimer */}
+      <span
+        style={{
+          fontSize: "0.62rem",
+          fontWeight: 400,
+          color: "var(--ss-gray-light)",
+          letterSpacing: "0.3px",
+          opacity: 0.6,
+        }}
+      >
+        Confidential
+      </span>
     </footer>
   );
 }

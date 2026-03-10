@@ -27,45 +27,48 @@ export default function Compensation({ compensation, notice_period }: Compensati
   const hasTotal = !isEmpty(compensation.current_total) || !isEmpty(compensation.expected_total);
   const hasBudget = !isEmpty(compensation.budget_range);
 
+  const colStyle: React.CSSProperties = {
+    fontSize: "0.72rem",
+    fontWeight: 600,
+    letterSpacing: "1.5px",
+    textTransform: "uppercase",
+    color: "var(--ss-gray-light)",
+  };
+
+  const valStyle: React.CSSProperties = {
+    fontSize: "0.92rem",
+    fontWeight: 500,
+    color: "var(--ss-dark)",
+  };
+
+  const totalValStyle: React.CSSProperties = {
+    fontSize: "1.05rem",
+    fontWeight: 700,
+    color: "var(--ss-dark)",
+  };
+
+  // Determine grid columns based on whether budget/target range exists
+  const cols = hasBudget ? "120px 1fr 1fr 1fr" : "120px 1fr 1fr";
+
   return (
     <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Compensation" />
 
-      {/* 3-column table: Label | Current | Expectation */}
       <div style={{ width: "100%" }}>
         {/* Header row */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "120px 1fr 1fr",
+            gridTemplateColumns: cols,
             gap: "12px",
             paddingBottom: "6px",
             borderBottom: "1px solid #eeebe6",
           }}
         >
-          <span />
-          <span
-            style={{
-              fontSize: "0.72rem",
-              fontWeight: 600,
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              color: "var(--ss-gray-light)",
-            }}
-          >
-            Current Compensation
-          </span>
-          <span
-            style={{
-              fontSize: "0.72rem",
-              fontWeight: 600,
-              letterSpacing: "1.5px",
-              textTransform: "uppercase",
-              color: "var(--ss-gray-light)",
-            }}
-          >
-            Expectations
-          </span>
+          <span style={colStyle}>Component</span>
+          {hasBudget && <span style={colStyle}>Target Range</span>}
+          <span style={colStyle}>Current</span>
+          <span style={colStyle}>Expected</span>
         </div>
 
         {/* Base row */}
@@ -73,94 +76,42 @@ export default function Compensation({ compensation, notice_period }: Compensati
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "120px 1fr 1fr",
+              gridTemplateColumns: cols,
               gap: "12px",
               padding: "8px 0",
               borderBottom: "1px solid var(--ss-border-light)",
             }}
           >
-            <span
-              style={{
-                fontSize: "0.82rem",
-                fontWeight: 500,
-                color: "var(--ss-gray)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Base
-            </span>
-            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-dark)" }}>
+            <span style={{ ...colStyle, color: "var(--ss-gray)" }}>Base</span>
+            {hasBudget && <span style={valStyle}>{compensation.budget_range}</span>}
+            <span style={valStyle}>
               {isEmpty(compensation.current_base) ? "—" : compensation.current_base}
             </span>
-            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-dark)" }}>
+            <span style={valStyle}>
               {isEmpty(compensation.expected_base) ? "—" : compensation.expected_base}
             </span>
           </div>
         )}
 
-        {/* Total row — bold, top border emphasis */}
+        {/* Total package row — emphasized */}
         {hasTotal && (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "120px 1fr 1fr",
+              gridTemplateColumns: cols,
               gap: "12px",
               padding: "8px 0",
               borderTop: hasBase ? "1.5px solid #e0ddd8" : undefined,
               borderBottom: "1px solid var(--ss-border-light)",
             }}
           >
-            <span
-              style={{
-                fontSize: "0.82rem",
-                fontWeight: 600,
-                color: "var(--ss-dark)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Total
-            </span>
-            <span
-              className="font-cormorant"
-              style={{ fontSize: "18px", fontWeight: 600, color: "var(--ss-dark)" }}
-            >
+            <span style={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }}>Total</span>
+            {hasBudget && <span style={totalValStyle}>{compensation.budget_range}</span>}
+            <span style={totalValStyle}>
               {isEmpty(compensation.current_total) ? "—" : compensation.current_total}
             </span>
-            <span
-              className="font-cormorant"
-              style={{ fontSize: "18px", fontWeight: 600, color: "var(--ss-dark)" }}
-            >
+            <span style={totalValStyle}>
               {isEmpty(compensation.expected_total) ? "—" : compensation.expected_total}
-            </span>
-          </div>
-        )}
-
-        {/* Budget row */}
-        {hasBudget && (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "120px 1fr",
-              gap: "12px",
-              padding: "8px 0",
-              borderBottom: "1px solid var(--ss-border-light)",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "0.82rem",
-                fontWeight: 500,
-                color: "var(--ss-gold-deep)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Budget
-            </span>
-            <span style={{ fontSize: "0.95rem", fontWeight: 500, color: "var(--ss-gold-deep)" }}>
-              {compensation.budget_range}
             </span>
           </div>
         )}

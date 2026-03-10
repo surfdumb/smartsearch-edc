@@ -68,7 +68,7 @@ export default function EDCHeader({
     );
   }
 
-  // Default: single-row header with photo/initials + name + branding
+  // Default: single-row header — logo enlarged, no "Executive Decision Card" text, no "Confidential"
   return (
     <header
       className="edc-header relative overflow-hidden"
@@ -170,56 +170,13 @@ export default function EDCHeader({
           </div>
         </div>
 
-        {/* Right: SmartSearch symbol + Intelligence Card */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, marginLeft: "16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <img
-              src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"
-              alt="SmartSearch"
-              style={{ height: "30px", opacity: 0.8 }}
-            />
-            <span
-              className="font-cormorant"
-              style={{
-                fontSize: "15px",
-                fontStyle: "italic",
-                fontWeight: 500,
-                color: "var(--ss-gold)",
-                lineHeight: 1.1,
-              }}
-            >
-              SmartSearch
-            </span>
-          </div>
-          <span
-            className="font-cormorant"
-            style={{
-              fontSize: "13px",
-              fontWeight: 400,
-              fontStyle: "italic",
-              color: "rgba(197, 165, 114, 0.55)",
-              marginTop: "2px",
-              lineHeight: 1.2,
-              textAlign: "right" as const,
-            }}
-          >
-            Executive Decision<br />Card
-          </span>
-          <span
-            style={{
-              fontSize: "0.55rem",
-              fontWeight: 500,
-              letterSpacing: "1.5px",
-              textTransform: "uppercase" as const,
-              color: "rgba(197, 165, 114, 0.35)",
-              border: "1px solid rgba(197, 165, 114, 0.15)",
-              borderRadius: "8px",
-              padding: "2px 8px",
-              marginTop: "6px",
-            }}
-          >
-            Confidential
-          </span>
+        {/* Right: SmartSearch logo only — enlarged, no text labels */}
+        <div style={{ flexShrink: 0, marginLeft: "16px" }}>
+          <img
+            src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"
+            alt="SmartSearch"
+            style={{ height: "44px", opacity: 0.85 }}
+          />
         </div>
       </div>
 
