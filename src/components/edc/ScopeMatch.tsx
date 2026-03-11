@@ -113,7 +113,7 @@ export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
 
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Scope Match" />
+      <SectionLabel label="Scope Match" lineInsetRight="130px" />
 
       {/* Horizontally scrollable wrapper for mobile */}
       <div className="scope-match-scroll">

@@ -1,10 +1,12 @@
 interface SectionLabelProps {
   label: string;
+  /** Reserve right-side space so the line doesn't collide with overlaid elements */
+  lineInsetRight?: string;
 }
 
-export default function SectionLabel({ label }: SectionLabelProps) {
+export default function SectionLabel({ label, lineInsetRight }: SectionLabelProps) {
   return (
-    <div className="flex items-center gap-[10px] mb-3">
+    <div className="flex items-center gap-[10px] mb-3" style={lineInsetRight ? { paddingRight: lineInsetRight } : undefined}>
       <span
         className="uppercase font-semibold whitespace-nowrap"
         style={{

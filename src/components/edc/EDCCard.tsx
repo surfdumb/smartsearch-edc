@@ -124,6 +124,53 @@ export default function EDCCard({
 
           {/* Content area */}
           <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
+            {/* Our Take pill — persistent across all panels, top-right */}
+            {hasOurTake && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "12px",
+                  right: "32px",
+                  display: "flex",
+                  gap: "8px",
+                  zIndex: 10,
+                }}
+              >
+                <button
+                  ref={ourTakeTriggerRef}
+                  onClick={() => setOurTakeOpen(v => !v)}
+                  style={{
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    color: "var(--ss-gold)",
+                    background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.95)",
+                    border: "1px solid rgba(197,165,114,0.2)",
+                    borderRadius: "22px",
+                    padding: "8px 18px",
+                    height: "38px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.15s",
+                    fontFamily: "inherit",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.95)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                  }}
+                >
+                  <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
+                  Our Take
+                </button>
+              </div>
+            )}
+
             <div
               key={`${candidateId}-panel-${currentPanel}`}
               className={`criteria-scroll ${slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}`}
@@ -135,59 +182,10 @@ export default function EDCCard({
             {/* Scroll fade indicator — signals content extends below */}
             <div className="scroll-fade-indicator" />
               {currentPanel === 1 && (
-                <div style={{ position: "relative" }}>
-                  {/* Our Take pill — top-right of scope page */}
-                  {/* Why Interested placement TBD — awaiting March 10 team decision */}
-                  {hasOurTake && (
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "12px",
-                        right: "32px",
-                        display: "flex",
-                        gap: "8px",
-                        zIndex: 10,
-                      }}
-                    >
-                      <button
-                        ref={ourTakeTriggerRef}
-                        onClick={() => setOurTakeOpen(v => !v)}
-                        style={{
-                          fontSize: "0.78rem",
-                          fontWeight: 600,
-                          color: "var(--ss-gold)",
-                          background: "rgba(197,165,114,0.06)",
-                          border: "1px solid rgba(197,165,114,0.2)",
-                          borderRadius: "22px",
-                          padding: "8px 18px",
-                          height: "38px",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          transition: "all 0.15s",
-                          fontFamily: "inherit",
-                        }}
-                        onMouseOver={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
-                        }}
-                        onMouseOut={(e) => {
-                          (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
-                          (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
-                        }}
-                      >
-                        <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
-                        Our Take
-                      </button>
-                    </div>
-                  )}
-
-                  <ScopeMatch
-                    scope_match={data.scope_match}
-                    scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
-                  />
-                </div>
+                <ScopeMatch
+                  scope_match={data.scope_match}
+                  scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+                />
               )}
 
               {currentPanel === 2 && (

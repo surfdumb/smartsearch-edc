@@ -136,7 +136,7 @@ export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
 
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Key Criteria" />
+      <SectionLabel label="Key Criteria" lineInsetRight="130px" />
 
       <div className="flex flex-col gap-0">
         {items.map((item, i) => {
