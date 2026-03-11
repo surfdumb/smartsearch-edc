@@ -201,8 +201,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         el.style.borderColor = "rgba(197,165,114,0.12)";
       }}
     >
-      {/* ── Status badge (top-right) — edit mode only ── */}
-      {editMode && (
+      {/* ── Status badge (top-right) — always visible, always clickable ── */}
+      {/* In client view: only show when status is set (not 'none') */}
+      {/* In edit mode: always show so consultant can set status */}
+      {(editMode || (v.status && v.status !== 'none')) && (
         <div
           onClick={(e) => { e.stopPropagation(); cycleStatus(); }}
           style={{
