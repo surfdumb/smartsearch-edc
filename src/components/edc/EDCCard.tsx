@@ -180,6 +180,7 @@ export default function EDCCard({
               className={`criteria-scroll ${slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}`}
               style={{
                 height: "100%",
+                minHeight: "200px",
                 background: "white",
               }}
             >
