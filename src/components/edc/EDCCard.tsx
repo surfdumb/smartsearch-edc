@@ -139,30 +139,34 @@ export default function EDCCard({
                 <button
                   ref={ourTakeTriggerRef}
                   onClick={() => setOurTakeOpen(v => !v)}
+                  className={ourTakeOpen ? "" : "our-take-glow"}
                   style={{
-                    fontSize: "0.78rem",
+                    fontSize: "0.8rem",
                     fontWeight: 600,
                     color: "var(--ss-gold)",
-                    background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.95)",
-                    border: "1px solid rgba(197,165,114,0.2)",
+                    background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)",
+                    border: "1.5px solid rgba(197,165,114,0.4)",
                     borderRadius: "22px",
-                    padding: "8px 18px",
+                    padding: "8px 20px",
                     height: "38px",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
-                    transition: "all 0.15s",
+                    transition: "all 0.2s",
                     fontFamily: "inherit",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
                   }}
                   onMouseOver={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = "rgba(197,165,114,0.14)";
+                    btn.style.borderColor = "rgba(197,165,114,0.6)";
+                    btn.style.transform = "scale(1.03)";
                   }}
                   onMouseOut={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.95)";
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)";
+                    btn.style.borderColor = "rgba(197,165,114,0.4)";
+                    btn.style.transform = "scale(1)";
                   }}
                 >
                   <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>

@@ -198,6 +198,15 @@ body {
   50% { opacity: 0.5; }
 }
 
+/* Breathing glow on the Our Take pill */
+@keyframes ourTakeGlow {
+  0%, 100% { box-shadow: 0 0 4px rgba(197, 165, 114, 0.15), 0 1px 3px rgba(0,0,0,0.06); }
+  50% { box-shadow: 0 0 14px rgba(197, 165, 114, 0.4), 0 1px 3px rgba(0,0,0,0.06); }
+}
+.our-take-glow {
+  animation: ourTakeGlow 2.5s ease-in-out infinite;
+}
+
 @keyframes ourTakeSlideUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
