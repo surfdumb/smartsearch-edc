@@ -23,6 +23,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [view, setView] = useState<DeckView>({ mode: "grid" });
   const [editMode, setEditMode] = useState(false);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -503,17 +504,19 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
         {/* ── Two-panel layout ── */}
         <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
-          {/* ── Left panel (search context sidebar) ── */}
+          {/* ── Left panel (search context sidebar) — collapsible ── */}
           <div
             style={{
-              width: "280px",
-              minWidth: "280px",
-              padding: "32px 28px",
+              width: sidebarCollapsed ? "0px" : "280px",
+              minWidth: sidebarCollapsed ? "0px" : "280px",
+              padding: sidebarCollapsed ? "0" : "32px 28px",
               display: "flex",
               flexDirection: "column",
-              overflowY: "auto",
-              borderRight: "1px solid rgba(197,165,114,0.06)",
+              overflowY: sidebarCollapsed ? "hidden" : "auto",
+              overflowX: "hidden",
+              borderRight: sidebarCollapsed ? "none" : "1px solid rgba(197,165,114,0.06)",
               background: "rgba(45,40,36,0.3)",
+              transition: "width 0.25s ease, min-width 0.25s ease, padding 0.25s ease",
             }}
           >
             {/* Client logo */}
@@ -720,8 +723,40 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               overflowY: "auto",
               display: "flex",
               flexDirection: "column",
+              position: "relative",
             }}
           >
+            {/* Sidebar collapse/expand toggle */}
+            <button
+              onClick={() => setSidebarCollapsed(v => !v)}
+              title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+              style={{
+                position: "absolute",
+                top: "12px",
+                left: "12px",
+                background: "rgba(197,165,114,0.06)",
+                border: "1px solid rgba(197,165,114,0.12)",
+                borderRadius: "6px",
+                padding: "4px 8px",
+                fontSize: "0.72rem",
+                fontWeight: 600,
+                color: "rgba(197,165,114,0.4)",
+                cursor: "pointer",
+                zIndex: 5,
+                transition: "all 0.2s",
+                lineHeight: 1,
+              }}
+              onMouseOver={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+              }}
+              onMouseOut={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.12)";
+              }}
+            >
+              {sidebarCollapsed ? "▶" : "◀"}
+            </button>
             {/* Instructional text */}
             <p
               style={{
