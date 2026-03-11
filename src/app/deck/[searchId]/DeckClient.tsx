@@ -38,6 +38,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   // Job Summary slide-over — supports multiple PDFs
   const [showJobSummary, setShowJobSummary] = useState(false);
+  const [jsFullScreen, setJsFullScreen] = useState(false);
   const [jobSummaryFiles, setJobSummaryFiles] = useState<{ name: string; blobUrl: string }[]>([]);
   const [currentPdfIdx, setCurrentPdfIdx] = useState(0);
   const jobSummaryFileRef = useRef<HTMLInputElement>(null);
@@ -484,6 +485,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               padding: "32px 28px",
               display: "flex",
               flexDirection: "column",
+              overflowY: "auto",
               borderRight: "1px solid rgba(197,165,114,0.06)",
               background: "rgba(45,40,36,0.3)",
             }}
@@ -569,10 +571,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               {data.search_lead}
             </p>
 
-            {/* Spacer */}
-            <div style={{ flex: 1 }} />
+            {/* Divider */}
+            <div style={{ height: "1px", background: "rgba(197,165,114,0.08)", margin: "20px 0" }} />
 
-            {/* View Job Summary button — or upload prompt in edit mode */}
+            {/* View Job Summary button — or upload prompt */}
             {hasJobSummary ? (
               <div style={{ marginBottom: "16px", display: "flex", flexDirection: "column", gap: "6px" }}>
                 <button
@@ -666,6 +668,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               style={{ display: "none" }}
               onChange={handleJobSummaryUpload}
             />
+
+            {/* Spacer to push footer down */}
+            <div style={{ flex: 1, minHeight: "16px" }} />
 
             {/* SmartSearch footer in sidebar */}
             <div style={{ paddingTop: "12px", borderTop: "1px solid rgba(197,165,114,0.06)" }}>
@@ -772,14 +777,15 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 top: 0,
                 right: 0,
                 bottom: 0,
-                width: "580px",
-                maxWidth: "90vw",
+                width: jsFullScreen ? "100vw" : "62vw",
+                maxWidth: jsFullScreen ? "100vw" : "90vw",
                 background: "#1a1816",
-                borderLeft: "1px solid rgba(197,165,114,0.15)",
+                borderLeft: jsFullScreen ? "none" : "1px solid rgba(197,165,114,0.15)",
                 zIndex: 901,
                 display: "flex",
                 flexDirection: "column",
                 animation: "slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+                transition: "width 0.25s ease",
               }}
             >
               {/* Panel header */}
@@ -889,7 +895,26 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                     </>
                   )}
                   <button
-                    onClick={() => setShowJobSummary(false)}
+                    onClick={() => setJsFullScreen(f => !f)}
+                    title={jsFullScreen ? "Exit full screen" : "Full screen"}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(197,165,114,0.12)",
+                      borderRadius: "6px",
+                      padding: "4px 10px",
+                      fontSize: "0.68rem",
+                      fontWeight: 600,
+                      color: "rgba(197,165,114,0.4)",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                    onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)"; }}
+                  >
+                    {jsFullScreen ? "Exit ⊡" : "Full ⊞"}
+                  </button>
+                  <button
+                    onClick={() => { setShowJobSummary(false); setJsFullScreen(false); }}
                     style={{
                       background: "transparent",
                       border: "1px solid rgba(197,165,114,0.15)",
