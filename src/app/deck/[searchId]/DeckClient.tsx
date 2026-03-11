@@ -630,7 +630,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   </button>
                 )}
               </div>
-            ) : isEditRoute ? (
+            ) : (
               <button
                 onClick={() => jobSummaryFileRef.current?.click()}
                 style={{
@@ -658,7 +658,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               >
                 + Upload Job Summary PDF
               </button>
-            ) : null}
+            )}
             <input
               ref={jobSummaryFileRef}
               type="file"
