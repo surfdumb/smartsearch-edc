@@ -166,9 +166,20 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
     save({ status: STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length] });
   };
 
-  // Strip HTML from headline for snippet
+  // Strip HTML from headline for snippet — show full text or truncate at sentence boundary
   const snippetText = v.headline.replace(/<[^>]+>/g, '');
-  const snippet = snippetText.length > 100 ? snippetText.slice(0, 97) + '...' : snippetText;
+  let snippet = snippetText;
+  if (snippetText.length > 120) {
+    // Try to truncate at a sentence boundary (. ! ?) within the first ~120 chars
+    const sentenceEnd = snippetText.slice(0, 120).search(/[.!?]\s/);
+    if (sentenceEnd > 30) {
+      snippet = snippetText.slice(0, sentenceEnd + 1);
+    } else {
+      // Fall back to word boundary
+      const wordEnd = snippetText.lastIndexOf(' ', 115);
+      snippet = snippetText.slice(0, wordEnd > 30 ? wordEnd : 115);
+    }
+  }
 
   return (
     <div
