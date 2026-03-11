@@ -158,18 +158,18 @@ body {
    PANEL SLIDE TRANSITIONS
    ============================================================ */
 @keyframes panelSlideInFromRight {
-  from { transform: translateX(30px); opacity: 0; }
+  from { transform: translateX(16px); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
 @keyframes panelSlideInFromLeft {
-  from { transform: translateX(-30px); opacity: 0; }
+  from { transform: translateX(-16px); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
 .panel-enter-right {
-  animation: panelSlideInFromRight 250ms ease-out;
+  animation: panelSlideInFromRight 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 .panel-enter-left {
-  animation: panelSlideInFromLeft 250ms ease-out;
+  animation: panelSlideInFromLeft 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* ============================================================
@@ -253,6 +253,23 @@ body {
   pointer-events: none;
   z-index: 5;
   margin-top: -32px;
+}
+
+/* Deck card grid scroll cue — gradient fade at bottom */
+.deck-card-grid-scroll {
+  position: relative;
+}
+.deck-card-grid-scroll::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 48px;
+  background: linear-gradient(to top, #2d2824 0%, transparent 100%);
+  pointer-events: none;
+  margin-top: -48px;
 }
 
 /* ============================================================

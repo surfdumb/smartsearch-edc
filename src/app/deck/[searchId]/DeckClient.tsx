@@ -716,6 +716,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
           {/* ── Right panel (candidate cards) ── */}
           <div
+            className="deck-card-grid-scroll"
             style={{
               flex: 1,
               background: "#2d2824",
