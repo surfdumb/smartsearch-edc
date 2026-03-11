@@ -101,8 +101,8 @@ export default function MotivationStrip({
         </p>
       )}
 
-      {/* Refresh/cycle button */}
-      {fragments.length > 1 && (
+      {/* Refresh/cycle button — edit mode only */}
+      {isEditable && fragments.length > 1 && (
         <button
           onClick={handleRefresh}
           title="Cycle motivation hook"
