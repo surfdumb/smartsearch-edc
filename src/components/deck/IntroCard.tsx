@@ -17,7 +17,7 @@ type CardEdits = {
   current_company?: string;
   location?: string;
   headline?: string;
-  status?: 'new' | 'active' | 'rejected' | 'hold';
+  status?: 'new' | 'active' | 'rejected' | 'hold' | 'none';
   compensation_alignment?: "green" | "amber" | "not_set";
 };
 
@@ -28,7 +28,7 @@ const COMP_COLOR: Record<string, string> = {
   not_set: "#a0a0a0",
 };
 
-const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold'> = ['new', 'active', 'rejected', 'hold'];
+const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold' | 'none'> = ['none', 'new', 'active', 'rejected', 'hold'];
 const STATUS_STYLES: Record<string, { color: string; bg: string; border: string }> = {
   new: { color: "#4a6a8c", bg: "rgba(74,106,140,0.08)", border: "rgba(74,106,140,0.2)" },
   active: { color: "#4a7c59", bg: "rgba(74,124,89,0.08)", border: "rgba(74,124,89,0.2)" },
@@ -161,7 +161,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
   };
 
   const cycleStatus = () => {
-    const curr = v.status || 'new';
+    const curr = v.status || 'none';
     const idx = STATUS_CYCLE.indexOf(curr);
     save({ status: STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length] });
   };
@@ -201,10 +201,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         el.style.borderColor = "rgba(197,165,114,0.12)";
       }}
     >
-      {/* ── Status badge (top-right) ── */}
-      {(v.status || editMode) && (
+      {/* ── Status badge (top-right) — edit mode only ── */}
+      {editMode && (
         <div
-          onClick={editMode ? (e) => { e.stopPropagation(); cycleStatus(); } : undefined}
+          onClick={(e) => { e.stopPropagation(); cycleStatus(); }}
           style={{
             position: "absolute",
             top: "12px",
@@ -213,17 +213,17 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.8px",
-            color: STATUS_STYLES[v.status || 'new'].color,
-            background: STATUS_STYLES[v.status || 'new'].bg,
-            border: `1px solid ${STATUS_STYLES[v.status || 'new'].border}`,
+            color: (!v.status || v.status === 'none') ? "rgba(160,160,160,0.5)" : STATUS_STYLES[v.status].color,
+            background: (!v.status || v.status === 'none') ? "rgba(160,160,160,0.04)" : STATUS_STYLES[v.status].bg,
+            border: `1px solid ${(!v.status || v.status === 'none') ? "rgba(160,160,160,0.15)" : STATUS_STYLES[v.status].border}`,
             borderRadius: "4px",
             padding: "3px 8px",
-            cursor: editMode ? "pointer" : "default",
+            cursor: "pointer",
             zIndex: 2,
             transition: "all 0.2s",
           }}
         >
-          {v.status ? v.status.charAt(0).toUpperCase() + v.status.slice(1) : "New"}
+          {(!v.status || v.status === 'none') ? "No status" : v.status.charAt(0).toUpperCase() + v.status.slice(1)}
         </div>
       )}
 
