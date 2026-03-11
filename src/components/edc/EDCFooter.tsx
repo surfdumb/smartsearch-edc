@@ -24,20 +24,21 @@ export default function EDCFooter({
         position: "relative",
       }}
     >
-      {/* Left: search info */}
+      {/* Left: search info — company distinct from role */}
       <span
         style={{
           fontSize: "0.78rem",
-          fontWeight: 400,
-          color: "var(--ss-gray)",
           letterSpacing: "0.3px",
+          display: "flex",
+          alignItems: "center",
+          gap: "0",
         }}
       >
-        {search_name}
+        <span style={{ fontWeight: 600, color: "var(--ss-gray)" }}>{search_name}</span>
         {roleTitle && (
           <>
-            <span style={{ color: "var(--ss-gold)", margin: "0 6px", opacity: 0.4 }}>·</span>
-            {roleTitle}
+            <span style={{ color: "var(--ss-gold)", margin: "0 10px", opacity: 0.3, fontSize: "0.65rem" }}>|</span>
+            <span style={{ fontWeight: 400, color: "var(--ss-gray-light)" }}>{roleTitle}</span>
           </>
         )}
       </span>

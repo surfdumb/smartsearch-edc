@@ -207,9 +207,9 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           onClick={editMode ? (e) => { e.stopPropagation(); cycleStatus(); } : undefined}
           style={{
             position: "absolute",
-            top: "10px",
-            right: "10px",
-            fontSize: "0.58rem",
+            top: "12px",
+            right: "12px",
+            fontSize: "0.72rem",
             fontWeight: 700,
             textTransform: "uppercase",
             letterSpacing: "0.8px",
@@ -217,7 +217,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             background: STATUS_STYLES[v.status || 'new'].bg,
             border: `1px solid ${STATUS_STYLES[v.status || 'new'].border}`,
             borderRadius: "4px",
-            padding: "2px 6px",
+            padding: "3px 8px",
             cursor: editMode ? "pointer" : "default",
             zIndex: 2,
             transition: "all 0.2s",
@@ -228,18 +228,18 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       )}
 
       {/* ── Card body ── */}
-      <div style={{ padding: "20px 18px 14px", textAlign: "center", flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "26px 22px 18px", textAlign: "center", flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Avatar — photo or initials */}
         <div
           style={{
-            width: "48px",
-            height: "48px",
+            width: "62px",
+            height: "62px",
             borderRadius: "50%",
             background: photoUrl ? "transparent" : "linear-gradient(135deg, #c5a572, #d4ba8a)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 auto 10px",
+            margin: "0 auto 12px",
             boxShadow: "0 0 0 2px rgba(197,165,114,0.12)",
             overflow: "hidden",
           }}
@@ -253,7 +253,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           ) : (
             <span
               className="font-cormorant"
-              style={{ fontSize: "17px", fontWeight: 600, color: "#1a1a1a", lineHeight: 1 }}
+              style={{ fontSize: "21px", fontWeight: 600, color: "#1a1a1a", lineHeight: 1 }}
             >
               {card.initials}
             </span>
@@ -269,38 +269,38 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           singleLine
           className="font-cormorant"
           style={{
-            fontSize: "1.1rem",
+            fontSize: "1.38rem",
             fontWeight: 600,
             color: "#1a1a1a",
-            marginBottom: "3px",
+            marginBottom: "4px",
             letterSpacing: "-0.2px",
             lineHeight: 1.2,
           }}
         />
 
         {/* Title + Company */}
-        <p style={{ fontSize: "0.78rem", color: "#6b6b6b", marginBottom: "2px", lineHeight: 1.35 }}>
+        <p style={{ fontSize: "0.98rem", color: "#6b6b6b", marginBottom: "3px", lineHeight: 1.35 }}>
           <Editable
             value={v.current_title}
             onSave={(val) => save({ current_title: val })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.78rem", color: "#6b6b6b" }}
+            style={{ fontSize: "0.98rem", color: "#6b6b6b" }}
           />
         </p>
-        <p style={{ fontSize: "0.78rem", marginBottom: "2px", lineHeight: 1.35 }}>
+        <p style={{ fontSize: "0.98rem", marginBottom: "3px", lineHeight: 1.35 }}>
           <Editable
             value={v.current_company}
             onSave={(val) => save({ current_company: val })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.78rem", color: "#1a1a1a", fontWeight: 600 }}
+            style={{ fontSize: "0.98rem", color: "#1a1a1a", fontWeight: 600 }}
           />
         </p>
 
         {/* Location */}
         {v.location && (
-          <p style={{ fontSize: "0.72rem", color: "#a0a0a0", marginBottom: "0" }}>
+          <p style={{ fontSize: "0.9rem", color: "#a0a0a0", marginBottom: "0" }}>
             {v.location}
           </p>
         )}
@@ -309,11 +309,11 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {snippet && (
           <p
             style={{
-              fontSize: "0.75rem",
+              fontSize: "0.94rem",
               color: "#6b6b6b",
               lineHeight: 1.5,
               textAlign: "center",
-              marginTop: "8px",
+              marginTop: "10px",
               marginBottom: "0",
             }}
           >
@@ -322,14 +322,14 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         )}
 
         {/* Spacer */}
-        <div style={{ flex: 1, minHeight: "8px" }} />
+        <div style={{ flex: 1, minHeight: "10px" }} />
       </div>
 
       {/* ── Footer — comp dot + arrow ── */}
       <div
         onClick={editMode ? onClick : undefined}
         style={{
-          padding: "8px 18px",
+          padding: "10px 22px",
           borderTop: "1px solid rgba(197,165,114,0.08)",
           display: "flex",
           justifyContent: "space-between",
@@ -346,10 +346,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "5px",
-              fontSize: "0.65rem",
+              gap: "6px",
+              fontSize: "0.82rem",
               fontWeight: 600,
-              padding: "2px 8px",
+              padding: "3px 10px",
               borderRadius: "6px",
               background: "transparent",
               color: alignmentColor,
@@ -358,14 +358,14 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               transition: "all 0.15s",
             }}
           >
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: alignmentColor }} />
-            {v.compensation_alignment === "green" ? "Aligned" : v.compensation_alignment === "amber" ? "Concern" : "Not set"}
+            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: alignmentColor }} />
+            {v.compensation_alignment === "green" ? "Comp aligned" : v.compensation_alignment === "amber" ? "Comp concern" : "Comp not set"}
           </button>
         ) : (
           v.compensation_alignment !== "not_set" ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "0.65rem", fontWeight: 500, color: alignmentColor }}>
-              <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: alignmentColor }} />
-              {v.compensation_alignment === "green" ? "Aligned" : "Concern"}
+            <span style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.82rem", fontWeight: 500, color: alignmentColor }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: alignmentColor }} />
+              {v.compensation_alignment === "green" ? "Comp aligned" : "Comp concern"}
             </span>
           ) : <span />
         )}
@@ -373,7 +373,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {/* Arrow */}
         <span
           className="intro-card-arrow"
-          style={{ fontSize: "0.68rem", fontWeight: 600, color: "#c5a572", transition: "transform 0.2s" }}
+          style={{ fontSize: "0.85rem", fontWeight: 600, color: "#c5a572", transition: "transform 0.2s" }}
         >
           →
         </span>

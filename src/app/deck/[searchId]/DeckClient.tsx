@@ -36,16 +36,169 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     }
   }, [searchId, data.client_logo_url]);
 
-  // Job Summary slide-over
+  // Job Summary slide-over — supports multiple PDFs
   const [showJobSummary, setShowJobSummary] = useState(false);
-  const jobSummaryUrl = data.job_summary_pdf_url;
+  const [jobSummaryFiles, setJobSummaryFiles] = useState<{ name: string; blobUrl: string }[]>([]);
+  const [currentPdfIdx, setCurrentPdfIdx] = useState(0);
+  const jobSummaryFileRef = useRef<HTMLInputElement>(null);
+  const jsStorageKey = `job_summary_pdfs_${searchId}`;
+
+  // Load persisted Job Summary PDFs from localStorage on mount
+  useEffect(() => {
+    // Migrate old single-PDF key if present
+    try {
+      const oldSingle = localStorage.getItem(`job_summary_pdf_${searchId}`);
+      if (oldSingle) {
+        const migrated = JSON.stringify([{ name: "Job Summary", dataUrl: oldSingle }]);
+        localStorage.setItem(`job_summary_pdfs_${searchId}`, migrated);
+        localStorage.removeItem(`job_summary_pdf_${searchId}`);
+      }
+    } catch { /* ignore */ }
+
+    try {
+      const stored = localStorage.getItem(jsStorageKey);
+      if (stored) {
+        const items: { name: string; dataUrl: string }[] = JSON.parse(stored);
+        Promise.all(
+          items.map(async (item) => {
+            const r = await fetch(item.dataUrl);
+            const blob = await r.blob();
+            return { name: item.name, blobUrl: URL.createObjectURL(blob) };
+          })
+        ).then((files) => setJobSummaryFiles(files));
+      }
+    } catch { /* ignore */ }
+  }, [searchId, jsStorageKey]);
+
+  const handleJobSummaryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || file.type !== "application/pdf") return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      // Persist to localStorage
+      try {
+        const stored = localStorage.getItem(jsStorageKey);
+        const existing: { name: string; dataUrl: string }[] = stored ? JSON.parse(stored) : [];
+        existing.push({ name: file.name.replace(/\.pdf$/i, ""), dataUrl });
+        localStorage.setItem(jsStorageKey, JSON.stringify(existing));
+      } catch { /* too large */ }
+      const newEntry = { name: file.name.replace(/\.pdf$/i, ""), blobUrl: URL.createObjectURL(file) };
+      setJobSummaryFiles(prev => {
+        const updated = [...prev, newEntry];
+        setCurrentPdfIdx(updated.length - 1); // jump to newly uploaded
+        return updated;
+      });
+    };
+    reader.readAsDataURL(file);
+    // Reset input so re-uploading the same file triggers onChange
+    e.target.value = "";
+  };
+
+  const handleRemoveJobSummary = (idx: number) => {
+    setJobSummaryFiles(prev => {
+      const removed = prev[idx];
+      if (removed) URL.revokeObjectURL(removed.blobUrl);
+      const updated = prev.filter((_, i) => i !== idx);
+      // Persist
+      try {
+        const stored = localStorage.getItem(jsStorageKey);
+        if (stored) {
+          const items: { name: string; dataUrl: string }[] = JSON.parse(stored);
+          items.splice(idx, 1);
+          if (items.length === 0) localStorage.removeItem(jsStorageKey);
+          else localStorage.setItem(jsStorageKey, JSON.stringify(items));
+        }
+      } catch { /* ignore */ }
+      // Adjust index
+      if (currentPdfIdx >= updated.length && updated.length > 0) {
+        setCurrentPdfIdx(updated.length - 1);
+      } else if (updated.length === 0) {
+        setCurrentPdfIdx(0);
+      }
+      return updated;
+    });
+  };
+
+  const hasJobSummary = jobSummaryFiles.length > 0;
+
+  // ── Card reorder (edit mode only) ─────────────────────────────────────────
+  const orderKey = `card_order_${searchId}`;
+  const [cardOrder, setCardOrder] = useState<string[]>([]);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  // Load persisted order on mount
+  useEffect(() => {
+    const defaultOrder = data.candidates.map((c) => c.candidate_id);
+    try {
+      const stored = localStorage.getItem(orderKey);
+      if (stored) {
+        const parsed: string[] = JSON.parse(stored);
+        // Validate: only keep IDs that still exist, append any new ones
+        const validSet = new Set(defaultOrder);
+        const filtered = parsed.filter((id) => validSet.has(id));
+        const missing = defaultOrder.filter((id) => !filtered.includes(id));
+        setCardOrder([...filtered, ...missing]);
+      } else {
+        setCardOrder(defaultOrder);
+      }
+    } catch {
+      setCardOrder(defaultOrder);
+    }
+  }, [data.candidates, orderKey]);
+
+  // Derive ordered candidates
+  const orderedCandidates = cardOrder.length > 0
+    ? cardOrder
+        .map((id) => data.candidates.find((c) => c.candidate_id === id))
+        .filter(Boolean) as typeof data.candidates
+    : data.candidates;
+
+  const persistOrder = useCallback((newOrder: string[]) => {
+    setCardOrder(newOrder);
+    try { localStorage.setItem(orderKey, JSON.stringify(newOrder)); } catch { /* ignore */ }
+  }, [orderKey]);
+
+  const handleDragStart = (idx: number) => (e: React.DragEvent) => {
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = "move";
+    // Make the drag image slightly transparent
+    if (e.currentTarget instanceof HTMLElement) {
+      e.dataTransfer.setDragImage(e.currentTarget, e.currentTarget.offsetWidth / 2, 20);
+    }
+  };
+
+  const handleDragOver = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIdx !== null && idx !== dragIdx) {
+      setDragOverIdx(idx);
+    }
+  };
+
+  const handleDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setDragOverIdx(null); return; }
+    const newOrder = [...cardOrder];
+    const [moved] = newOrder.splice(dragIdx, 1);
+    newOrder.splice(idx, 0, moved);
+    persistOrder(newOrder);
+    setDragIdx(null);
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDragIdx(null);
+    setDragOverIdx(null);
+  };
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
   // On mount: if URL has #candidateId, jump straight to that EDC (no flip)
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (!hash) return;
-    const index = data.candidates.findIndex((c) => c.candidate_id === hash);
+    const index = orderedCandidates.findIndex((c) => c.candidate_id === hash);
     if (index !== -1) {
       setView({ mode: "edc", candidateIndex: index, split: false });
     }
@@ -55,7 +208,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // When view changes, update URL hash
   useEffect(() => {
     if (view.mode === "edc") {
-      const candidateId = data.candidates[view.candidateIndex]?.candidate_id;
+      const candidateId = orderedCandidates[view.candidateIndex]?.candidate_id;
       if (candidateId) {
         const newHash = `#${candidateId}`;
         if (window.location.hash !== newHash) {
@@ -67,14 +220,14 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
         window.history.pushState(null, "", window.location.pathname + window.location.search);
       }
     }
-  }, [view, data.candidates]);
+  }, [view, orderedCandidates]);
 
   // Handle browser back/forward
   useEffect(() => {
     const handler = () => {
       const hash = window.location.hash.slice(1);
       if (hash) {
-        const index = data.candidates.findIndex((c) => c.candidate_id === hash);
+        const index = orderedCandidates.findIndex((c) => c.candidate_id === hash);
         if (index !== -1) {
           setView({ mode: "edc", candidateIndex: index, split: false });
           return;
@@ -84,7 +237,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     };
     window.addEventListener("popstate", handler);
     return () => window.removeEventListener("popstate", handler);
-  }, [data.candidates]);
+  }, [orderedCandidates]);
 
   // ── Card flip handler ───────────────────────────────────────────────────────
   const handleCardClick = (index: number) => {
@@ -119,11 +272,11 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   }, [view]);
 
   const handleNext = useCallback(() => {
-    if (view.mode === "edc" && view.candidateIndex < data.candidates.length - 1) {
+    if (view.mode === "edc" && view.candidateIndex < orderedCandidates.length - 1) {
       setCandidateSlide('right');
       setView({ ...view, candidateIndex: view.candidateIndex + 1 });
     }
-  }, [view, data.candidates.length]);
+  }, [view, orderedCandidates.length]);
 
   const handleToggleSplit = useCallback(() => {
     if (view.mode === "edc") {
@@ -235,11 +388,17 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             flexShrink: 0,
           }}
         >
-          <img
-            src="/logos/smartsearch-white.png"
-            alt="SmartSearch"
-            style={{ height: "28px", opacity: 0.6 }}
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <img
+              src="/logos/smartsearch-white.png"
+              alt="SmartSearch"
+              style={{ height: "28px", opacity: 0.6 }}
+            />
+            <span className="font-cormorant" style={{ fontSize: "1.15rem", fontWeight: 400, letterSpacing: "0.3px", color: "rgba(255,255,255,0.5)" }}>
+              Executive Decision
+              <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.7)", marginLeft: "6px" }}>Deck</span>
+            </span>
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {isEditRoute ? (
               <>
@@ -413,18 +572,75 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             {/* Spacer */}
             <div style={{ flex: 1 }} />
 
-            {/* View Job Summary button */}
-            {jobSummaryUrl && (
+            {/* View Job Summary button — or upload prompt in edit mode */}
+            {hasJobSummary ? (
+              <div style={{ marginBottom: "16px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                <button
+                  onClick={() => setShowJobSummary(true)}
+                  style={{
+                    background: "rgba(197,165,114,0.06)",
+                    border: "1px solid rgba(197,165,114,0.15)",
+                    borderRadius: "8px",
+                    padding: "10px 16px",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    color: "var(--ss-gold)",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    textAlign: "left",
+                    width: "100%",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.10)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.3)";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.15)";
+                  }}
+                >
+                  View Job Summary{jobSummaryFiles.length > 1 ? ` (${jobSummaryFiles.length} files)` : ""} →
+                </button>
+                {isEditRoute && (
+                  <button
+                    onClick={() => jobSummaryFileRef.current?.click()}
+                    style={{
+                      background: "transparent",
+                      border: "1px dashed rgba(197,165,114,0.12)",
+                      borderRadius: "6px",
+                      padding: "6px 12px",
+                      fontSize: "0.68rem",
+                      fontWeight: 500,
+                      color: "rgba(197,165,114,0.35)",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                      textAlign: "center",
+                      width: "100%",
+                    }}
+                    onMouseOver={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+                    }}
+                    onMouseOut={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.12)";
+                      (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.35)";
+                    }}
+                  >
+                    + Add another PDF
+                  </button>
+                )}
+              </div>
+            ) : isEditRoute ? (
               <button
-                onClick={() => setShowJobSummary(true)}
+                onClick={() => jobSummaryFileRef.current?.click()}
                 style={{
-                  background: "rgba(197,165,114,0.06)",
-                  border: "1px solid rgba(197,165,114,0.15)",
+                  background: "transparent",
+                  border: "1px dashed rgba(197,165,114,0.2)",
                   borderRadius: "8px",
                   padding: "10px 16px",
-                  fontSize: "0.78rem",
-                  fontWeight: 600,
-                  color: "var(--ss-gold)",
+                  fontSize: "0.75rem",
+                  fontWeight: 500,
+                  color: "rgba(197,165,114,0.4)",
                   cursor: "pointer",
                   transition: "all 0.2s",
                   textAlign: "left",
@@ -432,17 +648,24 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   marginBottom: "16px",
                 }}
                 onMouseOver={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.10)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.3)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.4)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
                 }}
                 onMouseOut={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.15)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
                 }}
               >
-                View Job Summary →
+                + Upload Job Summary PDF
               </button>
-            )}
+            ) : null}
+            <input
+              ref={jobSummaryFileRef}
+              type="file"
+              accept="application/pdf"
+              style={{ display: "none" }}
+              onChange={handleJobSummaryUpload}
+            />
 
             {/* SmartSearch footer in sidebar */}
             <div style={{ paddingTop: "12px", borderTop: "1px solid rgba(197,165,114,0.06)" }}>
@@ -489,11 +712,25 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 alignContent: "flex-start",
               }}
             >
-              {data.candidates.map((candidate, i) => (
+              {orderedCandidates.map((candidate, i) => (
                 <div
                   key={candidate.candidate_id}
                   ref={(el) => { cardRefs.current[i] = el; }}
-                  style={{ width: "250px" }}
+                  draggable={editMode}
+                  onDragStart={editMode ? handleDragStart(i) : undefined}
+                  onDragOver={editMode ? handleDragOver(i) : undefined}
+                  onDrop={editMode ? handleDrop(i) : undefined}
+                  onDragEnd={editMode ? handleDragEnd : undefined}
+                  style={{
+                    width: "310px",
+                    opacity: dragIdx === i ? 0.4 : 1,
+                    transition: "opacity 0.15s, transform 0.15s",
+                    transform: dragOverIdx === i ? "scale(1.03)" : "scale(1)",
+                    outline: dragOverIdx === i ? "2px dashed rgba(197,165,114,0.4)" : "none",
+                    outlineOffset: "4px",
+                    borderRadius: "14px",
+                    cursor: editMode ? "grab" : undefined,
+                  }}
                 >
                   <IntroCard
                     card={candidate}
@@ -514,17 +751,16 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           </div>
         </div>
 
-        {/* ── Job Summary slide-over ── */}
-        {showJobSummary && jobSummaryUrl && (
+        {/* ── Job Summary slide-over (multi-PDF) ── */}
+        {showJobSummary && hasJobSummary && (
           <>
-            {/* Backdrop */}
+            {/* Backdrop — no blur */}
             <div
               onClick={() => setShowJobSummary(false)}
               style={{
                 position: "fixed",
                 inset: 0,
-                background: "rgba(0,0,0,0.5)",
-                backdropFilter: "blur(4px)",
+                background: "rgba(0,0,0,0.35)",
                 zIndex: 900,
                 animation: "fadeInOverlay 0.2s ease forwards",
               }}
@@ -554,35 +790,129 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
+                  gap: "12px",
                 }}
               >
-                <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3px" }}>
-                  Job Summary
-                </span>
-                <button
-                  onClick={() => setShowJobSummary(false)}
-                  style={{
-                    background: "transparent",
-                    border: "1px solid rgba(197,165,114,0.15)",
-                    borderRadius: "6px",
-                    padding: "4px 12px",
-                    fontSize: "0.72rem",
-                    fontWeight: 600,
-                    color: "rgba(197,165,114,0.5)",
-                    cursor: "pointer",
-                    transition: "all 0.15s",
-                  }}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)"; }}
-                >
-                  Close ✕
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3px", whiteSpace: "nowrap" }}>
+                    Job Summary
+                  </span>
+                  {/* File name + navigation when multiple */}
+                  {jobSummaryFiles.length > 1 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        onClick={() => setCurrentPdfIdx(prev => Math.max(0, prev - 1))}
+                        disabled={currentPdfIdx === 0}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: currentPdfIdx === 0 ? "rgba(255,255,255,0.15)" : "var(--ss-gold)",
+                          cursor: currentPdfIdx === 0 ? "default" : "pointer",
+                          fontSize: "0.8rem",
+                          fontWeight: 700,
+                          padding: "2px 6px",
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        ‹
+                      </button>
+                      <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.45)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "160px" }}>
+                        {jobSummaryFiles[currentPdfIdx]?.name} ({currentPdfIdx + 1}/{jobSummaryFiles.length})
+                      </span>
+                      <button
+                        onClick={() => setCurrentPdfIdx(prev => Math.min(jobSummaryFiles.length - 1, prev + 1))}
+                        disabled={currentPdfIdx === jobSummaryFiles.length - 1}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: currentPdfIdx === jobSummaryFiles.length - 1 ? "rgba(255,255,255,0.15)" : "var(--ss-gold)",
+                          cursor: currentPdfIdx === jobSummaryFiles.length - 1 ? "default" : "pointer",
+                          fontSize: "0.8rem",
+                          fontWeight: 700,
+                          padding: "2px 6px",
+                          transition: "color 0.15s",
+                        }}
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                  {/* Show name for single file too */}
+                  {jobSummaryFiles.length === 1 && (
+                    <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.35)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "160px" }}>
+                      {jobSummaryFiles[0].name}
+                    </span>
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 }}>
+                  {isEditRoute && (
+                    <>
+                      <button
+                        onClick={() => jobSummaryFileRef.current?.click()}
+                        style={{
+                          background: "transparent",
+                          border: "1px solid rgba(197,165,114,0.12)",
+                          borderRadius: "6px",
+                          padding: "4px 10px",
+                          fontSize: "0.68rem",
+                          fontWeight: 600,
+                          color: "rgba(197,165,114,0.4)",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                        onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                        onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)"; }}
+                      >
+                        + Add
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleRemoveJobSummary(currentPdfIdx);
+                          if (jobSummaryFiles.length <= 1) setShowJobSummary(false);
+                        }}
+                        style={{
+                          background: "transparent",
+                          border: "1px solid rgba(197,165,114,0.12)",
+                          borderRadius: "6px",
+                          padding: "4px 10px",
+                          fontSize: "0.68rem",
+                          fontWeight: 600,
+                          color: "rgba(197,165,114,0.3)",
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                        }}
+                        onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,120,120,0.7)"; }}
+                        onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.3)"; }}
+                      >
+                        Remove
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => setShowJobSummary(false)}
+                    style={{
+                      background: "transparent",
+                      border: "1px solid rgba(197,165,114,0.15)",
+                      borderRadius: "6px",
+                      padding: "4px 12px",
+                      fontSize: "0.72rem",
+                      fontWeight: 600,
+                      color: "rgba(197,165,114,0.5)",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                    onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)"; }}
+                  >
+                    Close ✕
+                  </button>
+                </div>
               </div>
               {/* PDF iframe */}
               <div style={{ flex: 1, overflow: "hidden" }}>
                 <iframe
-                  src={jobSummaryUrl}
-                  title="Job Summary"
+                  src={jobSummaryFiles[currentPdfIdx]?.blobUrl ?? ""}
+                  title={jobSummaryFiles[currentPdfIdx]?.name ?? "Job Summary"}
                   style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
                 />
               </div>
@@ -600,19 +930,19 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   }
 
   // ── EDC VIEW ────────────────────────────────────────────────────────────────
-  const candidate = data.candidates[view.candidateIndex];
+  const candidate = orderedCandidates[view.candidateIndex];
   const prevCandidate = view.candidateIndex > 0
-    ? data.candidates[view.candidateIndex - 1]
+    ? orderedCandidates[view.candidateIndex - 1]
     : undefined;
-  const nextCandidate = view.candidateIndex < data.candidates.length - 1
-    ? data.candidates[view.candidateIndex + 1]
+  const nextCandidate = view.candidateIndex < orderedCandidates.length - 1
+    ? orderedCandidates[view.candidateIndex + 1]
     : undefined;
 
   return (
     <DeckEDCView
       candidate={candidate}
       candidateIndex={view.candidateIndex}
-      totalCount={data.candidates.length}
+      totalCount={orderedCandidates.length}
       split={view.split}
       searchId={searchId}
       isEditRoute={isEditRoute}
@@ -622,7 +952,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       deckTheme={theme}
       onBack={handleBack}
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
-      onNext={view.candidateIndex < data.candidates.length - 1 ? handleNext : undefined}
+      onNext={view.candidateIndex < orderedCandidates.length - 1 ? handleNext : undefined}
       onToggleSplit={handleToggleSplit}
     />
   );

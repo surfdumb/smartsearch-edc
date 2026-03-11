@@ -170,8 +170,12 @@ export default function EDCHeader({
           </div>
         </div>
 
-        {/* Right: SmartSearch logo only — enlarged, no text labels */}
-        <div style={{ flexShrink: 0, marginLeft: "16px" }}>
+        {/* Right: "Executive Decision Card" + SmartSearch logo */}
+        <div style={{ flexShrink: 0, marginLeft: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
+          <span className="font-cormorant" style={{ fontSize: "1.05rem", fontWeight: 400, letterSpacing: "0.2px", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
+            Executive Decision
+            <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.55)", marginLeft: "5px" }}>Card</span>
+          </span>
           <img
             src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"
             alt="SmartSearch"

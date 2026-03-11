@@ -5,7 +5,7 @@ import EDCHeader from "@/components/edc/EDCHeader";
 import ScopeMatch from "@/components/edc/ScopeMatch";
 import KeyCriteria from "@/components/edc/KeyCriteria";
 import Compensation from "@/components/edc/Compensation";
-import WhyInterested from "@/components/edc/WhyInterested";
+// WhyInterested removed — motivation now lives in MotivationStrip scrambler
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
 import TabNavigation from "@/components/edc/TabNavigation";
@@ -200,7 +200,7 @@ export default function EDCCard({
                     compensation={data.compensation}
                     notice_period={data.notice_period}
                   />
-                  <WhyInterested why_interested={data.why_interested} />
+                  {/* WhyInterested removed — motivation lives in MotivationStrip */}
                   {data.miscellaneous && (
                     <Miscellaneous
                       text={data.miscellaneous.text}
