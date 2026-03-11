@@ -151,9 +151,9 @@ export default function EDCHeader({
             <p
               className="font-outfit"
               style={{
-                fontSize: "0.82rem",
+                fontSize: "0.84rem",
                 fontWeight: 400,
-                color: "var(--ss-gray-light)",
+                color: "rgba(255,255,255,0.65)",
                 margin: "2px 0 0",
                 lineHeight: 1.3,
                 whiteSpace: "nowrap",
@@ -170,11 +170,11 @@ export default function EDCHeader({
           </div>
         </div>
 
-        {/* Right: "Executive Decision Card" + SmartSearch logo */}
+        {/* Right: "Executive Decision Card" (gold) + SmartSearch logo */}
         <div style={{ flexShrink: 0, marginLeft: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
-          <span className="font-cormorant" style={{ fontSize: "1.05rem", fontWeight: 400, letterSpacing: "0.2px", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap" }}>
+          <span className="font-cormorant" style={{ fontSize: "1.26rem", fontWeight: 400, letterSpacing: "0.3px", color: "rgba(197,165,114,0.6)", whiteSpace: "nowrap" }}>
             Executive Decision
-            <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.55)", marginLeft: "5px" }}>Card</span>
+            <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "5px" }}>Card</span>
           </span>
           <img
             src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"

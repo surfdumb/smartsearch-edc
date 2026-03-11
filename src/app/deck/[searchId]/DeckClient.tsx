@@ -557,11 +557,11 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             {/* Key Criteria */}
             <p
               style={{
-                fontSize: "0.62rem",
+                fontSize: "0.65rem",
                 fontWeight: 700,
                 letterSpacing: "2px",
                 textTransform: "uppercase",
-                color: "rgba(255,255,255,0.3)",
+                color: "rgba(255,255,255,0.45)",
                 marginBottom: "10px",
               }}
             >
@@ -572,16 +572,16 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 <li
                   key={i}
                   style={{
-                    fontSize: "0.82rem",
+                    fontSize: "0.85rem",
                     fontWeight: 400,
-                    color: "rgba(255,255,255,0.55)",
+                    color: "rgba(255,255,255,0.72)",
                     padding: "3px 0",
                     display: "flex",
                     gap: "8px",
                     lineHeight: 1.4,
                   }}
                 >
-                  <span style={{ color: "var(--ss-gold)", opacity: 0.5, fontWeight: 600, minWidth: "14px", fontSize: "0.75rem" }}>
+                  <span style={{ color: "var(--ss-gold)", opacity: 0.65, fontWeight: 600, minWidth: "14px", fontSize: "0.78rem" }}>
                     {i + 1}.
                   </span>
                   {name}
@@ -590,10 +590,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             </ol>
 
             {/* Search Lead */}
-            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", marginBottom: "0" }}>
+            <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.4)", marginBottom: "0" }}>
               Search Lead
             </p>
-            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", fontWeight: 500, marginBottom: "0" }}>
+            <p style={{ fontSize: "0.88rem", color: "rgba(255,255,255,0.65)", fontWeight: 500, marginBottom: "0" }}>
               {data.search_lead}
             </p>
 
@@ -725,9 +725,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             {/* Instructional text */}
             <p
               style={{
-                fontSize: "0.88rem",
+                fontSize: "0.92rem",
                 fontWeight: 400,
-                color: "rgba(255,255,255,0.45)",
+                color: "rgba(255,255,255,0.6)",
                 marginBottom: "24px",
               }}
             >

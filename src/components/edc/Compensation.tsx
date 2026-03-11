@@ -28,21 +28,21 @@ export default function Compensation({ compensation, notice_period }: Compensati
   const hasBudget = !isEmpty(compensation.budget_range);
 
   const colStyle: React.CSSProperties = {
-    fontSize: "0.72rem",
+    fontSize: "0.75rem",
     fontWeight: 600,
     letterSpacing: "1.5px",
     textTransform: "uppercase",
-    color: "var(--ss-gray-light)",
+    color: "#8a8a8a",
   };
 
   const valStyle: React.CSSProperties = {
-    fontSize: "0.92rem",
+    fontSize: "0.95rem",
     fontWeight: 500,
     color: "var(--ss-dark)",
   };
 
   const totalValStyle: React.CSSProperties = {
-    fontSize: "1.05rem",
+    fontSize: "1.08rem",
     fontWeight: 700,
     color: "var(--ss-dark)",
   };
@@ -136,8 +136,8 @@ export default function Compensation({ compensation, notice_period }: Compensati
       {!isEmpty(notice_period) && (
         <div
           style={{
-            fontSize: "0.82rem",
-            color: "var(--ss-gray-light)",
+            fontSize: "0.85rem",
+            color: "#8a8a8a",
             marginTop: "6px",
           }}
         >

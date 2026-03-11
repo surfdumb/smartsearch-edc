@@ -46,11 +46,10 @@ export default function EDCFooter({
       {/* Right: confidential disclaimer */}
       <span
         style={{
-          fontSize: "0.62rem",
-          fontWeight: 400,
-          color: "var(--ss-gray-light)",
-          letterSpacing: "0.3px",
-          opacity: 0.6,
+          fontSize: "0.65rem",
+          fontWeight: 500,
+          color: "#8a8a8a",
+          letterSpacing: "0.5px",
         }}
       >
         Confidential

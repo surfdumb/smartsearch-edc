@@ -12,7 +12,7 @@ export default function SectionLabel({ label, lineInsetRight }: SectionLabelProp
         style={{
           fontSize: "0.65rem",
           letterSpacing: "2.5px",
-          color: "var(--ss-gray-light)",
+          color: "#8a8a8a",
         }}
       >
         {label}
