@@ -52,7 +52,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
 
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Compensation" />
+      <SectionLabel label="Candidate Salary Details" />
 
       <div style={{ width: "100%" }}>
         {/* Header row */}

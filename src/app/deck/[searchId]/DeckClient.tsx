@@ -2,9 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import SearchContextHeader from "@/components/deck/SearchContextHeader";
 import IntroCard from "@/components/deck/IntroCard";
-import CandidateGrid from "@/components/deck/CandidateGrid";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
 import type { SearchContext } from "@/lib/types";
@@ -26,6 +24,21 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // ── Client logo from localStorage or data ──────────────────────────────────
+  const [clientLogo, setClientLogo] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(`search_logo_${searchId}`);
+      setClientLogo(stored ?? data.client_logo_url ?? null);
+    } catch {
+      setClientLogo(data.client_logo_url ?? null);
+    }
+  }, [searchId, data.client_logo_url]);
+
+  // Job Summary slide-over
+  const [showJobSummary, setShowJobSummary] = useState(false);
+  const jobSummaryUrl = data.job_summary_pdf_url;
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
   // On mount: if URL has #candidateId, jump straight to that EDC (no flip)
@@ -210,129 +223,91 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // ── GRID VIEW ───────────────────────────────────────────────────────────────
   if (view.mode === "grid") {
     return (
-      <main data-deck-theme={theme} style={{ minHeight: "100vh", background: "var(--deck-bg)", paddingBottom: "20px" }}>
-        {/* Sticky header */}
+      <main data-deck-theme={theme} style={{ minHeight: "100vh", background: "#1a1816", display: "flex", flexDirection: "column" }}>
+        {/* ── Top bar ── */}
         <div
-          className="deck-sticky-header"
           style={{
-            padding: "16px 32px",
-            borderBottom: `1px solid rgba(197,165,114,var(--deck-gold-border-alpha))`,
+            padding: "12px 24px",
+            borderBottom: "1px solid rgba(197,165,114,0.08)",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            background: "linear-gradient(180deg, rgba(45, 40, 36, 0.3) 0%, transparent 100%)",
+            flexShrink: 0,
           }}
         >
           <img
             src="/logos/smartsearch-white.png"
             alt="SmartSearch"
-            style={{ height: "32px", opacity: 0.7 }}
+            style={{ height: "28px", opacity: 0.6 }}
           />
-          <span />{/* Logo is sufficient branding — no text label */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {isEditRoute ? (
               <>
                 <span
                   style={{
-                    fontSize: "0.65rem",
+                    fontSize: "0.62rem",
                     fontWeight: 700,
                     letterSpacing: "1.5px",
                     textTransform: "uppercase",
-                    color: "rgba(201,149,58,0.7)",
-                    background: "rgba(201,149,58,0.08)",
-                    border: "1px solid rgba(201,149,58,0.2)",
-                    borderRadius: "6px",
-                    padding: "4px 10px",
+                    color: "rgba(201,149,58,0.6)",
+                    background: "rgba(201,149,58,0.06)",
+                    border: "1px solid rgba(201,149,58,0.15)",
+                    borderRadius: "5px",
+                    padding: "3px 8px",
                   }}
                 >
-                  Edit Mode
+                  Edit
                 </span>
                 <button
                   onClick={() => setEditMode((v) => !v)}
                   style={{
-                    background: editMode ? "rgba(197,165,114,0.12)" : "transparent",
-                    border: `1px solid ${editMode ? "rgba(197,165,114,0.45)" : "rgba(197,165,114,0.15)"}`,
-                    borderRadius: "8px",
-                    padding: "6px 14px",
-                    fontSize: "0.72rem",
+                    background: editMode ? "rgba(197,165,114,0.10)" : "transparent",
+                    border: `1px solid ${editMode ? "rgba(197,165,114,0.35)" : "rgba(197,165,114,0.12)"}`,
+                    borderRadius: "6px",
+                    padding: "4px 12px",
+                    fontSize: "0.68rem",
                     fontWeight: 600,
-                    color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.5)",
+                    color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.4)",
                     cursor: "pointer",
-                    letterSpacing: "0.5px",
                     transition: "all 0.2s",
                   }}
                 >
-                  {editMode ? "Cards: On" : "Cards: Off"}
+                  {editMode ? "Editing" : "Edit Cards"}
                 </button>
                 <a
                   href={`/deck/${searchId}`}
                   style={{
-                    fontSize: "0.72rem",
+                    fontSize: "0.68rem",
                     fontWeight: 600,
-                    color: "rgba(197,165,114,0.45)",
+                    color: "rgba(197,165,114,0.4)",
                     textDecoration: "none",
-                    letterSpacing: "0.5px",
-                    padding: "6px 14px",
-                    border: "1px solid rgba(197,165,114,0.12)",
-                    borderRadius: "8px",
+                    padding: "4px 12px",
+                    border: "1px solid rgba(197,165,114,0.10)",
+                    borderRadius: "6px",
                     transition: "all 0.2s",
                   }}
-                  onMouseOver={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.35)";
-                  }}
-                  onMouseOut={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.45)";
-                    (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.12)";
-                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.4)"; }}
                 >
-                  Client View →
+                  Client View
                 </a>
               </>
             ) : null}
-            <a
-              href={isEditRoute ? `/deck/${searchId}/edit/compare` : `/deck/${searchId}/compare`}
-              style={{
-                fontSize: "0.72rem",
-                fontWeight: 600,
-                color: "rgba(197,165,114,0.6)",
-                textDecoration: "none",
-                letterSpacing: "0.5px",
-                padding: "6px 14px",
-                border: "1px solid rgba(197,165,114,0.15)",
-                borderRadius: "8px",
-                transition: "all 0.2s",
-              }}
-              onMouseOver={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.4)";
-              }}
-              onMouseOut={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.6)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(197,165,114,0.15)";
-              }}
-            >
-              Compare All →
-            </a>
             {isEditRoute && (
               <a
                 href={`/deck/${searchId}/settings`}
                 title="Deck settings"
                 style={{
-                  fontSize: "0.85rem",
-                  color: "rgba(197,165,114,0.35)",
+                  fontSize: "0.8rem",
+                  color: "rgba(197,165,114,0.3)",
                   textDecoration: "none",
-                  padding: "6px 8px",
-                  borderRadius: "8px",
+                  padding: "4px 6px",
+                  borderRadius: "6px",
                   transition: "color 0.2s",
                   lineHeight: 1,
                 }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.35)";
-                }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.3)"; }}
               >
                 ⚙
               </a>
@@ -340,65 +315,286 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           </div>
         </div>
 
-        <div className="deck-main-pad" style={{ padding: "40px 24px" }}>
-          <SearchContextHeader
-            search_name={data.search_name}
-            client_company={data.client_company}
-            client_location={data.client_location}
-            key_criteria_names={data.key_criteria_names}
-            search_lead={data.search_lead}
-            client_logo_url={data.client_logo_url}
-            searchId={searchId}
-          />
-
-          <p
+        {/* ── Two-panel layout ── */}
+        <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
+          {/* ── Left panel (search context sidebar) ── */}
+          <div
             style={{
-              textAlign: "center",
-              fontSize: "0.95rem",
-              fontWeight: 400,
-              color: "rgba(var(--deck-text-rgb),0.55)",
-              marginBottom: "32px",
-              letterSpacing: "0.2px",
+              width: "280px",
+              minWidth: "280px",
+              padding: "32px 28px",
+              display: "flex",
+              flexDirection: "column",
+              borderRight: "1px solid rgba(197,165,114,0.06)",
+              background: "rgba(45,40,36,0.3)",
             }}
           >
-            Click any candidate to view their full assessment
-          </p>
-
-          <CandidateGrid>
-            {data.candidates.map((candidate, i) => (
-              <div
-                key={candidate.candidate_id}
-                ref={(el) => { cardRefs.current[i] = el; }}
-                style={{ height: "100%" }}
-              >
-                <IntroCard
-                  card={candidate}
-                  onClick={() => handleCardClick(i)}
-                  editMode={editMode}
+            {/* Client logo */}
+            {clientLogo && (
+              <div style={{ marginBottom: "24px" }}>
+                <img
+                  src={clientLogo}
+                  alt={data.client_company}
+                  style={{ maxHeight: "44px", maxWidth: "160px", objectFit: "contain", opacity: 0.85 }}
                 />
               </div>
-            ))}
-          </CandidateGrid>
-        </div>
+            )}
 
-        {/* Footer */}
-        <div style={{ textAlign: "center", padding: "48px 24px 32px" }}>
-          <span
-            className="font-cormorant"
+            {/* Role title */}
+            <h1
+              className="font-cormorant"
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.88)",
+                lineHeight: 1.2,
+                marginBottom: "6px",
+              }}
+            >
+              {data.search_name}
+            </h1>
+
+            {/* Company + Location */}
+            <p style={{ fontSize: "0.85rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}>
+              {data.client_company}
+            </p>
+            {data.client_location && (
+              <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)", marginBottom: "0" }}>
+                {data.client_location}
+              </p>
+            )}
+
+            {/* Divider */}
+            <div style={{ height: "1px", background: "rgba(197,165,114,0.08)", margin: "20px 0" }} />
+
+            {/* Key Criteria */}
+            <p
+              style={{
+                fontSize: "0.62rem",
+                fontWeight: 700,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.3)",
+                marginBottom: "10px",
+              }}
+            >
+              Key Criteria
+            </p>
+            <ol style={{ listStyle: "none", padding: 0, margin: "0 0 20px 0" }}>
+              {data.key_criteria_names.map((name, i) => (
+                <li
+                  key={i}
+                  style={{
+                    fontSize: "0.82rem",
+                    fontWeight: 400,
+                    color: "rgba(255,255,255,0.55)",
+                    padding: "3px 0",
+                    display: "flex",
+                    gap: "8px",
+                    lineHeight: 1.4,
+                  }}
+                >
+                  <span style={{ color: "var(--ss-gold)", opacity: 0.5, fontWeight: 600, minWidth: "14px", fontSize: "0.75rem" }}>
+                    {i + 1}.
+                  </span>
+                  {name}
+                </li>
+              ))}
+            </ol>
+
+            {/* Search Lead */}
+            <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.25)", marginBottom: "0" }}>
+              Search Lead
+            </p>
+            <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)", fontWeight: 500, marginBottom: "0" }}>
+              {data.search_lead}
+            </p>
+
+            {/* Spacer */}
+            <div style={{ flex: 1 }} />
+
+            {/* View Job Summary button */}
+            {jobSummaryUrl && (
+              <button
+                onClick={() => setShowJobSummary(true)}
+                style={{
+                  background: "rgba(197,165,114,0.06)",
+                  border: "1px solid rgba(197,165,114,0.15)",
+                  borderRadius: "8px",
+                  padding: "10px 16px",
+                  fontSize: "0.78rem",
+                  fontWeight: 600,
+                  color: "var(--ss-gold)",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  textAlign: "left",
+                  width: "100%",
+                  marginBottom: "16px",
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.10)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.3)";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.15)";
+                }}
+              >
+                View Job Summary →
+              </button>
+            )}
+
+            {/* SmartSearch footer in sidebar */}
+            <div style={{ paddingTop: "12px", borderTop: "1px solid rgba(197,165,114,0.06)" }}>
+              <img
+                src="/logos/smartsearch-white.png"
+                alt="SmartSearch"
+                style={{ height: "18px", opacity: 0.25 }}
+              />
+              <p style={{ fontSize: "0.62rem", color: "rgba(255,255,255,0.12)", marginTop: "4px" }}>
+                &copy; 2026 SmartSearch
+              </p>
+            </div>
+          </div>
+
+          {/* ── Right panel (candidate cards) ── */}
+          <div
             style={{
-              display: "block",
-              fontStyle: "italic",
-              fontSize: "0.95rem",
-              color: "rgba(var(--deck-text-rgb),0.2)",
-              marginBottom: "8px",
+              flex: 1,
+              background: "#2d2824",
+              padding: "32px 32px",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            Show Evidence. Let Humans Judge.
-          </span>
-          <span style={{ display: "block", fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.15)" }}>
-            SmartSearch &copy; 2026
-          </span>
+            {/* Instructional text */}
+            <p
+              style={{
+                fontSize: "0.88rem",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.45)",
+                marginBottom: "24px",
+              }}
+            >
+              Click any candidate to view their full assessment
+            </p>
+
+            {/* Card grid — flex wrap with fixed-width cards */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "20px",
+                alignContent: "flex-start",
+              }}
+            >
+              {data.candidates.map((candidate, i) => (
+                <div
+                  key={candidate.candidate_id}
+                  ref={(el) => { cardRefs.current[i] = el; }}
+                  style={{ width: "250px" }}
+                >
+                  <IntroCard
+                    card={candidate}
+                    onClick={() => handleCardClick(i)}
+                    editMode={editMode}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Spacer + subtle footer */}
+            <div style={{ flex: 1 }} />
+            <div style={{ textAlign: "center", padding: "32px 0 8px", opacity: 0.15 }}>
+              <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)" }}>
+                Confidential
+              </span>
+            </div>
+          </div>
         </div>
+
+        {/* ── Job Summary slide-over ── */}
+        {showJobSummary && jobSummaryUrl && (
+          <>
+            {/* Backdrop */}
+            <div
+              onClick={() => setShowJobSummary(false)}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0,0,0,0.5)",
+                backdropFilter: "blur(4px)",
+                zIndex: 900,
+                animation: "fadeInOverlay 0.2s ease forwards",
+              }}
+            />
+            {/* Panel */}
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                right: 0,
+                bottom: 0,
+                width: "580px",
+                maxWidth: "90vw",
+                background: "#1a1816",
+                borderLeft: "1px solid rgba(197,165,114,0.15)",
+                zIndex: 901,
+                display: "flex",
+                flexDirection: "column",
+                animation: "slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+              }}
+            >
+              {/* Panel header */}
+              <div
+                style={{
+                  padding: "16px 24px",
+                  borderBottom: "1px solid rgba(197,165,114,0.1)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3px" }}>
+                  Job Summary
+                </span>
+                <button
+                  onClick={() => setShowJobSummary(false)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197,165,114,0.15)",
+                    borderRadius: "6px",
+                    padding: "4px 12px",
+                    fontSize: "0.72rem",
+                    fontWeight: 600,
+                    color: "rgba(197,165,114,0.5)",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)"; }}
+                >
+                  Close ✕
+                </button>
+              </div>
+              {/* PDF iframe */}
+              <div style={{ flex: 1, overflow: "hidden" }}>
+                <iframe
+                  src={jobSummaryUrl}
+                  title="Job Summary"
+                  style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
+                />
+              </div>
+            </div>
+            <style>{`
+              @keyframes slideInRight {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+              }
+            `}</style>
+          </>
+        )}
       </main>
     );
   }

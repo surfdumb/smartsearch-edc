@@ -103,6 +103,7 @@ export interface SearchContext {
   key_criteria_names: string[];
   search_lead: string;
   job_summary_url?: string;
+  job_summary_pdf_url?: string;
   candidates: IntroCardData[];
   deck_settings?: {
     match_score_display: 'SHOW' | 'HIDE';
