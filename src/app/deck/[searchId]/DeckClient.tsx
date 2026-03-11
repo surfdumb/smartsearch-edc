@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import IntroCard from "@/components/deck/IntroCard";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
+import { fileStoreGet, fileStoreSet, fileStoreRemove } from "@/lib/fileStore";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
@@ -44,31 +45,55 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const jobSummaryFileRef = useRef<HTMLInputElement>(null);
   const jsStorageKey = `job_summary_pdfs_${searchId}`;
 
-  // Load persisted Job Summary PDFs from localStorage on mount
+  // Load persisted Job Summary PDFs from IndexedDB on mount
+  // Also migrate old localStorage data to IndexedDB
   useEffect(() => {
-    // Migrate old single-PDF key if present
-    try {
-      const oldSingle = localStorage.getItem(`job_summary_pdf_${searchId}`);
-      if (oldSingle) {
-        const migrated = JSON.stringify([{ name: "Job Summary", dataUrl: oldSingle }]);
-        localStorage.setItem(`job_summary_pdfs_${searchId}`, migrated);
-        localStorage.removeItem(`job_summary_pdf_${searchId}`);
-      }
-    } catch { /* ignore */ }
+    (async () => {
+      try {
+        // Check IndexedDB first
+        const idbStored = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey);
+        if (idbStored && idbStored.length > 0) {
+          const files = await Promise.all(
+            idbStored.map(async (item) => {
+              const r = await fetch(item.dataUrl);
+              const blob = await r.blob();
+              return { name: item.name, blobUrl: URL.createObjectURL(blob) };
+            })
+          );
+          setJobSummaryFiles(files);
+          return;
+        }
 
-    try {
-      const stored = localStorage.getItem(jsStorageKey);
-      if (stored) {
-        const items: { name: string; dataUrl: string }[] = JSON.parse(stored);
-        Promise.all(
-          items.map(async (item) => {
-            const r = await fetch(item.dataUrl);
-            const blob = await r.blob();
-            return { name: item.name, blobUrl: URL.createObjectURL(blob) };
-          })
-        ).then((files) => setJobSummaryFiles(files));
-      }
-    } catch { /* ignore */ }
+        // Migrate old localStorage data to IndexedDB
+        // First check for old single-PDF key
+        const oldSingle = localStorage.getItem(`job_summary_pdf_${searchId}`);
+        if (oldSingle) {
+          const migrated = [{ name: "Job Summary", dataUrl: oldSingle }];
+          await fileStoreSet(jsStorageKey, migrated);
+          localStorage.removeItem(`job_summary_pdf_${searchId}`);
+          const r = await fetch(oldSingle);
+          const blob = await r.blob();
+          setJobSummaryFiles([{ name: "Job Summary", blobUrl: URL.createObjectURL(blob) }]);
+          return;
+        }
+
+        // Check for multi-PDF localStorage key
+        const lsStored = localStorage.getItem(jsStorageKey);
+        if (lsStored) {
+          const items: { name: string; dataUrl: string }[] = JSON.parse(lsStored);
+          await fileStoreSet(jsStorageKey, items);
+          localStorage.removeItem(jsStorageKey);
+          const files = await Promise.all(
+            items.map(async (item) => {
+              const r = await fetch(item.dataUrl);
+              const blob = await r.blob();
+              return { name: item.name, blobUrl: URL.createObjectURL(blob) };
+            })
+          );
+          setJobSummaryFiles(files);
+        }
+      } catch { /* storage unavailable */ }
+    })();
   }, [searchId, jsStorageKey]);
 
   const handleJobSummaryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,14 +102,16 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      // Persist to localStorage
-      try {
-        const stored = localStorage.getItem(jsStorageKey);
-        const existing: { name: string; dataUrl: string }[] = stored ? JSON.parse(stored) : [];
-        existing.push({ name: file.name.replace(/\.pdf$/i, ""), dataUrl });
-        localStorage.setItem(jsStorageKey, JSON.stringify(existing));
-      } catch { /* too large */ }
-      const newEntry = { name: file.name.replace(/\.pdf$/i, ""), blobUrl: URL.createObjectURL(file) };
+      const fileName = file.name.replace(/\.pdf$/i, "");
+      // Persist to IndexedDB
+      (async () => {
+        try {
+          const existing = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey) ?? [];
+          existing.push({ name: fileName, dataUrl });
+          await fileStoreSet(jsStorageKey, existing);
+        } catch { /* storage failed — still works in-session */ }
+      })();
+      const newEntry = { name: fileName, blobUrl: URL.createObjectURL(file) };
       setJobSummaryFiles(prev => {
         const updated = [...prev, newEntry];
         setCurrentPdfIdx(updated.length - 1); // jump to newly uploaded
@@ -101,16 +128,15 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       const removed = prev[idx];
       if (removed) URL.revokeObjectURL(removed.blobUrl);
       const updated = prev.filter((_, i) => i !== idx);
-      // Persist
-      try {
-        const stored = localStorage.getItem(jsStorageKey);
-        if (stored) {
-          const items: { name: string; dataUrl: string }[] = JSON.parse(stored);
+      // Persist to IndexedDB
+      (async () => {
+        try {
+          const items = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey) ?? [];
           items.splice(idx, 1);
-          if (items.length === 0) localStorage.removeItem(jsStorageKey);
-          else localStorage.setItem(jsStorageKey, JSON.stringify(items));
-        }
-      } catch { /* ignore */ }
+          if (items.length === 0) await fileStoreRemove(jsStorageKey);
+          else await fileStoreSet(jsStorageKey, items);
+        } catch { /* ignore */ }
+      })();
       // Adjust index
       if (currentPdfIdx >= updated.length && updated.length > 0) {
         setCurrentPdfIdx(updated.length - 1);

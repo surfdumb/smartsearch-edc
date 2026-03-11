@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { fileStoreGet, fileStoreSet, fileStoreRemove } from "@/lib/fileStore";
 
 interface CVPanelProps {
   cvUrl?: string;
@@ -12,16 +13,34 @@ const storageKey = (id: string) => `cv_data_${id}`;
 export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
-  // On mount (or when candidateId changes): load persisted CV from localStorage
+  // On mount (or when candidateId changes): load persisted CV from IndexedDB
+  // Also migrate any old localStorage data to IndexedDB
   useEffect(() => {
     if (!candidateId) return;
-    setUploadedUrl(null); // reset before loading new candidate's CV
-    try {
-      const stored = localStorage.getItem(storageKey(candidateId));
-      if (stored) setUploadedUrl(stored);
-    } catch {
-      // localStorage unavailable
-    }
+    setUploadedUrl(null);
+
+    const key = storageKey(candidateId);
+
+    (async () => {
+      try {
+        // Check IndexedDB first
+        const idbStored = await fileStoreGet<string>(key);
+        if (idbStored) {
+          setUploadedUrl(idbStored);
+          return;
+        }
+        // Migrate from localStorage if present
+        const lsStored = localStorage.getItem(key);
+        if (lsStored) {
+          setUploadedUrl(lsStored);
+          // Migrate to IndexedDB and remove from localStorage
+          await fileStoreSet(key, lsStored);
+          localStorage.removeItem(key);
+        }
+      } catch {
+        // storage unavailable
+      }
+    })();
   }, [candidateId]);
 
   const displayUrl = uploadedUrl || cvUrl || null;
@@ -43,11 +62,9 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
         const dataUrl = e.target?.result as string;
         setUploadedUrl(dataUrl);
         if (candidateId) {
-          try {
-            localStorage.setItem(storageKey(candidateId), dataUrl);
-          } catch {
-            // Storage quota exceeded — still works in-session
-          }
+          fileStoreSet(storageKey(candidateId), dataUrl).catch(() => {
+            // Storage failed — still works in-session
+          });
         }
       };
       reader.readAsDataURL(file);
@@ -67,11 +84,7 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
   const handleReplace = useCallback(() => {
     setUploadedUrl(null);
     if (candidateId) {
-      try {
-        localStorage.removeItem(storageKey(candidateId));
-      } catch {
-        // ignore
-      }
+      fileStoreRemove(storageKey(candidateId)).catch(() => {});
     }
   }, [candidateId]);
 
