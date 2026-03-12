@@ -141,8 +141,8 @@ export default function EDCCard({
                   onClick={() => setOurTakeOpen(v => !v)}
                   className={ourTakeOpen ? "" : "our-take-glow"}
                   style={{
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
+                    fontSize: "0.92rem",
+                    fontWeight: 500,
                     color: "var(--ss-gold)",
                     background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)",
                     border: "1.5px solid rgba(197,165,114,0.4)",
@@ -154,7 +154,9 @@ export default function EDCCard({
                     alignItems: "center",
                     gap: "6px",
                     transition: "all 0.2s",
-                    fontFamily: "inherit",
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontStyle: "italic",
+                    letterSpacing: "0.3px",
                   }}
                   onMouseOver={(e) => {
                     const btn = e.currentTarget as HTMLButtonElement;
