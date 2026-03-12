@@ -186,12 +186,14 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       onClick={editMode ? undefined : onClick}
       style={{
         background: "#faf8f5",
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E\")",
         border: "1px solid rgba(197,165,114,0.12)",
+        borderTop: "2px solid transparent",
         borderRadius: "12px",
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-        transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
+        boxShadow: "0 1px 3px rgba(45,40,36,0.06), 0 8px 24px rgba(45,40,36,0.08), 0 24px 60px rgba(45,40,36,0.04)",
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -201,15 +203,21 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       }}
       onMouseOver={(e) => {
         const el = e.currentTarget as HTMLDivElement;
-        el.style.boxShadow = "0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)";
+        el.style.boxShadow = "0 2px 6px rgba(45,40,36,0.1), 0 12px 32px rgba(45,40,36,0.14), 0 32px 72px rgba(45,40,36,0.06)";
         if (!editMode) el.style.transform = "translateY(-3px)";
         el.style.borderColor = "rgba(197,165,114,0.25)";
+        el.style.borderTopColor = "#c5a572";
+        const arrow = el.querySelector('.intro-card-arrow') as HTMLElement;
+        if (arrow) { arrow.style.color = "#c5a572"; arrow.style.transform = "translateX(3px)"; }
       }}
       onMouseOut={(e) => {
         const el = e.currentTarget as HTMLDivElement;
-        el.style.boxShadow = "0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)";
+        el.style.boxShadow = "0 1px 3px rgba(45,40,36,0.06), 0 8px 24px rgba(45,40,36,0.08), 0 24px 60px rgba(45,40,36,0.04)";
         el.style.transform = "translateY(0)";
         el.style.borderColor = "rgba(197,165,114,0.12)";
+        el.style.borderTopColor = "transparent";
+        const arrow = el.querySelector('.intro-card-arrow') as HTMLElement;
+        if (arrow) { arrow.style.color = "#b0a898"; arrow.style.transform = "translateX(0)"; }
       }}
     >
       {/* ── Status badge (top-right) — always visible, always clickable ── */}
@@ -253,7 +261,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 12px",
-            boxShadow: "0 0 0 2px rgba(197,165,114,0.12)",
+            border: "2px solid rgba(197,165,114,0.25)",
             overflow: "hidden",
           }}
         >
@@ -292,13 +300,13 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         />
 
         {/* Title + Company */}
-        <p style={{ fontSize: "0.98rem", color: "#6b6b6b", marginBottom: "3px", lineHeight: 1.35 }}>
+        <p style={{ fontSize: "0.98rem", color: "#5a5550", marginBottom: "3px", lineHeight: 1.35 }}>
           <Editable
             value={v.current_title}
             onSave={(val) => save({ current_title: val })}
             editMode={editMode}
             singleLine
-            style={{ fontSize: "0.98rem", color: "#6b6b6b" }}
+            style={{ fontSize: "0.98rem", color: "#5a5550" }}
           />
         </p>
         <p style={{ fontSize: "0.98rem", marginBottom: "3px", lineHeight: 1.35 }}>
@@ -313,7 +321,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
 
         {/* Location */}
         {v.location && (
-          <p style={{ fontSize: "0.9rem", color: "#a0a0a0", marginBottom: "0" }}>
+          <p style={{ fontSize: "0.9rem", color: "#8a857f", marginBottom: "0" }}>
             {v.location}
           </p>
         )}
@@ -323,7 +331,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           <p
             style={{
               fontSize: "0.94rem",
-              color: "#6b6b6b",
+              color: "#5a5550",
               lineHeight: 1.5,
               textAlign: "center",
               marginTop: "10px",
@@ -386,7 +394,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {/* Arrow */}
         <span
           className="intro-card-arrow"
-          style={{ fontSize: "0.85rem", fontWeight: 600, color: "#c5a572", transition: "transform 0.2s" }}
+          style={{ fontSize: "0.85rem", fontWeight: 600, color: "#b0a898", transition: "color 0.3s ease, transform 0.3s ease" }}
         >
           →
         </span>
