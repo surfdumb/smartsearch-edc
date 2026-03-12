@@ -1,75 +1,85 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { fileStoreGet, fileStoreSet, fileStoreRemove } from "@/lib/fileStore";
+import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
+import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
+
+const ACCEPTED_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/msword",
+];
 
 interface CVPanelProps {
   cvUrl?: string;
   candidateId?: string;
+  searchId?: string;
 }
 
-const storageKey = (id: string) => `cv_data_${id}`;
+export default function CVPanel({ cvUrl, candidateId, searchId }: CVPanelProps) {
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-
-  // On mount (or when candidateId changes): load persisted CV from IndexedDB
-  // Also migrate any old localStorage data to IndexedDB
+  // On mount: load CV from Vercel Blob, with IndexedDB migration fallback
   useEffect(() => {
     if (!candidateId) return;
-    setUploadedUrl(null);
-
-    const key = storageKey(candidateId);
+    setBlobUrl(null);
 
     (async () => {
       try {
-        // Check IndexedDB first
-        const idbStored = await fileStoreGet<string>(key);
-        if (idbStored) {
-          setUploadedUrl(idbStored);
+        // Check Vercel Blob first
+        if (searchId) {
+          const blobs = await listBlobs(`cv/${searchId}/${candidateId}/`);
+          if (blobs.length > 0) {
+            setBlobUrl(blobs[blobs.length - 1].url);
+            return;
+          }
+        }
+
+        // Migration: check IndexedDB for old data and upload to Vercel Blob
+        const idbKey = `cv_data_${candidateId}`;
+        const idbStored = await fileStoreGet<string>(idbKey);
+        if (idbStored && searchId) {
+          const response = await fetch(idbStored);
+          const blob = await response.blob();
+          const file = new File([blob], `${candidateId}_cv.pdf`, { type: blob.type || "application/pdf" });
+          const result = await uploadFile(`cv/${searchId}/${candidateId}/${candidateId}_cv.pdf`, file);
+          setBlobUrl(result.url);
+          await fileStoreRemove(idbKey);
           return;
         }
-        // Migrate from localStorage if present
-        const lsStored = localStorage.getItem(key);
-        if (lsStored) {
-          setUploadedUrl(lsStored);
-          // Migrate to IndexedDB and remove from localStorage
-          await fileStoreSet(key, lsStored);
-          localStorage.removeItem(key);
+        // If IndexedDB had data but no searchId, use it directly as fallback
+        if (idbStored) {
+          setBlobUrl(idbStored);
         }
       } catch {
-        // storage unavailable
+        // storage/blob unavailable
       }
     })();
-  }, [candidateId]);
+  }, [candidateId, searchId]);
 
-  const displayUrl = uploadedUrl || cvUrl || null;
-
-  const ACCEPTED_TYPES = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-    "application/msword", // .doc
-  ];
+  const displayUrl = blobUrl || cvUrl || null;
 
   const handleFileUpload = useCallback(
-    (file: File) => {
+    async (file: File) => {
       if (!ACCEPTED_TYPES.some((t) => file.type === t) && !file.name.match(/\.(pdf|docx?)$/i)) {
         alert("Please upload a PDF or Word document (.pdf, .docx)");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        setUploadedUrl(dataUrl);
-        if (candidateId) {
-          fileStoreSet(storageKey(candidateId), dataUrl).catch(() => {
-            // Storage failed — still works in-session
-          });
-        }
-      };
-      reader.readAsDataURL(file);
+      if (!candidateId || !searchId) return;
+
+      setUploading(true);
+      try {
+        const result = await uploadFile(`cv/${searchId}/${candidateId}/${file.name}`, file);
+        setBlobUrl(result.url);
+      } catch (err) {
+        console.error("CV upload failed:", err);
+        alert("Upload failed. Please try again.");
+      } finally {
+        setUploading(false);
+      }
     },
-    [candidateId]
+    [candidateId, searchId],
   );
 
   const handleDrop = useCallback(
@@ -78,25 +88,45 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
       const file = e.dataTransfer.files[0];
       if (file) handleFileUpload(file);
     },
-    [handleFileUpload]
+    [handleFileUpload],
   );
 
-  const handleReplace = useCallback(() => {
-    setUploadedUrl(null);
-    if (candidateId) {
-      fileStoreRemove(storageKey(candidateId)).catch(() => {});
+  const handleReplace = useCallback(async () => {
+    if (blobUrl && blobUrl.includes(".blob.vercel-storage.com/")) {
+      try {
+        await deleteBlob(blobUrl);
+      } catch { /* ignore deletion errors */ }
     }
-  }, [candidateId]);
+    setBlobUrl(null);
+  }, [blobUrl]);
 
-  // Check if the file is a Word doc (data URL will contain the MIME type)
+  // Check if the file is a Word doc
   const isWordDoc = displayUrl
-    ? displayUrl.startsWith("data:application/vnd.openxmlformats") ||
+    ? displayUrl.match(/\.docx?(\?|$)/i) !== null ||
+      displayUrl.startsWith("data:application/vnd.openxmlformats") ||
       displayUrl.startsWith("data:application/msword")
     : false;
 
   if (displayUrl) {
     return (
-      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div style={{ height: "100%", display: "flex", flexDirection: "column", position: "relative" }}>
+        {uploading && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.5)",
+              zIndex: 10,
+            }}
+          >
+            <div style={{ color: "var(--ss-gold)", fontSize: "0.85rem", fontWeight: 600 }}>
+              Uploading CV...
+            </div>
+          </div>
+        )}
         {isWordDoc ? (
           <div
             style={{
@@ -185,6 +215,7 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
         margin: "24px",
         cursor: "pointer",
         transition: "border-color 0.2s, background 0.2s",
+        position: "relative",
       }}
       onMouseOver={(e) => {
         (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(197, 165, 114, 0.5)";
@@ -195,6 +226,24 @@ export default function CVPanel({ cvUrl, candidateId }: CVPanelProps) {
         (e.currentTarget as HTMLDivElement).style.background = "transparent";
       }}
     >
+      {uploading && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.3)",
+            zIndex: 10,
+            borderRadius: "16px",
+          }}
+        >
+          <div style={{ color: "var(--ss-gold)", fontSize: "0.85rem", fontWeight: 600 }}>
+            Uploading...
+          </div>
+        </div>
+      )}
       <span style={{ fontSize: "3rem", opacity: 0.4, marginBottom: "16px" }}>📄</span>
       <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "1rem", fontWeight: 500 }}>
         Upload CV

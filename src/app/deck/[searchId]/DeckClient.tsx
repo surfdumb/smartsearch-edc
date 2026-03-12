@@ -5,7 +5,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import IntroCard from "@/components/deck/IntroCard";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
-import { fileStoreGet, fileStoreSet, fileStoreRemove } from "@/lib/fileStore";
+import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
+import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
 import type { SearchContext } from "@/lib/types";
 
 type DeckView =
@@ -41,104 +42,75 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // Job Summary slide-over — supports multiple PDFs
   const [showJobSummary, setShowJobSummary] = useState(false);
   const [jsFullScreen, setJsFullScreen] = useState(false);
-  const [jobSummaryFiles, setJobSummaryFiles] = useState<{ name: string; blobUrl: string }[]>([]);
+  const [jobSummaryFiles, setJobSummaryFiles] = useState<{ name: string; url: string }[]>([]);
   const [currentPdfIdx, setCurrentPdfIdx] = useState(0);
   const jobSummaryFileRef = useRef<HTMLInputElement>(null);
   const jsStorageKey = `job_summary_pdfs_${searchId}`;
 
-  // Load persisted Job Summary PDFs from IndexedDB on mount
-  // Also migrate old localStorage data to IndexedDB
+  // Load persisted Job Summary PDFs from Vercel Blob on mount
+  // Also migrate old IndexedDB/localStorage data to Vercel Blob
   useEffect(() => {
     (async () => {
       try {
-        // Check IndexedDB first
+        // Check Vercel Blob first
+        const blobs = await listBlobs(`job-summary/${searchId}/`);
+        if (blobs.length > 0) {
+          const files = blobs.map(b => ({
+            name: b.pathname.split("/").pop()?.replace(/\.pdf$/i, "") || "Job Summary",
+            url: b.url,
+          }));
+          setJobSummaryFiles(files);
+          return;
+        }
+
+        // Migration: check IndexedDB for old data and upload to Vercel Blob
         const idbStored = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey);
         if (idbStored && idbStored.length > 0) {
-          const files = await Promise.all(
-            idbStored.map(async (item) => {
-              const r = await fetch(item.dataUrl);
-              const blob = await r.blob();
-              return { name: item.name, blobUrl: URL.createObjectURL(blob) };
-            })
-          );
-          setJobSummaryFiles(files);
+          const migrated: { name: string; url: string }[] = [];
+          for (const item of idbStored) {
+            const response = await fetch(item.dataUrl);
+            const blob = await response.blob();
+            const file = new File([blob], `${item.name}.pdf`, { type: "application/pdf" });
+            const result = await uploadFile(`job-summary/${searchId}/${item.name}.pdf`, file);
+            migrated.push({ name: item.name, url: result.url });
+          }
+          setJobSummaryFiles(migrated);
+          await fileStoreRemove(jsStorageKey);
           return;
         }
-
-        // Migrate old localStorage data to IndexedDB
-        // First check for old single-PDF key
-        const oldSingle = localStorage.getItem(`job_summary_pdf_${searchId}`);
-        if (oldSingle) {
-          const migrated = [{ name: "Job Summary", dataUrl: oldSingle }];
-          await fileStoreSet(jsStorageKey, migrated);
-          localStorage.removeItem(`job_summary_pdf_${searchId}`);
-          const r = await fetch(oldSingle);
-          const blob = await r.blob();
-          setJobSummaryFiles([{ name: "Job Summary", blobUrl: URL.createObjectURL(blob) }]);
-          return;
-        }
-
-        // Check for multi-PDF localStorage key
-        const lsStored = localStorage.getItem(jsStorageKey);
-        if (lsStored) {
-          const items: { name: string; dataUrl: string }[] = JSON.parse(lsStored);
-          await fileStoreSet(jsStorageKey, items);
-          localStorage.removeItem(jsStorageKey);
-          const files = await Promise.all(
-            items.map(async (item) => {
-              const r = await fetch(item.dataUrl);
-              const blob = await r.blob();
-              return { name: item.name, blobUrl: URL.createObjectURL(blob) };
-            })
-          );
-          setJobSummaryFiles(files);
-        }
-      } catch { /* storage unavailable */ }
+      } catch { /* storage/blob unavailable */ }
     })();
   }, [searchId, jsStorageKey]);
 
-  const handleJobSummaryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleJobSummaryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || file.type !== "application/pdf") return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const fileName = file.name.replace(/\.pdf$/i, "");
-      // Persist to IndexedDB
-      (async () => {
-        try {
-          const existing = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey) ?? [];
-          existing.push({ name: fileName, dataUrl });
-          await fileStoreSet(jsStorageKey, existing);
-        } catch { /* storage failed — still works in-session */ }
-      })();
-      const newEntry = { name: fileName, blobUrl: URL.createObjectURL(file) };
+    const fileName = file.name.replace(/\.pdf$/i, "");
+
+    try {
+      const result = await uploadFile(`job-summary/${searchId}/${file.name}`, file);
+      const newEntry = { name: fileName, url: result.url };
       setJobSummaryFiles(prev => {
         const updated = [...prev, newEntry];
-        setCurrentPdfIdx(updated.length - 1); // jump to newly uploaded
+        setCurrentPdfIdx(updated.length - 1);
         return updated;
       });
-    };
-    reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Job Summary upload failed:", err);
+      alert("Upload failed. Please try again.");
+    }
+
     // Reset input so re-uploading the same file triggers onChange
     e.target.value = "";
   };
 
-  const handleRemoveJobSummary = (idx: number) => {
+  const handleRemoveJobSummary = async (idx: number) => {
+    const removed = jobSummaryFiles[idx];
+    if (removed?.url?.includes(".blob.vercel-storage.com/")) {
+      try { await deleteBlob(removed.url); } catch { /* ignore */ }
+    }
     setJobSummaryFiles(prev => {
-      const removed = prev[idx];
-      if (removed) URL.revokeObjectURL(removed.blobUrl);
       const updated = prev.filter((_, i) => i !== idx);
-      // Persist to IndexedDB
-      (async () => {
-        try {
-          const items = await fileStoreGet<{ name: string; dataUrl: string }[]>(jsStorageKey) ?? [];
-          items.splice(idx, 1);
-          if (items.length === 0) await fileStoreRemove(jsStorageKey);
-          else await fileStoreSet(jsStorageKey, items);
-        } catch { /* ignore */ }
-      })();
-      // Adjust index
       if (currentPdfIdx >= updated.length && updated.length > 0) {
         setCurrentPdfIdx(updated.length - 1);
       } else if (updated.length === 0) {
@@ -414,6 +386,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             justifyContent: "space-between",
             alignItems: "center",
             flexShrink: 0,
+            position: "relative",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -422,11 +395,12 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               alt="SmartSearch"
               style={{ height: "28px", opacity: 0.6 }}
             />
-            <span className="font-cormorant" style={{ fontSize: "1.15rem", fontWeight: 400, letterSpacing: "0.3px", color: "rgba(255,255,255,0.5)" }}>
-              Executive Decision
-              <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.7)", marginLeft: "6px" }}>Deck</span>
-            </span>
           </div>
+          {/* Centered "Executive Decision Deck" — gold, prominent */}
+          <span className="font-cormorant" style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", fontSize: "1.75rem", fontWeight: 400, letterSpacing: "0.5px", color: "rgba(197,165,114,0.75)", whiteSpace: "nowrap" }}>
+            Executive Decision
+            <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "7px" }}>Deck</span>
+          </span>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             {isEditRoute ? (
               <>
@@ -998,7 +972,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               {/* PDF iframe */}
               <div style={{ flex: 1, overflow: "hidden" }}>
                 <iframe
-                  src={jobSummaryFiles[currentPdfIdx]?.blobUrl ?? ""}
+                  src={jobSummaryFiles[currentPdfIdx]?.url ?? ""}
                   title={jobSummaryFiles[currentPdfIdx]?.name ?? "Job Summary"}
                   style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
                 />

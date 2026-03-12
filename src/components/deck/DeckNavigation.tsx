@@ -50,22 +50,20 @@ export default function DeckNavigation({
         ← Back to Deck
       </button>
 
-      {/* Centre — role title */}
-      {roleTitle && (
-        <span
-          className="deck-nav-role font-cormorant"
-          style={{
-            fontSize: "1.05rem",
-            fontWeight: 400,
-            color: "rgba(197,165,114,0.65)",
-            letterSpacing: "0.3px",
-            whiteSpace: "nowrap",
-            fontStyle: "italic",
-          }}
-        >
-          {roleTitle}
-        </span>
-      )}
+      {/* Centre — Executive Decision Card wordmark */}
+      <span
+        className="deck-nav-role font-cormorant"
+        style={{
+          fontSize: "1.5rem",
+          fontWeight: 400,
+          color: "rgba(197,165,114,0.75)",
+          letterSpacing: "0.5px",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Executive Decision
+        <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "6px" }}>Card</span>
+      </span>
 
       {/* Right — controls */}
       <div className="deck-nav-right" style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "flex-end" }}>

@@ -7,6 +7,7 @@ interface SplitViewContainerProps {
   active: boolean;
   cvUrl?: string;
   candidateId?: string;
+  searchId?: string;
   children: ReactNode;
 }
 
@@ -14,6 +15,7 @@ export default function SplitViewContainer({
   active,
   cvUrl,
   candidateId,
+  searchId,
   children,
 }: SplitViewContainerProps) {
   const [fullPageCV, setFullPageCV] = useState(false);
@@ -57,7 +59,7 @@ export default function SplitViewContainer({
           </span>
         </div>
         <div style={{ flex: 1, overflow: "hidden" }}>
-          <CVPanel cvUrl={cvUrl} candidateId={candidateId} />
+          <CVPanel cvUrl={cvUrl} candidateId={candidateId} searchId={searchId} />
         </div>
       </div>
     );
@@ -85,7 +87,7 @@ export default function SplitViewContainer({
         }}
       >
         <div style={{ flex: 1, overflow: "hidden" }}>
-          <CVPanel cvUrl={cvUrl} candidateId={candidateId} />
+          <CVPanel cvUrl={cvUrl} candidateId={candidateId} searchId={searchId} />
         </div>
         {/* Full-page toggle */}
         <div style={{ padding: "6px 12px", borderTop: "1px solid rgba(197,165,114,0.1)", textAlign: "center" }}>

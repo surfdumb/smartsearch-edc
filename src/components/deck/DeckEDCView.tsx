@@ -107,6 +107,7 @@ export default function DeckEDCView({
           active={split}
           cvUrl={edc.cv_url}
           candidateId={candidate.candidate_id}
+          searchId={searchId}
         >
           <div
             className={split ? "" : "deck-edc-wrapper"}
