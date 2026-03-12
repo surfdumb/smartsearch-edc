@@ -186,13 +186,13 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       onClick={editMode ? undefined : onClick}
       style={{
         background: "#faf8f5",
-        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E\")",
-        border: "1px solid rgba(197,165,114,0.12)",
-        borderTop: "2px solid transparent",
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E\")",
+        border: "1px solid rgba(197,165,114,0.18)",
+        borderTop: "2px solid rgba(197,165,114,0.25)",
         borderRadius: "12px",
         overflow: "hidden",
         cursor: editMode ? "default" : "pointer",
-        boxShadow: "0 1px 3px rgba(45,40,36,0.06), 0 8px 24px rgba(45,40,36,0.08), 0 24px 60px rgba(45,40,36,0.04)",
+        boxShadow: "0 2px 6px rgba(45,40,36,0.10), 0 10px 28px rgba(45,40,36,0.13), 0 28px 64px rgba(45,40,36,0.07)",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
         flexDirection: "column",
@@ -203,21 +203,21 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
       }}
       onMouseOver={(e) => {
         const el = e.currentTarget as HTMLDivElement;
-        el.style.boxShadow = "0 2px 6px rgba(45,40,36,0.1), 0 12px 32px rgba(45,40,36,0.14), 0 32px 72px rgba(45,40,36,0.06)";
+        el.style.boxShadow = "0 4px 10px rgba(45,40,36,0.14), 0 16px 40px rgba(45,40,36,0.18), 0 36px 80px rgba(45,40,36,0.09)";
         if (!editMode) el.style.transform = "translateY(-3px)";
-        el.style.borderColor = "rgba(197,165,114,0.25)";
+        el.style.borderColor = "rgba(197,165,114,0.30)";
         el.style.borderTopColor = "#c5a572";
         const arrow = el.querySelector('.intro-card-arrow') as HTMLElement;
-        if (arrow) { arrow.style.color = "#c5a572"; arrow.style.transform = "translateX(3px)"; }
+        if (arrow) { arrow.style.color = "#c5a572"; arrow.style.transform = "translateX(5px)"; }
       }}
       onMouseOut={(e) => {
         const el = e.currentTarget as HTMLDivElement;
-        el.style.boxShadow = "0 1px 3px rgba(45,40,36,0.06), 0 8px 24px rgba(45,40,36,0.08), 0 24px 60px rgba(45,40,36,0.04)";
+        el.style.boxShadow = "0 2px 6px rgba(45,40,36,0.10), 0 10px 28px rgba(45,40,36,0.13), 0 28px 64px rgba(45,40,36,0.07)";
         el.style.transform = "translateY(0)";
-        el.style.borderColor = "rgba(197,165,114,0.12)";
-        el.style.borderTopColor = "transparent";
+        el.style.borderColor = "rgba(197,165,114,0.18)";
+        el.style.borderTopColor = "rgba(197,165,114,0.25)";
         const arrow = el.querySelector('.intro-card-arrow') as HTMLElement;
-        if (arrow) { arrow.style.color = "#b0a898"; arrow.style.transform = "translateX(0)"; }
+        if (arrow) { arrow.style.color = "#a09080"; arrow.style.transform = "translateX(0)"; }
       }}
     >
       {/* ── Status badge (top-right) — always visible, always clickable ── */}
@@ -261,7 +261,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 12px",
-            border: "2px solid rgba(197,165,114,0.25)",
+            border: "2.5px solid rgba(197,165,114,0.40)",
             overflow: "hidden",
           }}
         >
@@ -394,7 +394,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         {/* Arrow */}
         <span
           className="intro-card-arrow"
-          style={{ fontSize: "0.85rem", fontWeight: 600, color: "#b0a898", transition: "color 0.3s ease, transform 0.3s ease" }}
+          style={{ fontSize: "0.95rem", fontWeight: 700, color: "#a09080", transition: "color 0.3s ease, transform 0.3s ease" }}
         >
           →
         </span>
