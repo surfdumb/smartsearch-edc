@@ -738,6 +738,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 fontSize: "0.92rem",
                 fontWeight: 400,
                 color: "rgba(255,255,255,0.6)",
+                marginTop: "32px",
                 marginBottom: "24px",
               }}
             >
