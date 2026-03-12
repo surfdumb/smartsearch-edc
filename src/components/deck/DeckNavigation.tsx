@@ -19,7 +19,7 @@ export default function DeckNavigation({
   currentIndex,
   totalCount,
   splitActive,
-  roleTitle,
+  roleTitle: _roleTitle,
 }: DeckNavigationProps) {
   return (
     <div
