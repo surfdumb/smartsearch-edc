@@ -90,7 +90,7 @@ export default function DeckEDCView({
           roleTitle={edc.role_title}
         />
 
-        {isEditRoute && state === "draft" && (
+        {isEditRoute && (
           <EDCStatusBar
             state={state}
             candidateId={candidate.candidate_id}
