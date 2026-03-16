@@ -1,19 +1,22 @@
 {
-  "search": {
-    "client": "Norican Group",
-    "subsidiary": "StrikoWestofen",
-    "role": "SVP StrikoWestofen",
-    "slug": "nor-swf-svp",
-    "lead_consultant": "Kalum Gillett",
-    "kam": "Ayrton Dravetz",
-    "key_criteria": [
-      "Strong leadership experience with cultural transformation capability",
-      "Global mindset and international experience",
-      "Comfortable running similar-sized business",
-      "Industrial background",
-      "Fluent German speaker with ability to be on-site in Veal regularly"
-    ],
-    "status": "active"
+  "search_name": "SVP StrikoWestofen",
+  "client_company": "Norican Group",
+  "client_location": "TBC",
+  "client_logo_url": null,
+  "key_criteria_names": [
+    "Strong Leadership with Cultural Transformation Capability",
+    "Global Mindset & International Experience",
+    "Comfortable Running Similar-Sized Business",
+    "Industrial Background",
+    "Fluent German Speaker (On-Site in Veal)"
+  ],
+  "search_lead": "Kalum Gillett",
+  "job_summary_pdf_url": null,
+  "deck_settings": {
+    "match_score_display": "HIDE",
+    "our_take_display": "SHOW",
+    "scope_narrative_display": "HIDE",
+    "edit_mode": false
   },
   "candidates": []
 }
