@@ -28,7 +28,7 @@
       "current_title": "Senior Vice President, Operations",
       "current_company": "Trident Automotive Group",
       "location": "Metro Detroit, MI",
-      "photo_url": null,
+      "photo_url": "/photos/marcus-chen.jpg",
       "headline": "Full P&L ownership across a $1.8B revenue base with direct PE board reporting. Consolidated 28 manufacturing sites to 22 while increasing output 14%.",
       "compensation_alignment": "green",
       "career_trajectory": "Plant Mgr → VP Ops → SVP (PE portfolio)",
@@ -39,7 +39,7 @@
         "current_title": "Senior Vice President, Operations",
         "current_company": "Trident Automotive Group",
         "location": "Metro Detroit, MI",
-        "photo_url": null,
+        "photo_url": "/photos/marcus-chen.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
@@ -157,7 +157,7 @@
       "current_title": "Vice President, Global Manufacturing",
       "current_company": "Meridian Drivetrain Systems",
       "location": "Ann Arbor, MI",
-      "photo_url": null,
+      "photo_url": "/photos/sarah-lindqvist.jpg",
       "headline": "Oversees 18 manufacturing plants across North America and Europe. Leading the strategic ICE-to-EV footprint transition currently in execution.",
       "compensation_alignment": "amber",
       "career_trajectory": "Engineering → Plant Dir → VP Manufacturing",
@@ -168,7 +168,7 @@
         "current_title": "Vice President, Global Manufacturing",
         "current_company": "Meridian Drivetrain Systems",
         "location": "Ann Arbor, MI",
-        "photo_url": null,
+        "photo_url": "/photos/sarah-lindqvist.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
@@ -286,7 +286,7 @@
       "current_title": "Chief Operating Officer",
       "current_company": "Great Lakes Precision Manufacturing",
       "location": "Grand Rapids, MI",
-      "photo_url": null,
+      "photo_url": "/photos/david-kowalski.jpg",
       "headline": "Current COO with full P&L at $420M — strong PE operating cadence but significant scale gap versus the $2B mandate.",
       "compensation_alignment": "green",
       "career_trajectory": "Quality Eng → Ops Dir → COO (PE-backed)",
@@ -297,7 +297,7 @@
         "current_title": "Chief Operating Officer",
         "current_company": "Great Lakes Precision Manufacturing",
         "location": "Grand Rapids, MI",
-        "photo_url": null,
+        "photo_url": "/photos/david-kowalski.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
