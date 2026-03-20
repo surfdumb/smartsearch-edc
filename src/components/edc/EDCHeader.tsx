@@ -113,7 +113,7 @@ export default function EDCHeader({
               <img
                 src={photo_url}
                 alt={candidate_name}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transform: "scale(0.85)" }}
               />
             ) : (
               <span
