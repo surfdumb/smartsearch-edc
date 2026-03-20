@@ -269,7 +269,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
             <img
               src={photoUrl}
               alt={v.candidate_name}
-              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%", transform: "scale(0.85)" }}
+              style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }}
             />
           ) : (
             <span
