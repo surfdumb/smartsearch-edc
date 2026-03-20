@@ -1,0 +1,412 @@
+{
+  "search_name": "Chief Operations Officer",
+  "client_company": "Automotive Company",
+  "client_location": "Detroit, MI",
+  "client_logo_url": null,
+  "deck_logo_url": null,
+  "search_lead": "SmartSearch",
+  "key_criteria_names": [
+    "P&L Ownership at Scale",
+    "Multi-Site Manufacturing Leadership",
+    "Continuous Improvement & Footprint Optimization",
+    "Private Equity Operating Experience",
+    "Global Operations Scope"
+  ],
+  "job_summary_url": null,
+  "job_summary_pdf_url": null,
+  "deck_settings": {
+    "match_score_display": "HIDE",
+    "our_take_display": "HIDE",
+    "scope_narrative_display": "HIDE",
+    "edit_mode": false
+  },
+  "candidates": [
+    {
+      "candidate_id": "m-chen",
+      "initials": "MC",
+      "candidate_name": "Marcus Chen",
+      "current_title": "Senior Vice President, Operations",
+      "current_company": "Trident Automotive Group",
+      "location": "Metro Detroit, MI",
+      "photo_url": null,
+      "headline": "Full P&L ownership across a $1.8B revenue base with direct PE board reporting. Consolidated 28 manufacturing sites to 22 while increasing output 14%.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Plant Mgr → VP Ops → SVP (PE portfolio)",
+      "industry_shorthand": "Automotive — Tier 1 Supplier",
+      "status": "active",
+      "edc_data": {
+        "candidate_name": "Marcus Chen",
+        "current_title": "Senior Vice President, Operations",
+        "current_company": "Trident Automotive Group",
+        "location": "Metro Detroit, MI",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$1.8B revenue, powertrain & chassis divisions",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "22 sites across North America and Mexico",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "Tier 1 automotive supplier, powertrain focus",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "strong"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "Three PE-backed roles since 2016, reports to operating partner",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "US, Mexico, Germany; JV in Guangzhou",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "strong"
+          }
+        ],
+        "scope_seasoning": "Marcus presents an unusually close scope match across all five dimensions — particularly notable is the direct PE board reporting cadence and the footprint consolidation experience.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Full P&L ownership across $1.8B revenue base</strong> spanning powertrain and chassis divisions with direct accountability to PE board for margin targets",
+            "context_anchor": "at Trident Automotive"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>Consolidated 28 manufacturing sites to 22</strong> while simultaneously increasing output by 14% through regional centers of excellence",
+            "context_anchor": "at Trident Automotive"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Deployed Lean Six Sigma enterprise-wide</strong>, closing 6 underperforming plants and delivering $47M in annual savings through footprint rationalization",
+            "context_anchor": "at Trident Automotive"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>Three PE-backed operating roles since 2016</strong> — fluent in value creation plans, 100-day planning, and quarterly PE board cadence",
+            "context_anchor": "at Cerberus / Apollo portfolio cos"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Managed operations across US, Mexico, and Germany</strong> and established a joint venture manufacturing facility in Guangzhou",
+            "context_anchor": "at Trident / Guangzhou JV"
+          }
+        ],
+        "compensation": {
+          "current_base": "$385,000",
+          "current_total": "~$697,500",
+          "expected_base": "$400,000–$425,000",
+          "expected_total": "~$750,000–$800,000",
+          "flexibility": "Flexible on structure. Primary driver is equity participation in the new platform.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "60 days",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Full P&L ownership at group level — not just an operational slice",
+            "detail": "Currently SVP Ops but reports into a CEO. Wants the top operational seat where he owns the entire value chain."
+          },
+          {
+            "type": "pull",
+            "headline": "Transformation mandate — building, not maintaining",
+            "detail": "Drawn to the idea of leading a full manufacturing transformation rather than inheriting a playbook."
+          },
+          {
+            "type": "push",
+            "headline": "PE exit timeline creates 18-month window",
+            "detail": "Current PE sponsor approaching exit. Proactively exploring before the transaction closes his options."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "Marcus is the strongest match in this shortlist. His operational depth, PE fluency, and demonstrated ability to consolidate manufacturing footprints while growing output directly mirrors the mandate. The only gap — no direct commercial/sales experience — is manageable for a COO role where operational transformation is the primary lever. We recommend advancing with confidence.",
+          "our_take_fragments": [
+            "Closest scope match we've seen — $1.8B P&L, 22 sites, PE board cadence",
+            "Footprint consolidation is his signature — 28 to 22 plants, $47M savings",
+            "No commercial experience is the one gap — but COO remit is operations-first",
+            "PE exit timing means he's available and motivated"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Full transformation ownership before PE exit closes the window",
+        "status": "active",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    },
+    {
+      "candidate_id": "s-lindqvist",
+      "initials": "SL",
+      "candidate_name": "Sarah Lindqvist",
+      "current_title": "Vice President, Global Manufacturing",
+      "current_company": "Meridian Drivetrain Systems",
+      "location": "Ann Arbor, MI",
+      "photo_url": null,
+      "headline": "Oversees 18 manufacturing plants across North America and Europe. Leading the strategic ICE-to-EV footprint transition currently in execution.",
+      "compensation_alignment": "amber",
+      "career_trajectory": "Engineering → Plant Dir → VP Manufacturing",
+      "industry_shorthand": "Automotive — EV Drivetrain",
+      "status": "active",
+      "edc_data": {
+        "candidate_name": "Sarah Lindqvist",
+        "current_title": "Vice President, Global Manufacturing",
+        "current_company": "Meridian Drivetrain Systems",
+        "location": "Ann Arbor, MI",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$950M operational budget (indirect P&L influence over $1.4B division)",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "18 plants across North America and Europe",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "EV drivetrain manufacturing, ICE-to-EV transition",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "strong"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "Public company; led one carve-out as operational lead",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "US, Canada, Germany, Hungary",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "strong"
+          }
+        ],
+        "scope_seasoning": "Sarah's manufacturing depth is exceptional, but P&L ownership is indirect and PE cadence is limited. The step-up to full COO authority is the key question.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Managed $950M operational budget</strong> contributing to 340bps EBITDA improvement over 3 years — but without standalone P&L authority",
+            "context_anchor": "at Meridian Drivetrain"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>Oversees 18 plants across North America and Europe</strong> with standardized operating model and two new EV-specific facilities in build",
+            "context_anchor": "at Meridian Drivetrain"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Led Toyota Production System deployment</strong> achieving 23% scrap reduction and 31% OEE improvement across legacy ICE operations",
+            "context_anchor": "at Meridian Drivetrain"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>Limited direct PE experience</strong> — one carve-out transaction as operational lead when Meridian divested its aftermarket division",
+            "context_anchor": "at Meridian (public co.)"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Integrated two acquired Hungarian plants</strong> post-acquisition within 14 months; functional German language skills",
+            "context_anchor": "at Meridian / Hungary"
+          }
+        ],
+        "compensation": {
+          "current_base": "$320,000",
+          "current_total": "~$543,000",
+          "expected_base": "$375,000–$400,000",
+          "expected_total": "~$650,000–$720,000",
+          "flexibility": "Flexible on base if equity component is meaningful. Willing to discuss earnout structures.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "90 days",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Step-up to full COO scope including supply chain and procurement",
+            "detail": "Wants authority beyond manufacturing — supply chain, procurement, and facilities."
+          },
+          {
+            "type": "pull",
+            "headline": "PE environment where decisions get made quickly",
+            "detail": "Attracted to PE decisioning speed versus public company consensus culture."
+          },
+          {
+            "type": "push",
+            "headline": "Feels boxed into the manufacturing lane at current employer",
+            "detail": "Despite VP title, scope is limited to plant operations only."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "Sarah brings exceptional manufacturing depth and a transformation track record — particularly the ICE-to-EV footprint transition. The gap is full P&L ownership and PE cadence, but she is articulate about why she wants the step-up. Worth advancing to test whether the PE gap is real or quickly learnable.",
+          "our_take_fragments": [
+            "Manufacturing depth is best-in-class — 18 sites, TPS deployment, EV transition",
+            "P&L is indirect — budget accountability, not standalone profit and loss",
+            "PE cadence is the biggest gap — only one carve-out, no board reporting rhythm",
+            "Hungry for the step-up and articulate about why"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Full COO authority beyond the manufacturing lane",
+        "status": "active",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    },
+    {
+      "candidate_id": "d-kowalski",
+      "initials": "DK",
+      "candidate_name": "David Kowalski",
+      "current_title": "Chief Operating Officer",
+      "current_company": "Great Lakes Precision Manufacturing",
+      "location": "Grand Rapids, MI",
+      "photo_url": null,
+      "headline": "Current COO with full P&L at $420M — strong PE operating cadence but significant scale gap versus the $2B mandate.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Quality Eng → Ops Dir → COO (PE-backed)",
+      "industry_shorthand": "Industrial — Precision Components",
+      "status": "new",
+      "edc_data": {
+        "candidate_name": "David Kowalski",
+        "current_title": "Chief Operating Officer",
+        "current_company": "Great Lakes Precision Manufacturing",
+        "location": "Grand Rapids, MI",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$420M full P&L (previously $680M divisional)",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "8 sites currently; 15 in prior role",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "Precision components; automotive 5+ years ago",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "partial"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "Current role PE-backed (Greenfield Capital), QBR cadence, one bolt-on",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "Primarily US domestic; one facility in Monterrey, Mexico",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "David has the right operating instincts and PE muscle, but the scale gap ($420M vs $2B) and limited global footprint are the key questions for discussion.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Full P&L ownership at $420M revenue</strong> — genuine COO authority but roughly one-fifth of the $2B target scale",
+            "context_anchor": "at Great Lakes Precision"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>Oversees 8 manufacturing sites</strong>; prior role included 15 sites — combined experience of 23 but never simultaneously at the 25-site scale",
+            "context_anchor": "at Great Lakes + Consolidated"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Implemented operational excellence framework delivering 18% cost reduction</strong> — but has not led a major footprint rationalization or plant closure program",
+            "context_anchor": "at Great Lakes Precision"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>Current role is PE-backed</strong> with quarterly business review cadence and direct involvement in one bolt-on acquisition achieving synergy targets 4 months early",
+            "context_anchor": "at Greenfield Capital portfolio"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Primarily domestic US operations</strong> with one facility in Monterrey, Mexico — no European or Asian operational experience",
+            "context_anchor": "at Great Lakes (US + Mexico)"
+          }
+        ],
+        "compensation": {
+          "current_base": "$290,000",
+          "current_total": "~$451,500",
+          "expected_base": "$350,000–$380,000",
+          "expected_total": "~$550,000–$650,000",
+          "flexibility": "Compensation expectations are well within range. Motivated primarily by scale and sector return, not comp.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "30 days",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Return to automotive at genuine scale",
+            "detail": "Left automotive five years ago for the COO title. Now has the title and PE experience, wants to apply both at automotive scale."
+          },
+          {
+            "type": "pull",
+            "headline": "Describes the move as 'coming home at a higher altitude'",
+            "detail": "Self-aware about the sector gap and framing the return as a deliberate career arc."
+          },
+          {
+            "type": "push",
+            "headline": "Outgrown the current platform's scale ceiling",
+            "detail": "$420M is the maximum Great Lakes will reach. Wants a larger canvas."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "David has the right instincts and PE operating cadence, but the scale and global gaps are real. His $420M P&L is a meaningful step down from the $2B mandate, and limited international exposure is a concern for 25-site global oversight. Worth a conversation if the client values PE fluency and cultural fit — but should not be positioned as the lead candidate.",
+          "our_take_fragments": [
+            "PE operating muscle is genuine — QBR cadence, bolt-on integration, profit interest",
+            "Scale gap is the headline risk — $420M is one-fifth of the mandate",
+            "Five years out of automotive — sector re-entry at COO level carries adaptation risk",
+            "Comp expectations are well within range — motivated by scale, not money"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Coming home to automotive at a higher altitude",
+        "status": "new",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    }
+  ]
+}
