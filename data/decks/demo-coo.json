@@ -407,6 +407,522 @@
         "cv_url": null,
         "linkedin_url": null
       }
+    },
+    {
+      "candidate_id": "j-hargrove",
+      "initials": "JH",
+      "candidate_name": "James R. Hargrove",
+      "current_title": "Chief Executive Officer",
+      "current_company": "Pryor Industrial Technologies",
+      "location": "Grand Rapids, MI",
+      "photo_url": null,
+      "headline": "Full operational turnaround of $680M PE-backed industrial manufacturer — consolidated 24 plants to 18, expanded EBITDA margin from 9% to 17% in four years. Previously SVP Operations at Roper Technologies running $1.2B P&L across 22 sites.",
+      "compensation_alignment": "amber",
+      "career_trajectory": "Plant Mgr → SVP Ops (Roper $1.2B) → CEO (PE portfolio)",
+      "industry_shorthand": "Industrial — Precision Machining",
+      "status": "active",
+      "edc_data": {
+        "candidate_name": "James R. Hargrove",
+        "current_title": "Chief Executive Officer",
+        "current_company": "Pryor Industrial Technologies",
+        "location": "Grand Rapids, MI",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$680M (Pryor) + $1.2B prior (Roper Technologies)",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "18 current (was 24); 22 at Roper",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "Precision machining, industrial components",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "partial"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "CEO of Blackford Capital portco, 4 years",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "US, UK, Germany, Mexico",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "strong"
+          }
+        ],
+        "scope_seasoning": "Hargrove has run this exact playbook — PE-backed turnaround, plant consolidation, margin expansion — at slightly smaller scale. The step from $680M CEO to $2B COO is a scale increase but not a capability gap. His Roper experience at $1.2B bridges the delta. Strongest operational match in the search.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Full P&L ownership at Roper Technologies ($1.2B)</strong> across industrial instrumentation division; at Pryor, runs entire P&L at $680M with board-level accountability to PE sponsor",
+            "context_anchor": "at Roper Technologies ($1.2B)"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>22 plants at Roper across US, UK, and Germany</strong>; currently 18 sites at Pryor post-consolidation from 24 — deep experience managing geographically dispersed operations",
+            "context_anchor": "at Roper (22 sites) → Pryor (18 sites)"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Built Pryor's operational excellence programme from zero</strong> — Six Sigma Black Belt, reduced scrap rates by 34% and improved OEE from 62% to 81% in 30 months",
+            "context_anchor": "at Pryor (OEE 62%→81%)"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>Four years as CEO of Blackford Capital portfolio company</strong> — managed quarterly board reporting, 100-day plan execution, and integrated 2 bolt-on acquisitions",
+            "context_anchor": "at Blackford Capital (4 years)"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Led Pryor's plant consolidation: 24 sites to 18</strong> with $28M in annualised cost savings; at Roper, integrated 3 acquisitions into existing manufacturing footprint without adding facilities",
+            "context_anchor": "at Pryor (24→18 sites, $28M saved)"
+          }
+        ],
+        "compensation": {
+          "current_base": "$410,000",
+          "current_total": "~$656,000 + equity rollover (est. $1.2M)",
+          "expected_base": "$400,000–$430,000",
+          "expected_total": "Comparable base + equity package — equity component is the negotiation point",
+          "flexibility": "Compensation expectations at upper end of range — equity component will be the negotiation point.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "90 days",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Larger platform as COO rather than CEO — 'I want to run operations at scale, not manage investor relations'",
+            "detail": "Wants to focus on operations at $2B scale rather than CEO-level investor relations and board management."
+          },
+          {
+            "type": "pull",
+            "headline": "Detroit is home — $2B automotive scale is the step up he's looking for",
+            "detail": "Originally from Metro Detroit. Sees this as the culmination of his operational career arc."
+          },
+          {
+            "type": "push",
+            "headline": "Pryor approaching PE exit window — proactively exploring",
+            "detail": "Currently in Year 4 of Blackford Capital hold period. Approaching typical exit timeline and wants to secure next platform before transition."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "Best operator we've seen in this search. Quiet authority — the kind of person who walks a plant floor and the supervisors straighten up. PE-fluent without being PE-dependent. Turned Pryor around without a single site closure that made the news, which tells you something about how he manages people through change. Only question is whether he'd step back from CEO to COO — but his interest is real. Would absolutely hold a board room. First choice for shortlist.",
+          "our_take_fragments": [
+            "Best operator in the search — quiet authority, PE-fluent, transformation track record",
+            "Turned Pryor around: $420M→$680M revenue, EBITDA 9%→17%, 24→18 sites, $28M savings",
+            "Only question is CEO→COO step-back — but his interest is genuine and well-articulated",
+            "Would hold a board room — first choice for shortlist"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Scale step-up from CEO to COO at larger platform, post-exit timing",
+        "status": "active",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    },
+    {
+      "candidate_id": "m-deluca",
+      "initials": "MD",
+      "candidate_name": "Michael T. DeLuca",
+      "current_title": "Vice President, North American Manufacturing Operations",
+      "current_company": "Vanguard Drivetrain Systems",
+      "location": "Dearborn, MI",
+      "photo_url": null,
+      "headline": "16-year Vanguard veteran overseeing 19 North American plants with $1.8B operational P&L and 8,200 employees. Deep automotive expertise but single-company tenure, zero PE experience, and non-compete concerns place him on hold.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Manufacturing Eng → Plant Dir → VP NA Manufacturing (16 years at Vanguard)",
+      "industry_shorthand": "Automotive — Powertrain & Drivetrain",
+      "status": "hold",
+      "edc_data": {
+        "candidate_name": "Michael T. DeLuca",
+        "current_title": "Vice President, North American Manufacturing Operations",
+        "current_company": "Vanguard Drivetrain Systems",
+        "location": "Dearborn, MI",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$1.8B NA operations P&L, reports to Group COO",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "19 plants across US, Canada, and Mexico",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "Automotive powertrain & drivetrain, 16 years",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "strong"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "None — 16 years at NYSE-listed company",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "gap"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "North America only (US, Canada, Mexico)",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "DeLuca has the scale and the sector but has never operated outside one company or one ownership structure. The P&L is right, the plants are nearly right, but PE experience is absent and his entire career is Vanguard. The question is whether 16 years of depth compensates for zero breadth.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Runs North American operations P&L of approximately $1.8B</strong> with full budget authority, reporting directly to Group COO — figure based on candidate's characterisation of 'just over half of group revenue'",
+            "context_anchor": "at Vanguard ($1.8B NA ops)"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>19 plants across US, Canada, and Mexico</strong> — managed expansion from 14 to 19 sites during EV transition buildout and standardised production systems across all facilities",
+            "context_anchor": "at Vanguard (19 sites)"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Led Vanguard's Precision Manufacturing System</strong> reducing warranty claims by 41% over 3 years — however, system was inherited, not built; DeLuca optimised an existing framework",
+            "context_anchor": "at Vanguard PMS (inherited)"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>None</strong> — 16 years at a publicly listed company with no exposure to PE board dynamics, value creation plans, or compressed timelines",
+            "context_anchor": "None (public company only)"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Added 5 new plants during EV transition</strong> — experience is in expansion, not consolidation; no track record of plant closures, rationalisation, or M&A integration",
+            "context_anchor": "at Vanguard (expansion only, 14→19)"
+          }
+        ],
+        "compensation": {
+          "current_base": "$280,000",
+          "current_total": "~$392,000 + RSUs",
+          "expected_base": "$320,000–$350,000",
+          "expected_total": "~$500,000–$560,000",
+          "flexibility": "Expects equity component. Comp expectations within range — not the negotiation issue.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "60 days (subject to non-compete review)",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "PE environment for 'faster decision-making and clearer accountability'",
+            "detail": "Attracted to PE decisioning speed versus public company consensus culture."
+          },
+          {
+            "type": "push",
+            "headline": "Passed over for Group COO — role went to an external hire last year",
+            "detail": "Feels he has hit the ceiling at Vanguard. Group COO role went to an external hire, which he took as a signal."
+          },
+          {
+            "type": "pull",
+            "headline": "Detroit-based, no relocation needed — seeks step-up with PE exposure",
+            "detail": "Lives in Dearborn, 15 minutes from the client. No relocation friction."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "On paper he's the obvious choice — right sector, right scale, right geography, and he's 15 minutes down the road. But three things give us pause. One: he's never left Vanguard, and 16 years at one company means we don't know how he adapts. Two: zero PE experience, and this is a PE-backed role where the board expects a certain cadence. Three: the non-compete is a real issue — Vanguard's legal team is aggressive on this and a direct competitor hire could get messy. Put him on hold until we've tested the frontrunners. If Hargrove falls through, DeLuca is the fallback conversation — but go in with eyes open.",
+          "our_take_fragments": [
+            "Right sector, right scale, right geography — the obvious choice on paper",
+            "16 years at one company — untested adaptability is the headline risk",
+            "Zero PE experience — would need significant onboarding to PE cadence",
+            "Non-compete is a real issue — Vanguard's legal team is aggressive"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Passed over for Group COO internally, seeking step-up with PE exposure",
+        "status": "hold",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    },
+    {
+      "candidate_id": "k-wendt",
+      "initials": "KW",
+      "candidate_name": "Katharina Wendt",
+      "current_title": "Regional Director of Operations, EMEA & Asia-Pacific",
+      "current_company": "Breitenfeld Aerospace Group",
+      "location": "Stuttgart, Germany",
+      "photo_url": null,
+      "headline": "Cross-border operations leader managing 9 plants across 5 countries with €640M operational budget. Toyota Production System trained (TSSC Japan). Led post-acquisition integration of two French facilities. Open to US relocation — family ties in Chicago.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Industrial Eng → Plant Dir → Regional Dir Ops EMEA/APAC",
+      "industry_shorthand": "Aerospace — Precision Components",
+      "status": "new",
+      "edc_data": {
+        "candidate_name": "Katharina Wendt",
+        "current_title": "Regional Director of Operations, EMEA & Asia-Pacific",
+        "current_company": "Breitenfeld Aerospace Group",
+        "location": "Stuttgart, Germany",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "€640M (~$700M) EMEA/APAC operational P&L",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "9 plants across 5 countries (DE, FR, UK, IN, MY)",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "gap"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "Aerospace precision components",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "partial"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "3 years under Cinven ownership, bolt-on DD",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "Germany, France, UK, India, Malaysia",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Wendt operates at roughly 35% of the required revenue scale and 36% of the site count — but the complexity per site is arguably higher than the target role. Managing across 5 countries with 5 different regulatory and labour environments, in aerospace precision (tighter tolerances than automotive), with TPS credentials, is a different kind of readiness.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Operational P&L of €640M (~$700M)</strong> across EMEA and APAC — does not own full divisional P&L but step up from current scale is significant",
+            "context_anchor": "at Breitenfeld (€640M regional)"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>9 plants across 5 countries</strong> — below threshold but complexity is high, managing across German, French, British, Indian, and Malaysian operations with different labour laws and union structures",
+            "context_anchor": "at Breitenfeld (9 sites, 5 countries)"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Toyota Production System trained (3-month TSSC secondment, Japan)</strong> — deployed TPS-derived lean system across all 9 plants, reduced cycle times 28% and improved first-pass yield from 91% to 97.3%",
+            "context_anchor": "at TSSC Japan (TPS trained)"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>3 years under Cinven ownership</strong> — participated in 100-day plan, managed quarterly board presentations, led operational due diligence for one bolt-on acquisition",
+            "context_anchor": "at Cinven (3 years, bolt-on DD)"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Integrated 2 French plants post-acquisition</strong> (Aérotech Précision, 2023) — consolidated overlapping production lines, relocated one product line from Toulouse to Stuttgart",
+            "context_anchor": "at Breitenfeld / Aérotech integration"
+          }
+        ],
+        "compensation": {
+          "current_base": "€255,000 (~$277,000)",
+          "current_total": "~€344,000 (~$374,000) + Cinven co-investment",
+          "expected_base": "Full US executive package",
+          "expected_total": "US market rate + relocation support (visa, housing, family transition)",
+          "flexibility": "Open on structure. Relocation support is the key requirement beyond base compensation.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "6 months (standard German executive contract — potential to negotiate to 3 months)",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "US relocation window — wants experience before children start secondary school",
+            "detail": "Timing window is now. Family ties in Chicago. Sees this as a once-in-a-career opportunity."
+          },
+          {
+            "type": "pull",
+            "headline": "Scale step-up from regional to group-level operations",
+            "detail": "'I've done the multi-country complexity. Now I want the scale to match.'"
+          },
+          {
+            "type": "push",
+            "headline": "Regional director ceiling — Group COO seat at Breitenfeld is occupied",
+            "detail": "No clear path to group-level operations at current employer."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "Interesting profile. The Toyota pedigree is real — you don't get a TSSC secondment without being exceptional, and the first-pass yield numbers back it up. Cross-cultural plant management is a genuine differentiator that none of the other candidates offer. The gaps are scale (9 plants not 15, €640M not $1B+) and she's never worked in the US. But she's PE-literate, lean-credentialed, and the aerospace precision background means she won't be fazed by automotive tolerances. Relocation is a real question — says she's open, has family in Chicago, but Stuttgart to Detroit is a life change. Worth a first interview to test the fit. Submitted as a wildcard — if the search wants someone who brings international operational depth, she's the one.",
+          "our_take_fragments": [
+            "Toyota pedigree is real — TSSC secondment, first-pass yield 91%→97.3%",
+            "Cross-cultural plant management is a differentiator none of the others offer",
+            "Scale gap is real — 9 plants and €640M is 35% of the target",
+            "Wildcard submission — if the search values international operational depth, she's the one"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "US relocation window, scale step-up from regional to group-level operations",
+        "status": "new",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
+    },
+    {
+      "candidate_id": "b-callahan",
+      "initials": "BC",
+      "candidate_name": "Brian P. Callahan",
+      "current_title": "Senior Vice President, Global Operations",
+      "current_company": "Lakeshore Consumer Brands",
+      "location": "Chicago, IL",
+      "photo_url": null,
+      "headline": "Accomplished FMCG operations leader with $1.4B P&L across 12 plants — strong general management and PE credentials but career entirely in consumer goods. No automotive, industrial, or precision manufacturing exposure. Sector mismatch.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Ops Analyst → Plant Dir → VP Ops → SVP Global Ops (PE-backed FMCG)",
+      "industry_shorthand": "FMCG — Personal Care & Household",
+      "status": "rejected",
+      "edc_data": {
+        "candidate_name": "Brian P. Callahan",
+        "current_title": "Senior Vice President, Global Operations",
+        "current_company": "Lakeshore Consumer Brands",
+        "location": "Chicago, IL",
+        "photo_url": null,
+        "scope_match": [
+          {
+            "scope": "P&L Scale",
+            "candidate_actual": "$1.4B global operations P&L",
+            "role_requirement": "$2B+ operational P&L",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Manufacturing Footprint",
+            "candidate_actual": "12 plants (US and Latin America)",
+            "role_requirement": "25+ manufacturing sites globally",
+            "alignment": "gap"
+          },
+          {
+            "scope": "Industry Context",
+            "candidate_actual": "FMCG personal care & household products",
+            "role_requirement": "Automotive OEM or Tier 1",
+            "alignment": "gap"
+          },
+          {
+            "scope": "PE Exposure",
+            "candidate_actual": "5 years under Advent International",
+            "role_requirement": "PE portfolio company operating experience",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Global Scope",
+            "candidate_actual": "US and Latin America",
+            "role_requirement": "Multi-region operational oversight",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Callahan has PE depth and respectable scale, but his entire career is consumer goods — personal care, household products, retail supply chains. Automotive manufacturing operates on different quality systems (IATF 16949 not ISO 22716), different customer dynamics, and different capex cycles. The sector gap is too wide.",
+        "key_criteria": [
+          {
+            "name": "P&L Ownership at Scale",
+            "evidence": "<strong>Full operational P&L of $1.4B</strong> across global manufacturing — meets the scale requirement but FMCG P&L dynamics are structurally different from automotive",
+            "context_anchor": "at Lakeshore ($1.4B global ops)"
+          },
+          {
+            "name": "Multi-Site Manufacturing Leadership",
+            "evidence": "<strong>12 plants in US and Latin America</strong> — below threshold and plants are high-volume batch/continuous process (liquids, aerosols), not discrete manufacturing",
+            "context_anchor": "at Lakeshore (12 plants, FMCG)"
+          },
+          {
+            "name": "Continuous Improvement & Footprint Optimization",
+            "evidence": "<strong>Led Lakeshore Performance System across all 12 sites</strong> — TPM, SMED, and 5S deployment, but continuous improvement in FMCG is a different discipline from automotive (APQP, PPAP, SPC absent)",
+            "context_anchor": "at Lakeshore LPS (FMCG context)"
+          },
+          {
+            "name": "Private Equity Operating Experience",
+            "evidence": "<strong>5 years under Advent International ownership</strong> — led 2 bolt-on acquisition integrations, manages quarterly board reporting; strongest area relative to the brief",
+            "context_anchor": "at Advent International (5 years)"
+          },
+          {
+            "name": "Global Operations Scope",
+            "evidence": "<strong>Consolidated 3 plants post-acquisition</strong> into existing Lakeshore facilities — effective execution but in FMCG context where consolidation decisions differ fundamentally from automotive",
+            "context_anchor": "at Lakeshore (3 plants consolidated)"
+          }
+        ],
+        "compensation": {
+          "current_base": "$340,000",
+          "current_total": "~$510,000 + Advent co-investment (est. $600K unrealised)",
+          "expected_base": "$370,000–$400,000",
+          "expected_total": "~$600,000–$700,000",
+          "flexibility": "Comp expectations within range. Not the issue — sector mismatch is the issue.",
+          "budget_range": "$650,000–$850,000 total package"
+        },
+        "notice_period": "60 days",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Wants to move from FMCG to industrial — 'I want to build things that matter'",
+            "detail": "Feels consumer goods operations are becoming commoditised. Attracted to automotive complexity and capex intensity."
+          },
+          {
+            "type": "push",
+            "headline": "Feels FMCG operations becoming commoditised",
+            "detail": "Consumer goods manufacturing increasingly outsourced to co-packers. Wants to run real manufacturing."
+          },
+          {
+            "type": "pull",
+            "headline": "Attracted to automotive complexity and capex intensity",
+            "detail": "Self-aware about the sector gap but believes operational fundamentals transfer."
+          }
+        ],
+        "potential_concerns": [],
+        "our_take": {
+          "text": "Good operator, wrong sector. The PE experience is strong and the scale is close, but everything else is consumer goods — personal care, household products, retail supply chains. Automotive manufacturing is a different animal: different quality systems, different customer dynamics, different capex cycles. Callahan would spend his first year learning the sector rather than transforming operations. Plenty of automotive COO candidates available — no reason to cross-sector here. Declined.",
+          "our_take_fragments": [
+            "PE experience is strong — 5 years under Advent, 2 bolt-on integrations",
+            "Everything else is consumer goods — wrong quality systems, wrong customer dynamics",
+            "Would spend Year 1 learning the sector rather than transforming operations",
+            "Plenty of automotive COO candidates available — no reason to cross-sector"
+          ],
+          "original_note": null,
+          "ai_rationale": null
+        },
+        "motivation_hook": "Seeking sector transition from FMCG to industrial manufacturing",
+        "status": "rejected",
+        "miscellaneous": null,
+        "search_name": "Chief Operations Officer",
+        "role_title": "Chief Operations Officer",
+        "generated_date": "March 2026",
+        "consultant_name": "SmartSearch",
+        "match_score_display": "HIDE",
+        "cv_url": null,
+        "linkedin_url": null
+      }
     }
   ]
 }
