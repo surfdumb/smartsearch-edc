@@ -1,40 +1,110 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex items-center justify-center">
-      <div className="text-center" style={{ maxWidth: "480px" }}>
-        <h1 className="text-2xl font-semibold text-ss-dark mb-2">
-          SmartSearch — Executive Decision Cards
+    <main
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "#1a1a1a" }}
+    >
+      <div
+        className="flex flex-col items-center text-center"
+        style={{ maxWidth: "480px", padding: "0 24px" }}
+      >
+        {/* Logo */}
+        <Image
+          src="/Logos_SmartSearch_Primary_White.png"
+          alt="SmartSearch"
+          width={220}
+          height={60}
+          style={{ objectFit: "contain", marginBottom: "48px" }}
+          priority
+        />
+
+        {/* Title */}
+        <h1
+          className="font-cormorant"
+          style={{
+            fontSize: "1.6rem",
+            fontWeight: 300,
+            fontStyle: "italic",
+            color: "#faf8f5",
+            letterSpacing: "0.08em",
+            marginBottom: "16px",
+          }}
+        >
+          Executive Decision Cards
         </h1>
-        <p className="text-ss-gray mb-8 text-sm">Pepsi Bottling Ventures · Director of Compensation &amp; Benefits</p>
-        <div className="flex flex-col gap-3">
-          <Link href="/deck/pbv-dcb" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Candidate Deck (5 candidates)
-          </Link>
-          <Link href="/deck/pbv-dcb/compare" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Comparison View
-          </Link>
-          <Link href="/search/pbv-dcb/edc/c-snider" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Christopher Snider — EDC
-          </Link>
-          <Link href="/search/pbv-dcb/edc/n-patel" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Nirav Patel — EDC
-          </Link>
-          <Link href="/search/pbv-dcb/edc/a-wilkinson" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Adrian Wilkinson — EDC
-          </Link>
-          <Link href="/search/pbv-dcb/edc/j-vivas" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Julian Vivas Reveron — EDC
-          </Link>
-          <Link href="/search/pbv-dcb/edc/b-garrison" className="text-ss-gold hover:text-ss-gold-deep underline">
-            Benjamin Garrison — EDC
-          </Link>
-          <Link href="/transform" className="text-ss-gold hover:text-ss-gold-deep underline">
-            EDS → EDC Transformer
-          </Link>
+
+        {/* Tagline */}
+        <p
+          className="font-outfit"
+          style={{
+            fontSize: "0.95rem",
+            fontWeight: 300,
+            color: "#a0a0a0",
+            maxWidth: "360px",
+            lineHeight: 1.6,
+            marginBottom: "56px",
+          }}
+        >
+          Structured candidate intelligence, designed for decision-makers.
+        </p>
+
+        {/* Demo Button */}
+        <Link
+          href="/deck/demo-coo"
+          className="font-outfit gateway-demo-btn"
+          style={{ marginBottom: "80px" }}
+        >
+          View Demo
+        </Link>
+
+        {/* Bottom line */}
+        <div className="flex flex-col items-center">
+          <div
+            style={{
+              width: "60px",
+              height: "1px",
+              background: "rgba(197,165,114,0.2)",
+              marginBottom: "16px",
+            }}
+          />
+          <span
+            className="font-outfit"
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 300,
+              color: "#6b6b6b",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase" as const,
+            }}
+          >
+            SmartSearch Executive Recruitment
+          </span>
         </div>
       </div>
+
+      <style>{`
+        .gateway-demo-btn {
+          display: inline-block;
+          background: transparent;
+          border: 1px solid #c5a572;
+          color: #c5a572;
+          font-size: 0.85rem;
+          font-weight: 500;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          padding: 14px 48px;
+          border-radius: 2px;
+          text-decoration: none;
+          transition: all 0.3s ease;
+        }
+        .gateway-demo-btn:hover {
+          background: #c5a572;
+          color: #1a1a1a;
+        }
+      `}</style>
     </main>
   );
 }
