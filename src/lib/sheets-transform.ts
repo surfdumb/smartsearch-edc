@@ -147,6 +147,84 @@ function todayFormatted(): string {
   });
 }
 
+// ─── Normalize Claude JSON to EDCData ────────────────────────────────────────
+
+/**
+ * Normalize a parsed EDC JSON object from the Make Engine (Claude output)
+ * into the EDCData interface shape. Handles field name differences.
+ * e.g. Claude outputs `dimension` for scope match, but EDCData expects `scope`.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function normalizeEDCJson(parsed: any): EDCData {
+  return {
+    candidate_name: parsed.candidate_name || 'Unknown',
+    current_title: parsed.current_title || 'Not mentioned',
+    current_company: parsed.current_company || 'Not mentioned',
+    location: parsed.location || 'Not mentioned',
+    photo_url: parsed.photo_url,
+
+    scope_match: Array.isArray(parsed.scope_match)
+      ? parsed.scope_match.map((s: { dimension?: string; scope?: string; candidate_actual?: string; role_requirement?: string; alignment?: string }) => ({
+          scope: s.dimension || s.scope || 'Unknown',
+          candidate_actual: s.candidate_actual || 'Not assessed',
+          role_requirement: s.role_requirement || 'Not specified',
+          alignment: (s.alignment as EDCData['scope_match'][0]['alignment']) || 'not_assessed',
+        }))
+      : [],
+    scope_seasoning: parsed.scope_seasoning || undefined,
+
+    key_criteria: Array.isArray(parsed.key_criteria)
+      ? parsed.key_criteria.map((k: { name?: string; evidence?: string; context_anchor?: string }) => ({
+          name: k.name || 'Unknown',
+          evidence: k.evidence || 'Not mentioned',
+          context_anchor: k.context_anchor,
+        }))
+      : [],
+
+    compensation: {
+      current_base: parsed.compensation?.current_base || 'Not mentioned',
+      current_total: parsed.compensation?.current_total || 'Not mentioned',
+      expected_base: parsed.compensation?.expected_base || 'Not mentioned',
+      expected_total: parsed.compensation?.expected_total || 'Not mentioned',
+      flexibility: parsed.compensation?.flexibility || 'Not mentioned',
+      budget_range: parsed.compensation?.budget_range || undefined,
+    },
+    notice_period: parsed.notice_period || 'Not mentioned',
+    earliest_start_date: parsed.earliest_start_date || 'Not mentioned',
+
+    why_interested: Array.isArray(parsed.why_interested)
+      ? parsed.why_interested.map((w: { type?: string; headline?: string; detail?: string }) => ({
+          type: (w.type as 'pull' | 'push') || 'pull',
+          headline: w.headline || '',
+          detail: w.detail || '',
+        }))
+      : [],
+
+    potential_concerns: Array.isArray(parsed.potential_concerns)
+      ? parsed.potential_concerns.map((c: { concern?: string; severity?: string }) => ({
+          concern: c.concern || '',
+          severity: (c.severity as 'development' | 'significant') || 'development',
+        }))
+      : [],
+
+    our_take: {
+      text: parsed.our_take?.text || '',
+      recommendation: parsed.our_take?.recommendation,
+      discussion_points: parsed.our_take?.discussion_points,
+      original_note: parsed.our_take?.original_note,
+      ai_rationale: parsed.our_take?.ai_rationale,
+    },
+
+    search_name: parsed.search_name || '',
+    role_title: parsed.role_title || 'Not specified',
+    generated_date: parsed.generated_date || todayFormatted(),
+    consultant_name: parsed.consultant_name || 'SmartSearch',
+
+    match_score_percentage: parsed.match_score_percentage ?? undefined,
+    match_score_display: parsed.match_score_display || 'HIDE',
+  };
+}
+
 // ─── Main Transform ──────────────────────────────────────────────────────────
 
 /**

@@ -3,6 +3,7 @@ import { google } from 'googleapis';
 const SPREADSHEET_ID = '1FOcDCMlmmHs9TL1WxhLE_R4Y6cQng-ICWo7Pjr0xtaA';
 const EDS_SHEET_NAME = 'EDS Text Store';
 const JS_SHEET_NAME = 'JS Text Store';
+const EDC_OUTPUT_STORE_NAME = 'EDC Output Store';
 
 export interface SheetRow {
   [key: string]: string;
@@ -71,6 +72,38 @@ export async function getEDSRow(
   return (
     rows.find((row) => {
       const rowName = Object.values(row)[1]?.toLowerCase().trim();
+      return rowName === name;
+    }) ?? null
+  );
+}
+
+// ─── EDC Output Store ────────────────────────────────────────────────────────
+
+/**
+ * Get all pre-transformed EDC rows for a search_key from the EDC Output Store.
+ * Returns rows with columns: search_key, candidate_id, candidate_name, generated_date, edc_json
+ */
+export async function getEDCOutputRowsForSearch(searchKey: string): Promise<SheetRow[]> {
+  const rows = await getSheetData(EDC_OUTPUT_STORE_NAME);
+  const key = searchKey.toLowerCase().trim();
+  return rows.filter((row) => {
+    const rowKey = (row['search_key'] || Object.values(row)[0] || '').toLowerCase().trim();
+    return rowKey === key;
+  });
+}
+
+/**
+ * Find a single candidate's pre-transformed EDC JSON from the EDC Output Store.
+ */
+export async function getEDCOutputRow(
+  searchKey: string,
+  candidateName: string
+): Promise<SheetRow | null> {
+  const rows = await getEDCOutputRowsForSearch(searchKey);
+  const name = candidateName.toLowerCase().trim();
+  return (
+    rows.find((row) => {
+      const rowName = (row['candidate_name'] || Object.values(row)[2] || '').toLowerCase().trim();
       return rowName === name;
     }) ?? null
   );
