@@ -11,6 +11,11 @@ interface WhyInterestedProps {
 }
 
 export default function WhyInterested({ why_interested }: WhyInterestedProps) {
+  // Hide section entirely if no real motivation data
+  const hasRealData = why_interested.length > 0 &&
+    !why_interested.every((item) => item.headline === 'See candidate overview' || !item.headline);
+  if (!hasRealData) return null;
+
   return (
     <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Why Are They Interested?" />

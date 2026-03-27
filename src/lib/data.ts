@@ -1,4 +1,6 @@
 import type { EDCData, SearchContext } from './types';
+import fs from 'fs';
+import path from 'path';
 
 // ─── Data fetching abstraction ────────────────────────────────────────────────
 // Priority order:
@@ -8,17 +10,33 @@ import type { EDCData, SearchContext } from './types';
 
 const SHEETS_ENABLED = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 
+// ─── Fixture loader (reliable fs-based, works on Vercel) ─────────────────────
+
+type FixtureData = SearchContext & { candidate_statuses?: Record<string, string> };
+
+function loadFixture(searchId: string): FixtureData | null {
+  try {
+    const filePath = path.join(process.cwd(), 'data', 'decks', `${searchId}.json`);
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 // ─── getCandidateData ─────────────────────────────────────────────────────────
 
 export async function getCandidateData(
   searchId: string,
   candidateId: string
 ): Promise<EDCData | null> {
+  const fixture = loadFixture(searchId);
+
   // 1. Try pre-transformed EDC Output Store (structured JSON from Make Engine)
   if (SHEETS_ENABLED) {
     try {
-      const { getEDCOutputRowsForSearch } = await import('./sheets');
-      const { normalizeEDCJson, candidateIdMatchesName } = await import('./sheets-transform');
+      const { getEDCOutputRowsForSearch, getEDSRowsForSearch, getJSRow } = await import('./sheets');
+      const { normalizeEDCJson, candidateIdMatchesName, nameToCandidateId, parseKeyCriteria } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
       const match = outputRows.find((row) => {
@@ -33,19 +51,38 @@ export async function getCandidateData(
             const parsed = JSON.parse(edcJson);
             const edcData = normalizeEDCJson(parsed);
 
-            // If key_criteria is empty, populate from deck fixture criteria names
+            // Enrich from EDS if key fields are missing
             if (edcData.key_criteria.length === 0) {
-              try {
-                const deckData = await import(`../../data/decks/${searchId}.json`);
-                const fixture = deckData.default as SearchContext;
-                if (fixture?.key_criteria_names?.length > 0) {
-                  edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
+              const criteriaNames = fixture?.key_criteria_names || [];
+              if (criteriaNames.length > 0) {
+                // Try to find EDS row for this candidate to get assessment text
+                const edsRows = await getEDSRowsForSearch(searchId);
+                const edsRow = edsRows.find((row) => {
+                  const name = Object.values(row)[1] || '';
+                  return nameToCandidateId(name) === candidateId;
+                });
+
+                if (edsRow) {
+                  const eds = Object.values(edsRow);
+                  const assessmentText = eds[20] || eds[24] || '';
+                  // Also get JS row for structured criteria
+                  const jsRow = await getJSRow(searchId);
+                  const js = jsRow ? Object.values(jsRow) : [];
+                  const jsCriteriaNames: string[] = [];
+                  for (let i = 9; i <= 21; i += 3) {
+                    const name = js[i]?.trim();
+                    if (name) jsCriteriaNames.push(name);
+                  }
+                  const names = jsCriteriaNames.length > 0 ? jsCriteriaNames : criteriaNames;
+                  edcData.key_criteria = parseKeyCriteria(assessmentText || eds[24] || '', names);
+                } else {
+                  edcData.key_criteria = criteriaNames.map((name: string) => ({
                     name,
                     evidence: 'Assessment pending',
                     context_anchor: undefined,
                   }));
                 }
-              } catch { /* no fixture */ }
+              }
             }
 
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
@@ -77,19 +114,13 @@ export async function getCandidateData(
         const jsRow = await getJSRow(searchName);
         const edcData = transformToEDCData(edsRow, jsRow, searchId);
 
-        // Populate empty key_criteria from deck fixture criteria names
-        if (edcData.key_criteria.length === 0) {
-          try {
-            const deckData = await import(`../../data/decks/${searchId}.json`);
-            const fixture = deckData.default as SearchContext;
-            if (fixture?.key_criteria_names?.length > 0) {
-              edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
-                name,
-                evidence: 'Assessment pending',
-                context_anchor: undefined,
-              }));
-            }
-          } catch { /* no fixture */ }
+        // Populate empty key_criteria from fixture
+        if (edcData.key_criteria.length === 0 && fixture?.key_criteria_names?.length) {
+          edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
+            name,
+            evidence: 'Assessment pending',
+            context_anchor: undefined,
+          }));
         }
 
         return edcData;
@@ -99,14 +130,14 @@ export async function getCandidateData(
     }
   }
 
-  // 2. Deck JSON fixture
+  // 3. Deck JSON fixture
   const deck = await getDeckData(searchId);
   if (deck) {
     const match = deck.candidates.find((c) => c.candidate_id === candidateId);
     if (match) return match.edc_data;
   }
 
-  // 3. Legacy flat fixtures
+  // 4. Legacy flat fixtures
   try {
     const fixtureData = await import('../../data/test_fixtures.json');
     const fixtures = fixtureData.default as { candidates: Record<string, EDCData> };
@@ -119,49 +150,42 @@ export async function getCandidateData(
 // ─── getDeckData ──────────────────────────────────────────────────────────────
 
 export async function getDeckData(searchId: string): Promise<SearchContext | null> {
+  const fixture = loadFixture(searchId);
+
   // 1. Try pre-transformed EDC Output Store for structured candidates
   if (SHEETS_ENABLED) {
     try {
       const { getEDCOutputRowsForSearch, getJSRow, getEDSRowsForSearch } = await import('./sheets');
-      const { normalizeEDCJson, nameToCandidateId } = await import('./sheets-transform');
+      const { normalizeEDCJson, nameToCandidateId, parseKeyCriteria } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
 
       if (outputRows.length > 0) {
-        // We have structured EDC data — build SearchContext from it
-        // Still need JS row for search-level metadata (client name, criteria names, etc.)
-
-        // Try to get JS row for search context metadata
-        // Use EDS rows to find the search_name → JS lookup
+        // Load EDS rows for supplementary data
         const edsRows = await getEDSRowsForSearch(searchId);
         const edsSearchName = edsRows.length > 0
           ? (Object.values(edsRows[0])[0] || searchId)
           : searchId;
-        const jsRow = await getJSRow(edsSearchName);
+        // Try JS lookup by EDS search_key first (getJSRow now matches on col 0 OR col 1)
+        const jsRow = await getJSRow(edsSearchName) || await getJSRow(searchId);
         const js = jsRow ? Object.values(jsRow) : [];
 
-        // JS criteria names for the search context header + fallback population
+        // JS criteria names
         const keyCriteriaNames: string[] = [];
         for (let i = 9; i <= 21; i += 3) {
           const name = js[i]?.trim();
           if (name) keyCriteriaNames.push(name);
         }
 
-        // Load deck fixture for criteria names, candidate statuses, and other metadata
-        let fixtureCriteriaNames: string[] = keyCriteriaNames;
-        let fixtureStatuses: Record<string, string> = {};
-        let fixtureContext: Partial<SearchContext> = {};
-        try {
-          const deckData = await import(`../../data/decks/${searchId}.json`);
-          const fixture = deckData.default as SearchContext & { candidate_statuses?: Record<string, string> };
-          fixtureContext = fixture;
-          if (fixture?.key_criteria_names?.length > 0 && fixtureCriteriaNames.length === 0) {
-            fixtureCriteriaNames = fixture.key_criteria_names;
-          }
-          if (fixture?.candidate_statuses) {
-            fixtureStatuses = fixture.candidate_statuses;
-          }
-        } catch { /* no fixture */ }
+        // JS scope dimensions with role requirements (column 43+)
+        const jsScopeDimensions = js[43] || '';
+
+        // Merge fixture + JS criteria names
+        const fixtureCriteriaNames = fixture?.key_criteria_names || [];
+        const effectiveCriteriaNames = keyCriteriaNames.length > 0
+          ? keyCriteriaNames
+          : fixtureCriteriaNames;
+        const fixtureStatuses = fixture?.candidate_statuses || {};
 
         // Build candidates from structured EDC JSON
         const candidates = outputRows
@@ -171,26 +195,61 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             try {
               const parsed = JSON.parse(edcJson);
               const edcData = normalizeEDCJson(parsed);
+              const name = edcData.candidate_name;
+              const candidateId = nameToCandidateId(name);
 
-              // If key_criteria is empty, populate from search criteria names
-              if (edcData.key_criteria.length === 0 && fixtureCriteriaNames.length > 0) {
-                edcData.key_criteria = fixtureCriteriaNames.map((name) => ({
-                  name,
-                  evidence: 'Assessment pending',
-                  context_anchor: undefined,
-                }));
+              // Find corresponding EDS row for enrichment
+              const edsRow = edsRows.find((r) => {
+                const rName = Object.values(r)[1] || '';
+                return nameToCandidateId(rName) === candidateId;
+              });
+              const eds = edsRow ? Object.values(edsRow) : [];
+
+              // ── Enrich key_criteria from EDS assessment ──
+              if (edcData.key_criteria.length === 0 && effectiveCriteriaNames.length > 0) {
+                const assessmentText = eds[20] || eds[24] || '';
+                if (assessmentText && assessmentText !== 'Not mentioned') {
+                  edcData.key_criteria = parseKeyCriteria(assessmentText, effectiveCriteriaNames);
+                } else {
+                  edcData.key_criteria = effectiveCriteriaNames.map((n) => ({
+                    name: n,
+                    evidence: 'Assessment pending',
+                    context_anchor: undefined,
+                  }));
+                }
               }
 
-              const name = edcData.candidate_name;
+              // ── Enrich scope_match candidate_actual from EDS ──
+              if (edcData.scope_match.length > 0 && eds.length > 0) {
+                enrichScopeFromEDS(edcData, eds, jsScopeDimensions);
+              }
+
+              // ── Enrich compensation from EDS if not parsed ──
+              if (eds.length > 0) {
+                enrichCompFromEDS(edcData, eds);
+              }
+
+              // ── Enrich motivation from EDS ──
+              if (edcData.why_interested.length === 0 ||
+                  (edcData.why_interested.length === 1 && edcData.why_interested[0].headline === 'See candidate overview')) {
+                enrichMotivationFromEDS(edcData, eds);
+              }
+
               const initials = name.split(/\s+/).length >= 2
                 ? `${name.split(/\s+/)[0][0]}${name.split(/\s+/).pop()?.[0] || ''}`.toUpperCase()
                 : name.slice(0, 2).toUpperCase();
 
-              const candidateId = nameToCandidateId(name);
-
               // Merge status from fixture
               if (fixtureStatuses[candidateId]) {
                 edcData.status = fixtureStatuses[candidateId] as EDCData['status'];
+              }
+
+              // Fix title if it has Make pipeline prefix
+              if (/^IV\s+/i.test(edcData.current_title) || edcData.current_title === 'Not mentioned') {
+                const edsTitle = eds[2] || '';
+                if (edsTitle && !/^IV\s+/i.test(edsTitle)) {
+                  edcData.current_title = edsTitle;
+                }
               }
 
               return {
@@ -216,14 +275,14 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         if (candidates.length > 0) {
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
           return {
-            search_name: fixtureContext.search_name || js[0] || searchId,
-            client_company: fixtureContext.client_company || js[3] || 'Not specified',
-            client_location: fixtureContext.client_location || js[4] || '',
-            client_logo_url: fixtureContext.client_logo_url,
-            key_criteria_names: fixtureCriteriaNames.length > 0 ? fixtureCriteriaNames : keyCriteriaNames,
-            search_lead: fixtureContext.search_lead || js[2] || 'SmartSearch',
+            search_name: fixture?.search_name || js[0] || searchId,
+            client_company: fixture?.client_company || js[3] || 'Not specified',
+            client_location: fixture?.client_location || js[4] || '',
+            client_logo_url: fixture?.client_logo_url,
+            key_criteria_names: effectiveCriteriaNames,
+            search_lead: fixture?.search_lead || js[2] || 'SmartSearch',
             candidate_statuses: Object.keys(fixtureStatuses).length > 0 ? fixtureStatuses : undefined,
-            deck_settings: fixtureContext.deck_settings,
+            deck_settings: fixture?.deck_settings,
             candidates,
           };
         }
@@ -242,33 +301,18 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       const edsRows = await getEDSRowsForSearch(searchId);
       if (edsRows.length > 0) {
         const searchName = Object.values(edsRows[0])[0] || searchId;
-        const jsRow = await getJSRow(searchName);
+        const jsRow = await getJSRow(searchName) || await getJSRow(searchId);
         const context = transformToSearchContext(edsRows, jsRow, searchId);
 
-        // Merge fixture metadata (candidate_statuses, deck_settings, logo, etc.)
-        try {
-          const deckData = await import(`../../data/decks/${searchId}.json`);
-          const fixture = deckData.default as SearchContext & { candidate_statuses?: Record<string, string> };
-          if (fixture?.candidate_statuses) {
-            context.candidate_statuses = fixture.candidate_statuses;
-          }
-          if (fixture?.deck_settings) {
-            context.deck_settings = fixture.deck_settings;
-          }
-          if (fixture?.client_logo_url) {
-            context.client_logo_url = fixture.client_logo_url;
-          }
-          if (fixture?.search_name) {
-            context.search_name = fixture.search_name;
-          }
-          if (fixture?.client_company) {
-            context.client_company = fixture.client_company;
-          }
-          if (fixture?.search_lead) {
-            context.search_lead = fixture.search_lead;
-          }
-          // Populate empty key_criteria from fixture criteria names
-          if (fixture?.key_criteria_names?.length > 0) {
+        // Merge fixture metadata
+        if (fixture) {
+          if (fixture.candidate_statuses) context.candidate_statuses = fixture.candidate_statuses;
+          if (fixture.deck_settings) context.deck_settings = fixture.deck_settings;
+          if (fixture.client_logo_url) context.client_logo_url = fixture.client_logo_url;
+          if (fixture.search_name) context.search_name = fixture.search_name;
+          if (fixture.client_company) context.client_company = fixture.client_company;
+          if (fixture.search_lead) context.search_lead = fixture.search_lead;
+          if (fixture.key_criteria_names?.length) {
             if (!context.key_criteria_names?.length) {
               context.key_criteria_names = fixture.key_criteria_names;
             }
@@ -282,7 +326,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
               }
             }
           }
-        } catch { /* no fixture */ }
+        }
 
         return context;
       }
@@ -291,12 +335,236 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     }
   }
 
-  // 2. JSON fixture file
-  try {
-    const deckData = await import(`../../data/decks/${searchId}.json`);
-    return deckData.default as SearchContext;
-  } catch {
-    return null;
+  // 3. JSON fixture file
+  if (fixture) return fixture;
+
+  return null;
+}
+
+// ─── EDS Enrichment Helpers ──────────────────────────────────────────────────
+
+/** Enrich scope_match with candidate_actual from EDS assessment text */
+function enrichScopeFromEDS(edcData: EDCData, eds: string[], jsScopeDimensions: string) {
+  const allEmpty = edcData.scope_match.every(
+    (s) => s.candidate_actual === 'Not assessed' || !s.candidate_actual
+  );
+  if (!allEmpty) return;
+
+  // Try to parse EDS scope column (index 21)
+  const scopeText = eds[21] || '';
+  // Also try the AI assessment for scope data
+  const assessmentText = eds[20] || '';
+
+  for (const scopeItem of edcData.scope_match) {
+    const dimName = scopeItem.scope.toLowerCase();
+
+    // Try to find candidate value in scope text
+    const scopeMatch = findValueForDimension(scopeText, dimName);
+    if (scopeMatch) {
+      scopeItem.candidate_actual = scopeMatch;
+    }
+
+    // Try to find in assessment text
+    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+      const assessMatch = findValueForDimension(assessmentText, dimName);
+      if (assessMatch) {
+        scopeItem.candidate_actual = assessMatch;
+      }
+    }
+
+    // Try to find role requirement from JS scope dimensions
+    if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && jsScopeDimensions) {
+      const reqMatch = findValueForDimension(jsScopeDimensions, dimName);
+      if (reqMatch) {
+        scopeItem.role_requirement = reqMatch;
+      }
+    }
+  }
+}
+
+/** Search text for a value associated with a dimension name */
+function findValueForDimension(text: string, dimName: string): string | null {
+  if (!text) return null;
+
+  // Normalize for matching
+  const lowerText = text.toLowerCase();
+  const dimIdx = lowerText.indexOf(dimName);
+  if (dimIdx === -1) {
+    // Try partial match
+    const shortDim = dimName.split(/\s+/)[0]; // e.g., "p&l" from "p&l responsibility"
+    const shortIdx = lowerText.indexOf(shortDim);
+    if (shortIdx === -1) return null;
+    return extractValueNear(text, shortIdx);
+  }
+  return extractValueNear(text, dimIdx);
+}
+
+/** Extract a value near a position in text — looks for amounts, parenthetical content, or colon-separated values */
+function extractValueNear(text: string, pos: number): string | null {
+  const after = text.slice(pos, pos + 200);
+
+  // Pattern: "Dimension: value" or "Dimension - value"
+  const colonMatch = after.match(/^[^:\-–(]*[:\-–]\s*(.{5,80?)(?=[,;\n]|$)/);
+  if (colonMatch) return colonMatch[1].trim();
+
+  // Pattern: "Dimension (value)"
+  const parenMatch = after.match(/^[^(]*\(([^)]{3,80})\)/);
+  if (parenMatch) return parenMatch[1].trim();
+
+  // Pattern: currency amount nearby
+  const amountMatch = after.match(/[€$£][\d,.']+\s*(?:k|K|m|M|million|thousand)?/);
+  if (amountMatch) return amountMatch[0].trim();
+
+  return null;
+}
+
+/** Enrich compensation from EDS raw columns */
+function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
+  const comp = edcData.compensation;
+  // If current_base is still the full blob (>100 chars), re-parse from EDS
+  if (comp.current_base && comp.current_base.length > 100) {
+    // The base field has the entire comp blob — re-parse properly
+    const parsed = parseCompFromBlob(eds[10] || comp.current_base);
+    if (parsed.base) comp.current_base = parsed.base;
+    if (parsed.bonus) comp.current_bonus = parsed.bonus;
+    if (parsed.lti) comp.current_lti = parsed.lti;
+    if (parsed.benefits) comp.current_benefits = parsed.benefits;
+    if (parsed.total) comp.current_total = parsed.total;
+  }
+
+  // Same for expected
+  if (comp.expected_base && comp.expected_base.length > 100) {
+    const parsed = parseCompFromBlob(eds[11] || comp.expected_base);
+    if (parsed.base) comp.expected_base = parsed.base;
+    if (parsed.bonus) comp.expected_bonus = parsed.bonus;
+    if (parsed.lti) comp.expected_lti = parsed.lti;
+    if (parsed.benefits) comp.expected_benefits = parsed.benefits;
+    if (parsed.total) comp.expected_total = parsed.total;
+  }
+
+  // If expected is long prose, extract just the amount
+  if (comp.expected_total && comp.expected_total.length > 80) {
+    const amountMatch = comp.expected_total.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.))?/);
+    if (amountMatch) {
+      const prose = comp.expected_total;
+      comp.expected_total = amountMatch[0];
+      // Move the prose to flexibility if flexibility is empty/default
+      if (!comp.flexibility || comp.flexibility === 'Not mentioned') {
+        comp.flexibility = prose;
+      }
+    }
+  }
+}
+
+/** Parse a compensation text blob into structured components */
+function parseCompFromBlob(text: string): {
+  base?: string; bonus?: string; lti?: string; benefits?: string; total?: string;
+} {
+  if (!text) return {};
+  const result: { base?: string; bonus?: string; lti?: string; benefits?: string; total?: string } = {};
+
+  // Try line-by-line parsing
+  const lines = text.split(/\n|(?:(?<=\))\s*)|(?:;\s*)/);
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    const lower = trimmed.toLowerCase();
+
+    if (lower.startsWith('base:') || lower.startsWith('base salary:') || lower.startsWith('fixed:') || lower.startsWith('fixed salary:')) {
+      result.base = extractCompAmount(trimmed.replace(/^(?:base(?:\s+salary)?|fixed(?:\s+salary)?)\s*:\s*/i, ''));
+    } else if (lower.startsWith('bonus:') || lower.startsWith('variable:') || lower.startsWith('sti:') || lower.startsWith('short-term')) {
+      result.bonus = extractCompAmount(trimmed.replace(/^(?:bonus|variable|sti|short-term\s*(?:incentive)?)\s*:\s*/i, ''));
+    } else if (lower.startsWith('lti:') || lower.startsWith('ltip:') || lower.startsWith('equity:') || lower.startsWith('long-term')) {
+      result.lti = extractCompAmount(trimmed.replace(/^(?:lti[p]?|equity|long-term\s*(?:incentive)?)\s*:\s*/i, ''));
+    } else if (lower.startsWith('benefits:') || lower.startsWith('benefit:') || lower.startsWith('other:')) {
+      result.benefits = trimmed.replace(/^(?:benefits?|other)\s*:\s*/i, '').trim();
+    } else if (lower.startsWith('total:') || lower.startsWith('total package:') || lower.startsWith('total comp')) {
+      result.total = extractCompAmount(trimmed.replace(/^total(?:\s+(?:package|comp(?:ensation)?))?\s*:\s*/i, ''));
+    }
+  }
+
+  // Try parenthetical total
+  if (!result.total) {
+    const totalMatch = text.match(/total(?:\s+(?:fixed|package|comp(?:ensation)?))?\s*[:=]\s*([€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.))?)/i);
+    if (totalMatch) result.total = totalMatch[1].trim();
+  }
+
+  // If no structured parsing worked, try to extract first amount as base
+  if (!result.base && !result.total) {
+    const firstAmount = text.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?/);
+    if (firstAmount) {
+      // Check if it's clearly a base amount
+      const beforeAmount = text.slice(0, text.indexOf(firstAmount[0])).toLowerCase();
+      if (beforeAmount.includes('base') || beforeAmount.includes('fixed') || beforeAmount.length < 20) {
+        result.base = firstAmount[0];
+      }
+    }
+  }
+
+  return result;
+}
+
+/** Extract a clean amount from a comp string, preserving ranges */
+function extractCompAmount(text: string): string {
+  // Try to get the amount + range from the start
+  const amountMatch = text.match(/^([€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.|per\s+annum|annually|per\s+year))?)/);
+  if (amountMatch) return amountMatch[1].trim();
+
+  // Try currency amount anywhere
+  const anyMatch = text.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?/);
+  if (anyMatch) return anyMatch[0].trim();
+
+  // If it's short enough, return as-is
+  if (text.length <= 80) return text.trim();
+
+  return text.slice(0, 80).trim() + '...';
+}
+
+/** Enrich motivation from EDS overview/assessment */
+function enrichMotivationFromEDS(edcData: EDCData, eds: string[]) {
+  const overview = eds[23] || ''; // candidate_overview
+  const assessment = eds[20] || ''; // execflow_ai_assessment
+  const keyStrength = eds[17] || ''; // key_strength
+
+  // Try to extract push/pull from assessment
+  const items: EDCData['why_interested'] = [];
+
+  // Look for pull factors (positive reasons to join)
+  const pullPatterns = [
+    /(?:interested|attracted|motivated|drawn|excited)\s+(?:by|in|about)\s+(.{10,80}?)(?:\.|;|$)/gi,
+    /(?:opportunity|role|position)\s+(?:to|for)\s+(.{10,60}?)(?:\.|;|$)/gi,
+  ];
+  for (const pattern of pullPatterns) {
+    let match;
+    const searchText = overview || assessment;
+    while ((match = pattern.exec(searchText)) !== null && items.length < 2) {
+      items.push({ type: 'pull', headline: match[1].trim(), detail: '' });
+    }
+  }
+
+  // Look for push factors (reasons to leave current role)
+  const pushPatterns = [
+    /(?:limited|lack(?:ing)?|no\s+(?:room|opportunity)|ceiling|frustrated|outgrown|stagnant)\s+(.{5,60}?)(?:\.|;|$)/gi,
+  ];
+  for (const pattern of pushPatterns) {
+    let match;
+    const searchText = overview || assessment;
+    while ((match = pattern.exec(searchText)) !== null && items.length < 3) {
+      items.push({ type: 'push', headline: match[0].trim().slice(0, 60), detail: '' });
+    }
+  }
+
+  // If we found items, use them. If key_strength exists, add as pull.
+  if (items.length === 0 && keyStrength && keyStrength !== 'Not mentioned') {
+    items.push({ type: 'pull', headline: keyStrength.slice(0, 80), detail: '' });
+  }
+
+  if (items.length > 0) {
+    edcData.why_interested = items;
+  } else {
+    // No motivation data — set empty so component can hide itself
+    edcData.why_interested = [];
   }
 }
 

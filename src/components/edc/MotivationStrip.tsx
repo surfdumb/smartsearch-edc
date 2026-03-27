@@ -25,7 +25,9 @@ export default function MotivationStrip({
     const frags: string[] = [];
     if (motivation && motivation.trim()) frags.push(motivation.trim());
     for (const item of why_interested) {
-      if (item.headline && item.headline.trim()) frags.push(item.headline.trim());
+      const h = item.headline?.trim();
+      // Filter out placeholder text
+      if (h && h !== 'See candidate overview' && h !== 'Not mentioned') frags.push(h);
     }
     // Include any motivation-adjacent our_take_fragments
     if (our_take_fragments) {

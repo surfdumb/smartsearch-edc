@@ -110,12 +110,13 @@ export default function EDCCard({
             current_title={data.current_title}
             current_company={data.current_company}
             location={data.location}
-            photo_url={data.photo_url}
+            photo_url={data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
             context={context}
           />
 
-          {/* Motivation scrambler — always visible, cycles through motivation hooks */}
-          {data.why_interested && data.why_interested.length > 0 && (
+          {/* Motivation scrambler — visible only when real motivation data exists */}
+          {data.why_interested && data.why_interested.length > 0 &&
+           !data.why_interested.every(w => w.headline === 'See candidate overview' || !w.headline) && (
             <MotivationStrip
               why_interested={data.why_interested}
               our_take_fragments={data.our_take_fragments}

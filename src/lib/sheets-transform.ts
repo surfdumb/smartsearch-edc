@@ -81,7 +81,7 @@ function getInitials(name: string): string {
 
 // ─── Key Criteria Parsing ────────────────────────────────────────────────────
 
-function parseKeyCriteria(
+export function parseKeyCriteria(
   criteriaText: string,
   jsCriteriaNames: string[]
 ): EDCData['key_criteria'] {
@@ -91,21 +91,56 @@ function parseKeyCriteria(
     : extractNamesFromText(criteriaText);
 
   if (!criteriaText || criteriaText === 'Not mentioned') {
-    return names.map((name) => ({ name, evidence: 'Not mentioned' }));
+    return names.map((name) => ({ name, evidence: 'Assessment pending' }));
   }
 
-  // Split by numbered blocks: "1.", "2.", etc.
+  // Strategy 1: Split by numbered blocks "1.", "2.", etc.
   const blocks = criteriaText.split(/(?=\d+\.\s)/).filter((b) => b.trim());
 
-  return names.map((name, i) => {
-    const block = blocks[i] || '';
-    // Strip leading "N. Criterion Name: " or "N. " prefix
-    const evidence = block
-      .replace(/^\d+\.\s*[^:\n]+:\s*/, '')  // "1. Name: ..."
-      .replace(/^\d+\.\s*/, '')              // "1. ..."
-      .trim() || 'Not mentioned';
+  if (blocks.length >= names.length) {
+    return names.map((name, i) => {
+      const block = blocks[i] || '';
+      const evidence = block
+        .replace(/^\d+\.\s*[^:\n]+:\s*/, '')  // "1. Name: ..."
+        .replace(/^\d+\.\s*/, '')              // "1. ..."
+        .trim() || 'Assessment pending';
 
-    // Extract context anchor — look for "at CompanyName" pattern
+      const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
+      const contextAnchor = atMatch ? `at ${atMatch[1].trim()}` : undefined;
+
+      return { name, evidence, context_anchor: contextAnchor };
+    });
+  }
+
+  // Strategy 2: Fuzzy match criterion names within prose assessment text
+  // Split text into sentences, then find sentences relevant to each criterion
+  const sentences = criteriaText.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 10);
+
+  return names.map((name) => {
+    const keywords = name.toLowerCase()
+      .replace(/[&]/g, 'and')
+      .split(/[\s,/]+/)
+      .filter((w) => w.length > 3 && !['with', 'the', 'and', 'for', 'that', 'this', 'from', 'ability'].includes(w));
+
+    // Score each sentence by how many keywords match
+    let bestSentence = '';
+    let bestScore = 0;
+
+    for (const sentence of sentences) {
+      const lower = sentence.toLowerCase();
+      let score = 0;
+      for (const kw of keywords) {
+        if (lower.includes(kw)) score++;
+      }
+      if (score > bestScore) {
+        bestScore = score;
+        bestSentence = sentence.trim();
+      }
+    }
+
+    // Require at least 2 keyword matches for a meaningful match
+    const evidence = bestScore >= 2 ? bestSentence : 'Assessment pending';
+
     const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
     const contextAnchor = atMatch ? `at ${atMatch[1].trim()}` : undefined;
 

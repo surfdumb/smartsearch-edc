@@ -110,15 +110,19 @@ export async function getEDCOutputRow(
 }
 
 /**
- * Find a Job Summary row by search_name (column index 0).
+ * Find a Job Summary row by search_name (column 0) OR search_key (column 1).
+ * EDS rows store the search_key (e.g., "nor-swf-svp") while JS rows store
+ * the human-readable search_name (e.g., "SVP StrikoWestofen").
  */
 export async function getJSRow(searchName: string): Promise<SheetRow | null> {
   const rows = await getSheetData(JS_SHEET_NAME);
   const name = searchName.toLowerCase().trim();
   return (
     rows.find((row) => {
-      const rowName = Object.values(row)[0]?.toLowerCase().trim();
-      return rowName === name;
+      const vals = Object.values(row);
+      const rowName = vals[0]?.toLowerCase().trim();
+      const rowKey = vals[1]?.toLowerCase().trim();
+      return rowName === name || rowKey === name;
     }) ?? null
   );
 }

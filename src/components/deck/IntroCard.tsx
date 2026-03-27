@@ -153,7 +153,10 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
 
   const isRejected = v.status === 'rejected';
   const alignmentColor = COMP_COLOR[v.compensation_alignment];
-  const photoUrl = card.photo_url ?? card.edc_data?.photo_url;
+  // Photo priority: explicit URL > data URL > convention-based path /photos/{id}.jpg
+  const rawPhotoUrl = card.photo_url ?? card.edc_data?.photo_url ?? `/photos/${card.candidate_id}.jpg`;
+  const [photoError, setPhotoError] = useState(false);
+  const photoUrl = photoError ? null : rawPhotoUrl;
 
   const cycleAlignment = () => {
     const idx = COMP_CYCLE.indexOf(v.compensation_alignment);
@@ -270,6 +273,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
               src={photoUrl}
               alt={v.candidate_name}
               style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }}
+              onError={() => setPhotoError(true)}
             />
           ) : (
             <span

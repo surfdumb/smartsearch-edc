@@ -1,4 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
+"use client";
+import { useState } from "react";
 import type { EDCContext } from "@/lib/types";
 
 interface EDCHeaderProps {
@@ -20,6 +22,9 @@ export default function EDCHeader({
   initials,
   context = 'standalone',
 }: EDCHeaderProps) {
+  const [photoErr, setPhotoErr] = useState(false);
+  const effectivePhoto = photoErr ? undefined : photo_url;
+
   // Comparison context: compact — just name + title/company
   if (context === 'comparison') {
     return (
@@ -106,14 +111,15 @@ export default function EDCHeader({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: photo_url ? "transparent" : "rgba(197, 165, 114, 0.12)",
+              background: effectivePhoto ? "transparent" : "rgba(197, 165, 114, 0.12)",
             }}
           >
-            {photo_url ? (
+            {effectivePhoto ? (
               <img
-                src={photo_url}
+                src={effectivePhoto}
                 alt={candidate_name}
                 style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 15%" }}
+                onError={() => setPhotoErr(true)}
               />
             ) : (
               <span
