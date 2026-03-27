@@ -100,36 +100,44 @@ export function parseKeyCriteria(
   }
 
   // Strategy 0: Markdown bold-header format from key_criteria_assessment_prose
-  // Pattern: "**Criterion Name:** evaluation text" or "**Criterion Name:** Rating\nDetails..."
-  const boldSections = criteriaText.split(/(?=\*\*[^*]+\*\*)/);
-  if (boldSections.filter((s) => s.includes('**')).length >= 2) {
+  // Format: "**Header:** Rating\nEvidence text\n\n**Next Header:**..."
+  // Split on double-newline to get blocks, then check each for a bold header
+  const paragraphs = criteriaText.split(/\n\n+/).filter((p) => p.trim());
+  const boldBlocks: { header: string; body: string }[] = [];
+  for (const para of paragraphs) {
+    const headerMatch = para.match(/^\*\*(.+?)\*\*:?\s*([\s\S]*)/);
+    if (headerMatch) {
+      const header = headerMatch[1].replace(/^\d+\.\s*/, '').trim(); // Strip "1. " prefix
+      const body = headerMatch[2].trim();
+      boldBlocks.push({ header, body });
+    }
+  }
+
+  if (boldBlocks.length >= 2) {
     return names.map((name) => {
-      // Find the bold section that best matches this criterion name
-      const nameWords = name.toLowerCase().split(/[\s&,/]+/).filter((w) => w.length > 3);
-      let bestBlock = '';
+      const nameWords = name.toLowerCase()
+        .replace(/[&]/g, 'and')
+        .split(/[\s,/]+/)
+        .filter((w) => w.length > 3 && !['with', 'the', 'and', 'for', 'that', 'this', 'from', 'ability'].includes(w));
+
+      let bestBlock: typeof boldBlocks[0] | null = null;
       let bestScore = 0;
 
-      for (const section of boldSections) {
-        const headerMatch = section.match(/^\*\*([^*]+)\*\*/);
-        if (!headerMatch) continue;
-        const headerLower = headerMatch[1].toLowerCase();
+      for (const block of boldBlocks) {
+        const headerLower = block.header.toLowerCase();
         let score = 0;
         for (const word of nameWords) {
           if (headerLower.includes(word)) score++;
         }
         if (score > bestScore) {
           bestScore = score;
-          // Extract text after the header, strip markdown
-          bestBlock = section
-            .replace(/^\*\*[^*]+\*\*:?\s*/, '')
-            .replace(/\*\*/g, '')
-            .trim();
+          bestBlock = block;
         }
       }
 
-      // Clean up: take first 2-3 sentences, remove rating labels
-      let evidence = bestScore >= 1 ? bestBlock : '';
-      if (evidence) {
+      let evidence = '';
+      if (bestScore >= 1 && bestBlock) {
+        evidence = bestBlock.body;
         // Remove standalone rating words at the start (e.g., "Limited\n", "Strong\n")
         evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
         // Take first meaningful chunk (up to ~200 chars at a sentence boundary)
