@@ -15,10 +15,30 @@ function getByIndex(row: SheetRow, index: number, fallback = ''): string {
   return values[index]?.trim() || fallback;
 }
 
+/** Transliterate common European characters to ASCII equivalents. */
+function transliterate(str: string): string {
+  return str
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/Ä/g, 'Ae').replace(/Ö/g, 'Oe').replace(/Ü/g, 'Ue')
+    .replace(/é|è|ê|ë/g, 'e').replace(/É|È|Ê|Ë/g, 'E')
+    .replace(/á|à|â|ã/g, 'a').replace(/Á|À|Â|Ã/g, 'A')
+    .replace(/í|ì|î|ï/g, 'i').replace(/Í|Ì|Î|Ï/g, 'I')
+    .replace(/ó|ò|ô|õ/g, 'o').replace(/Ó|Ò|Ô|Õ/g, 'O')
+    .replace(/ú|ù|û/g, 'u').replace(/Ú|Ù|Û/g, 'U')
+    .replace(/ñ/g, 'n').replace(/Ñ/g, 'N')
+    .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+    .replace(/ł/g, 'l').replace(/Ł/g, 'L')
+    .replace(/ś/g, 's').replace(/Ś/g, 'S')
+    .replace(/ź|ż/g, 'z').replace(/Ź|Ż/g, 'Z')
+    .replace(/ć/g, 'c').replace(/Ć/g, 'C')
+    .replace(/ń/g, 'n').replace(/Ń/g, 'N');
+}
+
 /** Generate a URL-safe candidate slug from a full name. e.g. "Christopher Snider" → "c-snider" */
 export function nameToCandidateId(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length < 2) return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const transliterated = transliterate(name);
+  const parts = transliterated.trim().split(/\s+/);
+  if (parts.length < 2) return transliterated.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const first = parts[0][0].toLowerCase();
   const last = parts[parts.length - 1].toLowerCase().replace(/[^a-z0-9]+/g, '');
   return `${first}-${last}`;

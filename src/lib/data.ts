@@ -226,7 +226,33 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       if (edsRows.length > 0) {
         const searchName = Object.values(edsRows[0])[0] || searchId;
         const jsRow = await getJSRow(searchName);
-        return transformToSearchContext(edsRows, jsRow, searchId);
+        const context = transformToSearchContext(edsRows, jsRow, searchId);
+
+        // Merge fixture metadata (candidate_statuses, deck_settings, logo, etc.)
+        try {
+          const deckData = await import(`../../data/decks/${searchId}.json`);
+          const fixture = deckData.default as SearchContext & { candidate_statuses?: Record<string, string> };
+          if (fixture?.candidate_statuses) {
+            context.candidate_statuses = fixture.candidate_statuses;
+          }
+          if (fixture?.deck_settings) {
+            context.deck_settings = fixture.deck_settings;
+          }
+          if (fixture?.client_logo_url) {
+            context.client_logo_url = fixture.client_logo_url;
+          }
+          if (fixture?.search_name) {
+            context.search_name = fixture.search_name;
+          }
+          if (fixture?.client_company) {
+            context.client_company = fixture.client_company;
+          }
+          if (fixture?.search_lead) {
+            context.search_lead = fixture.search_lead;
+          }
+        } catch { /* no fixture */ }
+
+        return context;
       }
     } catch (err) {
       console.warn('[data] Sheets lookup failed for getDeckData, falling back:', err);
