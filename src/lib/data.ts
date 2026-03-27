@@ -58,7 +58,7 @@ export async function getCandidateData(
   // 1. Try pre-transformed EDC Output Store (structured JSON from Make Engine)
   if (SHEETS_ENABLED) {
     try {
-      const { getEDCOutputRowsForSearch, getEDSRowsForSearch, getJSRow } = await import('./sheets');
+      const { getEDCOutputRowsForSearch, getEDSRowsForSearch } = await import('./sheets');
       const { normalizeEDCJson, candidateIdMatchesName, nameToCandidateId, parseKeyCriteria } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
@@ -87,17 +87,10 @@ export async function getCandidateData(
 
                 if (edsRow) {
                   const eds = Object.values(edsRow);
-                  const assessmentText = eds[20] || eds[24] || '';
-                  // Also get JS row for structured criteria
-                  const jsRow = await getJSRow(searchId);
-                  const js = jsRow ? Object.values(jsRow) : [];
-                  const jsCriteriaNames: string[] = [];
-                  for (let i = 9; i <= 21; i += 3) {
-                    const name = js[i]?.trim();
-                    if (name) jsCriteriaNames.push(name);
-                  }
-                  const names = jsCriteriaNames.length > 0 ? jsCriteriaNames : criteriaNames;
-                  edcData.key_criteria = parseKeyCriteria(assessmentText || eds[24] || '', names);
+                  // Prefer col 24 (structured criteria text) over col 20 (general assessment)
+                  const assessmentText = eds[24] || eds[20] || '';
+                  const names = criteriaNames;
+                  edcData.key_criteria = parseKeyCriteria(assessmentText, names);
                 } else {
                   edcData.key_criteria = criteriaNames.map((name: string) => ({
                     name,
@@ -230,7 +223,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
               // ── Enrich key_criteria from EDS assessment ──
               if (edcData.key_criteria.length === 0 && effectiveCriteriaNames.length > 0) {
-                const assessmentText = eds[20] || eds[24] || '';
+                // Prefer col 24 (structured criteria text) over col 20 (general assessment)
+                const assessmentText = eds[24] || eds[20] || '';
                 if (assessmentText && assessmentText !== 'Not mentioned') {
                   edcData.key_criteria = parseKeyCriteria(assessmentText, effectiveCriteriaNames);
                 } else {

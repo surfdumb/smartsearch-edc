@@ -85,7 +85,6 @@ export function parseKeyCriteria(
   criteriaText: string,
   jsCriteriaNames: string[]
 ): EDCData['key_criteria'] {
-  // If no criteria names from JS, parse text for numbered items
   const names = jsCriteriaNames.length > 0
     ? jsCriteriaNames
     : extractNamesFromText(criteriaText);
@@ -94,26 +93,75 @@ export function parseKeyCriteria(
     return names.map((name) => ({ name, evidence: 'Assessment pending' }));
   }
 
+  // Helper: extract context anchor from evidence text
+  function extractAnchor(evidence: string): string | undefined {
+    const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
+    return atMatch ? `at ${atMatch[1].trim()}` : undefined;
+  }
+
+  // Strategy 0: Markdown bold-header format from key_criteria_assessment_prose
+  // Pattern: "**Criterion Name:** evaluation text" or "**Criterion Name:** Rating\nDetails..."
+  const boldSections = criteriaText.split(/(?=\*\*[^*]+\*\*)/);
+  if (boldSections.filter((s) => s.includes('**')).length >= 2) {
+    return names.map((name) => {
+      // Find the bold section that best matches this criterion name
+      const nameWords = name.toLowerCase().split(/[\s&,/]+/).filter((w) => w.length > 3);
+      let bestBlock = '';
+      let bestScore = 0;
+
+      for (const section of boldSections) {
+        const headerMatch = section.match(/^\*\*([^*]+)\*\*/);
+        if (!headerMatch) continue;
+        const headerLower = headerMatch[1].toLowerCase();
+        let score = 0;
+        for (const word of nameWords) {
+          if (headerLower.includes(word)) score++;
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          // Extract text after the header, strip markdown
+          bestBlock = section
+            .replace(/^\*\*[^*]+\*\*:?\s*/, '')
+            .replace(/\*\*/g, '')
+            .trim();
+        }
+      }
+
+      // Clean up: take first 2-3 sentences, remove rating labels
+      let evidence = bestScore >= 1 ? bestBlock : '';
+      if (evidence) {
+        // Remove standalone rating words at the start (e.g., "Limited\n", "Strong\n")
+        evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
+        // Take first meaningful chunk (up to ~200 chars at a sentence boundary)
+        if (evidence.length > 200) {
+          const cutPoint = evidence.slice(0, 200).lastIndexOf('.');
+          if (cutPoint > 80) evidence = evidence.slice(0, cutPoint + 1);
+          else evidence = evidence.slice(0, 200) + '...';
+        }
+      }
+
+      return {
+        name,
+        evidence: evidence || 'Assessment pending',
+        context_anchor: evidence ? extractAnchor(evidence) : undefined,
+      };
+    });
+  }
+
   // Strategy 1: Split by numbered blocks "1.", "2.", etc.
   const blocks = criteriaText.split(/(?=\d+\.\s)/).filter((b) => b.trim());
-
   if (blocks.length >= names.length) {
     return names.map((name, i) => {
       const block = blocks[i] || '';
       const evidence = block
-        .replace(/^\d+\.\s*[^:\n]+:\s*/, '')  // "1. Name: ..."
-        .replace(/^\d+\.\s*/, '')              // "1. ..."
+        .replace(/^\d+\.\s*[^:\n]+:\s*/, '')
+        .replace(/^\d+\.\s*/, '')
         .trim() || 'Assessment pending';
-
-      const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
-      const contextAnchor = atMatch ? `at ${atMatch[1].trim()}` : undefined;
-
-      return { name, evidence, context_anchor: contextAnchor };
+      return { name, evidence, context_anchor: extractAnchor(evidence) };
     });
   }
 
   // Strategy 2: Fuzzy match criterion names within prose assessment text
-  // Split text into sentences, then find sentences relevant to each criterion
   const sentences = criteriaText.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 10);
 
   return names.map((name) => {
@@ -122,7 +170,6 @@ export function parseKeyCriteria(
       .split(/[\s,/]+/)
       .filter((w) => w.length > 3 && !['with', 'the', 'and', 'for', 'that', 'this', 'from', 'ability'].includes(w));
 
-    // Score each sentence by how many keywords match
     let bestSentence = '';
     let bestScore = 0;
 
@@ -138,13 +185,8 @@ export function parseKeyCriteria(
       }
     }
 
-    // Require at least 2 keyword matches for a meaningful match
     const evidence = bestScore >= 2 ? bestSentence : 'Assessment pending';
-
-    const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
-    const contextAnchor = atMatch ? `at ${atMatch[1].trim()}` : undefined;
-
-    return { name, evidence, context_anchor: contextAnchor };
+    return { name, evidence, context_anchor: extractAnchor(evidence) };
   });
 }
 
