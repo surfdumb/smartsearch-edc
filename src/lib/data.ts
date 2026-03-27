@@ -75,7 +75,24 @@ export async function getCandidateData(
       if (edsRow) {
         const searchName = Object.values(edsRow)[0] || searchId;
         const jsRow = await getJSRow(searchName);
-        return transformToEDCData(edsRow, jsRow, searchId);
+        const edcData = transformToEDCData(edsRow, jsRow, searchId);
+
+        // Populate empty key_criteria from deck fixture criteria names
+        if (edcData.key_criteria.length === 0) {
+          try {
+            const deckData = await import(`../../data/decks/${searchId}.json`);
+            const fixture = deckData.default as SearchContext;
+            if (fixture?.key_criteria_names?.length > 0) {
+              edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
+                name,
+                evidence: 'Assessment pending',
+                context_anchor: undefined,
+              }));
+            }
+          } catch { /* no fixture */ }
+        }
+
+        return edcData;
       }
     } catch (err) {
       console.warn('[data] Sheets lookup failed for getCandidateData, falling back:', err);
@@ -249,6 +266,21 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           }
           if (fixture?.search_lead) {
             context.search_lead = fixture.search_lead;
+          }
+          // Populate empty key_criteria from fixture criteria names
+          if (fixture?.key_criteria_names?.length > 0) {
+            if (!context.key_criteria_names?.length) {
+              context.key_criteria_names = fixture.key_criteria_names;
+            }
+            for (const candidate of context.candidates) {
+              if (candidate.edc_data && candidate.edc_data.key_criteria.length === 0) {
+                candidate.edc_data.key_criteria = fixture.key_criteria_names.map((name: string) => ({
+                  name,
+                  evidence: 'Assessment pending',
+                  context_anchor: undefined,
+                }));
+              }
+            }
           }
         } catch { /* no fixture */ }
 

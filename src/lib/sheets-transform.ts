@@ -464,10 +464,21 @@ export function transformToEDCData(
     js[37] ? `DI: ${js[37]}` : null,
   ].filter(Boolean) as string[];
 
+  // Clean title: prefer actual title (eds[2]) over Granola interview title (eds[26])
+  // Strip Make pipeline prefixes like "IV Patrik Vogtel - Norican SVP"
+  const rawTitle = eds[2] || eds[26] || '';
+  const cleanedTitle = /^IV\s+/i.test(rawTitle) ? '' : rawTitle;
+  // If primary title was bad, try the other column
+  const fallbackTitle = !cleanedTitle && eds[26] && !/^IV\s+/i.test(eds[26]) ? eds[26] : '';
+
+  // Parse compensation text blobs into structured fields
+  const currentCompParsed = parseCompensationText(eds[10] || '');
+  const expectedCompParsed = parseCompensationText(eds[11] || '');
+
   return {
     // Header
     candidate_name: eds[1] || 'Unknown',
-    current_title: eds[26] || eds[2] || 'Not mentioned',   // granola_title preferred
+    current_title: cleanedTitle || fallbackTitle || 'Not mentioned',
     current_company: eds[3] || 'Not mentioned',
     location: eds[4] || 'Not mentioned',
 
@@ -478,12 +489,18 @@ export function transformToEDCData(
     // Key Criteria
     key_criteria: parseKeyCriteria(eds[24] || '', jsCriteriaNames),
 
-    // Compensation
+    // Compensation — parse text blobs into structured rows
     compensation: {
-      current_base: 'Not mentioned',
-      current_total: eds[10] || 'Not mentioned',
-      expected_base: 'Not mentioned',
-      expected_total: eds[11] || 'Not mentioned',
+      current_base: currentCompParsed.base || 'Not mentioned',
+      current_bonus: currentCompParsed.bonus,
+      current_lti: currentCompParsed.lti,
+      current_benefits: currentCompParsed.benefits,
+      current_total: currentCompParsed.total || eds[10] || 'Not mentioned',
+      expected_base: expectedCompParsed.base || 'Not mentioned',
+      expected_bonus: expectedCompParsed.bonus,
+      expected_lti: expectedCompParsed.lti,
+      expected_benefits: expectedCompParsed.benefits,
+      expected_total: expectedCompParsed.total || eds[11] || 'Not mentioned',
       flexibility: eds[12] || 'Not mentioned',
       budget_range: budgetParts.length > 0 ? budgetParts.join(' · ') : undefined,
     },

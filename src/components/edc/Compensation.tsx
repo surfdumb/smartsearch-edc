@@ -29,9 +29,8 @@ function isEmpty(v: string | undefined): boolean {
 }
 
 /** Truncate long text values to a reasonable display length */
-function truncateVal(v: string, max = 80): string {
+function truncateVal(v: string, max = 200): string {
   if (v.length <= max) return v;
-  // Try to cut at a natural break
   const cut = v.slice(0, max);
   const lastSpace = cut.lastIndexOf(' ');
   return (lastSpace > max * 0.5 ? cut.slice(0, lastSpace) : cut) + '...';

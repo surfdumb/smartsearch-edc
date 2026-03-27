@@ -151,10 +151,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // Filter candidates by status when candidate_statuses is defined
   // Only show candidates that have a status entry (e.g., "to_send")
   const [showAllCandidates, setShowAllCandidates] = useState(false);
-  const visibleCandidates = (data.candidate_statuses && !showAllCandidates)
+  const shortlistCount = data.candidate_statuses
+    ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {})).length
+    : data.candidates.length;
+  const hasFilter = data.candidate_statuses && shortlistCount < data.candidates.length;
+  const visibleCandidates = (hasFilter && !showAllCandidates)
     ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {}))
     : data.candidates;
-  const hiddenCount = data.candidates.length - visibleCandidates.length;
 
   // Derive ordered candidates
   const orderedCandidates = cardOrder.length > 0
@@ -754,7 +757,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             </p>
 
             {/* Show all / filtered toggle (edit mode only, when statuses exist) */}
-            {isEditRoute && hiddenCount > 0 && (
+            {isEditRoute && hasFilter && (
               <button
                 onClick={() => setShowAllCandidates(v => !v)}
                 style={{
@@ -770,7 +773,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   marginBottom: "16px",
                 }}
               >
-                {showAllCandidates ? `Showing all ${data.candidates.length} candidates` : `Showing ${visibleCandidates.length} of ${data.candidates.length} — Show all`}
+                {showAllCandidates
+                  ? `Showing all ${data.candidates.length} — Show shortlist (${shortlistCount})`
+                  : `Showing ${shortlistCount} of ${data.candidates.length} — Show all`}
               </button>
             )}
 
