@@ -74,30 +74,30 @@ export async function getCandidateData(
             const parsed = JSON.parse(edcJson);
             const edcData = normalizeEDCJson(parsed);
 
-            // Enrich from EDS if key fields are missing
-            if (edcData.key_criteria.length === 0) {
-              const criteriaNames = fixture?.key_criteria_names || [];
-              if (criteriaNames.length > 0) {
-                // Try to find EDS row for this candidate to get assessment text
-                const edsRows = await getEDSRowsForSearch(searchId);
-                const edsRow = edsRows.find((row) => {
-                  const name = Object.values(row)[1] || '';
-                  return nameToCandidateId(name) === candidateId;
-                });
+            // Always enrich key_criteria from EDS when fixture has criteria names
+            // (EDC Output Store JSON often has empty/mismatched criteria)
+            const criteriaNames = fixture?.key_criteria_names || [];
+            if (criteriaNames.length > 0) {
+              const edsRows = await getEDSRowsForSearch(searchId);
+              const edsRow = edsRows.find((row) => {
+                const name = Object.values(row)[1] || '';
+                return nameToCandidateId(name) === candidateId;
+              });
 
-                if (edsRow) {
-                  const eds = Object.values(edsRow);
-                  // Prefer col 24 (structured criteria text) over col 20 (general assessment)
-                  const assessmentText = eds[24] || eds[20] || '';
-                  const names = criteriaNames;
-                  edcData.key_criteria = parseKeyCriteria(assessmentText, names);
-                } else {
-                  edcData.key_criteria = criteriaNames.map((name: string) => ({
-                    name,
-                    evidence: 'Assessment pending',
-                    context_anchor: undefined,
+              if (edsRow) {
+                const eds = Object.values(edsRow);
+                const assessmentText = eds[24] || eds[20] || '';
+                if (assessmentText && assessmentText !== 'Not mentioned') {
+                  edcData.key_criteria = parseKeyCriteria(assessmentText, criteriaNames);
+                } else if (edcData.key_criteria.length === 0) {
+                  edcData.key_criteria = criteriaNames.map((n: string) => ({
+                    name: n, evidence: 'Assessment pending', context_anchor: undefined,
                   }));
                 }
+              } else if (edcData.key_criteria.length === 0) {
+                edcData.key_criteria = criteriaNames.map((n: string) => ({
+                  name: n, evidence: 'Assessment pending', context_anchor: undefined,
+                }));
               }
             }
 
@@ -221,13 +221,12 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
               });
               const eds = edsRow ? Object.values(edsRow) : [];
 
-              // ── Enrich key_criteria from EDS assessment ──
-              if (edcData.key_criteria.length === 0 && effectiveCriteriaNames.length > 0) {
-                // Prefer col 24 (structured criteria text) over col 20 (general assessment)
+              // ── Always enrich key_criteria from EDS when criteria names available ──
+              if (effectiveCriteriaNames.length > 0 && eds.length > 0) {
                 const assessmentText = eds[24] || eds[20] || '';
                 if (assessmentText && assessmentText !== 'Not mentioned') {
                   edcData.key_criteria = parseKeyCriteria(assessmentText, effectiveCriteriaNames);
-                } else {
+                } else if (edcData.key_criteria.length === 0) {
                   edcData.key_criteria = effectiveCriteriaNames.map((n) => ({
                     name: n,
                     evidence: 'Assessment pending',
