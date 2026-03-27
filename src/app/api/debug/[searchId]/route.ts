@@ -85,5 +85,39 @@ export async function GET(
     }
   }
 
+  // 4. Check specific candidate EDS data (use ?candidate=p-vogtel)
+  const url = new URL(_request.url);
+  const candidateSlug = url.searchParams.get('candidate');
+  if (candidateSlug && SHEETS_ENABLED) {
+    try {
+      const { getEDSRowsForSearch } = await import('@/lib/sheets');
+      const { nameToCandidateId } = await import('@/lib/sheets-transform');
+      const edsRows = await getEDSRowsForSearch(searchId);
+      const match = edsRows.find((row) => {
+        const name = Object.values(row)[1] || '';
+        return nameToCandidateId(name) === candidateSlug;
+      });
+      if (match) {
+        const vals = Object.values(match);
+        debug.candidate_found = true;
+        debug.candidate_name = vals[1];
+        debug.candidate_title = vals[2];
+        debug.candidate_assessment_col20 = vals[20]?.slice(0, 300) || '(empty)';
+        debug.candidate_criteria_col24 = vals[24]?.slice(0, 300) || '(empty)';
+        debug.candidate_overview_col23 = vals[23]?.slice(0, 300) || '(empty)';
+        debug.candidate_scope_col21 = vals[21]?.slice(0, 300) || '(empty)';
+        debug.candidate_comp_col10 = vals[10]?.slice(0, 200) || '(empty)';
+        debug.candidate_comp_col11 = vals[11]?.slice(0, 200) || '(empty)';
+        debug.candidate_key_strength_col17 = vals[17]?.slice(0, 200) || '(empty)';
+        debug.candidate_our_take_col18 = vals[18]?.slice(0, 300) || '(empty)';
+      } else {
+        debug.candidate_found = false;
+        debug.candidate_names_in_eds = edsRows.map(r => Object.values(r)[1]).slice(0, 20);
+      }
+    } catch (e) {
+      debug.candidate_error = String(e);
+    }
+  }
+
   return NextResponse.json(debug);
 }
