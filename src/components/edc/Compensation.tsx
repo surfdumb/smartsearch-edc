@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
+import { useEditorContext } from "@/contexts/EditorContext";
 
 interface CompensationData {
   current_base: string;
@@ -28,12 +30,42 @@ function isEmpty(v: string | undefined): boolean {
   return !v || EMPTY.some((e) => v.trim().toLowerCase() === e.toLowerCase());
 }
 
-/** Truncate long text values to a reasonable display length */
-function truncateVal(v: string, max = 200): string {
-  if (v.length <= max) return v;
-  const cut = v.slice(0, max);
-  const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > max * 0.5 ? cut.slice(0, lastSpace) : cut) + '...';
+/* ── Editable cell for compensation values ── */
+function EditableCell({
+  value,
+  isEditable,
+  style,
+  onUpdate,
+}: {
+  value: string;
+  isEditable: boolean;
+  style: React.CSSProperties;
+  onUpdate: (v: string) => void;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  if (!isEditable) {
+    return <span style={style}>{value}</span>;
+  }
+
+  return (
+    <span
+      ref={ref}
+      contentEditable
+      suppressContentEditableWarning
+      className="editable-cell"
+      onBlur={(e) => onUpdate(e.currentTarget.textContent || "")}
+      style={{
+        ...style,
+        padding: "2px 6px",
+        margin: "-2px -6px",
+        display: "block",
+        outline: "none",
+      }}
+    >
+      {value}
+    </span>
+  );
 }
 
 function CompRow({
@@ -46,6 +78,9 @@ function CompRow({
   labelStyle,
   valStyle,
   emphasized,
+  isEditable,
+  onUpdateCurrent,
+  onUpdateExpected,
 }: {
   label: string;
   current?: string;
@@ -56,10 +91,13 @@ function CompRow({
   labelStyle: React.CSSProperties;
   valStyle: React.CSSProperties;
   emphasized?: boolean;
+  isEditable: boolean;
+  onUpdateCurrent?: (v: string) => void;
+  onUpdateExpected?: (v: string) => void;
 }) {
   const hasCurrentVal = !isEmpty(current);
   const hasExpectedVal = !isEmpty(expected);
-  if (!hasCurrentVal && !hasExpectedVal) return null;
+  if (!hasCurrentVal && !hasExpectedVal && !isEditable) return null;
 
   const usedValStyle = emphasized
     ? { ...valStyle, fontSize: "1.08rem", fontWeight: 700 }
@@ -81,23 +119,42 @@ function CompRow({
     >
       <span style={usedLabelStyle}>{label}</span>
       {hasBudget && <span style={usedValStyle}>{budget || "—"}</span>}
-      <span style={usedValStyle}>
-        {hasCurrentVal ? truncateVal(current!) : "—"}
-      </span>
-      <span style={usedValStyle}>
-        {hasExpectedVal ? truncateVal(expected!) : "—"}
-      </span>
+      <EditableCell
+        value={hasCurrentVal ? current! : "—"}
+        isEditable={isEditable}
+        style={usedValStyle}
+        onUpdate={onUpdateCurrent || (() => {})}
+      />
+      <EditableCell
+        value={hasExpectedVal ? expected! : "—"}
+        isEditable={isEditable}
+        style={usedValStyle}
+        onUpdate={onUpdateExpected || (() => {})}
+      />
     </div>
   );
 }
 
 export default function Compensation({ compensation, notice_period }: CompensationProps) {
-  const hasBase = !isEmpty(compensation.current_base) || !isEmpty(compensation.expected_base);
-  const hasBonus = !isEmpty(compensation.current_bonus) || !isEmpty(compensation.expected_bonus);
-  const hasLTI = !isEmpty(compensation.current_lti) || !isEmpty(compensation.expected_lti);
-  const hasBenefits = !isEmpty(compensation.current_benefits) || !isEmpty(compensation.expected_benefits);
-  const hasTotal = !isEmpty(compensation.current_total) || !isEmpty(compensation.expected_total);
-  const hasBudget = !isEmpty(compensation.budget_range);
+  const { isEditable } = useEditorContext();
+  const [comp, setComp] = useState(compensation);
+  const [notice, setNotice] = useState(notice_period);
+
+  useEffect(() => {
+    setComp(compensation);
+    setNotice(notice_period);
+  }, [compensation, notice_period]);
+
+  const update = (field: keyof CompensationData, value: string) => {
+    setComp(prev => ({ ...prev, [field]: value }));
+  };
+
+  const hasBase = !isEmpty(comp.current_base) || !isEmpty(comp.expected_base);
+  const hasBonus = !isEmpty(comp.current_bonus) || !isEmpty(comp.expected_bonus);
+  const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
+  const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
+  const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
+  const hasBudget = !isEmpty(comp.budget_range);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -114,8 +171,6 @@ export default function Compensation({ compensation, notice_period }: Compensati
   };
 
   const cols = hasBudget ? "120px 1fr 1fr 1fr" : "120px 1fr 1fr";
-
-  // Detect if we only have unstructured text (no parsed rows except total)
   const hasStructuredRows = hasBase || hasBonus || hasLTI || hasBenefits;
 
   return (
@@ -142,55 +197,112 @@ export default function Compensation({ compensation, notice_period }: Compensati
         {/* Structured rows */}
         {hasStructuredRows ? (
           <>
-            <CompRow label="Base" current={compensation.current_base} expected={compensation.expected_base}
-              budget={compensation.budget_range} hasBudget={hasBudget} cols={cols} labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle} />
-            <CompRow label="Bonus" current={compensation.current_bonus} expected={compensation.expected_bonus}
-              hasBudget={hasBudget} cols={cols} labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle} />
-            <CompRow label="LTI" current={compensation.current_lti} expected={compensation.expected_lti}
-              hasBudget={hasBudget} cols={cols} labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle} />
-            <CompRow label="Benefits" current={compensation.current_benefits} expected={compensation.expected_benefits}
-              hasBudget={hasBudget} cols={cols} labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle} />
+            <CompRow label="Base" current={comp.current_base} expected={comp.expected_base}
+              budget={comp.budget_range} hasBudget={hasBudget} cols={cols}
+              labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
+              isEditable={isEditable}
+              onUpdateCurrent={(v) => update("current_base", v)}
+              onUpdateExpected={(v) => update("expected_base", v)} />
+            <CompRow label="Bonus" current={comp.current_bonus} expected={comp.expected_bonus}
+              hasBudget={hasBudget} cols={cols}
+              labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
+              isEditable={isEditable}
+              onUpdateCurrent={(v) => update("current_bonus", v)}
+              onUpdateExpected={(v) => update("expected_bonus", v)} />
+            <CompRow label="LTI" current={comp.current_lti} expected={comp.expected_lti}
+              hasBudget={hasBudget} cols={cols}
+              labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
+              isEditable={isEditable}
+              onUpdateCurrent={(v) => update("current_lti", v)}
+              onUpdateExpected={(v) => update("expected_lti", v)} />
+            <CompRow label="Benefits" current={comp.current_benefits} expected={comp.expected_benefits}
+              hasBudget={hasBudget} cols={cols}
+              labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
+              isEditable={isEditable}
+              onUpdateCurrent={(v) => update("current_benefits", v)}
+              onUpdateExpected={(v) => update("expected_benefits", v)} />
             {hasTotal && (
-              <CompRow label="Total" current={compensation.current_total} expected={compensation.expected_total}
-                budget={compensation.budget_range} hasBudget={hasBudget} cols={cols}
-                labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized />
+              <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
+                budget={comp.budget_range} hasBudget={hasBudget} cols={cols}
+                labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
+                isEditable={isEditable}
+                onUpdateCurrent={(v) => update("current_total", v)}
+                onUpdateExpected={(v) => update("expected_total", v)} />
             )}
           </>
         ) : (
-          /* Fallback: if no structured rows parsed, show total row with the full text */
           hasTotal && (
-            <CompRow label="Total" current={compensation.current_total} expected={compensation.expected_total}
-              budget={compensation.budget_range} hasBudget={hasBudget} cols={cols}
-              labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized />
+            <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
+              budget={comp.budget_range} hasBudget={hasBudget} cols={cols}
+              labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
+              isEditable={isEditable}
+              onUpdateCurrent={(v) => update("current_total", v)}
+              onUpdateExpected={(v) => update("expected_total", v)} />
           )
         )}
       </div>
 
       {/* Flexibility note */}
-      {!isEmpty(compensation.flexibility) && (
-        <p
-          style={{
-            fontSize: "0.85rem",
-            fontStyle: "italic",
-            color: "var(--ss-gray)",
-            marginTop: "10px",
-            lineHeight: 1.5,
-          }}
-        >
-          {compensation.flexibility}
-        </p>
+      {!isEmpty(comp.flexibility) && (
+        isEditable ? (
+          <div
+            contentEditable
+            suppressContentEditableWarning
+            className="editable-cell"
+            onBlur={(e) => update("flexibility", e.currentTarget.textContent || "")}
+            style={{
+              fontSize: "0.85rem",
+              fontStyle: "italic",
+              color: "var(--ss-gray)",
+              marginTop: "10px",
+              lineHeight: 1.5,
+              padding: "2px 6px",
+              margin: "10px -6px 0",
+            }}
+          >
+            {comp.flexibility}
+          </div>
+        ) : (
+          <p
+            style={{
+              fontSize: "0.85rem",
+              fontStyle: "italic",
+              color: "var(--ss-gray)",
+              marginTop: "10px",
+              lineHeight: 1.5,
+            }}
+          >
+            {comp.flexibility}
+          </p>
+        )
       )}
 
       {/* Notice period */}
-      {!isEmpty(notice_period) && (
+      {!isEmpty(notice) && (
         <div
           style={{
             fontSize: "0.85rem",
             color: "#8a8a8a",
             marginTop: "6px",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
           }}
         >
-          Notice: {notice_period}
+          Notice:{" "}
+          {isEditable ? (
+            <span
+              contentEditable
+              suppressContentEditableWarning
+              className="editable-cell"
+              onBlur={(e) => setNotice(e.currentTarget.textContent || "")}
+              style={{ padding: "1px 4px", margin: "-1px -4px" }}
+            >
+              {notice}
+            </span>
+          ) : (
+            notice
+          )}
         </div>
       )}
     </section>
