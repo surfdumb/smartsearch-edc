@@ -31,8 +31,25 @@ export async function getCandidateData(
         if (edcJson) {
           try {
             const parsed = JSON.parse(edcJson);
+            const edcData = normalizeEDCJson(parsed);
+
+            // If key_criteria is empty, populate from deck fixture criteria names
+            if (edcData.key_criteria.length === 0) {
+              try {
+                const deckData = await import(`../../data/decks/${searchId}.json`);
+                const fixture = deckData.default as SearchContext;
+                if (fixture?.key_criteria_names?.length > 0) {
+                  edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
+                    name,
+                    evidence: 'Assessment pending',
+                    context_anchor: undefined,
+                  }));
+                }
+              } catch { /* no fixture */ }
+            }
+
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
-            return normalizeEDCJson(parsed);
+            return edcData;
           } catch (e) {
             console.warn('[data] Failed to parse EDC Output JSON for', candidateId, ':', e);
           }
@@ -89,15 +106,13 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
   if (SHEETS_ENABLED) {
     try {
       const { getEDCOutputRowsForSearch, getJSRow, getEDSRowsForSearch } = await import('./sheets');
-      const { normalizeEDCJson, nameToCandidateId, transformToSearchContext } = await import('./sheets-transform');
+      const { normalizeEDCJson, nameToCandidateId } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
 
       if (outputRows.length > 0) {
         // We have structured EDC data — build SearchContext from it
         // Still need JS row for search-level metadata (client name, criteria names, etc.)
-        const firstRow = outputRows[0];
-        const searchName = firstRow['search_key'] || Object.values(firstRow)[0] || searchId;
 
         // Try to get JS row for search context metadata
         // Use EDS rows to find the search_name → JS lookup
@@ -108,6 +123,29 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         const jsRow = await getJSRow(edsSearchName);
         const js = jsRow ? Object.values(jsRow) : [];
 
+        // JS criteria names for the search context header + fallback population
+        const keyCriteriaNames: string[] = [];
+        for (let i = 9; i <= 21; i += 3) {
+          const name = js[i]?.trim();
+          if (name) keyCriteriaNames.push(name);
+        }
+
+        // Load deck fixture for criteria names, candidate statuses, and other metadata
+        let fixtureCriteriaNames: string[] = keyCriteriaNames;
+        let fixtureStatuses: Record<string, string> = {};
+        let fixtureContext: Partial<SearchContext> = {};
+        try {
+          const deckData = await import(`../../data/decks/${searchId}.json`);
+          const fixture = deckData.default as SearchContext & { candidate_statuses?: Record<string, string> };
+          fixtureContext = fixture;
+          if (fixture?.key_criteria_names?.length > 0 && fixtureCriteriaNames.length === 0) {
+            fixtureCriteriaNames = fixture.key_criteria_names;
+          }
+          if (fixture?.candidate_statuses) {
+            fixtureStatuses = fixture.candidate_statuses;
+          }
+        } catch { /* no fixture */ }
+
         // Build candidates from structured EDC JSON
         const candidates = outputRows
           .map((row) => {
@@ -116,13 +154,30 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             try {
               const parsed = JSON.parse(edcJson);
               const edcData = normalizeEDCJson(parsed);
+
+              // If key_criteria is empty, populate from search criteria names
+              if (edcData.key_criteria.length === 0 && fixtureCriteriaNames.length > 0) {
+                edcData.key_criteria = fixtureCriteriaNames.map((name) => ({
+                  name,
+                  evidence: 'Assessment pending',
+                  context_anchor: undefined,
+                }));
+              }
+
               const name = edcData.candidate_name;
               const initials = name.split(/\s+/).length >= 2
                 ? `${name.split(/\s+/)[0][0]}${name.split(/\s+/).pop()?.[0] || ''}`.toUpperCase()
                 : name.slice(0, 2).toUpperCase();
 
+              const candidateId = nameToCandidateId(name);
+
+              // Merge status from fixture
+              if (fixtureStatuses[candidateId]) {
+                edcData.status = fixtureStatuses[candidateId] as EDCData['status'];
+              }
+
               return {
-                candidate_id: nameToCandidateId(name),
+                candidate_id: candidateId,
                 candidate_name: name,
                 current_title: edcData.current_title,
                 current_company: edcData.current_company,
@@ -142,20 +197,16 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           .filter((c): c is NonNullable<typeof c> => c !== null);
 
         if (candidates.length > 0) {
-          // JS criteria names for the search context header
-          const keyCriteriaNames: string[] = [];
-          for (let i = 9; i <= 21; i += 3) {
-            const name = js[i]?.trim();
-            if (name) keyCriteriaNames.push(name);
-          }
-
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
           return {
-            search_name: js[0] || searchId,
-            client_company: js[3] || 'Not specified',
-            client_location: js[4] || '',
-            key_criteria_names: keyCriteriaNames,
-            search_lead: js[2] || 'SmartSearch',
+            search_name: fixtureContext.search_name || js[0] || searchId,
+            client_company: fixtureContext.client_company || js[3] || 'Not specified',
+            client_location: fixtureContext.client_location || js[4] || '',
+            client_logo_url: fixtureContext.client_logo_url,
+            key_criteria_names: fixtureCriteriaNames.length > 0 ? fixtureCriteriaNames : keyCriteriaNames,
+            search_lead: fixtureContext.search_lead || js[2] || 'SmartSearch',
+            candidate_statuses: Object.keys(fixtureStatuses).length > 0 ? fixtureStatuses : undefined,
+            deck_settings: fixtureContext.deck_settings,
             candidates,
           };
         }

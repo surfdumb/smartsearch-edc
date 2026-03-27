@@ -36,8 +36,14 @@ export interface EDCData {
   // Compensation
   compensation: {
     current_base: string;
+    current_bonus?: string;
+    current_lti?: string;
+    current_benefits?: string;
     current_total: string;
     expected_base: string;
+    expected_bonus?: string;
+    expected_lti?: string;
+    expected_benefits?: string;
     expected_total: string;
     flexibility: string;
     budget_range?: string;
@@ -84,7 +90,7 @@ export interface EDCData {
   miscellaneous?: { text: string; display: 'SHOW' | 'HIDE' };
 
   // Candidate Status (landing page)
-  status?: 'new' | 'active' | 'rejected' | 'hold';
+  status?: 'new' | 'active' | 'rejected' | 'hold' | 'to_send';
 
   // Motivation (simplified)
   motivation_hook?: string;
@@ -105,6 +111,8 @@ export interface SearchContext {
   job_summary_url?: string;
   job_summary_pdf_url?: string;
   candidates: IntroCardData[];
+  /** Map of candidate_id → status for controlling visibility/labels */
+  candidate_statuses?: Record<string, string>;
   deck_settings?: {
     match_score_display: 'SHOW' | 'HIDE';
     our_take_display: 'SHOW' | 'HIDE';

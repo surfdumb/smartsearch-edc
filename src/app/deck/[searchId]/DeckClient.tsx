@@ -148,12 +148,20 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     }
   }, [data.candidates, orderKey]);
 
+  // Filter candidates by status when candidate_statuses is defined
+  // Only show candidates that have a status entry (e.g., "to_send")
+  const [showAllCandidates, setShowAllCandidates] = useState(false);
+  const visibleCandidates = (data.candidate_statuses && !showAllCandidates)
+    ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {}))
+    : data.candidates;
+  const hiddenCount = data.candidates.length - visibleCandidates.length;
+
   // Derive ordered candidates
   const orderedCandidates = cardOrder.length > 0
     ? cardOrder
-        .map((id) => data.candidates.find((c) => c.candidate_id === id))
-        .filter(Boolean) as typeof data.candidates
-    : data.candidates;
+        .map((id) => visibleCandidates.find((c) => c.candidate_id === id))
+        .filter(Boolean) as typeof visibleCandidates
+    : visibleCandidates;
 
   const persistOrder = useCallback((newOrder: string[]) => {
     setCardOrder(newOrder);
@@ -744,6 +752,27 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             >
               Click any candidate to view their full assessment
             </p>
+
+            {/* Show all / filtered toggle (edit mode only, when statuses exist) */}
+            {isEditRoute && hiddenCount > 0 && (
+              <button
+                onClick={() => setShowAllCandidates(v => !v)}
+                style={{
+                  background: showAllCandidates ? "rgba(197,165,114,0.10)" : "transparent",
+                  border: `1px solid ${showAllCandidates ? "rgba(197,165,114,0.35)" : "rgba(197,165,114,0.12)"}`,
+                  borderRadius: "6px",
+                  padding: "5px 14px",
+                  fontSize: "0.72rem",
+                  fontWeight: 600,
+                  color: showAllCandidates ? "var(--ss-gold)" : "rgba(197,165,114,0.4)",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  marginBottom: "16px",
+                }}
+              >
+                {showAllCandidates ? `Showing all ${data.candidates.length} candidates` : `Showing ${visibleCandidates.length} of ${data.candidates.length} — Show all`}
+              </button>
+            )}
 
             {/* Card grid — flex wrap with fixed-width cards */}
             <div

@@ -18,5 +18,13 @@
     "scope_narrative_display": "HIDE",
     "edit_mode": false
   },
+  "candidate_statuses": {
+    "p-vogtel": "to_send",
+    "m-deimel": "to_send",
+    "l-armatys": "to_send",
+    "r-janotta": "to_send",
+    "s-eickens": "to_send",
+    "d-voessing": "to_send"
+  },
   "candidates": []
 }

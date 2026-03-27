@@ -102,11 +102,11 @@ function extractNamesFromText(text: string): string[] {
 
 function parseScopeMatch(edsScopeText: string): EDCData['scope_match'] {
   if (!edsScopeText || edsScopeText === 'Not mentioned') return [];
-  return edsScopeText
-    .split(/[;\n]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((dim) => {
+
+  // First try semicolon/newline split (original structured format)
+  const semiSplit = edsScopeText.split(/[;\n]/).map(s => s.trim()).filter(Boolean);
+  if (semiSplit.length > 1) {
+    return semiSplit.map((dim) => {
       const parts = dim.split(':').map((p) => p.trim());
       return {
         scope: parts[0] || dim,
@@ -115,6 +115,24 @@ function parseScopeMatch(edsScopeText: string): EDCData['scope_match'] {
         alignment: 'not_assessed' as const,
       };
     });
+  }
+
+  // Fallback: try expanding crammed format (comma-separated, possibly with parentheticals)
+  const expanded = expandScopeMatch([{
+    scope: edsScopeText,
+    candidate_actual: 'Not assessed',
+    role_requirement: 'Not specified',
+    alignment: 'not_assessed',
+  }]);
+  if (expanded.length > 0) return expanded;
+
+  // Final fallback: single item
+  return [{
+    scope: edsScopeText,
+    candidate_actual: 'Not assessed',
+    role_requirement: 'Not specified',
+    alignment: 'not_assessed',
+  }];
 }
 
 // ─── Concerns Parsing ────────────────────────────────────────────────────────
@@ -147,6 +165,158 @@ function todayFormatted(): string {
   });
 }
 
+// ─── Expand crammed scope_match ─────────────────────────────────────────────
+
+/**
+ * When Claude crams all dimensions into a single scope_match entry like
+ * "P&L, Headcount, Geography, Revenue Target, Industry Segment" or
+ * "P&L (€58M current vs €60M target), Headcount (10 vs 170 FTEs), ..."
+ * split them into separate rows with parsed candidate/requirement values.
+ */
+function expandScopeMatch(
+  rawItems: { dimension?: string; scope?: string; candidate_actual?: string; role_requirement?: string; alignment?: string }[]
+): EDCData['scope_match'] {
+  const result: EDCData['scope_match'] = [];
+
+  for (const item of rawItems) {
+    const scopeText = item.dimension || item.scope || '';
+    const hasDetails = item.candidate_actual && item.candidate_actual !== 'Not assessed';
+
+    // If the item already has proper candidate_actual values (i.e. structured), keep as-is
+    if (hasDetails) {
+      result.push({
+        scope: scopeText,
+        candidate_actual: item.candidate_actual || 'Not assessed',
+        role_requirement: item.role_requirement || 'Not specified',
+        alignment: (item.alignment as EDCData['scope_match'][0]['alignment']) || 'not_assessed',
+      });
+      continue;
+    }
+
+    // Detect crammed format: multiple dimensions in one scope field
+    // Pattern A: "P&L (€58M current vs €60M target), Headcount (10 vs 170), ..."
+    // Pattern B: "P&L, Headcount, Geography, Revenue Target, Industry Segment"
+    const hasParenthetical = /\([^)]+\)/.test(scopeText);
+
+    if (hasParenthetical) {
+      // Split on ", " that precedes a capital letter followed by " ("
+      // e.g. "P&L (details), Headcount (details), Geography (details)"
+      const dimRegex = /([A-Z][^,(]*?)\s*\(([^)]+)\)/g;
+      let match;
+      while ((match = dimRegex.exec(scopeText)) !== null) {
+        const dimName = match[1].trim().replace(/,\s*$/, '');
+        const details = match[2].trim();
+
+        // Try to parse "candidate vs requirement" or "candidate current vs requirement target"
+        const vsMatch = details.match(/^(.+?)\s+(?:current\s+)?vs\.?\s+(.+?)(?:\s+target)?$/i);
+        if (vsMatch) {
+          result.push({
+            scope: dimName,
+            candidate_actual: vsMatch[1].trim(),
+            role_requirement: vsMatch[2].trim(),
+            alignment: 'not_assessed',
+          });
+        } else {
+          result.push({
+            scope: dimName,
+            candidate_actual: details,
+            role_requirement: 'Not specified',
+            alignment: 'not_assessed',
+          });
+        }
+      }
+    }
+
+    // Pattern B or fallback: simple comma-separated list "P&L, Headcount, Geography"
+    if (result.length === 0 || (!hasParenthetical && scopeText.includes(','))) {
+      // Only use this if we didn't already parse parenthetical format
+      if (!hasParenthetical) {
+        const dimensions = scopeText.split(',').map(d => d.trim()).filter(Boolean);
+        for (const dim of dimensions) {
+          result.push({
+            scope: dim,
+            candidate_actual: 'Not assessed',
+            role_requirement: 'Not specified',
+            alignment: 'not_assessed',
+          });
+        }
+      }
+    }
+
+    // Fallback: if nothing was parsed, keep original as single row
+    if (result.length === 0) {
+      result.push({
+        scope: scopeText || 'Unknown',
+        candidate_actual: item.candidate_actual || 'Not assessed',
+        role_requirement: item.role_requirement || 'Not specified',
+        alignment: (item.alignment as EDCData['scope_match'][0]['alignment']) || 'not_assessed',
+      });
+    }
+  }
+
+  return result;
+}
+
+// ─── Parse compensation text blobs ──────────────────────────────────────────
+
+/**
+ * Extract structured compensation amounts from text blobs like:
+ * "Base: €190,000 + €10,000 company car + €10,000 pension contribution (total fixed: €210,000)
+ *  Bonus: 2.5% of company profit, historically approximately €25,000 annually
+ *  Benefits: Standard German benefits package"
+ */
+function parseCompensationText(text: string): {
+  base?: string;
+  bonus?: string;
+  lti?: string;
+  benefits?: string;
+  total?: string;
+  raw: string;
+} {
+  if (!text || text === 'Not mentioned') return { raw: text || 'Not mentioned' };
+
+  const result: { base?: string; bonus?: string; lti?: string; benefits?: string; total?: string; raw: string } = { raw: text };
+
+  // Split into lines or sections
+  const lines = text.split(/\n|(?<=\))\s*(?=[A-Z])/);
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const lower = trimmed.toLowerCase();
+
+    if (lower.startsWith('base:') || lower.startsWith('base salary:') || lower.startsWith('fixed:')) {
+      result.base = trimmed.replace(/^(?:base(?:\s+salary)?|fixed)\s*:\s*/i, '').trim();
+    } else if (lower.startsWith('bonus:') || lower.startsWith('variable:') || lower.startsWith('sti:')) {
+      result.bonus = trimmed.replace(/^(?:bonus|variable|sti)\s*:\s*/i, '').trim();
+    } else if (lower.startsWith('lti:') || lower.startsWith('ltip:') || lower.startsWith('equity:') || lower.startsWith('long-term:')) {
+      result.lti = trimmed.replace(/^(?:lti[p]?|equity|long-term)\s*:\s*/i, '').trim();
+    } else if (lower.startsWith('benefits:') || lower.startsWith('benefit:')) {
+      result.benefits = trimmed.replace(/^benefits?\s*:\s*/i, '').trim();
+    } else if (lower.startsWith('total:') || lower.startsWith('total package:') || lower.startsWith('total comp')) {
+      result.total = trimmed.replace(/^total(?:\s+(?:package|comp(?:ensation)?))?\s*:\s*/i, '').trim();
+    }
+  }
+
+  // Try to extract a total from parenthetical like "(total fixed: €210,000)"
+  if (!result.total) {
+    const totalMatch = text.match(/total(?:\s+(?:fixed|package|comp(?:ensation)?))?\s*[:=]\s*([€$£][\d,.']+\s*(?:k|K)?)/i);
+    if (totalMatch) result.total = totalMatch[1].trim();
+  }
+
+  // Extract base amount from the first €-amount if base line exists but is complex
+  if (result.base) {
+    const amountMatch = result.base.match(/^([€$£][\d,.']+(?:\s*(?:k|K|thousand|million|p\.a\.))?)/);
+    if (amountMatch && result.base.length > 60) {
+      // Keep the full text but mark a clean amount
+      result.base = result.base;
+    }
+  }
+
+  return result;
+}
+
 // ─── Normalize Claude JSON to EDCData ────────────────────────────────────────
 
 /**
@@ -156,21 +326,30 @@ function todayFormatted(): string {
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function normalizeEDCJson(parsed: any): EDCData {
+  // Expand crammed scope_match entries into separate rows
+  const rawScopeItems = Array.isArray(parsed.scope_match) ? parsed.scope_match : [];
+  const expandedScope = rawScopeItems.length > 0 ? expandScopeMatch(rawScopeItems) : [];
+
+  // Parse compensation text blobs into structured fields
+  const rawComp = parsed.compensation || {};
+  const currentParsed = parseCompensationText(rawComp.current_total || '');
+  const expectedParsed = parseCompensationText(rawComp.expected_total || '');
+
+  // Clean current_title — strip Make pipeline prefixes like "IV Patrik Vogtel - Norican SVP"
+  let cleanTitle = parsed.current_title || 'Not mentioned';
+  if (/^IV\s+/i.test(cleanTitle)) {
+    // Format: "IV {Name} - {SearchContext}" — not an actual job title, fall back
+    cleanTitle = 'Not mentioned';
+  }
+
   return {
     candidate_name: parsed.candidate_name || 'Unknown',
-    current_title: parsed.current_title || 'Not mentioned',
+    current_title: cleanTitle,
     current_company: parsed.current_company || 'Not mentioned',
     location: parsed.location || 'Not mentioned',
     photo_url: parsed.photo_url,
 
-    scope_match: Array.isArray(parsed.scope_match)
-      ? parsed.scope_match.map((s: { dimension?: string; scope?: string; candidate_actual?: string; role_requirement?: string; alignment?: string }) => ({
-          scope: s.dimension || s.scope || 'Unknown',
-          candidate_actual: s.candidate_actual || 'Not assessed',
-          role_requirement: s.role_requirement || 'Not specified',
-          alignment: (s.alignment as EDCData['scope_match'][0]['alignment']) || 'not_assessed',
-        }))
-      : [],
+    scope_match: expandedScope,
     scope_seasoning: parsed.scope_seasoning || undefined,
 
     key_criteria: Array.isArray(parsed.key_criteria)
@@ -182,12 +361,22 @@ export function normalizeEDCJson(parsed: any): EDCData {
       : [],
 
     compensation: {
-      current_base: parsed.compensation?.current_base || 'Not mentioned',
-      current_total: parsed.compensation?.current_total || 'Not mentioned',
-      expected_base: parsed.compensation?.expected_base || 'Not mentioned',
-      expected_total: parsed.compensation?.expected_total || 'Not mentioned',
-      flexibility: parsed.compensation?.flexibility || 'Not mentioned',
-      budget_range: parsed.compensation?.budget_range || undefined,
+      current_base: rawComp.current_base !== 'Not mentioned' && rawComp.current_base
+        ? rawComp.current_base
+        : currentParsed.base || 'Not mentioned',
+      current_bonus: currentParsed.bonus,
+      current_lti: currentParsed.lti,
+      current_benefits: currentParsed.benefits,
+      current_total: currentParsed.total || rawComp.current_total || 'Not mentioned',
+      expected_base: rawComp.expected_base !== 'Not mentioned' && rawComp.expected_base
+        ? rawComp.expected_base
+        : expectedParsed.base || 'Not mentioned',
+      expected_bonus: expectedParsed.bonus,
+      expected_lti: expectedParsed.lti,
+      expected_benefits: expectedParsed.benefits,
+      expected_total: expectedParsed.total || rawComp.expected_total || 'Not mentioned',
+      flexibility: rawComp.flexibility || 'Not mentioned',
+      budget_range: rawComp.budget_range || undefined,
     },
     notice_period: parsed.notice_period || 'Not mentioned',
     earliest_start_date: parsed.earliest_start_date || 'Not mentioned',
