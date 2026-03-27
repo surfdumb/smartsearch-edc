@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getEDSRowsForSearch, getJSRow } from '@/lib/sheets';
-import { transformToSearchContext } from '@/lib/sheets-transform';
+import { getDeckData } from '@/lib/data';
 
 export async function GET(
   _request: Request,
@@ -9,18 +8,14 @@ export async function GET(
   const { searchId } = params;
 
   try {
-    const edsRows = await getEDSRowsForSearch(searchId);
+    const context = await getDeckData(searchId);
 
-    if (!edsRows.length) {
+    if (!context) {
       return NextResponse.json(
         { error: 'Search not found', searchId },
         { status: 404 }
       );
     }
-
-    const searchName = Object.values(edsRows[0])[0] || searchId;
-    const jsRow = await getJSRow(searchName);
-    const context = transformToSearchContext(edsRows, jsRow, searchId);
 
     return NextResponse.json(context, {
       headers: {

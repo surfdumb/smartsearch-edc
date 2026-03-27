@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getEDSRowsForSearch, getJSRow } from '@/lib/sheets';
-import { transformToEDCData, candidateIdMatchesName } from '@/lib/sheets-transform';
+import { getCandidateData } from '@/lib/data';
 
 export async function GET(
   _request: Request,
@@ -9,31 +8,14 @@ export async function GET(
   const { searchId, candidateId } = params;
 
   try {
-    const edsRows = await getEDSRowsForSearch(searchId);
+    const edcData = await getCandidateData(searchId, candidateId);
 
-    if (!edsRows.length) {
-      return NextResponse.json(
-        { error: 'Search not found in EDS Text Store', searchId },
-        { status: 404 }
-      );
-    }
-
-    // Match candidate by slug (e.g. "c-snider" → "Christopher Snider")
-    const edsRow = edsRows.find((row) => {
-      const name = Object.values(row)[1] || '';
-      return candidateIdMatchesName(candidateId, name);
-    });
-
-    if (!edsRow) {
+    if (!edcData) {
       return NextResponse.json(
         { error: 'Candidate not found', candidateId, searchId },
         { status: 404 }
       );
     }
-
-    const searchName = Object.values(edsRow)[0] || searchId;
-    const jsRow = await getJSRow(searchName);
-    const edcData = transformToEDCData(edsRow, jsRow, searchId);
 
     return NextResponse.json(edcData, {
       headers: {
