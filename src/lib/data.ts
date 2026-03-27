@@ -10,15 +10,38 @@ import path from 'path';
 
 const SHEETS_ENABLED = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 
-// ─── Fixture loader (reliable fs-based, works on Vercel) ─────────────────────
+// ─── Fixture loader ──────────────────────────────────────────────────────────
 
 type FixtureData = SearchContext & { candidate_statuses?: Record<string, string> };
 
-function loadFixture(searchId: string): FixtureData | null {
+// Cache to avoid repeated file reads within a single request
+const fixtureCache = new Map<string, FixtureData | null>();
+
+function loadFixtureSync(searchId: string): FixtureData | null {
+  if (fixtureCache.has(searchId)) return fixtureCache.get(searchId) || null;
   try {
     const filePath = path.join(process.cwd(), 'data', 'decks', `${searchId}.json`);
     const raw = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    fixtureCache.set(searchId, parsed);
+    return parsed;
+  } catch {
+    fixtureCache.set(searchId, null);
+    return null;
+  }
+}
+
+async function loadFixture(searchId: string): Promise<FixtureData | null> {
+  // Try fs.readFileSync first (works in Node.js / Vercel functions)
+  const sync = loadFixtureSync(searchId);
+  if (sync) return sync;
+
+  // Fallback to dynamic import (webpack bundles all JSON in data/decks/)
+  try {
+    const mod = await import(`../../data/decks/${searchId}.json`);
+    const data = mod.default as FixtureData;
+    fixtureCache.set(searchId, data);
+    return data;
   } catch {
     return null;
   }
@@ -30,7 +53,7 @@ export async function getCandidateData(
   searchId: string,
   candidateId: string
 ): Promise<EDCData | null> {
-  const fixture = loadFixture(searchId);
+  const fixture = await loadFixture(searchId);
 
   // 1. Try pre-transformed EDC Output Store (structured JSON from Make Engine)
   if (SHEETS_ENABLED) {
@@ -150,7 +173,7 @@ export async function getCandidateData(
 // ─── getDeckData ──────────────────────────────────────────────────────────────
 
 export async function getDeckData(searchId: string): Promise<SearchContext | null> {
-  const fixture = loadFixture(searchId);
+  const fixture = await loadFixture(searchId);
 
   // 1. Try pre-transformed EDC Output Store for structured candidates
   if (SHEETS_ENABLED) {
