@@ -127,16 +127,22 @@ export async function getCandidateData(
 
       if (edsRow) {
         const searchName = Object.values(edsRow)[0] || searchId;
-        const jsRow = await getJSRow(searchName);
+        const jsRow = await getJSRow(searchName) || await getJSRow(searchId);
         const edcData = transformToEDCData(edsRow, jsRow, searchId);
 
-        // Populate empty key_criteria from fixture
-        if (edcData.key_criteria.length === 0 && fixture?.key_criteria_names?.length) {
-          edcData.key_criteria = fixture.key_criteria_names.map((name: string) => ({
-            name,
-            evidence: 'Assessment pending',
-            context_anchor: undefined,
-          }));
+        // Enrich key_criteria from EDS assessment + fixture criteria names
+        const criteriaNames = fixture?.key_criteria_names || [];
+        if (criteriaNames.length > 0) {
+          const { parseKeyCriteria: parseCriteria } = await import('./sheets-transform');
+          const eds = Object.values(edsRow);
+          const assessmentText = eds[24] || eds[20] || '';
+          if (assessmentText && assessmentText !== 'Not mentioned') {
+            edcData.key_criteria = parseCriteria(assessmentText, criteriaNames);
+          } else if (edcData.key_criteria.length === 0) {
+            edcData.key_criteria = criteriaNames.map((name: string) => ({
+              name, evidence: 'Assessment pending', context_anchor: undefined,
+            }));
+          }
         }
 
         return edcData;
