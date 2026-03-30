@@ -47,7 +47,7 @@ function EditableCell({
   };
 
   return (
-    <span className="editable-wrap" style={{ position: "relative", display: "block" }}>
+    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
       <span
         ref={ref}
         contentEditable
@@ -64,9 +64,7 @@ function EditableCell({
         {value}
       </span>
       {isModified && (
-        <button className="editable-reset" onMouseDown={handleReset} title="Reset to original">
-          ↺
-        </button>
+        <button className="edc-field__reset-dot" onMouseDown={handleReset} title="Reset to original" />
       )}
     </span>
   );
@@ -134,9 +132,15 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
     }]);
   };
 
+  const hasEdits = JSON.stringify(rows) !== JSON.stringify(originalRows.current);
+  const resetSection = () => {
+    setRows(originalRows.current);
+    if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* ignore */ } }
+  };
+
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Scope Match" lineInsetRight="130px" />
+      <SectionLabel label="Scope Match" lineInsetRight="130px" isEditable={isEditable} hasEdits={hasEdits} onResetSection={resetSection} />
 
       {/* Horizontally scrollable wrapper for mobile */}
       <div className="scope-match-scroll">

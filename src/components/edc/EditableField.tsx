@@ -100,7 +100,7 @@ export default function EditableField({
 
   return (
     <WrapperTag
-      className="editable-wrap"
+      className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`}
       style={{
         position: "relative",
         display: isBlock ? "block" : "inline-block",
@@ -109,12 +109,10 @@ export default function EditableField({
       {content}
       {isModified && (
         <button
-          className="editable-reset"
+          className="edc-field__reset-dot"
           onMouseDown={handleReset}
           title="Reset to original"
-        >
-          ↺
-        </button>
+        />
       )}
     </WrapperTag>
   );

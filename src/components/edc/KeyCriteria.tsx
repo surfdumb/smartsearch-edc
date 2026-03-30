@@ -76,7 +76,7 @@ function EditablePill({
       >
         ×
       </button>
-      {/* Reset indicator */}
+      {/* Reset dot */}
       {isModified && (
         <button
           onMouseDown={(e) => {
@@ -84,12 +84,10 @@ function EditablePill({
             onUpdate(originalText);
             if (ref.current) ref.current.textContent = originalText;
           }}
-          className="editable-reset"
-          style={{ position: "absolute", top: "-6px", right: "-8px", opacity: 1 }}
-          title="Reset pill"
-        >
-          ↺
-        </button>
+          className="edc-field__reset-dot"
+          style={{ top: "-4px", right: "-4px" }}
+          title="Reset to original"
+        />
       )}
     </span>
   );
@@ -157,9 +155,15 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
     }]);
   };
 
+  const hasEdits = JSON.stringify(items) !== JSON.stringify(originalItems.current);
+  const resetSection = () => {
+    setItems(originalItems.current);
+    if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* ignore */ } }
+  };
+
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Key Criteria" lineInsetRight="130px" />
+      <SectionLabel label="Key Criteria" lineInsetRight="130px" isEditable={isEditable} hasEdits={hasEdits} onResetSection={resetSection} />
 
       <div className="flex flex-col gap-0">
         {items.map((item, i) => {
@@ -202,7 +206,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
               <div>
                 {/* Criterion name */}
                 {isEditable ? (
-                  <span className="editable-wrap" style={{ position: "relative", display: "block" }}>
+                  <span className={`editable-wrap ${nameModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
                     <h4
                       contentEditable
                       suppressContentEditableWarning
@@ -221,15 +225,13 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                     </h4>
                     {nameModified && (
                       <button
-                        className="editable-reset"
+                        className="edc-field__reset-dot"
                         onMouseDown={(e) => {
                           e.preventDefault();
                           updateField(i, "name", orig.name);
                         }}
-                        title="Reset name"
-                      >
-                        ↺
-                      </button>
+                        title="Reset to original"
+                      />
                     )}
                   </span>
                 ) : (
@@ -248,7 +250,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                 {/* Evidence + pill row */}
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
                   {isEditable ? (
-                    <span className="editable-wrap" style={{ position: "relative", display: "block", flex: 1, minWidth: 0 }}>
+                    <span className={`editable-wrap ${evidenceModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block", flex: 1, minWidth: 0 }}>
                       <div
                         contentEditable
                         suppressContentEditableWarning
@@ -265,15 +267,13 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                       />
                       {evidenceModified && (
                         <button
-                          className="editable-reset"
+                          className="edc-field__reset-dot"
                           onMouseDown={(e) => {
                             e.preventDefault();
                             updateField(i, "evidence", orig.evidence);
                           }}
-                          title="Reset evidence"
-                        >
-                          ↺
-                        </button>
+                          title="Reset to original"
+                        />
                       )}
                     </span>
                   ) : (

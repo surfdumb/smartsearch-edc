@@ -56,7 +56,7 @@ function EditableCell({
   }
 
   return (
-    <span className="editable-wrap" style={{ position: "relative", display: "block" }}>
+    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
       <span
         ref={ref}
         contentEditable
@@ -75,7 +75,7 @@ function EditableCell({
       </span>
       {isModified && (
         <button
-          className="editable-reset"
+          className="edc-field__reset-dot"
           onMouseDown={(e) => {
             e.preventDefault();
             onUpdate(originalValue);
@@ -85,9 +85,7 @@ function EditableCell({
             }
           }}
           title="Reset to original"
-        >
-          ↺
-        </button>
+        />
       )}
     </span>
   );
@@ -262,9 +260,16 @@ export default function Compensation({ compensation, notice_period, candidateId 
   const cols = hasBudget ? "120px 1fr 1fr 1fr" : "120px 1fr 1fr";
   const hasStructuredRows = hasBase || hasBonus || hasLTI || hasBenefits;
 
+  const hasCompEdits = JSON.stringify(comp) !== JSON.stringify(originalComp.current) || notice !== originalNotice.current;
+  const resetCompSection = () => {
+    setComp(originalComp.current);
+    setNotice(originalNotice.current);
+    if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* ignore */ } }
+  };
+
   return (
     <section className="px-8 py-5 border-b border-ss-border">
-      <SectionLabel label="Candidate Salary Details" lineInsetRight="130px" />
+      <SectionLabel label="Candidate Salary Details" lineInsetRight="130px" isEditable={isEditable} hasEdits={hasCompEdits} onResetSection={resetCompSection} />
 
       <div style={{ width: "100%" }}>
         {/* Header row */}
@@ -350,7 +355,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
       {/* Flexibility note */}
       {!isEmpty(comp.flexibility) && (
         isEditable ? (
-          <div className="editable-wrap" style={{ position: "relative", marginTop: "10px" }}>
+          <div className={`editable-wrap ${comp.flexibility !== originalComp.current.flexibility ? "edc-field--edited" : ""}`} style={{ position: "relative", marginTop: "10px" }}>
             <div
               contentEditable
               suppressContentEditableWarning
@@ -369,15 +374,13 @@ export default function Compensation({ compensation, notice_period, candidateId 
             </div>
             {comp.flexibility !== originalComp.current.flexibility && (
               <button
-                className="editable-reset"
+                className="edc-field__reset-dot"
                 onMouseDown={(e) => {
                   e.preventDefault();
                   update("flexibility", originalComp.current.flexibility);
                 }}
                 title="Reset to original"
-              >
-                ↺
-              </button>
+              />
             )}
           </div>
         ) : (
@@ -409,7 +412,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
         >
           Notice:{" "}
           {isEditable ? (
-            <span className="editable-wrap" style={{ position: "relative", display: "inline-block" }}>
+            <span className={`editable-wrap ${notice !== originalNotice.current ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "inline-block" }}>
               <span
                 contentEditable
                 suppressContentEditableWarning
@@ -421,15 +424,13 @@ export default function Compensation({ compensation, notice_period, candidateId 
               </span>
               {notice !== originalNotice.current && (
                 <button
-                  className="editable-reset"
+                  className="edc-field__reset-dot"
                   onMouseDown={(e) => {
                     e.preventDefault();
                     setNotice(originalNotice.current);
                   }}
                   title="Reset to original"
-                >
-                  ↺
-                </button>
+                />
               )}
             </span>
           ) : (

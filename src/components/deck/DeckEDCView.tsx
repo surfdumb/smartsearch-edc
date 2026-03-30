@@ -99,7 +99,17 @@ export default function DeckEDCView({
             roleTitle={edc.role_title}
             onLock={lock}
             onUnlock={unlock}
-            onReset={() => setResetKey(k => k + 1)}
+            onReset={() => {
+              const cid = candidate.candidate_id;
+              try {
+                localStorage.removeItem(`edc_edit_${cid}_scope`);
+                localStorage.removeItem(`edc_edit_${cid}_criteria`);
+                localStorage.removeItem(`edc_edit_${cid}_comp`);
+                localStorage.removeItem(`edc_edit_${cid}_header`);
+              } catch { /* ignore */ }
+              setOurTakeOverride(null);
+              setResetKey(k => k + 1);
+            }}
           />
         )}
 

@@ -110,28 +110,26 @@ export default function MotivationStrip({
         </p>
       )}
 
-      {/* Reset button — edit mode only, visible when modified */}
+      {/* Reset dot — edit mode only, visible when modified */}
       {isEditable && isModified && (
         <button
           onMouseDown={handleReset}
           title="Reset to original"
           style={{
-            background: "none",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: "#C5A572",
             border: "none",
             cursor: "pointer",
-            padding: "2px",
-            lineHeight: 1,
+            padding: 0,
             flexShrink: 0,
-            color: "var(--ss-gold)",
-            fontSize: "0.75rem",
             opacity: 0.6,
-            transition: "opacity 0.15s",
+            transition: "opacity 0.2s, transform 0.2s",
           }}
-          onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
-          onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.6"; }}
-        >
-          ↺
-        </button>
+          onMouseOver={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.opacity = "1"; b.style.transform = "scale(1.5)"; }}
+          onMouseOut={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.opacity = "0.6"; b.style.transform = "scale(1)"; }}
+        />
       )}
 
       {/* Refresh/cycle button — edit mode only */}

@@ -131,7 +131,7 @@ body {
   outline: none;
 }
 
-/* Reset icon inside editable wrapper */
+/* Legacy reset icon — kept for backward compatibility */
 .editable-reset {
   position: absolute;
   top: 0;
@@ -152,6 +152,34 @@ body {
 }
 .editable-reset:hover {
   color: var(--ss-gold) !important;
+}
+
+/* ── Edited field indicator — gold left border ── */
+.edc-field--edited {
+  border-left: 2px solid #C5A572;
+  padding-left: 4px;
+  transition: border-color 0.2s ease;
+}
+
+/* ── Reset dot — replaces ↺ text button ── */
+.edc-field__reset-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #C5A572;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.6;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 10;
+}
+.edc-field__reset-dot:hover {
+  opacity: 1;
+  transform: scale(1.5);
 }
 
 /* ============================================================

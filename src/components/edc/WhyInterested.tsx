@@ -73,7 +73,7 @@ export default function WhyInterested({ why_interested }: WhyInterestedProps) {
 
               {/* Headline — editable with reset in edit mode */}
               {isEditable ? (
-                <span className="editable-wrap" style={{ position: "relative", display: "block", flex: 1 }}>
+                <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block", flex: 1 }}>
                   <span
                     contentEditable
                     suppressContentEditableWarning
@@ -93,15 +93,13 @@ export default function WhyInterested({ why_interested }: WhyInterestedProps) {
                   </span>
                   {isModified && (
                     <button
-                      className="editable-reset"
+                      className="edc-field__reset-dot"
                       onMouseDown={(e) => {
                         e.preventDefault();
                         updateHeadline(i, orig.headline);
                       }}
                       title="Reset to original"
-                    >
-                      ↺
-                    </button>
+                    />
                   )}
                 </span>
               ) : (
