@@ -291,6 +291,7 @@ export default function EDCCard({
           fragments={data.our_take_fragments}
           text={data.our_take?.text}
           consultantName={data.consultant_name}
+          candidateId={candidateId}
           triggerRef={ourTakeTriggerRef}
           onClose={() => setOurTakeOpen(false)}
         />

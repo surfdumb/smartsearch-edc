@@ -8,6 +8,7 @@ interface OurTakePopoverProps {
   fragments?: string[];
   text?: string;
   consultantName?: string;
+  candidateId?: string;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
 }
@@ -16,17 +17,30 @@ export default function OurTakePopover({
   fragments: initialFragments,
   text: initialText,
   consultantName: initialName,
+  candidateId,
   triggerRef,
   onClose,
 }: OurTakePopoverProps) {
   const { isEditable } = useEditorContext();
   const popoverRef = useRef<HTMLDivElement>(null);
+  const storageKey = candidateId ? `edc_edit_${candidateId}_ourtake` : null;
 
-  // Editable local state
-  const [fragments, setFragments] = useState<string[]>(initialFragments ?? []);
-  const [text, setText] = useState(initialText ?? "");
-  const [name, setName] = useState(initialName ?? "");
-  const [showName, setShowName] = useState(!!initialName);
+  // Load persisted edits or fall back to props
+  const loadStored = () => {
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) return JSON.parse(stored) as { fragments?: string[]; text?: string; name?: string; showName?: boolean };
+      } catch { /* ignore */ }
+    }
+    return null;
+  };
+
+  const stored = loadStored();
+  const [fragments, setFragments] = useState<string[]>(stored?.fragments ?? initialFragments ?? []);
+  const [text, setText] = useState(stored?.text ?? initialText ?? "");
+  const [name, setName] = useState(stored?.name ?? initialName ?? "");
+  const [showName, setShowName] = useState(stored?.showName ?? !!initialName);
 
   // Position state — calculated from triggerRef (drops DOWN from pill)
   const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
@@ -36,16 +50,25 @@ export default function OurTakePopover({
   const origText = useRef(initialText ?? "");
   const origName = useRef(initialName ?? "");
 
-  // Sync when props change (candidate navigation)
+  // Sync when props change (candidate navigation) — prefer localStorage
   useEffect(() => {
-    setFragments(initialFragments ?? []);
-    setText(initialText ?? "");
-    setName(initialName ?? "");
-    setShowName(!!initialName);
+    const s = loadStored();
+    setFragments(s?.fragments ?? initialFragments ?? []);
+    setText(s?.text ?? initialText ?? "");
+    setName(s?.name ?? initialName ?? "");
+    setShowName(s?.showName ?? !!initialName);
     origFragments.current = initialFragments ?? [];
     origText.current = initialText ?? "";
     origName.current = initialName ?? "";
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFragments, initialText, initialName]);
+
+  // Persist edits to localStorage
+  useEffect(() => {
+    if (storageKey && isEditable) {
+      try { localStorage.setItem(storageKey, JSON.stringify({ fragments, text, name, showName })); } catch { /* ignore */ }
+    }
+  }, [fragments, text, name, showName, storageKey, isEditable]);
 
   // Position popover BELOW the trigger button (drops down)
   useEffect(() => {
@@ -204,13 +227,11 @@ export default function OurTakePopover({
               {/* Reset name */}
               {origName.current && name !== origName.current && (
                 <button
-                  className="editable-reset"
-                  style={{ opacity: 1, top: "-4px", right: "-12px" }}
+                  className="edc-field__reset-dot"
+                  style={{ top: "-4px", right: "-4px" }}
                   onMouseDown={(e) => { e.preventDefault(); setName(origName.current); }}
-                  title="Reset name"
-                >
-                  ↺
-                </button>
+                  title="Reset to original"
+                />
               )}
             </span>
           ) : (
@@ -263,7 +284,7 @@ export default function OurTakePopover({
             return isEditable ? (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "6px" }}>
                 <span style={{ color: "var(--ss-gray-light)", fontSize: "0.85rem", lineHeight: 1.55, flexShrink: 0 }}>—</span>
-                <span className="editable-wrap" style={{ position: "relative", display: "block", flex: 1 }}>
+                <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block", flex: 1 }}>
                   <div
                     contentEditable
                     suppressContentEditableWarning
@@ -281,13 +302,10 @@ export default function OurTakePopover({
                   </div>
                   {isModified && (
                     <button
-                      className="editable-reset"
-                      style={{ opacity: 1 }}
+                      className="edc-field__reset-dot"
                       onMouseDown={(e) => { e.preventDefault(); resetFragment(i); }}
-                      title="Reset fragment"
-                    >
-                      ↺
-                    </button>
+                      title="Reset to original"
+                    />
                   )}
                 </span>
                 {/* Remove fragment */}
@@ -373,13 +391,10 @@ export default function OurTakePopover({
             </div>
             {hasText && text !== origText.current && (
               <button
-                className="editable-reset"
-                style={{ opacity: 1 }}
+                className="edc-field__reset-dot"
                 onMouseDown={(e) => { e.preventDefault(); setText(origText.current); }}
-                title="Reset text"
-              >
-                ↺
-              </button>
+                title="Reset to original"
+              />
             )}
           </span>
           {/* Switch to fragments mode */}
