@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { useEditorContext } from "@/contexts/EditorContext";
 import type { EDCContext } from "@/lib/types";
 
 interface EDCHeaderProps {
@@ -11,6 +12,10 @@ interface EDCHeaderProps {
   photo_url?: string;
   initials?: string;
   context?: EDCContext;
+  /** First why_interested headline — shown as subtle tagline below bio line */
+  motivationHeadline?: string;
+  /** Called when a photo is uploaded in edit mode */
+  onPhotoUpload?: (dataUrl: string) => void;
 }
 
 export default function EDCHeader({
@@ -21,9 +26,32 @@ export default function EDCHeader({
   photo_url,
   initials,
   context = 'standalone',
+  motivationHeadline,
+  onPhotoUpload,
 }: EDCHeaderProps) {
+  const { isEditable } = useEditorContext();
   const [photoErr, setPhotoErr] = useState(false);
-  const effectivePhoto = photoErr ? undefined : photo_url;
+  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
+  const [avatarHover, setAvatarHover] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const effectivePhoto = uploadedPhoto || (photoErr ? undefined : photo_url);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !file.type.startsWith("image/")) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setUploadedPhoto(dataUrl);
+      setPhotoErr(false);
+      onPhotoUpload?.(dataUrl);
+    };
+    reader.readAsDataURL(file);
+    // Reset so the same file can be re-selected
+    e.target.value = "";
+  }, [onPhotoUpload]);
 
   // Comparison context: compact — just name + title/company
   if (context === 'comparison') {
@@ -99,7 +127,7 @@ export default function EDCHeader({
       <div className="relative flex items-center justify-between">
         {/* Left: Photo + Name + Bio */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px", minWidth: 0 }}>
-          {/* Photo circle or initials */}
+          {/* Photo circle or initials — clickable in edit mode for upload */}
           <div
             style={{
               width: "66px",
@@ -112,7 +140,12 @@ export default function EDCHeader({
               alignItems: "center",
               justifyContent: "center",
               background: effectivePhoto ? "transparent" : "rgba(197, 165, 114, 0.12)",
+              position: "relative",
+              cursor: isEditable ? "pointer" : "default",
             }}
+            onClick={isEditable ? () => fileInputRef.current?.click() : undefined}
+            onMouseEnter={() => isEditable && setAvatarHover(true)}
+            onMouseLeave={() => isEditable && setAvatarHover(false)}
           >
             {effectivePhoto ? (
               <img
@@ -134,7 +167,36 @@ export default function EDCHeader({
                 {initials || candidate_name.split(" ").map(n => n[0]).join("").slice(0, 2)}
               </span>
             )}
+            {/* Camera overlay in edit mode */}
+            {isEditable && avatarHover && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0, 0, 0, 0.45)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: "12px",
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
+            )}
           </div>
+          {/* Hidden file input for photo upload */}
+          {isEditable && (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: "none" }}
+              onChange={handleFileSelect}
+            />
+          )}
 
           {/* Name + bio line */}
           <div style={{ minWidth: 0 }}>
@@ -173,6 +235,24 @@ export default function EDCHeader({
               <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
               {location}
             </p>
+            {motivationHeadline && (
+              <p
+                className="font-outfit"
+                style={{
+                  fontSize: "0.78rem",
+                  fontWeight: 400,
+                  fontStyle: "italic",
+                  color: "rgba(197, 165, 114, 0.6)",
+                  margin: "2px 0 0",
+                  lineHeight: 1.3,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {motivationHeadline}
+              </p>
+            )}
           </div>
         </div>
 

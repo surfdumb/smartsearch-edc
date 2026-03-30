@@ -45,10 +45,17 @@ export default function MotivationStrip({
   if (fragments.length === 0) return null;
 
   const displayText = customText !== null ? customText : (fragments[currentIndex % fragments.length] || "");
+  const isModified = customText !== null;
 
   const handleRefresh = () => {
     setCustomText(null);
     setCurrentIndex(prev => (prev + 1) % fragments.length);
+  };
+
+  const handleReset = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setCustomText(null);
+    setCurrentIndex(0);
   };
 
   return (
@@ -101,6 +108,30 @@ export default function MotivationStrip({
         >
           <strong style={{ fontWeight: 600 }}>Motivation</strong> — {displayText}
         </p>
+      )}
+
+      {/* Reset button — edit mode only, visible when modified */}
+      {isEditable && isModified && (
+        <button
+          onMouseDown={handleReset}
+          title="Reset to original"
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "2px",
+            lineHeight: 1,
+            flexShrink: 0,
+            color: "var(--ss-gold)",
+            fontSize: "0.75rem",
+            opacity: 0.6,
+            transition: "opacity 0.15s",
+          }}
+          onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+          onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.6"; }}
+        >
+          ↺
+        </button>
       )}
 
       {/* Refresh/cycle button — edit mode only */}

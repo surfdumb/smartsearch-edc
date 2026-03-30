@@ -51,11 +51,30 @@ export default function EDCCard({
   const [ourTakeOpen, setOurTakeOpen] = useState(false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
 
+  // Photo upload state — persisted in sessionStorage per candidate
+  const photoKey = candidateId ? `edc_photo_${candidateId}` : null;
+  const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(() => {
+    if (!photoKey || typeof window === 'undefined') return null;
+    try { return sessionStorage.getItem(photoKey); } catch { return null; }
+  });
+  const handlePhotoUpload = (dataUrl: string) => {
+    setUploadedPhoto(dataUrl);
+    if (photoKey) {
+      try { sessionStorage.setItem(photoKey, dataUrl); } catch { /* quota exceeded */ }
+    }
+  };
+
   // Reset to panel 1 when candidate changes
   useEffect(() => {
     setCurrentPanel(1);
     setOurTakeOpen(false);
-  }, [candidateId]);
+    // Load persisted photo for new candidate
+    if (photoKey) {
+      try { setUploadedPhoto(sessionStorage.getItem(photoKey)); } catch { /* ignore */ }
+    } else {
+      setUploadedPhoto(null);
+    }
+  }, [candidateId, photoKey]);
 
   const navigateToPanel = (target: 1 | 2 | 3) => {
     if (target === currentPanel) return;
@@ -110,8 +129,12 @@ export default function EDCCard({
             current_title={data.current_title}
             current_company={data.current_company}
             location={data.location}
-            photo_url={data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
+            photo_url={uploadedPhoto || data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
             context={context}
+            motivationHeadline={
+              data.why_interested?.find(w => w.headline && w.headline !== 'See candidate overview')?.headline
+            }
+            onPhotoUpload={handlePhotoUpload}
           />
 
           {/* Motivation scrambler — visible only when real motivation data exists */}
