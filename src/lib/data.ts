@@ -11,6 +11,40 @@ import path from 'path';
 //   4. Legacy flat fixtures in /data/test_fixtures.json
 
 const SHEETS_ENABLED = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
+const BLOB_ENABLED = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+
+// ─── Blob photo lookup ──────────────────────────────────────────────────────
+
+/** Look up uploaded candidate photos from Vercel Blob. Returns map of candidateId → blob URL. */
+async function getPhotoUrls(searchId: string): Promise<Record<string, string>> {
+  if (!BLOB_ENABLED) return {};
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ prefix: `photos/${searchId}/` });
+    const map: Record<string, string> = {};
+    for (const blob of blobs) {
+      // pathname: photos/{searchId}/{candidateId}.jpg
+      const filename = blob.pathname.split('/').pop() || '';
+      const candidateId = filename.replace(/\.\w+$/, '');
+      if (candidateId) map[candidateId] = blob.url;
+    }
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+/** Attach blob photo URLs to candidates */
+function attachPhotos(candidates: IntroCardData[], photos: Record<string, string>) {
+  for (const c of candidates) {
+    const url = photos[c.candidate_id];
+    if (url) {
+      c.edc_data.photo_url = url;
+      // Also set on IntroCardData if the field exists
+      if ('photo_url' in c) (c as IntroCardData & { photo_url?: string }).photo_url = url;
+    }
+  }
+}
 
 // ─── Fixture loader ──────────────────────────────────────────────────────────
 
@@ -129,7 +163,11 @@ export async function getCandidateData(
       (c: Record<string, unknown>) => c.candidate_id === candidateId
     );
     if (match) {
-      return fixtureCandidateToEDCData(match, fixture);
+      const edcData = fixtureCandidateToEDCData(match, fixture);
+      // Attach blob photo if uploaded
+      const photos = await getPhotoUrls(searchId);
+      if (photos[candidateId]) edcData.photo_url = photos[candidateId];
+      return edcData;
     }
   }
 
@@ -328,6 +366,11 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         edc_data: edcData,
       } as IntroCardData;
     });
+
+    // Attach uploaded photos from Vercel Blob
+    const photos = await getPhotoUrls(searchId);
+    attachPhotos(candidates, photos);
+
     return {
       search_name: fixture.search_name || searchId,
       client_company: fixture.client_company || '',
@@ -476,6 +519,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
         if (candidates.length > 0) {
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
+          const photos = await getPhotoUrls(searchId);
+          attachPhotos(candidates, photos);
           return {
             search_name: fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
@@ -577,6 +622,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           }
         }
 
+        const photos2 = await getPhotoUrls(searchId);
+        attachPhotos(context.candidates, photos2);
         return context;
       }
     } catch (err) {

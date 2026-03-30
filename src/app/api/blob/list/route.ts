@@ -9,7 +9,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "prefix is required" }, { status: 400 });
   }
 
-  if (!prefix.startsWith("cv/") && !prefix.startsWith("job-summary/")) {
+  if (!prefix.startsWith("cv/") && !prefix.startsWith("job-summary/") && !prefix.startsWith("photos/")) {
     return NextResponse.json({ error: "Invalid prefix" }, { status: 400 });
   }
 
