@@ -132,11 +132,12 @@ export async function getCandidateData(
                 }
               }
 
-              // Override footer metadata from fixture
-              if (fixture?.client_company) edcData.search_name = fixture.client_company;
-              else if (fixture?.search_name) edcData.search_name = fixture.search_name;
-              if (fixture?.search_name) edcData.role_title = fixture.search_name;
             }
+
+            // Override footer metadata from fixture (outside EDS block — always runs)
+            if (fixture?.client_company) edcData.search_name = fixture.client_company;
+            else if (fixture?.search_name) edcData.search_name = fixture.search_name;
+            if (fixture?.search_name) edcData.role_title = fixture.search_name;
 
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
             return edcData;
