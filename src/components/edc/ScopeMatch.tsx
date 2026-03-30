@@ -15,6 +15,7 @@ interface ScopeRow {
 interface ScopeMatchProps {
   scope_match: ScopeRow[];
   scope_seasoning?: string;
+  candidateId?: string;
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
@@ -71,17 +72,39 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match }: ScopeMatchProps) {
+export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
-  const [rows, setRows] = useState<ScopeRow[]>(scope_match);
+  const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
+  const [rows, setRows] = useState<ScopeRow[]>(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) return JSON.parse(stored);
+      } catch { /* ignore */ }
+    }
+    return scope_match;
+  });
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const originalRows = useRef<ScopeRow[]>(scope_match);
 
-  // Sync rows when prop changes (e.g. candidate navigation)
+  // Sync rows when candidate changes (prop change means new candidate)
   useEffect(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) { setRows(JSON.parse(stored)); originalRows.current = scope_match; return; }
+      } catch { /* ignore */ }
+    }
     setRows(scope_match);
     originalRows.current = scope_match;
-  }, [scope_match]);
+  }, [scope_match, storageKey]);
+
+  // Persist edits to localStorage
+  useEffect(() => {
+    if (storageKey && isEditable) {
+      try { localStorage.setItem(storageKey, JSON.stringify(rows)); } catch { /* ignore */ }
+    }
+  }, [rows, storageKey, isEditable]);
 
   const updateCell = (index: number, field: keyof ScopeRow, value: string) => {
     setRows(prev => prev.map((row, i) =>

@@ -13,6 +13,7 @@ interface CriterionItem {
 
 interface KeyCriteriaProps {
   key_criteria: CriterionItem[];
+  candidateId?: string;
 }
 
 /* ── Editable pill with remove button ── */
@@ -94,15 +95,37 @@ function EditablePill({
   );
 }
 
-export default function KeyCriteria({ key_criteria }: KeyCriteriaProps) {
+export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaProps) {
   const { isEditable } = useEditorContext();
-  const [items, setItems] = useState<CriterionItem[]>(key_criteria);
+  const storageKey = candidateId ? `edc_edit_${candidateId}_criteria` : null;
+  const [items, setItems] = useState<CriterionItem[]>(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) return JSON.parse(stored);
+      } catch { /* ignore */ }
+    }
+    return key_criteria;
+  });
   const originalItems = useRef<CriterionItem[]>(key_criteria);
 
   useEffect(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (stored) { setItems(JSON.parse(stored)); originalItems.current = key_criteria; return; }
+      } catch { /* ignore */ }
+    }
     setItems(key_criteria);
     originalItems.current = key_criteria;
-  }, [key_criteria]);
+  }, [key_criteria, storageKey]);
+
+  // Persist edits to localStorage
+  useEffect(() => {
+    if (storageKey && isEditable) {
+      try { localStorage.setItem(storageKey, JSON.stringify(items)); } catch { /* ignore */ }
+    }
+  }, [items, storageKey, isEditable]);
 
   const updateField = (index: number, field: keyof CriterionItem, value: string) => {
     setItems(prev => prev.map((item, i) =>

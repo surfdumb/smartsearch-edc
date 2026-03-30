@@ -54,6 +54,28 @@ export default function EDCCard({
   const [ourTakeOpen, setOurTakeOpen] = useState(false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
 
+  // Header field edits — persisted in localStorage
+  const headerKey = candidateId ? `edc_edit_${candidateId}_header` : null;
+  type HeaderEdits = { candidate_name?: string; current_title?: string; current_company?: string; location?: string };
+  const [headerEdits, setHeaderEdits] = useState<HeaderEdits>(() => {
+    if (headerKey && typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(headerKey);
+        if (stored) return JSON.parse(stored);
+      } catch { /* ignore */ }
+    }
+    return {};
+  });
+  const handleHeaderFieldUpdate = (field: keyof HeaderEdits, value: string) => {
+    setHeaderEdits(prev => {
+      const next = { ...prev, [field]: value };
+      if (headerKey) {
+        try { localStorage.setItem(headerKey, JSON.stringify(next)); } catch { /* ignore */ }
+      }
+      return next;
+    });
+  };
+
   // Photo upload state — persisted in localStorage (blob URLs are small)
   const photoKey = candidateId ? `edc_photo_${candidateId}` : null;
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(() => {
@@ -77,7 +99,16 @@ export default function EDCCard({
     } else {
       setUploadedPhoto(null);
     }
-  }, [candidateId, photoKey]);
+    // Load persisted header edits
+    if (headerKey) {
+      try {
+        const stored = localStorage.getItem(headerKey);
+        setHeaderEdits(stored ? JSON.parse(stored) : {});
+      } catch { setHeaderEdits({}); }
+    } else {
+      setHeaderEdits({});
+    }
+  }, [candidateId, photoKey, headerKey]);
 
   const navigateToPanel = (target: 1 | 2 | 3) => {
     if (target === currentPanel) return;
@@ -128,15 +159,16 @@ export default function EDCCard({
       >
         <div key={candidateId} className={candidateAnimClass} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
           <EDCHeader
-            candidate_name={data.candidate_name}
-            current_title={data.current_title}
-            current_company={data.current_company}
-            location={data.location}
+            candidate_name={headerEdits.candidate_name ?? data.candidate_name}
+            current_title={headerEdits.current_title ?? data.current_title}
+            current_company={headerEdits.current_company ?? data.current_company}
+            location={headerEdits.location ?? data.location}
             photo_url={uploadedPhoto || data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
             context={context}
             candidateId={candidateId}
             searchId={searchId}
             onPhotoUpload={handlePhotoUpload}
+            onFieldUpdate={handleHeaderFieldUpdate}
           />
 
           {/* Motivation scrambler — visible only when real motivation data exists */}
@@ -204,7 +236,6 @@ export default function EDCCard({
             )}
 
             <div
-              key={`${candidateId}-panel-${currentPanel}`}
               className={`criteria-scroll ${slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}`}
               style={{
                 height: "100%",
@@ -214,32 +245,33 @@ export default function EDCCard({
             >
             {/* Scroll fade indicator — signals content extends below */}
             <div className="scroll-fade-indicator" />
-              {currentPanel === 1 && (
+              {/* All tabs stay mounted to preserve edit state across tab switches */}
+              <div style={{ display: currentPanel === 1 ? 'block' : 'none' }}>
                 <ScopeMatch
                   scope_match={data.scope_match}
                   scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+                  candidateId={candidateId}
                 />
-              )}
+              </div>
 
-              {currentPanel === 2 && (
-                <KeyCriteria key_criteria={data.key_criteria} />
-              )}
+              <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
+                <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
+              </div>
 
-              {currentPanel === 3 && (
-                <>
-                  <Compensation
-                    compensation={data.compensation}
-                    notice_period={data.notice_period}
+              <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
+                <Compensation
+                  compensation={data.compensation}
+                  notice_period={data.notice_period}
+                  candidateId={candidateId}
+                />
+                {/* WhyInterested removed — motivation lives in MotivationStrip */}
+                {data.miscellaneous && (
+                  <Miscellaneous
+                    text={data.miscellaneous.text}
+                    display={data.miscellaneous.display}
                   />
-                  {/* WhyInterested removed — motivation lives in MotivationStrip */}
-                  {data.miscellaneous && (
-                    <Miscellaneous
-                      text={data.miscellaneous.text}
-                      display={data.miscellaneous.display}
-                    />
-                  )}
-                </>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

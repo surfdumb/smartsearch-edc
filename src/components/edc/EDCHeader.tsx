@@ -18,6 +18,8 @@ interface EDCHeaderProps {
   searchId?: string;
   /** Called with the persisted blob URL after upload completes */
   onPhotoUpload?: (blobUrl: string) => void;
+  /** Called when a header text field is edited */
+  onFieldUpdate?: (field: 'candidate_name' | 'current_title' | 'current_company' | 'location', value: string) => void;
 }
 
 export default function EDCHeader({
@@ -31,6 +33,7 @@ export default function EDCHeader({
   candidateId,
   searchId,
   onPhotoUpload,
+  onFieldUpdate,
 }: EDCHeaderProps) {
   const { isEditable } = useEditorContext();
   const [photoErr, setPhotoErr] = useState(false);
@@ -219,42 +222,108 @@ export default function EDCHeader({
           )}
 
           {/* Name + bio line */}
-          <div style={{ minWidth: 0 }}>
-            <h1
-              className="font-cormorant"
-              style={{
-                fontSize: "1.6rem",
-                fontWeight: 600,
-                lineHeight: 1.1,
-                letterSpacing: "-0.3px",
-                color: "#faf8f5",
-                margin: 0,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {candidate_name}
-            </h1>
-            <p
-              className="font-outfit"
-              style={{
-                fontSize: "0.84rem",
-                fontWeight: 400,
-                color: "rgba(255,255,255,0.65)",
-                margin: "2px 0 0",
-                lineHeight: 1.3,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {current_company}
-              <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
-              {current_title}
-              <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
-              {location}
-            </p>
+          <div style={{ minWidth: 0, flex: 1 }}>
+            {isEditable ? (
+              <h1
+                contentEditable
+                suppressContentEditableWarning
+                className="font-cormorant editable-cell"
+                onBlur={(e) => onFieldUpdate?.('candidate_name', e.currentTarget.textContent || '')}
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 600,
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.3px",
+                  color: "#faf8f5",
+                  margin: 0,
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                }}
+              >
+                {candidate_name}
+              </h1>
+            ) : (
+              <h1
+                className="font-cormorant"
+                style={{
+                  fontSize: "1.6rem",
+                  fontWeight: 600,
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.3px",
+                  color: "#faf8f5",
+                  margin: 0,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {candidate_name}
+              </h1>
+            )}
+            {isEditable ? (
+              <div
+                className="font-outfit"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0",
+                  margin: "2px 0 0",
+                  fontSize: "0.84rem",
+                  color: "rgba(255,255,255,0.65)",
+                  lineHeight: 1.3,
+                }}
+              >
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="editable-cell"
+                  onBlur={(e) => onFieldUpdate?.('current_company', e.currentTarget.textContent || '')}
+                  style={{ padding: "1px 4px", borderRadius: "3px" }}
+                >
+                  {current_company}
+                </span>
+                <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 4px" }}>·</span>
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="editable-cell"
+                  onBlur={(e) => onFieldUpdate?.('current_title', e.currentTarget.textContent || '')}
+                  style={{ padding: "1px 4px", borderRadius: "3px" }}
+                >
+                  {current_title}
+                </span>
+                <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 4px" }}>·</span>
+                <span
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="editable-cell"
+                  onBlur={(e) => onFieldUpdate?.('location', e.currentTarget.textContent || '')}
+                  style={{ padding: "1px 4px", borderRadius: "3px" }}
+                >
+                  {location}
+                </span>
+              </div>
+            ) : (
+              <p
+                className="font-outfit"
+                style={{
+                  fontSize: "0.84rem",
+                  fontWeight: 400,
+                  color: "rgba(255,255,255,0.65)",
+                  margin: "2px 0 0",
+                  lineHeight: 1.3,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {current_company}
+                <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
+                {current_title}
+                <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
+                {location}
+              </p>
+            )}
           </div>
         </div>
 
