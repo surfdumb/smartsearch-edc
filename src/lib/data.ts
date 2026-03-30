@@ -59,11 +59,6 @@ async function loadFixture(searchId: string): Promise<FixtureData | null> {
 
 // ─── Fixture candidate helpers ───────────────────────────────────────────────
 
-/** True when the fixture candidate is flat (EDC fields directly on candidate, no edc_data wrapper) */
-function isFlatFixtureCandidate(c: Record<string, unknown>): boolean {
-  return !c.edc_data && ('key_criteria' in c || 'scope_match' in c || 'compensation' in c);
-}
-
 /** Convert a flat fixture candidate into EDCData. For wrapped candidates, return edc_data as-is. */
 function fixtureCandidateToEDCData(
   c: Record<string, unknown>,
