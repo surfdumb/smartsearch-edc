@@ -12,7 +12,11 @@ const SHEETS_ENABLED = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 
 // ─── Fixture loader ──────────────────────────────────────────────────────────
 
-type FixtureData = SearchContext & { candidate_statuses?: Record<string, string> };
+type FixtureData = SearchContext & {
+  candidate_statuses?: Record<string, string>;
+  js_search_name?: string;
+  scope_requirements?: Record<string, string>;
+};
 
 // Cache to avoid repeated file reads within a single request
 const fixtureCache = new Map<string, FixtureData | null>();
@@ -74,18 +78,18 @@ export async function getCandidateData(
             const parsed = JSON.parse(edcJson);
             const edcData = normalizeEDCJson(parsed);
 
-            // Always enrich key_criteria from EDS when fixture has criteria names
-            // (EDC Output Store JSON often has empty/mismatched criteria)
+            // Enrich from EDS: key_criteria, scope, comp, motivation
+            const edsRows = await getEDSRowsForSearch(searchId);
+            const edsRow = edsRows.find((row) => {
+              const name = Object.values(row)[1] || '';
+              return nameToCandidateId(name) === candidateId;
+            });
+            const eds = edsRow ? Object.values(edsRow) : [];
+
+            // Key criteria enrichment
             const criteriaNames = fixture?.key_criteria_names || [];
             if (criteriaNames.length > 0) {
-              const edsRows = await getEDSRowsForSearch(searchId);
-              const edsRow = edsRows.find((row) => {
-                const name = Object.values(row)[1] || '';
-                return nameToCandidateId(name) === candidateId;
-              });
-
-              if (edsRow) {
-                const eds = Object.values(edsRow);
+              if (eds.length > 0) {
                 const assessmentText = eds[24] || eds[20] || '';
                 if (assessmentText && assessmentText !== 'Not mentioned') {
                   edcData.key_criteria = parseKeyCriteria(assessmentText, criteriaNames);
@@ -98,6 +102,34 @@ export async function getCandidateData(
                 edcData.key_criteria = criteriaNames.map((n: string) => ({
                   name: n, evidence: 'Assessment pending', context_anchor: undefined,
                 }));
+              }
+            }
+
+            // Scope, comp, motivation enrichment (requires JS row for scope dimensions)
+            if (eds.length > 0) {
+              const edsSearchName = eds[0] || searchId;
+              const { getJSRow: getJS } = await import('./sheets');
+              const jsRow2 = await getJS(edsSearchName)
+                || await getJS(searchId)
+                || (fixture?.js_search_name ? await getJS(fixture.js_search_name) : null);
+              const js2 = jsRow2 ? Object.values(jsRow2) : [];
+              const jsScopeDims = (js2[43] as string) || '';
+
+              if (edcData.scope_match.length > 0) {
+                enrichScopeFromEDS(edcData, eds, jsScopeDims, fixture?.scope_requirements);
+              }
+              enrichCompFromEDS(edcData, eds);
+              if (edcData.why_interested.length === 0 ||
+                  edcData.why_interested.every(w => w.headline === 'See candidate overview' || !w.headline)) {
+                enrichMotivationFromEDS(edcData, eds);
+              }
+
+              // Fix title if it has Make pipeline prefix
+              if (/^IV\s+/i.test(edcData.current_title) || edcData.current_title === 'Not mentioned') {
+                const edsTitle = eds[2] || '';
+                if (edsTitle && !/^IV\s+/i.test(edsTitle)) {
+                  edcData.current_title = edsTitle;
+                }
               }
             }
 
@@ -127,14 +159,16 @@ export async function getCandidateData(
 
       if (edsRow) {
         const searchName = Object.values(edsRow)[0] || searchId;
-        const jsRow = await getJSRow(searchName) || await getJSRow(searchId);
+        const jsRow = await getJSRow(searchName)
+          || await getJSRow(searchId)
+          || (fixture?.js_search_name ? await getJSRow(fixture.js_search_name) : null);
         const edcData = transformToEDCData(edsRow, jsRow, searchId);
 
         // Enrich key_criteria from EDS assessment + fixture criteria names
+        const eds = Object.values(edsRow);
         const criteriaNames = fixture?.key_criteria_names || [];
         if (criteriaNames.length > 0) {
           const { parseKeyCriteria: parseCriteria } = await import('./sheets-transform');
-          const eds = Object.values(edsRow);
           const assessmentText = eds[24] || eds[20] || '';
           if (assessmentText && assessmentText !== 'Not mentioned') {
             edcData.key_criteria = parseCriteria(assessmentText, criteriaNames);
@@ -144,6 +178,14 @@ export async function getCandidateData(
             }));
           }
         }
+
+        // Scope, comp enrichment
+        const js2 = jsRow ? Object.values(jsRow) : [];
+        const jsScopeDims2 = (js2[43] as string) || '';
+        if (edcData.scope_match.length > 0) {
+          enrichScopeFromEDS(edcData, eds, jsScopeDims2, fixture?.scope_requirements);
+        }
+        enrichCompFromEDS(edcData, eds);
 
         return edcData;
       }
@@ -189,7 +231,9 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           ? (Object.values(edsRows[0])[0] || searchId)
           : searchId;
         // Try JS lookup by EDS search_key first (getJSRow now matches on col 0 OR col 1)
-        const jsRow = await getJSRow(edsSearchName) || await getJSRow(searchId);
+        const jsRow = await getJSRow(edsSearchName)
+          || await getJSRow(searchId)
+          || (fixture?.js_search_name ? await getJSRow(fixture.js_search_name) : null);
         const js = jsRow ? Object.values(jsRow) : [];
 
         // JS criteria names
@@ -243,7 +287,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
               // ── Enrich scope_match candidate_actual from EDS ──
               if (edcData.scope_match.length > 0 && eds.length > 0) {
-                enrichScopeFromEDS(edcData, eds, jsScopeDimensions);
+                enrichScopeFromEDS(edcData, eds, jsScopeDimensions, fixture?.scope_requirements);
               }
 
               // ── Enrich compensation from EDS if not parsed ──
@@ -323,7 +367,9 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       const edsRows = await getEDSRowsForSearch(searchId);
       if (edsRows.length > 0) {
         const searchName = Object.values(edsRows[0])[0] || searchId;
-        const jsRow = await getJSRow(searchName) || await getJSRow(searchId);
+        const jsRow = await getJSRow(searchName)
+          || await getJSRow(searchId)
+          || (fixture?.js_search_name ? await getJSRow(fixture.js_search_name) : null);
         const context = transformToSearchContext(edsRows, jsRow, searchId);
 
         // Merge fixture metadata
@@ -365,40 +411,83 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
 // ─── EDS Enrichment Helpers ──────────────────────────────────────────────────
 
-/** Enrich scope_match with candidate_actual from EDS assessment text */
-function enrichScopeFromEDS(edcData: EDCData, eds: string[], jsScopeDimensions: string) {
+/** Enrich scope_match with candidate_actual and role_requirement */
+function enrichScopeFromEDS(
+  edcData: EDCData,
+  eds: string[],
+  jsScopeDimensions: string,
+  fixtureRequirements?: Record<string, string>
+) {
   const allEmpty = edcData.scope_match.every(
     (s) => s.candidate_actual === 'Not assessed' || !s.candidate_actual
   );
   if (!allEmpty) return;
 
-  // Try to parse EDS scope column (index 21)
   const scopeText = eds[21] || '';
-  // Also try the AI assessment for scope data
   const assessmentText = eds[20] || '';
+  const overviewText = eds[23] || '';
+
+  // EDS field-based candidate actuals (specific columns → dimensions)
+  const fieldMap: Record<string, string | undefined> = {
+    headcount: eds[7] || undefined,  // total_team_size
+    team: eds[7] || undefined,
+    geography: eds[4] || undefined,  // location
+    location: eds[4] || undefined,
+    industry: eds[9] || undefined,   // primary_industry
+    sector: eds[9] || undefined,
+  };
 
   for (const scopeItem of edcData.scope_match) {
-    const dimName = scopeItem.scope.toLowerCase();
+    const dimLower = scopeItem.scope.toLowerCase();
 
-    // Try to find candidate value in scope text
-    const scopeMatch = findValueForDimension(scopeText, dimName);
+    // ── CANDIDATE ACTUAL ──
+
+    // 1. Try prose text search in scope column + assessment
+    const scopeMatch = findValueForDimension(scopeText, dimLower);
     if (scopeMatch) {
       scopeItem.candidate_actual = scopeMatch;
     }
-
-    // Try to find in assessment text
     if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
-      const assessMatch = findValueForDimension(assessmentText, dimName);
-      if (assessMatch) {
-        scopeItem.candidate_actual = assessMatch;
+      const assessMatch = findValueForDimension(assessmentText, dimLower);
+      if (assessMatch) scopeItem.candidate_actual = assessMatch;
+    }
+
+    // 2. Try specific EDS field mapping
+    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+      for (const [key, value] of Object.entries(fieldMap)) {
+        if (dimLower.includes(key) && value && value.trim()) {
+          scopeItem.candidate_actual = value.trim();
+          break;
+        }
       }
     }
 
-    // Try to find role requirement from JS scope dimensions
+    // 3. For P&L/revenue: regex search in assessment + overview
+    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+      if (dimLower.includes('p&l') || dimLower.includes('revenue') || dimLower.includes('turnover')) {
+        const combined = (assessmentText + ' ' + overviewText);
+        const revenueMatch = combined.match(
+          /(?:revenue|turnover|p&l|sales)\s*(?:of|:)?\s*(?:approximately?\s*)?([€$£][\d,.']+\s*(?:m(?:illion)?|bn|k)?)/i
+        );
+        if (revenueMatch) scopeItem.candidate_actual = revenueMatch[1].trim();
+      }
+    }
+
+    // ── ROLE REQUIREMENT ──
+
+    // 1. Try JS scope dimensions text
     if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && jsScopeDimensions) {
-      const reqMatch = findValueForDimension(jsScopeDimensions, dimName);
-      if (reqMatch) {
-        scopeItem.role_requirement = reqMatch;
+      const reqMatch = findValueForDimension(jsScopeDimensions, dimLower);
+      if (reqMatch) scopeItem.role_requirement = reqMatch;
+    }
+
+    // 2. Try fixture requirements map (case-insensitive contains match)
+    if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && fixtureRequirements) {
+      for (const [key, value] of Object.entries(fixtureRequirements)) {
+        if (dimLower.includes(key.toLowerCase()) || key.toLowerCase().includes(dimLower.split(/\s+/)[0])) {
+          scopeItem.role_requirement = value;
+          break;
+        }
       }
     }
   }
@@ -440,13 +529,48 @@ function extractValueNear(text: string, pos: number): string | null {
   return null;
 }
 
+/** Detect "not disclosed" / "not mentioned" patterns in comp text */
+function isCompNotDisclosed(text: string): boolean {
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  return lower.includes('not disclosed') || lower.includes('were not provided') ||
+    lower.includes('did not disclose') || lower.includes('not mentioned during') ||
+    lower.includes('declined to share') || lower.includes('chose not to');
+}
+
+/** Extract the first currency amount from prose, move rest to flexibility */
+function extractAmountFromProse(
+  comp: EDCData['compensation'],
+  field: 'expected_total' | 'expected_base' | 'current_total' | 'current_base'
+) {
+  const val = comp[field];
+  if (!val || val.length <= 80) return;
+  const amountMatch = val.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.))?/);
+  if (amountMatch) {
+    const prose = val;
+    comp[field] = amountMatch[0];
+    if (!comp.flexibility || comp.flexibility === 'Not mentioned') {
+      comp.flexibility = prose;
+    }
+  }
+}
+
 /** Enrich compensation from EDS raw columns */
 function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
   const comp = edcData.compensation;
-  // If current_base is still the full blob (>100 chars), re-parse from EDS
-  if (comp.current_base && comp.current_base.length > 100) {
-    // The base field has the entire comp blob — re-parse properly
-    const parsed = parseCompFromBlob(eds[10] || comp.current_base);
+  const currentText = eds[10] || '';
+  const expectedText = eds[11] || '';
+
+  // Detect "not disclosed" in current comp
+  if (isCompNotDisclosed(currentText) || isCompNotDisclosed(comp.current_total)) {
+    comp.current_base = 'Not disclosed';
+    comp.current_total = 'Not disclosed';
+    comp.current_bonus = undefined;
+    comp.current_lti = undefined;
+    comp.current_benefits = undefined;
+  } else if (comp.current_base && comp.current_base.length > 100) {
+    // Re-parse bloated base field
+    const parsed = parseCompFromBlob(currentText || comp.current_base);
     if (parsed.base) comp.current_base = parsed.base;
     if (parsed.bonus) comp.current_bonus = parsed.bonus;
     if (parsed.lti) comp.current_lti = parsed.lti;
@@ -454,9 +578,15 @@ function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
     if (parsed.total) comp.current_total = parsed.total;
   }
 
-  // Same for expected
-  if (comp.expected_base && comp.expected_base.length > 100) {
-    const parsed = parseCompFromBlob(eds[11] || comp.expected_base);
+  // Detect "not disclosed" in expected comp
+  if (isCompNotDisclosed(expectedText) || isCompNotDisclosed(comp.expected_total)) {
+    comp.expected_base = 'Not disclosed';
+    comp.expected_total = 'Not disclosed';
+    comp.expected_bonus = undefined;
+    comp.expected_lti = undefined;
+    comp.expected_benefits = undefined;
+  } else if (comp.expected_base && comp.expected_base.length > 100) {
+    const parsed = parseCompFromBlob(expectedText || comp.expected_base);
     if (parsed.base) comp.expected_base = parsed.base;
     if (parsed.bonus) comp.expected_bonus = parsed.bonus;
     if (parsed.lti) comp.expected_lti = parsed.lti;
@@ -464,59 +594,63 @@ function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
     if (parsed.total) comp.expected_total = parsed.total;
   }
 
-  // If expected is long prose, extract just the amount
-  if (comp.expected_total && comp.expected_total.length > 80) {
-    const amountMatch = comp.expected_total.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.))?/);
-    if (amountMatch) {
-      const prose = comp.expected_total;
-      comp.expected_total = amountMatch[0];
-      // Move the prose to flexibility if flexibility is empty/default
-      if (!comp.flexibility || comp.flexibility === 'Not mentioned') {
-        comp.flexibility = prose;
-      }
-    }
-  }
+  // Extract amounts from long prose in expected/current fields
+  extractAmountFromProse(comp, 'expected_total');
+  extractAmountFromProse(comp, 'expected_base');
+  extractAmountFromProse(comp, 'current_total');
+  extractAmountFromProse(comp, 'current_base');
 }
 
-/** Parse a compensation text blob into structured components */
+/** Parse a compensation text blob into structured components.
+ *  Handles both line-separated and inline formats like:
+ *  "Base: €190,000 + Bonus: €50,000 = Total: €240,000" */
 function parseCompFromBlob(text: string): {
   base?: string; bonus?: string; lti?: string; benefits?: string; total?: string;
 } {
   if (!text) return {};
+  if (isCompNotDisclosed(text)) return {};
+
   const result: { base?: string; bonus?: string; lti?: string; benefits?: string; total?: string } = {};
 
-  // Try line-by-line parsing
-  const lines = text.split(/\n|(?:(?<=\))\s*)|(?:;\s*)/);
+  // Find all label positions in the text using a single regex
+  // Handles labels preceded by +, ;, =, newlines, commas, or start-of-string
+  const labelRegex = /(?:^|[+;=\n,]\s*)((?:base(?:\s+salary)?|fixed(?:\s+salary)?|bonus|variable|sti|short-term(?:\s+incentive)?|lti[p]?|equity|long-term(?:\s+incentive)?|benefits?|other|total(?:\s+(?:package|comp(?:ensation)?))?)\s*[:=])\s*/gi;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    const lower = trimmed.toLowerCase();
+  const labels: { type: string; valueStart: number }[] = [];
+  let match;
+  while ((match = labelRegex.exec(text)) !== null) {
+    const labelText = match[1].toLowerCase().replace(/\s*[:=]\s*$/, '').trim();
+    let type: string;
+    if (labelText.startsWith('base') || labelText.startsWith('fixed')) type = 'base';
+    else if (labelText.startsWith('bonus') || labelText.startsWith('variable') || labelText.startsWith('sti') || labelText.startsWith('short-term')) type = 'bonus';
+    else if (labelText.startsWith('lti') || labelText.startsWith('equity') || labelText.startsWith('long-term')) type = 'lti';
+    else if (labelText.startsWith('benefit') || labelText.startsWith('other')) type = 'benefits';
+    else if (labelText.startsWith('total')) type = 'total';
+    else continue;
+    labels.push({ type, valueStart: match.index + match[0].length });
+  }
 
-    if (lower.startsWith('base:') || lower.startsWith('base salary:') || lower.startsWith('fixed:') || lower.startsWith('fixed salary:')) {
-      result.base = extractCompAmount(trimmed.replace(/^(?:base(?:\s+salary)?|fixed(?:\s+salary)?)\s*:\s*/i, ''));
-    } else if (lower.startsWith('bonus:') || lower.startsWith('variable:') || lower.startsWith('sti:') || lower.startsWith('short-term')) {
-      result.bonus = extractCompAmount(trimmed.replace(/^(?:bonus|variable|sti|short-term\s*(?:incentive)?)\s*:\s*/i, ''));
-    } else if (lower.startsWith('lti:') || lower.startsWith('ltip:') || lower.startsWith('equity:') || lower.startsWith('long-term')) {
-      result.lti = extractCompAmount(trimmed.replace(/^(?:lti[p]?|equity|long-term\s*(?:incentive)?)\s*:\s*/i, ''));
-    } else if (lower.startsWith('benefits:') || lower.startsWith('benefit:') || lower.startsWith('other:')) {
-      result.benefits = trimmed.replace(/^(?:benefits?|other)\s*:\s*/i, '').trim();
-    } else if (lower.startsWith('total:') || lower.startsWith('total package:') || lower.startsWith('total comp')) {
-      result.total = extractCompAmount(trimmed.replace(/^total(?:\s+(?:package|comp(?:ensation)?))?\s*:\s*/i, ''));
+  // Extract value between each label and the next (or end of string)
+  for (let i = 0; i < labels.length; i++) {
+    const valueEnd = i + 1 < labels.length ? labels[i + 1].valueStart - (labels[i + 1].type.length + 2) : text.length;
+    const rawValue = text.slice(labels[i].valueStart, Math.max(labels[i].valueStart, valueEnd))
+      .trim().replace(/[+;=,]\s*$/, '').trim();
+    const key = labels[i].type as keyof typeof result;
+    if (!result[key] && rawValue) {
+      result[key] = key === 'benefits' ? rawValue.slice(0, 120) : extractCompAmount(rawValue);
     }
   }
 
-  // Try parenthetical total
+  // Fallback: parenthetical total
   if (!result.total) {
     const totalMatch = text.match(/total(?:\s+(?:fixed|package|comp(?:ensation)?))?\s*[:=]\s*([€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?(?:\s*(?:k|K|p\.a\.))?)/i);
     if (totalMatch) result.total = totalMatch[1].trim();
   }
 
-  // If no structured parsing worked, try to extract first amount as base
+  // Fallback: first amount as base
   if (!result.base && !result.total) {
     const firstAmount = text.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?/);
     if (firstAmount) {
-      // Check if it's clearly a base amount
       const beforeAmount = text.slice(0, text.indexOf(firstAmount[0])).toLowerCase();
       if (beforeAmount.includes('base') || beforeAmount.includes('fixed') || beforeAmount.length < 20) {
         result.base = firstAmount[0];

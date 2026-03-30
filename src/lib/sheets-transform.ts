@@ -73,7 +73,7 @@ function getInitials(name: string): string {
 // 25: consultant_name  26: granola_title        27: eds_date
 
 // ─── JS Column Index Map ──────────────────────────────────────────────────────
-// 0: search_name       1: search_key          2: search_lead
+// 0: search_name       1: file_name (often empty — NOT search_key)  2: search_lead
 // 3: client_name       4: client_location
 // Criteria groups at 9, 12, 15, 18, 21 (name / detail / weight per group)
 // Budget at 34-37: base, bonus, mip_lti, di
@@ -100,46 +100,35 @@ export function parseKeyCriteria(
   }
 
   // Strategy 0: Markdown bold-header format from key_criteria_assessment_prose
-  // Format: "**Header:** Rating\nEvidence text\n\n**Next Header:**..."
-  // Split on double-newline to get blocks, then check each for a bold header
+  // Format: "**1. Criterion Name:** Rating\nEvidence text\n\n**2. Next:**..."
+  // Parse numbered bold sections and map by index to criteria names array
   const paragraphs = criteriaText.split(/\n\n+/).filter((p) => p.trim());
-  const boldBlocks: { header: string; body: string }[] = [];
+  const boldBlocks: { header: string; body: string; num: number | null }[] = [];
   for (const para of paragraphs) {
     const headerMatch = para.match(/^\*\*(.+?)\*\*:?\s*([\s\S]*)/);
     if (headerMatch) {
-      const header = headerMatch[1].replace(/^\d+\.\s*/, '').trim(); // Strip "1. " prefix
+      const rawHeader = headerMatch[1].trim();
+      const numMatch = rawHeader.match(/^(\d+)\.\s*/);
+      const num = numMatch ? parseInt(numMatch[1]) : null;
+      const header = rawHeader.replace(/^\d+\.\s*/, '').trim();
       const body = headerMatch[2].trim();
-      boldBlocks.push({ header, body });
+      boldBlocks.push({ header, body, num });
     }
   }
 
-  if (boldBlocks.length >= 2) {
-    return names.map((name) => {
-      const nameWords = name.toLowerCase()
-        .replace(/[&]/g, 'and')
-        .split(/[\s,/]+/)
-        .filter((w) => w.length > 3 && !['with', 'the', 'and', 'for', 'that', 'this', 'from', 'ability'].includes(w));
+  // Filter to only numbered sections (skip "Key Criteria Source" etc.), sort by number
+  const numberedBlocks = boldBlocks
+    .filter((b) => b.num !== null)
+    .sort((a, b) => a.num! - b.num!);
 
-      let bestBlock: typeof boldBlocks[0] | null = null;
-      let bestScore = 0;
-
-      for (const block of boldBlocks) {
-        const headerLower = block.header.toLowerCase();
-        let score = 0;
-        for (const word of nameWords) {
-          if (headerLower.includes(word)) score++;
-        }
-        if (score > bestScore) {
-          bestScore = score;
-          bestBlock = block;
-        }
-      }
-
+  if (numberedBlocks.length >= 2) {
+    return names.map((name, i) => {
+      const block = numberedBlocks[i]; // index-based: criteria[0] → section 1
       let evidence = '';
-      if (bestScore >= 1 && bestBlock) {
-        evidence = bestBlock.body;
-        // Remove standalone rating words at the start (e.g., "Limited\n", "Strong\n")
-        evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
+      if (block) {
+        evidence = block.body;
+        // Remove standalone rating words at the start
+        evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
         // Take first meaningful chunk (up to ~200 chars at a sentence boundary)
         if (evidence.length > 200) {
           const cutPoint = evidence.slice(0, 200).lastIndexOf('.');
