@@ -1,39 +1,677 @@
 {
-  "search_name": "SVP StrikoWestofen",
+  "search_key": "nor-swf-svp",
+  "search_name": "Norican Group",
   "client_company": "Norican Group",
-  "client_location": "Wiehl, Germany",
-  "client_logo_url": null,
-  "key_criteria_names": [
-    "Global Mindset & International Experience",
-    "Hands-on Leadership with Strategic & Cultural Transformation Capability",
-    "Similar Business Size Experience",
-    "Industrial Background",
-    "Fluent German Speaker with Ability to Be On-Site in Wiehl Regularly"
-  ],
+  "role_title": "SVP StrikoWestofen",
   "search_lead": "Kalum Gillett",
-  "js_search_name": "JS Norican Group SVP StrikoWestofen",
-  "job_summary_pdf_url": null,
-  "scope_requirements": {
-    "P&L": "€60M revenue",
-    "Revenue": "€60M revenue",
-    "Headcount": "170 FTEs globally",
-    "Geography": "Wiehl, Germany (3+ days/week on-site)",
-    "Industry": "Industrial technology / foundry / casting",
-    "Organizational": "Matrix across 5 countries, PE-backed"
-  },
+  "location": "Wiehl, Germany (3+ days/week on-site required; remote/commute arrangement possible)",
+  "client_location": "Wiehl, Germany (3+ days/week on-site required; remote/commute arrangement possible)",
+  "key_criteria_names": [
+    "Strong leadership experience with cultural transformation capability",
+    "Global mindset and international experience",
+    "Comfortable running similar-sized business",
+    "Industrial background",
+    "Fluent German speaker with ability to be on-site in Wiehl regularly"
+  ],
   "deck_settings": {
-    "match_score_display": "HIDE",
-    "our_take_display": "SHOW",
-    "scope_narrative_display": "HIDE",
-    "edit_mode": false
+    "match_score_display": "HIDE"
   },
   "candidate_statuses": {
-    "p-vogtel": "to_send",
-    "m-deimel": "to_send",
-    "l-armatys": "to_send",
-    "r-janotta": "to_send",
-    "s-eickens": "to_send",
-    "d-voessing": "to_send"
+    "sebastian-eickens": "Active",
+    "patrik-vogtel": "Active",
+    "markus-deimel": "Active",
+    "lukas-armatys": "Active",
+    "dirk-voessing": "Active",
+    "rainer-janotta": "Active"
   },
-  "candidates": []
+  "scope_requirements": {
+    "P&L": "€60M revenue",
+    "Headcount": "170 FTEs globally",
+    "Geography": "Wiehl, Germany (3+ days/week on-site)",
+    "Revenue Target": "€60M",
+    "Industry Segment": "Industrial technology / foundry / casting"
+  },
+  "js_search_name": "JS Norican Group SVP StrikoWestofen",
+  "candidates": [
+    {
+      "candidate_name": "Sebastian Eickens",
+      "candidate_id": "sebastian-eickens",
+      "current_title": "General Manager",
+      "current_company": "Nico",
+      "location": "Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€12-15M revenue",
+          "role_requirement": "€60M revenue",
+          "alignment": "gap"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "75 employees",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Germany-based, international technology transfer experience (Michigan, Czech Republic, China)",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "€12-15M at Nico; €4.5M largest single order secured",
+          "role_requirement": "€60M",
+          "alignment": "gap"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Food technology machinery; previously automotive machinery at KraussMaffei",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "partial"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "Turned around underperforming sales operations at <strong>Nico</strong> and secured the company's largest-ever order (€4.5M with Lorenz Bahlsen), but this was within a 75-person privately-owned organisation over just 2 years — significantly smaller scale than the 170-person PE-backed transformation required.",
+          "context_anchor": "at Nico"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Led technology transfer initiatives to subsidiaries in <strong>Michigan, Czech Republic, Beijing, and Shanghai</strong> during 16 years at <strong>KraussMaffei</strong>, working directly with local engineering teams to build regional technical capability.",
+          "context_anchor": "at KraussMaffei"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Currently leads a 75-person, €12-15M revenue business at <strong>Nico</strong> — approximately 20-25% of the StrikoWestofen scope. Previous role at KraussMaffei was technical leadership (Head of Order Engineering, 36 reports) rather than full P&L.",
+          "context_anchor": "at Nico"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "16 years in automotive machinery at <strong>KraussMaffei</strong> (injection moulding, extrusion), followed by 2 years in food technology equipment at <strong>Nico</strong>. Strong capital equipment manufacturing background across both roles.",
+          "context_anchor": "at KraussMaffei"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker based in Germany. Expressed willingness to relocate or commute, though noted some hesitation about timing given 2-year tenure at current role.",
+          "context_anchor": "at Nico"
+        }
+      ],
+      "compensation": {
+        "current_base": "Not disclosed",
+        "current_bonus": "Not disclosed",
+        "current_lti": "Not disclosed",
+        "current_total": "Not disclosed",
+        "expected_total": "€220,000",
+        "flexibility": "Baseline expectation rather than fixed demand. Acknowledged the task scope is unclear, suggesting openness to discussion. Consultant noted most candidates at €150-170K base; with 30% STI + 30% LTI, packages would exceed €220K.",
+        "notice_period": "6 months contractual, non-negotiable",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Global transformation mandate appeals",
+          "detail": "Expressed strong interest in the scale and international complexity of the StrikoWestofen opportunity."
+        },
+        {
+          "type": "push",
+          "headline": "Outgrowing current scope at Nico",
+          "detail": "Acknowledged the 75-person, €12-15M business may not offer enough growth runway for his ambitions."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Current P&L scope (€12-15M) is 20-25% of the target role (€60M), with only 2 years in a GM position",
+          "severity": "significant"
+        },
+        {
+          "concern": "Expressed timing hesitation — 'not sure if it is right time already to change again' — which may signal ambivalence about a high-resistance transformation mandate",
+          "severity": "development"
+        },
+        {
+          "concern": "6-month non-negotiable notice period delays start to approximately October 2025",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Sebastian is a solid technical candidate with the right KraussMaffei pedigree and genuine international appetite, but there are real questions about scale readiness and commitment timing. His technology transfer experience is directly relevant to the global integration mandate, however his current GM scope is significantly below what this role demands. The hesitation about timing needs careful probing in any follow-up."
+      }
+    },
+    {
+      "candidate_name": "Patrik Vogtel",
+      "candidate_id": "patrik-vogtel",
+      "current_title": "Managing Director for Sales and Technology",
+      "current_company": "FORST Technologie",
+      "location": "Solingen area, Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "Dual MD with full commercial responsibility; revenue not explicitly stated",
+          "role_requirement": "€60M revenue",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "130 employees across tool and machine tool divisions",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Solingen-based, international sales operations",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "Not explicitly stated; 130-employee industrial machinery business",
+          "role_requirement": "€60M",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Industrial machinery — machine tools and cutting tools for automotive and aviation",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "strong"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "15-year tenure at <strong>FORST Technologie</strong> has been characterised by building and expanding within a stable family-owned environment rather than driving transformation in resistant settings. Progressed from Head of Production to MD but has not demonstrated experience restructuring centralised decision-making cultures.",
+          "context_anchor": "at FORST Technologie"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Led successful aviation market entry and international sales expansion at <strong>FORST Technologie</strong>, but operations remain Germany-centred with limited evidence of managing distributed international production teams.",
+          "context_anchor": "at FORST Technologie"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Leads 130-employee dual division at <strong>FORST Technologie</strong> as Managing Director, with hands-on operational involvement across sales, technology, and production — close to the target scale.",
+          "context_anchor": "at FORST Technologie"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "Deep industrial machinery expertise with 15 years at <strong>FORST Technologie</strong> spanning machine tools, cutting tools for automotive and aviation sectors. Drove 75% CO2 footprint reduction through retrofit tool design.",
+          "context_anchor": "at FORST Technologie"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker based in Solingen area, within commuting distance of Wiehl. Strong preference for on-site presence demonstrated in current role.",
+          "context_anchor": "at FORST Technologie"
+        }
+      ],
+      "compensation": {
+        "current_base": "€190,000",
+        "current_bonus": "~€25,000 (2.5% of company profit)",
+        "current_lti": "Not mentioned",
+        "current_total": "~€235,000",
+        "expected_total": "To be confirmed",
+        "flexibility": "Current total approximately €235,000 including car and pension. Expectations to be confirmed after learning more about opportunity scope and structure.",
+        "notice_period": "3 months contractual, tied to June 30 business year",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Scale and global scope attractive",
+          "detail": "Interested in the step up from single-site family ownership to a PE-backed global technology platform."
+        },
+        {
+          "type": "push",
+          "headline": "Limited growth ceiling at FORST",
+          "detail": "15 years at the same company suggests readiness for a new challenge beyond the family-owned environment."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Pure Mittelstand background — exactly the profile the client asked to avoid — with centralised leadership style and no experience in PE-backed matrix environments",
+          "severity": "significant"
+        },
+        {
+          "concern": "No demonstrated cultural transformation experience in resistant organisations; career has been building within a stable environment rather than changing one",
+          "severity": "significant"
+        }
+      ],
+      "our_take": {
+        "text": "We see a capable technical leader with strong operational instincts and a proven innovation track record, but significant concerns exist about cultural fit for the transformation mandate. His pure Mittelstand background — exactly what the client flagged as a risk — and preference for centralised, hands-on control contrast with the delegation and global integration the role demands. Proceed with caution."
+      }
+    },
+    {
+      "candidate_name": "Markus Deimel",
+      "candidate_id": "markus-deimel",
+      "current_title": "Managing Director",
+      "current_company": "Currently between roles (exited Spear in December 2024)",
+      "location": "Steinheim, North Rhine-Westphalia, Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€75M at Spear; grew Vollert from €60M to €90M",
+          "role_requirement": "€60M revenue",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "400 at Spear; 300 at Vollert",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Built production in India, Poland, Thailand; managed sales in China and USA",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "Grew Vollert from €60M to €90M over tenure",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Specialty commercial vehicles (Spear), industrial machinery / heavy logistics equipment (Vollert), coating machinery (Coatema)",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "strong"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "At <strong>Spear</strong>, delivered the company's best two years by professionalising purchasing, engineering, and cost reduction. At <strong>Vollert</strong>, introduced Lean management, Eastern European sourcing, and standardisation while building international production. Explicitly stated leadership philosophy of empowerment over micromanagement.",
+          "context_anchor": "at Vollert / Spear"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Built production facilities in <strong>India, Poland, and Thailand</strong> at <strong>Vollert</strong>, managed sales operations in China and USA, and drove internationalisation of a previously Germany-focused business.",
+          "context_anchor": "at Vollert"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Led €75M / 400-employee business at <strong>Spear</strong> and grew <strong>Vollert</strong> from €60M to €90M with 300 employees — directly comparable to the €60M / 170-FTE StrikoWestofen scope.",
+          "context_anchor": "at Vollert"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "Career spanning industrial machinery (<strong>Vollert</strong> — heavy logistics equipment), specialty vehicles (<strong>Spear</strong>), and coating machinery (<strong>Coatema</strong>). Deep R&D and engineering credentials with 65 patents to his name.",
+          "context_anchor": "at Vollert"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker based in Steinheim, NRW — within commuting distance of Wiehl. Currently between roles and available immediately.",
+          "context_anchor": "at Steinheim"
+        }
+      ],
+      "compensation": {
+        "current_base": "€200,000 (most recent at Spear)",
+        "current_bonus": "€50,000",
+        "current_lti": "None (family-owned)",
+        "current_total": "€250,000",
+        "expected_total": "Not explicitly stated; €250K provides baseline",
+        "flexibility": "Did not indicate compensation would be a barrier. Currently between roles, which may increase flexibility.",
+        "notice_period": "Immediately available",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Transformation mandate matches sweet spot",
+          "detail": "The scale, international complexity, and PE-backed growth agenda directly align with his Vollert experience."
+        },
+        {
+          "type": "push",
+          "headline": "Available immediately after Spear exit",
+          "detail": "Currently between roles following December 2024 departure, actively seeking the right next leadership opportunity."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Pattern of 2-5 year tenures with two departures linked to post-acquisition or organisational changes — may indicate difficulty with ownership transitions",
+          "severity": "development"
+        },
+        {
+          "concern": "Most recent role at Spear was more regionally focused (DACH) than globally operational, though Vollert experience was strongly international",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We see Deimel as a highly compelling candidate with exceptional energy and executive presence. His Vollert experience mirrors the target role almost exactly — growing an industrial machinery business from €60M to €90M while building international production operations. His technical credentials (65 patents), immediate availability, and hands-on global operations experience position him as a potential strong fit for the transformation mandate."
+      }
+    },
+    {
+      "candidate_name": "Lukas Armatys",
+      "candidate_id": "lukas-armatys",
+      "current_title": "Managing Director",
+      "current_company": "Steinert",
+      "location": "Hamburg, Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€8-10M at Steinert; €60-65M at Bühler Group; grew Kaiser Filter Tech €30M to €50M",
+          "role_requirement": "€60M revenue",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "30 at Steinert; 30-35 at Bühler; 300 at Kaiser Filter Tech",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Multi-country experience across Europe, Africa, Asia; led operations in South Africa, Middle East, Turkey",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "€60-65M business unit at Bühler Group",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Industrial machinery — screening/sorting (Steinert), food processing (Bühler), filtration (Kaiser Filter Tech)",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "strong"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "At <strong>Kaiser Filter Tech</strong>, led comprehensive cultural change and turnaround of unprofitable operations, growing from €30M to €50M. Explicitly challenged German-centric headquarters mentality — advocates decentralisation based on local needs.",
+          "context_anchor": "at Kaiser Filter Tech"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Exceptional multicultural experience across <strong>Europe, Africa, and Asia</strong> at <strong>Bühler Group</strong>, including South Africa, Middle East, and Turkey. Fluent in multiple languages with proven ability to empower regional teams.",
+          "context_anchor": "at Bühler Group"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Led €60-65M business unit at <strong>Bühler Group</strong> with 30-35 employees and grew <strong>Kaiser Filter Tech</strong> from €30M to €50M with 300 employees across multiple manufacturing sites.",
+          "context_anchor": "at Bühler Group"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "25 years of continuous experience in industrial machinery and capital equipment — screening and sorting (<strong>Steinert/Mogensen</strong>), food processing equipment (<strong>Bühler</strong>), and industrial filtration (<strong>Kaiser Filter Tech</strong>).",
+          "context_anchor": "at Bühler Group"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Fluent German speaker based in Hamburg. Willing to relocate or commute for the right opportunity, with established pattern of on-site operational leadership.",
+          "context_anchor": "at Hamburg"
+        }
+      ],
+      "compensation": {
+        "current_base": "€190,000",
+        "current_bonus": "€50,000-60,000",
+        "current_lti": "None",
+        "current_total": "€240,000-250,000",
+        "expected_total": "To be discussed",
+        "flexibility": "Pragmatic approach — stated compensation is 'part of the job' rather than primary driver. Acknowledged client's proposed base + 30% STI + 30% LTI structure without objection.",
+        "notice_period": "~6 months; contract through end of 2025",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Transformation mandate is his sweet spot",
+          "detail": "The challenge of shifting from German-centric to globally integrated operations directly matches his career thesis."
+        },
+        {
+          "type": "push",
+          "headline": "Constrained by ownership turmoil at Steinert",
+          "detail": "Five ownership changes in under three years including insolvency have limited his ability to execute a long-term strategy."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Strong reservations about automotive industry exposure — stated it 'gives me a lot of bad days' — despite role's 50%+ automotive revenue base",
+          "severity": "significant"
+        },
+        {
+          "concern": "Current scope at Steinert (€8-10M, 30 people) is well below peak; real comparable experience is 4+ years dated at Bühler/Kaiser",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Armatys is a standout candidate who interviews exceptionally well and brings the right combination of hands-on leadership, multicultural sophistication, and resilience to drive the transformation Norican needs. His commanding executive presence, proven ability to navigate complex organisational transitions, and explicit philosophy of decentralisation directly address the brief. The automotive reservation warrants discussion but does not disqualify."
+      }
+    },
+    {
+      "candidate_name": "Dirk Voessing",
+      "candidate_id": "dirk-voessing",
+      "current_title": "CEO",
+      "current_company": "MSB Maschinenbau GmbH",
+      "location": "Düren, Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€20-25M at MSB; previously €170M at Bielomatik",
+          "role_requirement": "€60M revenue",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "~100 at MSB; 800-900 at Bielomatik",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Led operations across Germany, Italy, China, and international locations at Bielomatik",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "€170M at Bielomatik; €20-25M current at MSB",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Industrial machinery — conveying systems for paper, automotive, pharmaceutical (MSB); packaging/welding (Bielomatik)",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "strong"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "At <strong>Bielomatik</strong>, converted a German export business into a globally integrated operation, establishing international subsidiaries and growing China production from 30 to 200+ employees. At <strong>MSB</strong>, overcame significant resistance from family shareholders.",
+          "context_anchor": "at Bielomatik"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Managed multi-site international operations across <strong>Germany, Italy, China</strong> at <strong>Bielomatik</strong>, driving technology transfer from Germany to China and establishing global production model — directly mirrors the StrikoWestofen mandate.",
+          "context_anchor": "at Bielomatik"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Led €170M / 800-900 employee business at <strong>Bielomatik</strong>, significantly exceeding the target scope. Current €20-25M role at <strong>MSB</strong> demonstrates comfort operating at smaller scale too.",
+          "context_anchor": "at Bielomatik"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "Career spanning industrial machinery and capital equipment — conveying systems at <strong>MSB</strong>, packaging/welding technology at <strong>Bielomatik</strong>. Deep sector credibility in German industrial manufacturing.",
+          "context_anchor": "at MSB / Bielomatik"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker based in Düren — within reasonable commuting distance of Wiehl. Eight years at current single-site role demonstrates commitment to on-site leadership.",
+          "context_anchor": "at MSB"
+        }
+      ],
+      "compensation": {
+        "current_base": "€190,000",
+        "current_bonus": "~€50,000 (P&L-based)",
+        "current_lti": "Not mentioned",
+        "current_total": "~€240,000",
+        "expected_total": "Seeking increase to justify move",
+        "flexibility": "Indicated current base of €190K and bonus of €50K; likely seeking uplift to justify leaving an 8-year CEO position.",
+        "notice_period": "6-9 months (best case 6 months to end of quarter)",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Global transformation role is compelling",
+          "detail": "The mandate to shift from German-centric to globally integrated operations directly mirrors his Bielomatik experience."
+        },
+        {
+          "type": "push",
+          "headline": "Eight years at single-location MSB",
+          "detail": "May have reached the ceiling of what the family-owned, single-site business can offer."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Large-scale international matrix leadership experience at Bielomatik is eight years dated; current role lacks the multi-site, PE-backed complexity required",
+          "severity": "significant"
+        },
+        {
+          "concern": "6-9 month notice period could delay start significantly",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Voessing's direct experience transforming German-centric operations into global businesses at Bielomatik, combined with his proven ability to overcome cultural resistance and manage multi-site international teams, makes him a strong strategic fit for the StrikoWestofen mandate. The key question is whether his current eight-year tenure at a single-site €20-25M business has dulled the operational intensity needed for this transformation."
+      }
+    },
+    {
+      "candidate_name": "Rainer Janotta",
+      "candidate_id": "rainer-janotta",
+      "current_title": "Chief Technology Officer",
+      "current_company": "Frimo Group",
+      "location": "Osnabrück, Germany",
+      "status": "Active",
+      "generated_date": "30 Mar 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€145M at Frimo Group; €230M at Motherson",
+          "role_requirement": "€60M revenue",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "900 employees at Frimo across 6 countries; 1,200 at Motherson",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Multi-country: Germany, Hungary, China, USA, Mexico at Frimo; global at Motherson",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site)",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "€145M P&L at Frimo Group",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Capital equipment for automotive, aerospace, furniture, and industrial markets",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "strong"
+        }
+      ],
+      "key_criteria": [
+        {
+          "name": "Strong leadership experience with cultural transformation capability",
+          "evidence": "At <strong>Frimo Group</strong>, shifted production from two of four German sites to Hungary and China, repositioning Germany as a technology and innovation centre. At <strong>Motherson</strong>, led turnaround of a €230M / 1,200-employee operation acquired out of insolvency with significant workforce restructuring.",
+          "context_anchor": "at Frimo Group"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Manages operations across <strong>six countries</strong> at <strong>Frimo Group</strong> including Germany, Hungary, China, USA, and Mexico. Previously drove global integration at <strong>Motherson</strong> including technology transfer and international production establishment.",
+          "context_anchor": "at Frimo Group"
+        },
+        {
+          "name": "Comfortable running similar-sized business",
+          "evidence": "Currently CTO with full P&L responsibility for €145M revenue and 900 employees at <strong>Frimo Group</strong> — significantly exceeding the target scope. Comfortable operating at both larger (Motherson €230M) and smaller scales.",
+          "context_anchor": "at Frimo Group"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "40 years in capital equipment manufacturing spanning <strong>Frimo Group</strong> (tooling for automotive/aerospace), <strong>Motherson</strong> (automotive components), and prior roles. Deep engineering and operational credentials.",
+          "context_anchor": "at Frimo Group"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker based in Osnabrück. Open to relocation and comfortable with the Monday-Friday commuting arrangement the role requires.",
+          "context_anchor": "at Frimo Group"
+        }
+      ],
+      "compensation": {
+        "current_base": "€180,000",
+        "current_bonus": "€30,000",
+        "current_lti": "None",
+        "current_total": "€210,000",
+        "expected_total": "Not explicitly stated",
+        "flexibility": "Consultant noted client can 'absolutely make a competitive offer.' Current package of €210K is below the role's budget range, suggesting compensation would not be a barrier.",
+        "notice_period": "6 months, potentially negotiable",
+        "budget_base": "€175,000",
+        "budget_bonus": "30% of base salary",
+        "budget_lti": "LTIP ~30%"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Technology centre model is his expertise",
+          "detail": "The mandate to position StrikoWestofen as a technology and innovation centre directly mirrors what he is executing at Frimo."
+        },
+        {
+          "type": "push",
+          "headline": "Seeking right-sized P&L ownership",
+          "detail": "Current CTO title may understate his operational scope; the SVP role offers clear P&L ownership at an appropriate scale."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Entire 40-year career within German-headquartered industrial organisations may limit ability to drive the cultural shift from 'German exporter' to 'global technology centre' mindset",
+          "severity": "development"
+        },
+        {
+          "concern": "CTO title rather than MD/CEO may indicate technology-first rather than commercial-first leadership orientation",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Janotta brings proven operational transformation credentials at directly relevant scale — his work shifting Frimo's production from Germany to Hungary and China while positioning Germany as a technology centre is essentially the StrikoWestofen playbook. His 40-year German industrial career is both a strength (deep credibility) and a flag (potential mindset limitation). Compensation would not be a barrier given the step-up from his current €210K package."
+      }
+    }
+  ]
 }

@@ -331,7 +331,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     return {
       search_name: fixture.search_name || searchId,
       client_company: fixture.client_company || '',
-      client_location: fixture.client_location || '',
+      client_location: fixture.client_location || (fixture as unknown as Record<string, string>).location || '',
       client_logo_url: fixture.client_logo_url,
       key_criteria_names: fixture.key_criteria_names || [],
       search_lead: fixture.search_lead || '',
