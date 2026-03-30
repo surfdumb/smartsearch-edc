@@ -9,7 +9,7 @@ interface EDCStatusBarProps {
   searchId: string;
   candidateName: string;
   roleTitle: string;
-  onLock: () => void;
+  onLock: () => void | Promise<void>;
   onUnlock: () => void;
   onReset?: () => void;
 }
@@ -34,8 +34,8 @@ export default function EDCStatusBar({
       ? `${window.location.origin}/search/${searchId}/edc/${candidateId}`
       : "";
 
-  const handleLockConfirm = () => {
-    onLock();
+  const handleLockConfirm = async () => {
+    await onLock();
     setShowLockModal(false);
     setShowShareDialog(true);
   };

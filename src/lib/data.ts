@@ -46,6 +46,45 @@ function attachPhotos(candidates: IntroCardData[], photos: Record<string, string
   }
 }
 
+// ─── Blob edit overlays ─────────────────────────────────────────────────────
+
+/** Fetch all persisted edit overlays for a search. Returns map of candidateId → EDCData. */
+async function getEditOverlays(searchId: string): Promise<Record<string, EDCData>> {
+  if (!BLOB_ENABLED) return {};
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ prefix: `edits/${searchId}/` });
+    if (blobs.length === 0) return {};
+    const overlays: Record<string, EDCData> = {};
+    await Promise.all(blobs.map(async (blob) => {
+      const filename = blob.pathname.split('/').pop() || '';
+      const candidateId = filename.replace(/\.json$/, '');
+      if (!candidateId) return;
+      try {
+        const res = await fetch(blob.url);
+        if (res.ok) overlays[candidateId] = await res.json();
+      } catch { /* ignore individual fetch failures */ }
+    }));
+    return overlays;
+  } catch {
+    return {};
+  }
+}
+
+/** Apply edit overlays to candidates — overlays replace full edc_data */
+function applyEditOverlays(candidates: IntroCardData[], overlays: Record<string, EDCData>) {
+  for (const c of candidates) {
+    const overlay = overlays[c.candidate_id];
+    if (overlay) {
+      c.edc_data = overlay;
+      c.candidate_name = overlay.candidate_name;
+      c.current_title = overlay.current_title;
+      c.current_company = overlay.current_company;
+      c.location = overlay.location;
+    }
+  }
+}
+
 // ─── Fixture loader ──────────────────────────────────────────────────────────
 
 type FixtureData = SearchContext & {
@@ -155,6 +194,16 @@ export async function getCandidateData(
   searchId: string,
   candidateId: string
 ): Promise<EDCData | null> {
+  // -1. Check for persisted edit overlay (highest priority — locked edits from consultant)
+  const overlays = await getEditOverlays(searchId);
+  if (overlays[candidateId]) {
+    // Attach photo if uploaded
+    const photos = await getPhotoUrls(searchId);
+    const overlay = overlays[candidateId];
+    if (photos[candidateId]) overlay.photo_url = photos[candidateId];
+    return overlay;
+  }
+
   const fixture = await loadFixture(searchId);
 
   // 0. Fixture with pre-structured candidates — highest priority, no enrichment needed
@@ -367,9 +416,11 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       } as IntroCardData;
     });
 
-    // Attach uploaded photos from Vercel Blob
+    // Attach uploaded photos and edit overlays from Vercel Blob
     const photos = await getPhotoUrls(searchId);
     attachPhotos(candidates, photos);
+    const editOverlays = await getEditOverlays(searchId);
+    applyEditOverlays(candidates, editOverlays);
 
     return {
       search_name: fixture.search_name || searchId,
@@ -521,6 +572,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
           const photos = await getPhotoUrls(searchId);
           attachPhotos(candidates, photos);
+          const eo1 = await getEditOverlays(searchId);
+          applyEditOverlays(candidates, eo1);
           return {
             search_name: fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
@@ -624,6 +677,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
         const photos2 = await getPhotoUrls(searchId);
         attachPhotos(context.candidates, photos2);
+        const eo2 = await getEditOverlays(searchId);
+        applyEditOverlays(context.candidates, eo2);
         return context;
       }
     } catch (err) {

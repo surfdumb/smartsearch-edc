@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import DeckNavigation from "@/components/deck/DeckNavigation";
 import EDCStatusBar from "@/components/deck/EDCStatusBar";
 import EDCCard from "@/components/edc/EDCCard";
@@ -72,9 +72,86 @@ export default function DeckEDCView({
   }, [candidate.candidate_id]);
 
   // Merge any generated/stored Our Take into the EDC data
-  const edcWithOurTake: EDCData = ourTakeOverride
-    ? { ...edc, our_take: { ...edc.our_take, ...ourTakeOverride } }
-    : edc;
+  const edcWithOurTake: EDCData = useMemo(() =>
+    ourTakeOverride
+      ? { ...edc, our_take: { ...edc.our_take, ...ourTakeOverride } }
+      : edc,
+    [edc, ourTakeOverride]
+  );
+
+  // Collect all localStorage edits, merge into full EDCData, and POST to server
+  const handleLock = useCallback(async () => {
+    const cid = candidate.candidate_id;
+    const merged: EDCData = { ...edcWithOurTake };
+
+    try {
+      // Header edits
+      const headerRaw = localStorage.getItem(`edc_edit_${cid}_header`);
+      if (headerRaw) {
+        const h = JSON.parse(headerRaw);
+        if (h.candidate_name) merged.candidate_name = h.candidate_name;
+        if (h.current_title) merged.current_title = h.current_title;
+        if (h.current_company) merged.current_company = h.current_company;
+        if (h.location) merged.location = h.location;
+      }
+
+      // Scope edits
+      const scopeRaw = localStorage.getItem(`edc_edit_${cid}_scope`);
+      if (scopeRaw) merged.scope_match = JSON.parse(scopeRaw);
+
+      // Criteria edits
+      const criteriaRaw = localStorage.getItem(`edc_edit_${cid}_criteria`);
+      if (criteriaRaw) merged.key_criteria = JSON.parse(criteriaRaw);
+
+      // Compensation edits
+      const compRaw = localStorage.getItem(`edc_edit_${cid}_comp`);
+      if (compRaw) {
+        const c = JSON.parse(compRaw);
+        if (c.comp) merged.compensation = c.comp;
+        if (c.notice) merged.notice_period = c.notice;
+      }
+
+      // Our Take edits
+      const otRaw = localStorage.getItem(`edc_edit_${cid}_ourtake`);
+      if (otRaw) {
+        const ot = JSON.parse(otRaw);
+        if (ot.fragments) merged.our_take_fragments = ot.fragments;
+        if (ot.text !== undefined) merged.our_take = { ...merged.our_take, text: ot.text };
+        if (ot.name && ot.showName) merged.consultant_name = ot.name;
+      }
+
+      // Motivation edits
+      const motRaw = localStorage.getItem(`edc_edit_${cid}_motivation`);
+      if (motRaw) merged.motivation_hook = motRaw;
+
+      // Photo URL
+      const photoUrl = localStorage.getItem(`edc_photo_${cid}`);
+      if (photoUrl) merged.photo_url = photoUrl;
+    } catch (err) {
+      console.warn('[lock] Failed to collect localStorage edits:', err);
+    }
+
+    // POST to server
+    try {
+      const res = await fetch('/api/edits/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchId, candidateId: cid, edcData: merged }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        console.error('[lock] Save failed:', err);
+        alert('Failed to save edits. Please try again.');
+        return;
+      }
+    } catch (err) {
+      console.error('[lock] Save request failed:', err);
+      alert('Failed to save edits. Please check your connection and try again.');
+      return;
+    }
+
+    lock();
+  }, [candidate.candidate_id, edcWithOurTake, searchId, lock]);
 
   return (
     <EditorContext.Provider value={{ isEditable }}>
@@ -97,7 +174,7 @@ export default function DeckEDCView({
             searchId={searchId}
             candidateName={edc.candidate_name}
             roleTitle={edc.role_title}
-            onLock={lock}
+            onLock={handleLock}
             onUnlock={unlock}
             onReset={() => {
               const cid = candidate.candidate_id;
