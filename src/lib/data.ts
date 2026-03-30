@@ -131,6 +131,11 @@ export async function getCandidateData(
                   edcData.current_title = edsTitle;
                 }
               }
+
+              // Override footer metadata from fixture
+              if (fixture?.client_company) edcData.search_name = fixture.client_company;
+              else if (fixture?.search_name) edcData.search_name = fixture.search_name;
+              if (fixture?.search_name) edcData.role_title = fixture.search_name;
             }
 
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
@@ -246,11 +251,11 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         // JS scope dimensions with role requirements (column 43+)
         const jsScopeDimensions = js[43] || '';
 
-        // Merge fixture + JS criteria names
+        // Fixture criteria names are sacred — always prefer over JS names
         const fixtureCriteriaNames = fixture?.key_criteria_names || [];
-        const effectiveCriteriaNames = keyCriteriaNames.length > 0
-          ? keyCriteriaNames
-          : fixtureCriteriaNames;
+        const effectiveCriteriaNames = fixtureCriteriaNames.length > 0
+          ? fixtureCriteriaNames
+          : keyCriteriaNames;
         const fixtureStatuses = fixture?.candidate_statuses || {};
 
         // Build candidates from structured EDC JSON
@@ -316,6 +321,17 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
                 if (edsTitle && !/^IV\s+/i.test(edsTitle)) {
                   edcData.current_title = edsTitle;
                 }
+              }
+
+              // Override footer metadata from fixture — search_name uses client_company,
+              // role_title uses fixture search_name (the role portion)
+              if (fixture?.client_company) {
+                edcData.search_name = fixture.client_company;
+              } else if (fixture?.search_name) {
+                edcData.search_name = fixture.search_name;
+              }
+              if (fixture?.search_name) {
+                edcData.role_title = fixture.search_name;
               }
 
               return {
@@ -418,10 +434,9 @@ function enrichScopeFromEDS(
   jsScopeDimensions: string,
   fixtureRequirements?: Record<string, string>
 ) {
-  const allEmpty = edcData.scope_match.every(
+  const allCandidateEmpty = edcData.scope_match.every(
     (s) => s.candidate_actual === 'Not assessed' || !s.candidate_actual
   );
-  if (!allEmpty) return;
 
   const scopeText = eds[21] || '';
   const assessmentText = eds[20] || '';
@@ -440,48 +455,43 @@ function enrichScopeFromEDS(
   for (const scopeItem of edcData.scope_match) {
     const dimLower = scopeItem.scope.toLowerCase();
 
-    // ── CANDIDATE ACTUAL ──
+    // ── CANDIDATE ACTUAL (only when not already populated) ──
+    if (allCandidateEmpty) {
+      // 1. Try prose text search in scope column + assessment
+      const scopeMatch = findValueForDimension(scopeText, dimLower);
+      if (scopeMatch) {
+        scopeItem.candidate_actual = scopeMatch;
+      }
+      if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+        const assessMatch = findValueForDimension(assessmentText, dimLower);
+        if (assessMatch) scopeItem.candidate_actual = assessMatch;
+      }
 
-    // 1. Try prose text search in scope column + assessment
-    const scopeMatch = findValueForDimension(scopeText, dimLower);
-    if (scopeMatch) {
-      scopeItem.candidate_actual = scopeMatch;
-    }
-    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
-      const assessMatch = findValueForDimension(assessmentText, dimLower);
-      if (assessMatch) scopeItem.candidate_actual = assessMatch;
-    }
+      // 2. Try specific EDS field mapping
+      if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+        for (const [key, value] of Object.entries(fieldMap)) {
+          if (dimLower.includes(key) && value && value.trim()) {
+            scopeItem.candidate_actual = value.trim();
+            break;
+          }
+        }
+      }
 
-    // 2. Try specific EDS field mapping
-    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
-      for (const [key, value] of Object.entries(fieldMap)) {
-        if (dimLower.includes(key) && value && value.trim()) {
-          scopeItem.candidate_actual = value.trim();
-          break;
+      // 3. For P&L/revenue: regex search in assessment + overview
+      if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
+        if (dimLower.includes('p&l') || dimLower.includes('revenue') || dimLower.includes('turnover')) {
+          const combined = (assessmentText + ' ' + overviewText);
+          const revenueMatch = combined.match(
+            /(?:revenue|turnover|p&l|sales)\s*(?:of|:)?\s*(?:approximately?\s*)?([€$£][\d,.']+\s*(?:m(?:illion)?|bn|k)?)/i
+          );
+          if (revenueMatch) scopeItem.candidate_actual = revenueMatch[1].trim();
         }
       }
     }
 
-    // 3. For P&L/revenue: regex search in assessment + overview
-    if (scopeItem.candidate_actual === 'Not assessed' || !scopeItem.candidate_actual) {
-      if (dimLower.includes('p&l') || dimLower.includes('revenue') || dimLower.includes('turnover')) {
-        const combined = (assessmentText + ' ' + overviewText);
-        const revenueMatch = combined.match(
-          /(?:revenue|turnover|p&l|sales)\s*(?:of|:)?\s*(?:approximately?\s*)?([€$£][\d,.']+\s*(?:m(?:illion)?|bn|k)?)/i
-        );
-        if (revenueMatch) scopeItem.candidate_actual = revenueMatch[1].trim();
-      }
-    }
+    // ── ROLE REQUIREMENT (always try — fixture requirements are search-level constants) ──
 
-    // ── ROLE REQUIREMENT ──
-
-    // 1. Try JS scope dimensions text
-    if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && jsScopeDimensions) {
-      const reqMatch = findValueForDimension(jsScopeDimensions, dimLower);
-      if (reqMatch) scopeItem.role_requirement = reqMatch;
-    }
-
-    // 2. Try fixture requirements map (case-insensitive contains match)
+    // 1. Try fixture requirements map first (most reliable for Norican)
     if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && fixtureRequirements) {
       for (const [key, value] of Object.entries(fixtureRequirements)) {
         if (dimLower.includes(key.toLowerCase()) || key.toLowerCase().includes(dimLower.split(/\s+/)[0])) {
@@ -489,6 +499,12 @@ function enrichScopeFromEDS(
           break;
         }
       }
+    }
+
+    // 2. Try JS scope dimensions text as fallback
+    if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && jsScopeDimensions) {
+      const reqMatch = findValueForDimension(jsScopeDimensions, dimLower);
+      if (reqMatch) scopeItem.role_requirement = reqMatch;
     }
   }
 }
@@ -561,16 +577,17 @@ function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
   const currentText = eds[10] || '';
   const expectedText = eds[11] || '';
 
-  // Detect "not disclosed" in current comp
+  // ── Current compensation ──
   if (isCompNotDisclosed(currentText) || isCompNotDisclosed(comp.current_total)) {
     comp.current_base = 'Not disclosed';
     comp.current_total = 'Not disclosed';
     comp.current_bonus = undefined;
     comp.current_lti = undefined;
     comp.current_benefits = undefined;
-  } else if (comp.current_base && comp.current_base.length > 100) {
-    // Re-parse bloated base field
-    const parsed = parseCompFromBlob(currentText || comp.current_base);
+  } else if (currentText) {
+    // Always re-parse from EDS raw text when available — normalizeEDCJson
+    // uses a weaker parser that can't handle inline + / = delimiters
+    const parsed = parseCompFromBlob(currentText);
     if (parsed.base) comp.current_base = parsed.base;
     if (parsed.bonus) comp.current_bonus = parsed.bonus;
     if (parsed.lti) comp.current_lti = parsed.lti;
@@ -578,23 +595,40 @@ function enrichCompFromEDS(edcData: EDCData, eds: string[]) {
     if (parsed.total) comp.current_total = parsed.total;
   }
 
-  // Detect "not disclosed" in expected comp
+  // ── Expected compensation ──
   if (isCompNotDisclosed(expectedText) || isCompNotDisclosed(comp.expected_total)) {
     comp.expected_base = 'Not disclosed';
     comp.expected_total = 'Not disclosed';
     comp.expected_bonus = undefined;
     comp.expected_lti = undefined;
     comp.expected_benefits = undefined;
-  } else if (comp.expected_base && comp.expected_base.length > 100) {
-    const parsed = parseCompFromBlob(expectedText || comp.expected_base);
-    if (parsed.base) comp.expected_base = parsed.base;
-    if (parsed.bonus) comp.expected_bonus = parsed.bonus;
-    if (parsed.lti) comp.expected_lti = parsed.lti;
-    if (parsed.benefits) comp.expected_benefits = parsed.benefits;
-    if (parsed.total) comp.expected_total = parsed.total;
+  } else if (expectedText) {
+    // Check for "not explicitly stated" or pure prose without amounts
+    const lower = expectedText.toLowerCase();
+    if (lower.includes('not explicitly stated') || lower.includes('to be discussed') ||
+        lower.includes('to be confirmed') || lower.includes('would need to be discussed')) {
+      // Extract amount if one exists, otherwise mark as TBD
+      const amountMatch = expectedText.match(/[€$£][\d,.']+(?:\s*[-–]\s*[€$£]?[\d,.']+)?/);
+      comp.expected_total = amountMatch ? amountMatch[0] : 'To be discussed';
+      comp.expected_base = 'Not mentioned';
+      comp.expected_bonus = undefined;
+      comp.expected_lti = undefined;
+      comp.expected_benefits = undefined;
+      // Move prose to flexibility
+      if (!comp.flexibility || comp.flexibility === 'Not mentioned') {
+        comp.flexibility = expectedText;
+      }
+    } else {
+      const parsed = parseCompFromBlob(expectedText);
+      if (parsed.base) comp.expected_base = parsed.base;
+      if (parsed.bonus) comp.expected_bonus = parsed.bonus;
+      if (parsed.lti) comp.expected_lti = parsed.lti;
+      if (parsed.benefits) comp.expected_benefits = parsed.benefits;
+      if (parsed.total) comp.expected_total = parsed.total;
+    }
   }
 
-  // Extract amounts from long prose in expected/current fields
+  // Extract amounts from any remaining long prose fields
   extractAmountFromProse(comp, 'expected_total');
   extractAmountFromProse(comp, 'expected_base');
   extractAmountFromProse(comp, 'current_total');

@@ -17,6 +17,9 @@ interface CompensationData {
   expected_total: string;
   flexibility: string;
   budget_range?: string;
+  budget_base?: string;
+  budget_bonus?: string;
+  budget_lti?: string;
 }
 
 interface CompensationProps {
@@ -154,7 +157,7 @@ export default function Compensation({ compensation, notice_period }: Compensati
   const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
   const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
   const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
-  const hasBudget = !isEmpty(comp.budget_range);
+  const hasBudget = !isEmpty(comp.budget_range) || !isEmpty(comp.budget_base) || !isEmpty(comp.budget_bonus) || !isEmpty(comp.budget_lti);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -198,19 +201,19 @@ export default function Compensation({ compensation, notice_period }: Compensati
         {hasStructuredRows ? (
           <>
             <CompRow label="Base" current={comp.current_base} expected={comp.expected_base}
-              budget={comp.budget_range} hasBudget={hasBudget} cols={cols}
+              budget={comp.budget_base} hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_base", v)}
               onUpdateExpected={(v) => update("expected_base", v)} />
             <CompRow label="Bonus" current={comp.current_bonus} expected={comp.expected_bonus}
-              hasBudget={hasBudget} cols={cols}
+              budget={comp.budget_bonus} hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_bonus", v)}
               onUpdateExpected={(v) => update("expected_bonus", v)} />
             <CompRow label="LTI" current={comp.current_lti} expected={comp.expected_lti}
-              hasBudget={hasBudget} cols={cols}
+              budget={comp.budget_lti} hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_lti", v)}

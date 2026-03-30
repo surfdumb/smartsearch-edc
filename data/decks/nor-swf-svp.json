@@ -15,10 +15,11 @@
   "job_summary_pdf_url": null,
   "scope_requirements": {
     "P&L": "€60M revenue",
+    "Revenue": "€60M revenue",
     "Headcount": "170 FTEs globally",
-    "Geography": "Germany, Czech Republic, China, India, US",
-    "Industry Segment": "Industrial technology / foundry / casting",
-    "Organizational Complexity": "Matrix across 5 countries, PE-backed"
+    "Geography": "Wiehl, Germany (3+ days/week on-site)",
+    "Industry": "Industrial technology / foundry / casting",
+    "Organizational": "Matrix across 5 countries, PE-backed"
   },
   "deck_settings": {
     "match_score_display": "HIDE",

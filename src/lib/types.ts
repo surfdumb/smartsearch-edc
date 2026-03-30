@@ -47,6 +47,9 @@ export interface EDCData {
     expected_total: string;
     flexibility: string;
     budget_range?: string;
+    budget_base?: string;
+    budget_bonus?: string;
+    budget_lti?: string;
   };
   notice_period: string;
   earliest_start_date?: string;

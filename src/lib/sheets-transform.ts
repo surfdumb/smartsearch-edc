@@ -93,19 +93,30 @@ export function parseKeyCriteria(
     return names.map((name) => ({ name, evidence: 'Assessment pending' }));
   }
 
-  // Helper: extract context anchor from evidence text
+  // Helper: extract context anchor (company name) from evidence text
   function extractAnchor(evidence: string): string | undefined {
-    const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+in|\s+for|\s+from|\s+during|[.,]|\s+he|\s+she|\s+they|\s+and)/);
-    return atMatch ? `at ${atMatch[1].trim()}` : undefined;
+    // Pattern 1: "at CompanyName" followed by positional/temporal word
+    const atMatch = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&.,'-]{2,40?})(?=\s+(?:in|for|from|during|where|with|he|she|they|and|,|\.))/);
+    if (atMatch) return `at ${atMatch[1].trim().replace(/[,.]$/, '')}`;
+    // Pattern 2: "at CompanyName" at end of sentence
+    const atEnd = evidence.match(/\bat\s+([A-Z][A-Za-z0-9\s&'-]{2,30}?)\.?\s*$/);
+    if (atEnd) return `at ${atEnd[1].trim().replace(/[,.]$/, '')}`;
+    return undefined;
   }
 
   // Strategy 0: Markdown bold-header format from key_criteria_assessment_prose
   // Format: "**1. Criterion Name:** Rating\nEvidence text\n\n**2. Next:**..."
   // Parse numbered bold sections and map by index to criteria names array
-  const paragraphs = criteriaText.split(/\n\n+/).filter((p) => p.trim());
+  // Split on any newline before a numbered bold header (handles both \n and \n\n separators)
+  const sections = criteriaText.split(/\n(?=\*\*\d+\.)/).filter((s) => s.trim());
+  // Also check double-newline split for non-numbered headers (like "Key Criteria Source")
+  const allParagraphs = criteriaText.split(/\n\n+/).filter((p) => p.trim());
+
   const boldBlocks: { header: string; body: string; num: number | null }[] = [];
-  for (const para of paragraphs) {
-    const headerMatch = para.match(/^\*\*(.+?)\*\*:?\s*([\s\S]*)/);
+
+  // First pass: extract numbered sections from the aggressive split
+  for (const section of sections) {
+    const headerMatch = section.match(/^\*\*(.+?)\*\*:?\s*([\s\S]*)/);
     if (headerMatch) {
       const rawHeader = headerMatch[1].trim();
       const numMatch = rawHeader.match(/^(\d+)\.\s*/);
@@ -113,6 +124,22 @@ export function parseKeyCriteria(
       const header = rawHeader.replace(/^\d+\.\s*/, '').trim();
       const body = headerMatch[2].trim();
       boldBlocks.push({ header, body, num });
+    }
+  }
+
+  // If aggressive split didn't find numbered blocks, try the double-newline split
+  if (boldBlocks.filter((b) => b.num !== null).length < 2) {
+    boldBlocks.length = 0;
+    for (const para of allParagraphs) {
+      const headerMatch = para.match(/^\*\*(.+?)\*\*:?\s*([\s\S]*)/);
+      if (headerMatch) {
+        const rawHeader = headerMatch[1].trim();
+        const numMatch = rawHeader.match(/^(\d+)\.\s*/);
+        const num = numMatch ? parseInt(numMatch[1]) : null;
+        const header = rawHeader.replace(/^\d+\.\s*/, '').trim();
+        const body = headerMatch[2].trim();
+        boldBlocks.push({ header, body, num });
+      }
     }
   }
 
@@ -127,14 +154,19 @@ export function parseKeyCriteria(
       let evidence = '';
       if (block) {
         evidence = block.body;
+        // Strip any remaining markdown bold markers
+        evidence = evidence.replace(/\*\*/g, '');
         // Remove standalone rating words at the start
         evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
-        // Take first meaningful chunk (up to ~200 chars at a sentence boundary)
-        if (evidence.length > 200) {
-          const cutPoint = evidence.slice(0, 200).lastIndexOf('.');
-          if (cutPoint > 80) evidence = evidence.slice(0, cutPoint + 1);
-          else evidence = evidence.slice(0, 200) + '...';
+        // Strip repeated criterion name at start of evidence (sometimes duplicated)
+        const headerLower = block.header.toLowerCase().replace(/[:.]/g, '').trim();
+        const evidenceLower = evidence.toLowerCase();
+        if (evidenceLower.startsWith(headerLower)) {
+          evidence = evidence.slice(headerLower.length).replace(/^[:\s]*/, '').trim();
+          // Re-strip rating after name removal
+          evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
         }
+        // No truncation — show full evidence text for consultant review
       }
 
       return {
@@ -577,6 +609,9 @@ export function transformToEDCData(
       expected_total: expectedCompParsed.total || eds[11] || 'Not mentioned',
       flexibility: eds[12] || 'Not mentioned',
       budget_range: budgetParts.length > 0 ? budgetParts.join(' · ') : undefined,
+      budget_base: js[34] || undefined,
+      budget_bonus: js[35] || undefined,
+      budget_lti: js[36] || undefined,
     },
     notice_period: eds[13] || 'Not mentioned',
     earliest_start_date: eds[14] || 'Not mentioned',
