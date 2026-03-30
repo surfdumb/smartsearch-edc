@@ -75,7 +75,12 @@ function fixtureCandidateToEDCData(
     current_company: (c.current_company as string) || '',
     location: (c.location as string) || '',
     photo_url: c.photo_url as string | undefined,
-    scope_match: (c.scope_match || []) as EDCData['scope_match'],
+    scope_match: ((c.scope_match || []) as Record<string, string>[]).map(s => ({
+      scope: s.scope || s.dimension || '',
+      candidate_actual: s.candidate_actual || '',
+      role_requirement: s.role_requirement || '',
+      alignment: (s.alignment || 'not_assessed') as 'strong' | 'partial' | 'gap' | 'not_assessed',
+    })),
     scope_seasoning: (c.scope_seasoning as string) || '',
     key_criteria: (c.key_criteria || []) as EDCData['key_criteria'],
     compensation: {
