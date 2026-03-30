@@ -148,27 +148,28 @@ export function parseKeyCriteria(
     .filter((b) => b.num !== null)
     .sort((a, b) => a.num! - b.num!);
 
+  // Helper: clean evidence text from a bold block
+  function cleanBlockEvidence(block: { header: string; body: string }): string {
+    let evidence = block.body;
+    // Strip any remaining markdown bold markers
+    evidence = evidence.replace(/\*\*/g, '');
+    // Remove standalone rating words at the start
+    evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
+    // Strip repeated criterion name at start of evidence (sometimes duplicated)
+    const headerLower = block.header.toLowerCase().replace(/[:.]/g, '').trim();
+    const evidenceLower = evidence.toLowerCase();
+    if (evidenceLower.startsWith(headerLower)) {
+      evidence = evidence.slice(headerLower.length).replace(/^[:\s]*/, '').trim();
+      // Re-strip rating after name removal
+      evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
+    }
+    return evidence;
+  }
+
   if (numberedBlocks.length >= 2) {
     return names.map((name, i) => {
       const block = numberedBlocks[i]; // index-based: criteria[0] → section 1
-      let evidence = '';
-      if (block) {
-        evidence = block.body;
-        // Strip any remaining markdown bold markers
-        evidence = evidence.replace(/\*\*/g, '');
-        // Remove standalone rating words at the start
-        evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
-        // Strip repeated criterion name at start of evidence (sometimes duplicated)
-        const headerLower = block.header.toLowerCase().replace(/[:.]/g, '').trim();
-        const evidenceLower = evidence.toLowerCase();
-        if (evidenceLower.startsWith(headerLower)) {
-          evidence = evidence.slice(headerLower.length).replace(/^[:\s]*/, '').trim();
-          // Re-strip rating after name removal
-          evidence = evidence.replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '').trim();
-        }
-        // No truncation — show full evidence text for consultant review
-      }
-
+      const evidence = block ? cleanBlockEvidence(block) : '';
       return {
         name,
         evidence: evidence || 'Assessment pending',
@@ -177,15 +178,65 @@ export function parseKeyCriteria(
     });
   }
 
+  // Strategy 0.5: Unnumbered bold-header format — **Criterion Name:** Rating\nEvidence
+  // Filter out metadata blocks (e.g., "Key Criteria Source") and match to criteria by keyword similarity
+  const unnumberedBlocks = boldBlocks.filter((b) => {
+    const h = b.header.toLowerCase();
+    return b.num === null && !h.includes('key criteria source') && !h.includes('source:');
+  });
+
+  if (unnumberedBlocks.length >= 2) {
+    // Match blocks to criteria names by keyword similarity (not just index)
+    // because EDS block order may differ from fixture criteria order
+    return names.map((name) => {
+      const nameWords = name.toLowerCase().replace(/[&]/g, 'and').split(/[\s,/]+/)
+        .filter((w) => w.length > 3 && !['with', 'the', 'and', 'for', 'that', 'this', 'from', 'ability'].includes(w));
+
+      let bestBlock: typeof unnumberedBlocks[0] | null = null;
+      let bestScore = 0;
+
+      for (const block of unnumberedBlocks) {
+        const headerLower = block.header.toLowerCase();
+        let score = 0;
+        for (const word of nameWords) {
+          if (headerLower.includes(word)) score++;
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestBlock = block;
+        }
+      }
+
+      // Fall back to index if no keyword match found
+      if (!bestBlock && unnumberedBlocks.length > 0) {
+        bestBlock = unnumberedBlocks[names.indexOf(name)] || null;
+      }
+
+      const evidence = bestBlock ? cleanBlockEvidence(bestBlock) : '';
+      return {
+        name,
+        evidence: evidence || 'Assessment pending',
+        context_anchor: evidence ? extractAnchor(evidence) : undefined,
+      };
+    });
+  }
+
+  // Helper: strip markdown + rating from any evidence string
+  function stripMarkdownAndRating(text: string): string {
+    return text
+      .replace(/\*\*/g, '')
+      .replace(/^(?:Limited|Strong|Moderate|Very\s+Good|Good|Partial|Significant|Confirmed|Not\s+assessed)\s*\n?/i, '')
+      .trim();
+  }
+
   // Strategy 1: Split by numbered blocks "1.", "2.", etc.
   const blocks = criteriaText.split(/(?=\d+\.\s)/).filter((b) => b.trim());
   if (blocks.length >= names.length) {
     return names.map((name, i) => {
       const block = blocks[i] || '';
-      const evidence = block
-        .replace(/^\d+\.\s*[^:\n]+:\s*/, '')
-        .replace(/^\d+\.\s*/, '')
-        .trim() || 'Assessment pending';
+      const evidence = stripMarkdownAndRating(
+        block.replace(/^\d+\.\s*[^:\n]+:\s*/, '').replace(/^\d+\.\s*/, '').trim()
+      ) || 'Assessment pending';
       return { name, evidence, context_anchor: extractAnchor(evidence) };
     });
   }
@@ -214,7 +265,7 @@ export function parseKeyCriteria(
       }
     }
 
-    const evidence = bestScore >= 2 ? bestSentence : 'Assessment pending';
+    const evidence = bestScore >= 2 ? stripMarkdownAndRating(bestSentence) : 'Assessment pending';
     return { name, evidence, context_anchor: extractAnchor(evidence) };
   });
 }

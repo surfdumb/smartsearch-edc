@@ -193,6 +193,11 @@ export async function getCandidateData(
         }
         enrichCompFromEDS(edcData, eds);
 
+        // Override footer metadata from fixture (same as path 1)
+        if (fixture?.client_company) edcData.search_name = fixture.client_company;
+        else if (fixture?.search_name) edcData.search_name = fixture.search_name;
+        if (fixture?.search_name) edcData.role_title = fixture.search_name;
+
         return edcData;
       }
     } catch (err) {
@@ -506,6 +511,16 @@ function enrichScopeFromEDS(
     if ((scopeItem.role_requirement === 'Not specified' || !scopeItem.role_requirement) && jsScopeDimensions) {
       const reqMatch = findValueForDimension(jsScopeDimensions, dimLower);
       if (reqMatch) scopeItem.role_requirement = reqMatch;
+    }
+
+    // ── ALIGNMENT — auto-compute when not already set ──
+    // If alignment is still not_assessed but we have candidate data, promote to partial
+    // (true alignment assessment requires human judgment — partial is a safe default)
+    if (scopeItem.alignment === 'not_assessed' || !scopeItem.alignment) {
+      const hasCandidate = scopeItem.candidate_actual && scopeItem.candidate_actual !== 'Not assessed';
+      if (hasCandidate) {
+        scopeItem.alignment = 'partial';
+      }
     }
   }
 }
