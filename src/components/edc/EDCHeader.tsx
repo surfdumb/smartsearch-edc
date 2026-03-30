@@ -12,8 +12,12 @@ interface EDCHeaderProps {
   photo_url?: string;
   initials?: string;
   context?: EDCContext;
-  /** Called when a photo is uploaded in edit mode */
-  onPhotoUpload?: (dataUrl: string) => void;
+  /** Candidate ID — used for blob upload path */
+  candidateId?: string;
+  /** Search ID — used for blob upload path */
+  searchId?: string;
+  /** Called with the persisted blob URL after upload completes */
+  onPhotoUpload?: (blobUrl: string) => void;
 }
 
 export default function EDCHeader({
@@ -24,6 +28,8 @@ export default function EDCHeader({
   photo_url,
   initials,
   context = 'standalone',
+  candidateId,
+  searchId,
   onPhotoUpload,
 }: EDCHeaderProps) {
   const { isEditable } = useEditorContext();
@@ -34,21 +40,38 @@ export default function EDCHeader({
 
   const effectivePhoto = uploadedPhoto || (photoErr ? undefined : photo_url);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith("image/")) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setUploadedPhoto(dataUrl);
-      setPhotoErr(false);
-      onPhotoUpload?.(dataUrl);
-    };
-    reader.readAsDataURL(file);
     // Reset so the same file can be re-selected
     e.target.value = "";
-  }, [onPhotoUpload]);
+
+    // Show data URL immediately for instant feedback
+    const reader = new FileReader();
+    reader.onload = () => {
+      setUploadedPhoto(reader.result as string);
+      setPhotoErr(false);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload to Vercel Blob for server-side persistence
+    if (candidateId) {
+      try {
+        const { uploadFile } = await import("@/lib/blob");
+        const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+        const pathname = `photos/${searchId || "unknown"}/${candidateId}.${ext}`;
+        const blob = await uploadFile(pathname, file);
+        // Replace data URL with blob URL
+        setUploadedPhoto(blob.url);
+        // Persist blob URL in localStorage so other views (intro cards) can find it
+        localStorage.setItem(`edc_photo_${candidateId}`, blob.url);
+        onPhotoUpload?.(blob.url);
+      } catch (err) {
+        console.warn("[photo] Blob upload failed, keeping local data URL:", err);
+        // Still usable via data URL for this session
+      }
+    }
+  }, [candidateId, searchId, onPhotoUpload]);
 
   // Comparison context: compact — just name + title/company
   if (context === 'comparison') {

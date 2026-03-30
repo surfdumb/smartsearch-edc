@@ -153,12 +153,12 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
 
   const isRejected = v.status === 'rejected';
   const alignmentColor = COMP_COLOR[v.compensation_alignment];
-  // Photo priority: session upload > explicit URL > data URL > convention-based path
-  const [sessionPhoto] = useState<string | null>(() => {
+  // Photo priority: persisted upload (blob URL) > explicit URL > data URL > convention-based path
+  const [storedPhoto] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
-    try { return sessionStorage.getItem(`edc_photo_${card.candidate_id}`); } catch { return null; }
+    try { return localStorage.getItem(`edc_photo_${card.candidate_id}`); } catch { return null; }
   });
-  const rawPhotoUrl = sessionPhoto ?? card.photo_url ?? card.edc_data?.photo_url ?? `/photos/${card.candidate_id}.jpg`;
+  const rawPhotoUrl = storedPhoto ?? card.photo_url ?? card.edc_data?.photo_url ?? `/photos/${card.candidate_id}.jpg`;
   const [photoError, setPhotoError] = useState(false);
   const photoUrl = photoError ? null : rawPhotoUrl;
 

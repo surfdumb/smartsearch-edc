@@ -9,15 +9,19 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        if (!pathname.startsWith("cv/") && !pathname.startsWith("job-summary/")) {
+        const isDocument = pathname.startsWith("cv/") || pathname.startsWith("job-summary/");
+        const isPhoto = pathname.startsWith("photos/");
+        if (!isDocument && !isPhoto) {
           throw new Error("Invalid upload path");
         }
         return {
-          allowedContentTypes: [
-            "application/pdf",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/msword",
-          ],
+          allowedContentTypes: isPhoto
+            ? ["image/jpeg", "image/png", "image/webp"]
+            : [
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/msword",
+              ],
           addRandomSuffix: false,
           allowOverwrite: true,
           tokenPayload: JSON.stringify({}),

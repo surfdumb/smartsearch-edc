@@ -27,6 +27,8 @@ interface EDCCardProps {
   context?: EDCContext;
   /** Used to namespace localStorage edits/toggles per candidate */
   candidateId?: string;
+  /** Search ID — passed through to photo upload */
+  searchId?: string;
   /** Deck-level settings for toggling sections */
   deckSettings?: DeckSettings;
   /** Swipe callbacks for candidate navigation */
@@ -41,6 +43,7 @@ export default function EDCCard({
   fluid = false,
   context = 'standalone',
   candidateId,
+  searchId,
   deckSettings,
   onSwipePrev,
   onSwipeNext,
@@ -51,16 +54,16 @@ export default function EDCCard({
   const [ourTakeOpen, setOurTakeOpen] = useState(false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
 
-  // Photo upload state — persisted in sessionStorage per candidate
+  // Photo upload state — persisted in localStorage (blob URLs are small)
   const photoKey = candidateId ? `edc_photo_${candidateId}` : null;
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(() => {
     if (!photoKey || typeof window === 'undefined') return null;
-    try { return sessionStorage.getItem(photoKey); } catch { return null; }
+    try { return localStorage.getItem(photoKey); } catch { return null; }
   });
-  const handlePhotoUpload = (dataUrl: string) => {
-    setUploadedPhoto(dataUrl);
+  const handlePhotoUpload = (blobUrl: string) => {
+    setUploadedPhoto(blobUrl);
     if (photoKey) {
-      try { sessionStorage.setItem(photoKey, dataUrl); } catch { /* quota exceeded */ }
+      try { localStorage.setItem(photoKey, blobUrl); } catch { /* ignore */ }
     }
   };
 
@@ -70,7 +73,7 @@ export default function EDCCard({
     setOurTakeOpen(false);
     // Load persisted photo for new candidate
     if (photoKey) {
-      try { setUploadedPhoto(sessionStorage.getItem(photoKey)); } catch { /* ignore */ }
+      try { setUploadedPhoto(localStorage.getItem(photoKey)); } catch { /* ignore */ }
     } else {
       setUploadedPhoto(null);
     }
@@ -131,6 +134,8 @@ export default function EDCCard({
             location={data.location}
             photo_url={uploadedPhoto || data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
             context={context}
+            candidateId={candidateId}
+            searchId={searchId}
             onPhotoUpload={handlePhotoUpload}
           />
 
