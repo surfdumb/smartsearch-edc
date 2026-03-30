@@ -406,15 +406,60 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             if (!context.key_criteria_names?.length) {
               context.key_criteria_names = fixture.key_criteria_names;
             }
-            for (const candidate of context.candidates) {
-              if (candidate.edc_data && candidate.edc_data.key_criteria.length === 0) {
-                candidate.edc_data.key_criteria = fixture.key_criteria_names.map((name: string) => ({
-                  name,
-                  evidence: 'Assessment pending',
-                  context_anchor: undefined,
-                }));
-              }
+          }
+        }
+
+        // Enrich each candidate with criteria, scope, comp, and footer from EDS + fixture
+        const { parseKeyCriteria: parseCriteria, nameToCandidateId: toId } = await import('./sheets-transform');
+        const fixtureCriteriaNames = fixture?.key_criteria_names || [];
+        const jsScopeDims = (jsRow ? Object.values(jsRow)[43] : '') || '';
+
+        for (const candidate of context.candidates) {
+          const edcData = candidate.edc_data;
+          if (!edcData) continue;
+
+          // Find matching EDS row for this candidate
+          const edsRow2 = edsRows.find((r) => {
+            const rName = Object.values(r)[1] || '';
+            return toId(rName) === candidate.candidate_id;
+          });
+          const eds = edsRow2 ? Object.values(edsRow2) : [];
+
+          // Key criteria enrichment from EDS assessment text
+          if (fixtureCriteriaNames.length > 0 && eds.length > 0) {
+            const assessmentText = eds[24] || eds[20] || '';
+            if (assessmentText && assessmentText !== 'Not mentioned') {
+              edcData.key_criteria = parseCriteria(assessmentText, fixtureCriteriaNames);
+            } else if (edcData.key_criteria.length === 0) {
+              edcData.key_criteria = fixtureCriteriaNames.map((n: string) => ({
+                name: n, evidence: 'Assessment pending', context_anchor: undefined,
+              }));
             }
+          } else if (fixtureCriteriaNames.length > 0 && edcData.key_criteria.length === 0) {
+            edcData.key_criteria = fixtureCriteriaNames.map((n: string) => ({
+              name: n, evidence: 'Assessment pending', context_anchor: undefined,
+            }));
+          }
+
+          // Scope enrichment
+          if (edcData.scope_match.length > 0 && eds.length > 0) {
+            enrichScopeFromEDS(edcData, eds, jsScopeDims, fixture?.scope_requirements);
+          }
+
+          // Compensation enrichment
+          if (eds.length > 0) {
+            enrichCompFromEDS(edcData, eds);
+          }
+
+          // Footer override from fixture
+          if (fixture?.client_company) edcData.search_name = fixture.client_company;
+          else if (fixture?.search_name) edcData.search_name = fixture.search_name;
+          if (fixture?.search_name) edcData.role_title = fixture.search_name;
+
+          // Merge status from fixture
+          const statuses = fixture?.candidate_statuses || {};
+          if (statuses[candidate.candidate_id]) {
+            edcData.status = statuses[candidate.candidate_id] as EDCData['status'];
           }
         }
 
