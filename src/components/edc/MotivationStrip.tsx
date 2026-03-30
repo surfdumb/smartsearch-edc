@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 
 interface MotivationStripProps {
@@ -11,14 +11,17 @@ interface MotivationStripProps {
   }[];
   motivation?: string;
   our_take_fragments?: string[];
+  candidateId?: string;
 }
 
 export default function MotivationStrip({
   why_interested,
   motivation,
   our_take_fragments,
+  candidateId,
 }: MotivationStripProps) {
   const { isEditable } = useEditorContext();
+  const storageKey = candidateId ? `edc_edit_${candidateId}_motivation` : null;
 
   // Build fragments array from available motivation data
   const buildFragments = useCallback((): string[] => {
@@ -40,7 +43,32 @@ export default function MotivationStrip({
 
   const fragments = buildFragments();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [customText, setCustomText] = useState<string | null>(null);
+  const [customText, setCustomText] = useState<string | null>(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try { return localStorage.getItem(storageKey); } catch { /* ignore */ }
+    }
+    return null;
+  });
+
+  // Load persisted text on candidate change
+  useEffect(() => {
+    if (storageKey && typeof window !== 'undefined') {
+      try { setCustomText(localStorage.getItem(storageKey)); } catch { setCustomText(null); }
+    } else {
+      setCustomText(null);
+    }
+    setCurrentIndex(0);
+  }, [storageKey]);
+
+  // Persist edits
+  useEffect(() => {
+    if (storageKey && isEditable) {
+      try {
+        if (customText !== null) localStorage.setItem(storageKey, customText);
+        else localStorage.removeItem(storageKey);
+      } catch { /* ignore */ }
+    }
+  }, [customText, storageKey, isEditable]);
 
   if (fragments.length === 0) return null;
 

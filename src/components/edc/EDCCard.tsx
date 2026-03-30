@@ -177,6 +177,7 @@ export default function EDCCard({
             <MotivationStrip
               why_interested={data.why_interested}
               our_take_fragments={data.our_take_fragments}
+              candidateId={candidateId}
             />
           )}
 

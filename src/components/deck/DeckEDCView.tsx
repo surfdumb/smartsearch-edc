@@ -107,6 +107,7 @@ export default function DeckEDCView({
                 localStorage.removeItem(`edc_edit_${cid}_comp`);
                 localStorage.removeItem(`edc_edit_${cid}_header`);
                 localStorage.removeItem(`edc_edit_${cid}_ourtake`);
+                localStorage.removeItem(`edc_edit_${cid}_motivation`);
               } catch { /* ignore */ }
               setOurTakeOverride(null);
               setResetKey(k => k + 1);
