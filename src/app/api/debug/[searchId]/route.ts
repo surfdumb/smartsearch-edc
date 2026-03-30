@@ -80,6 +80,15 @@ export async function GET(
         debug.js_row2_col0 = Object.values(jsRow2)[0];
         debug.js_row2_col1 = Object.values(jsRow2)[1];
       }
+
+      // EDC Output Store rows
+      const { getEDCOutputRowsForSearch } = await import('@/lib/sheets');
+      const outputRows = await getEDCOutputRowsForSearch(searchId);
+      debug.output_store_row_count = outputRows.length;
+      if (outputRows.length > 0) {
+        debug.output_store_headers = Object.keys(outputRows[0]);
+        debug.output_store_candidates = outputRows.map(r => r['candidate_name'] || Object.values(r)[2] || '?');
+      }
     } catch (e) {
       debug.sheets_error = String(e);
     }
