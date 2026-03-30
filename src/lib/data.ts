@@ -1,12 +1,14 @@
-import type { EDCData, SearchContext } from './types';
+import type { EDCData, IntroCardData, SearchContext } from './types';
 import fs from 'fs';
 import path from 'path';
 
 // ─── Data fetching abstraction ────────────────────────────────────────────────
 // Priority order:
-//   1. Google Sheets (when GOOGLE_SERVICE_ACCOUNT_EMAIL is set)
-//   2. JSON fixtures in /data/decks/[searchId].json
-//   3. Legacy flat fixtures in /data/test_fixtures.json
+//   0. JSON fixture with pre-structured candidates (highest — no Sheets needed)
+//   1. Google Sheets EDC Output Store (when GOOGLE_SERVICE_ACCOUNT_EMAIL is set)
+//   2. Google Sheets raw EDS text + transformation
+//   3. JSON fixture without candidates (deck-level metadata only)
+//   4. Legacy flat fixtures in /data/test_fixtures.json
 
 const SHEETS_ENABLED = Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL);
 
@@ -16,6 +18,10 @@ type FixtureData = SearchContext & {
   candidate_statuses?: Record<string, string>;
   js_search_name?: string;
   scope_requirements?: Record<string, string>;
+  role_title?: string;
+  /** Fixture candidates may be flat (EDC fields directly on candidate) or IntroCardData shaped */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  candidates: any[];
 };
 
 // Cache to avoid repeated file reads within a single request
@@ -51,6 +57,64 @@ async function loadFixture(searchId: string): Promise<FixtureData | null> {
   }
 }
 
+// ─── Fixture candidate helpers ───────────────────────────────────────────────
+
+/** True when the fixture candidate is flat (EDC fields directly on candidate, no edc_data wrapper) */
+function isFlatFixtureCandidate(c: Record<string, unknown>): boolean {
+  return !c.edc_data && ('key_criteria' in c || 'scope_match' in c || 'compensation' in c);
+}
+
+/** Convert a flat fixture candidate into EDCData. For wrapped candidates, return edc_data as-is. */
+function fixtureCandidateToEDCData(
+  c: Record<string, unknown>,
+  fixture: FixtureData
+): EDCData {
+  // Already wrapped — return existing edc_data
+  if (c.edc_data) return c.edc_data as EDCData;
+
+  // Flat format — assemble EDCData from top-level fields
+  const comp = (c.compensation || {}) as Record<string, string>;
+  return {
+    candidate_name: (c.candidate_name as string) || '',
+    current_title: (c.current_title as string) || '',
+    current_company: (c.current_company as string) || '',
+    location: (c.location as string) || '',
+    photo_url: c.photo_url as string | undefined,
+    scope_match: (c.scope_match || []) as EDCData['scope_match'],
+    scope_seasoning: (c.scope_seasoning as string) || '',
+    key_criteria: (c.key_criteria || []) as EDCData['key_criteria'],
+    compensation: {
+      current_base: comp.current_base || '',
+      current_bonus: comp.current_bonus,
+      current_lti: comp.current_lti,
+      current_benefits: comp.current_benefits,
+      current_total: comp.current_total || '',
+      expected_base: comp.expected_base || '',
+      expected_bonus: comp.expected_bonus,
+      expected_lti: comp.expected_lti,
+      expected_benefits: comp.expected_benefits,
+      expected_total: comp.expected_total || '',
+      flexibility: comp.flexibility || '',
+      budget_range: comp.budget_range,
+      budget_base: comp.budget_base,
+      budget_bonus: comp.budget_bonus,
+      budget_lti: comp.budget_lti,
+    },
+    notice_period: comp.notice_period || (c.notice_period as string) || 'Not mentioned',
+    why_interested: (c.why_interested || []) as EDCData['why_interested'],
+    potential_concerns: (c.potential_concerns || []) as EDCData['potential_concerns'],
+    our_take: (c.our_take || { text: '' }) as EDCData['our_take'],
+    search_name: (c.search_name as string) || fixture.client_company || fixture.search_name || '',
+    role_title: (c.role_title as string) || fixture.role_title || fixture.search_name || '',
+    generated_date: (c.generated_date as string) || '',
+    consultant_name: (c.consultant_name as string) || fixture.search_lead || '',
+    status: c.status as EDCData['status'],
+    motivation_hook: c.motivation_hook as string | undefined,
+    our_take_fragments: c.our_take_fragments as string[] | undefined,
+    miscellaneous: c.miscellaneous as EDCData['miscellaneous'],
+  };
+}
+
 // ─── getCandidateData ─────────────────────────────────────────────────────────
 
 export async function getCandidateData(
@@ -58,6 +122,16 @@ export async function getCandidateData(
   candidateId: string
 ): Promise<EDCData | null> {
   const fixture = await loadFixture(searchId);
+
+  // 0. Fixture with pre-structured candidates — highest priority, no enrichment needed
+  if (fixture?.candidates?.length) {
+    const match = fixture.candidates.find(
+      (c: Record<string, unknown>) => c.candidate_id === candidateId
+    );
+    if (match) {
+      return fixtureCandidateToEDCData(match, fixture);
+    }
+  }
 
   // 1. Try pre-transformed EDC Output Store (structured JSON from Make Engine)
   if (SHEETS_ENABLED) {
@@ -226,6 +300,46 @@ export async function getCandidateData(
 
 export async function getDeckData(searchId: string): Promise<SearchContext | null> {
   const fixture = await loadFixture(searchId);
+
+  // 0. Fixture with pre-structured candidates — highest priority, no enrichment needed
+  if (fixture?.candidates?.length) {
+    const candidates = fixture.candidates.map((c: Record<string, unknown>) => {
+      // Already IntroCardData shaped (has edc_data) — pass through with enriched footer
+      if (c.edc_data) {
+        const edcData = c.edc_data as EDCData;
+        if (fixture.client_company) edcData.search_name = fixture.client_company;
+        if (fixture.role_title || fixture.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
+        return c as unknown as IntroCardData;
+      }
+      // Flat fixture candidate — wrap into IntroCardData shape
+      const edcData = fixtureCandidateToEDCData(c, fixture);
+      const name = (c.candidate_name as string) || '';
+      const initials = name.split(/\s+/).length >= 2
+        ? `${name.split(/\s+/)[0][0]}${name.split(/\s+/).pop()?.[0] || ''}`.toUpperCase()
+        : name.slice(0, 2).toUpperCase();
+      return {
+        candidate_id: (c.candidate_id as string) || '',
+        candidate_name: name,
+        current_title: (c.current_title as string) || '',
+        current_company: (c.current_company as string) || '',
+        location: (c.location as string) || '',
+        initials,
+        compensation_alignment: 'not_set' as const,
+        edc_data: edcData,
+      } as IntroCardData;
+    });
+    return {
+      search_name: fixture.search_name || searchId,
+      client_company: fixture.client_company || '',
+      client_location: fixture.client_location || '',
+      client_logo_url: fixture.client_logo_url,
+      key_criteria_names: fixture.key_criteria_names || [],
+      search_lead: fixture.search_lead || '',
+      candidate_statuses: fixture.candidate_statuses,
+      deck_settings: fixture.deck_settings,
+      candidates,
+    };
+  }
 
   // 1. Try pre-transformed EDC Output Store for structured candidates
   if (SHEETS_ENABLED) {
