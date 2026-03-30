@@ -12,8 +12,6 @@ interface EDCHeaderProps {
   photo_url?: string;
   initials?: string;
   context?: EDCContext;
-  /** First why_interested headline — shown as subtle tagline below bio line */
-  motivationHeadline?: string;
   /** Called when a photo is uploaded in edit mode */
   onPhotoUpload?: (dataUrl: string) => void;
 }
@@ -26,7 +24,6 @@ export default function EDCHeader({
   photo_url,
   initials,
   context = 'standalone',
-  motivationHeadline,
   onPhotoUpload,
 }: EDCHeaderProps) {
   const { isEditable } = useEditorContext();
@@ -235,24 +232,6 @@ export default function EDCHeader({
               <span style={{ color: "rgba(197, 165, 114, 0.4)", margin: "0 8px" }}>·</span>
               {location}
             </p>
-            {motivationHeadline && (
-              <p
-                className="font-outfit"
-                style={{
-                  fontSize: "0.78rem",
-                  fontWeight: 400,
-                  fontStyle: "italic",
-                  color: "rgba(197, 165, 114, 0.6)",
-                  margin: "2px 0 0",
-                  lineHeight: 1.3,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                }}
-              >
-                {motivationHeadline}
-              </p>
-            )}
           </div>
         </div>
 

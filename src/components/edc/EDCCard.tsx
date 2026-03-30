@@ -131,9 +131,6 @@ export default function EDCCard({
             location={data.location}
             photo_url={uploadedPhoto || data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
             context={context}
-            motivationHeadline={
-              data.why_interested?.find(w => w.headline && w.headline !== 'See candidate overview')?.headline
-            }
             onPhotoUpload={handlePhotoUpload}
           />
 
