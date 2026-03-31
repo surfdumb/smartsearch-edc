@@ -264,6 +264,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   }, [cardOrderReady]);
 
   // Build and sync URL hash with candidate + panel + ourtake state
+  // Don't clear hash until cardOrder is ready (otherwise initial grid render wipes it before restore)
   const updateHash = useCallback(() => {
     if (view.mode === "edc") {
       const candidateId = orderedCandidates[view.candidateIndex]?.candidate_id;
@@ -274,12 +275,12 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           window.history.replaceState(null, "", hash);
         }
       }
-    } else if (view.mode === "grid") {
+    } else if (view.mode === "grid" && cardOrderReady) {
       if (window.location.hash) {
         window.history.pushState(null, "", window.location.pathname + window.location.search);
       }
     }
-  }, [view, orderedCandidates]);
+  }, [view, orderedCandidates, cardOrderReady]);
 
   // When view changes, update URL hash
   useEffect(() => { updateHash(); }, [updateHash]);
