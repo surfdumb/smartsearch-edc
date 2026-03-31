@@ -245,6 +245,7 @@ export default function EDCHeader({
             ) : (
               <h1
                 className="font-cormorant"
+                title={candidate_name}
                 style={{
                   fontSize: "1.6rem",
                   fontWeight: 600,
@@ -306,6 +307,7 @@ export default function EDCHeader({
             ) : (
               <p
                 className="font-outfit"
+                title={`${current_company} · ${current_title} · ${location}`}
                 style={{
                   fontSize: "0.84rem",
                   fontWeight: 400,
