@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
+import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 
 interface ScopeRow {
@@ -130,8 +131,9 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   useEffect(() => {
     if (storageKey && isEditable) {
       try { localStorage.setItem(storageKey, JSON.stringify(rows)); } catch { /* ignore */ }
+      if (candidateId) signalEdit(candidateId);
     }
-  }, [rows, storageKey, isEditable]);
+  }, [rows, storageKey, isEditable, candidateId]);
 
   const updateCell = (index: number, field: keyof ScopeRow, value: string) => {
     setRows(prev => prev.map((row, i) =>

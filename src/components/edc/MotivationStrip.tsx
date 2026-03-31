@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { signalEdit } from "@/hooks/useAutoSave";
 
 interface MotivationStripProps {
   why_interested: {
@@ -64,7 +65,7 @@ export default function MotivationStrip({
   useEffect(() => {
     if (storageKey && isEditable) {
       try {
-        if (customText !== null) localStorage.setItem(storageKey, customText);
+        if (customText !== null) { localStorage.setItem(storageKey, customText); if (candidateId) signalEdit(candidateId); }
         else localStorage.removeItem(storageKey);
       } catch { /* ignore */ }
     }

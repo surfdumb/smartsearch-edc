@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { signalEdit } from "@/hooks/useAutoSave";
 
 interface CompensationData {
   current_base: string;
@@ -152,8 +153,10 @@ function CompRow({
   onUpdateExpected?: (v: string) => void;
   onUpdateBudget?: (v: string) => void;
 }) {
-  const hasCurrentVal = !isEmpty(current);
-  const hasExpectedVal = !isEmpty(expected);
+  // In edit mode, always show actual values — never replace with "—"
+  // In read-only mode, use isEmpty to show "—" for placeholder values
+  const hasCurrentVal = isEditable ? !!current?.trim() : !isEmpty(current);
+  const hasExpectedVal = isEditable ? !!expected?.trim() : !isEmpty(expected);
   if (!hasCurrentVal && !hasExpectedVal && !isEditable) return null;
 
   const usedValStyle = emphasized
@@ -163,8 +166,9 @@ function CompRow({
     ? { ...labelStyle, color: "var(--ss-dark)", fontWeight: 700 }
     : labelStyle;
 
-  const curVal = hasCurrentVal ? current! : "—";
-  const expVal = hasExpectedVal ? expected! : "—";
+  // In edit mode, show actual value (even if it matches an EMPTY string)
+  const curVal = isEditable ? (current || "") : (hasCurrentVal ? current! : "—");
+  const expVal = isEditable ? (expected || "") : (hasExpectedVal ? expected! : "—");
 
   return (
     <div
@@ -331,8 +335,9 @@ export default function Compensation({ compensation, notice_period, candidateId 
   useEffect(() => {
     if (storageKey && isEditable) {
       try { localStorage.setItem(storageKey, JSON.stringify({ comp, notice })); } catch { /* ignore */ }
+      if (candidateId) signalEdit(candidateId);
     }
-  }, [comp, notice, storageKey, isEditable]);
+  }, [comp, notice, storageKey, isEditable, candidateId]);
 
   const update = (field: keyof CompensationData, value: string) => {
     setComp(prev => ({ ...prev, [field]: value }));

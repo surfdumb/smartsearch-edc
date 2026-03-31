@@ -83,6 +83,7 @@ export default function EDCCard({
       const next = { ...prev, [field]: value };
       if (headerKey) {
         try { localStorage.setItem(headerKey, JSON.stringify(next)); } catch { /* ignore */ }
+        if (candidateId) { import("@/hooks/useAutoSave").then(m => m.signalEdit(candidateId)); }
       }
       return next;
     });
@@ -98,6 +99,7 @@ export default function EDCCard({
     setUploadedPhoto(blobUrl);
     if (photoKey) {
       try { localStorage.setItem(photoKey, blobUrl); } catch { /* ignore */ }
+      if (candidateId) { import("@/hooks/useAutoSave").then(m => m.signalEdit(candidateId)); }
     }
   };
 
@@ -207,7 +209,7 @@ export default function EDCCard({
                 style={{
                   position: "absolute",
                   top: "12px",
-                  right: "32px",
+                  right: fluid ? "16px" : "32px",
                   display: "flex",
                   gap: "8px",
                   zIndex: 10,
@@ -218,14 +220,14 @@ export default function EDCCard({
                   onClick={() => handleOurTakeToggle(!ourTakeOpen)}
                   className={ourTakeOpen ? "" : "our-take-glow"}
                   style={{
-                    fontSize: "0.92rem",
+                    fontSize: fluid ? "0.82rem" : "0.92rem",
                     fontWeight: 500,
                     color: "var(--ss-gold)",
                     background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)",
                     border: "1.5px solid rgba(197,165,114,0.4)",
                     borderRadius: "22px",
-                    padding: "8px 20px",
-                    height: "38px",
+                    padding: fluid ? "6px 14px" : "8px 20px",
+                    height: fluid ? "32px" : "38px",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",

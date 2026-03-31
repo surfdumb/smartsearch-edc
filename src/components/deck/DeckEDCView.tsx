@@ -9,6 +9,7 @@ import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
 import type { IntroCardData, EDCData } from "@/lib/types";
+import { useAutoSave } from "@/hooks/useAutoSave";
 
 type OurTakeOverride = {
   text: string;
@@ -86,6 +87,9 @@ export default function DeckEDCView({
       : edc,
     [edc, ourTakeOverride]
   );
+
+  // Auto-save edits to Vercel Blob on every change (debounced)
+  useAutoSave(searchId, candidate.candidate_id, edcWithOurTake);
 
   // Collect all localStorage edits, merge into full EDCData, and POST to server
   const handleLock = useCallback(async () => {

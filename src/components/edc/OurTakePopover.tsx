@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { signalEdit } from "@/hooks/useAutoSave";
 
 interface OurTakePopoverProps {
   fragments?: string[];
@@ -67,8 +68,9 @@ export default function OurTakePopover({
   useEffect(() => {
     if (storageKey && isEditable) {
       try { localStorage.setItem(storageKey, JSON.stringify({ fragments, text, name, showName })); } catch { /* ignore */ }
+      if (candidateId) signalEdit(candidateId);
     }
-  }, [fragments, text, name, showName, storageKey, isEditable]);
+  }, [fragments, text, name, showName, storageKey, isEditable, candidateId]);
 
   // Position popover BELOW the trigger button (drops down)
   useEffect(() => {
@@ -340,7 +342,7 @@ export default function OurTakePopover({
                   lineHeight: 1.55,
                 }}
               >
-                &ldquo;{fragment}&rdquo;
+                — {fragment}
               </div>
             );
           })}
@@ -435,7 +437,7 @@ export default function OurTakePopover({
             whiteSpace: "pre-line",
           }}
         >
-          &ldquo;{text}&rdquo;
+          {text}
         </div>
       )}
       </div>

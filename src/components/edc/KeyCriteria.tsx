@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
+import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 
 interface CriterionItem {
@@ -210,8 +211,9 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
   useEffect(() => {
     if (storageKey && isEditable) {
       try { localStorage.setItem(storageKey, JSON.stringify(items)); } catch { /* ignore */ }
+      if (candidateId) signalEdit(candidateId);
     }
-  }, [items, storageKey, isEditable]);
+  }, [items, storageKey, isEditable, candidateId]);
 
   const updateField = (index: number, field: keyof CriterionItem, value: string) => {
     setItems(prev => prev.map((item, i) =>

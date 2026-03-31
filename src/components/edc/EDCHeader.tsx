@@ -2,6 +2,7 @@
 "use client";
 import { useState, useRef, useCallback } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { signalEdit } from "@/hooks/useAutoSave";
 import type { EDCContext } from "@/lib/types";
 
 interface EDCHeaderProps {
@@ -68,6 +69,7 @@ export default function EDCHeader({
         setUploadedPhoto(blob.url);
         // Persist blob URL in localStorage so other views (intro cards) can find it
         localStorage.setItem(`edc_photo_${candidateId}`, blob.url);
+        signalEdit(candidateId);
         onPhotoUpload?.(blob.url);
       } catch (err) {
         console.warn("[photo] Blob upload failed, keeping local data URL:", err);
@@ -253,9 +255,6 @@ export default function EDCHeader({
                   letterSpacing: "-0.3px",
                   color: "#faf8f5",
                   margin: 0,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
                 }}
               >
                 {candidate_name}
@@ -314,9 +313,6 @@ export default function EDCHeader({
                   color: "rgba(255,255,255,0.65)",
                   margin: "2px 0 0",
                   lineHeight: 1.3,
-                  whiteSpace: "nowrap",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
                 }}
               >
                 {current_company}

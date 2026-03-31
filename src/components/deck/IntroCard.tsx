@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { IntroCardData } from "@/lib/types";
+import { signalEdit } from "@/hooks/useAutoSave";
 
 interface IntroCardProps {
   card: IntroCardData;
@@ -134,6 +135,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
           else (merged as Record<string, unknown>)[k] = v;
         }
         try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); } catch { /* ignore */ }
+        signalEdit(card.candidate_id);
         return merged;
       });
     },

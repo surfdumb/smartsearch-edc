@@ -8,6 +8,7 @@ import { useDeckTheme } from "@/hooks/useDeckTheme";
 import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
 import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
 import type { SearchContext } from "@/lib/types";
+import { useAutoSaveGrid } from "@/hooks/useAutoSave";
 
 type DeckView =
   | { mode: "grid" }
@@ -46,6 +47,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [hashInit] = useState(() => parseHashState(data.candidates));
   const [view, setView] = useState<DeckView>(hashInit.view);
   const [editMode, setEditMode] = useState(false);
+
+  // Auto-save IntroCard edits (status, comp alignment, etc.) from grid view
+  useAutoSaveGrid(searchId, data.candidates);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   // EDC sub-state restored from / synced to URL hash (e.g. #candidateId/2/ourtake)
   const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | undefined>(hashInit.panel);

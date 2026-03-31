@@ -81,6 +81,15 @@ function applyEditOverlays(candidates: IntroCardData[], overlays: Record<string,
       c.current_title = overlay.current_title;
       c.current_company = overlay.current_company;
       c.location = overlay.location;
+      // IntroCard fields synced from auto-save
+      if (overlay.status) c.edc_data.status = overlay.status;
+      const overlayAny = overlay as unknown as Record<string, unknown>;
+      if (overlayAny.compensation_alignment) {
+        c.compensation_alignment = overlayAny.compensation_alignment as 'green' | 'amber' | 'not_set';
+      }
+      if (overlayAny.headline) {
+        c.headline = overlayAny.headline as string;
+      }
     }
   }
 }
