@@ -447,6 +447,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       getCardOrder(searchId),
     ]);
     attachPhotos(candidates, photos);
+    console.log('[getDeckData] Edit overlays found:', Object.keys(editOverlays));
     applyEditOverlays(candidates, editOverlays);
 
     const context: SearchContext = {
@@ -602,6 +603,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           const photos = await getPhotoUrls(searchId);
           attachPhotos(candidates, photos);
           const [eo1, co1] = await Promise.all([getEditOverlays(searchId), getCardOrder(searchId)]);
+          console.log('[getDeckData] Edit overlays found:', Object.keys(eo1));
           applyEditOverlays(candidates, eo1);
           const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
