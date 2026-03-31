@@ -277,7 +277,7 @@ export default function EDCStatusBar({
                 fontStyle: "italic",
               }}
             >
-              Lock &amp; share this deck?
+              Lock deck &amp; share {candidateName.split(' ')[0]}&rsquo;s EDC?
             </h2>
             <p
               style={{

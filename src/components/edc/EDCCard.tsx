@@ -36,6 +36,14 @@ interface EDCCardProps {
   onSwipeNext?: () => void;
   /** Direction the new candidate content should enter from */
   candidateSlideFrom?: 'left' | 'right' | null;
+  /** Initial panel to show (restored from URL hash on refresh) */
+  initialPanel?: 1 | 2 | 3;
+  /** Initial Our Take open state (restored from URL hash on refresh) */
+  initialOurTakeOpen?: boolean;
+  /** Called when panel changes — parent syncs to URL hash */
+  onPanelChange?: (panel: 1 | 2 | 3) => void;
+  /** Called when Our Take popover opens/closes — parent syncs to URL hash */
+  onOurTakeChange?: (open: boolean) => void;
 }
 
 export default function EDCCard({
@@ -48,10 +56,14 @@ export default function EDCCard({
   onSwipePrev,
   onSwipeNext,
   candidateSlideFrom,
+  initialPanel,
+  initialOurTakeOpen,
+  onPanelChange,
+  onOurTakeChange,
 }: EDCCardProps) {
-  const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(1);
+  const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>('right');
-  const [ourTakeOpen, setOurTakeOpen] = useState(false);
+  const [ourTakeOpen, setOurTakeOpen] = useState(initialOurTakeOpen || false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Header field edits — persisted in localStorage
@@ -89,10 +101,10 @@ export default function EDCCard({
     }
   };
 
-  // Reset to panel 1 when candidate changes
+  // Reset to panel 1 when candidate changes (unless initialPanel is set from URL hash)
   useEffect(() => {
-    setCurrentPanel(1);
-    setOurTakeOpen(false);
+    setCurrentPanel(initialPanel || 1);
+    setOurTakeOpen(initialOurTakeOpen || false);
     // Load persisted photo for new candidate
     if (photoKey) {
       try { setUploadedPhoto(localStorage.getItem(photoKey)); } catch { /* ignore */ }
@@ -114,6 +126,12 @@ export default function EDCCard({
     if (target === currentPanel) return;
     setSlideDirection(target > currentPanel ? 'right' : 'left');
     setCurrentPanel(target);
+    onPanelChange?.(target);
+  };
+
+  const handleOurTakeToggle = (open: boolean) => {
+    setOurTakeOpen(open);
+    onOurTakeChange?.(open);
   };
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
@@ -197,7 +215,7 @@ export default function EDCCard({
               >
                 <button
                   ref={ourTakeTriggerRef}
-                  onClick={() => setOurTakeOpen(v => !v)}
+                  onClick={() => handleOurTakeToggle(!ourTakeOpen)}
                   className={ourTakeOpen ? "" : "our-take-glow"}
                   style={{
                     fontSize: "0.92rem",
@@ -294,7 +312,7 @@ export default function EDCCard({
           consultantName={data.consultant_name}
           candidateId={candidateId}
           triggerRef={ourTakeTriggerRef}
-          onClose={() => setOurTakeOpen(false)}
+          onClose={() => handleOurTakeToggle(false)}
         />
       )}
     </div>

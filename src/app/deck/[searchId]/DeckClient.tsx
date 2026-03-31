@@ -24,6 +24,11 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [view, setView] = useState<DeckView>({ mode: "grid" });
   const [editMode, setEditMode] = useState(false);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
+  // EDC sub-state restored from / synced to URL hash (e.g. #candidateId/2/ourtake)
+  const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | undefined>(undefined);
+  const [initialOurTakeOpen, setInitialOurTakeOpen] = useState(false);
+  const currentPanelRef = useRef<1 | 2 | 3>(1);
+  const currentOurTakeRef = useRef(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -141,6 +146,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // ── Card reorder (edit mode only) ─────────────────────────────────────────
   const orderKey = `card_order_${searchId}`;
   const [cardOrder, setCardOrder] = useState<string[]>([]);
+  const [cardOrderReady, setCardOrderReady] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
@@ -154,6 +160,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       const filtered = data.card_order.filter((id) => validSet.has(id));
       const missing = defaultOrder.filter((id) => !filtered.includes(id));
       setCardOrder([...filtered, ...missing]);
+      setCardOrderReady(true);
       return;
     }
 
@@ -171,6 +178,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     } catch {
       setCardOrder(defaultOrder);
     }
+    setCardOrderReady(true);
   }, [data.candidates, data.card_order, orderKey]);
 
   // Filter candidates by status when candidate_statuses is defined
@@ -236,25 +244,34 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   };
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
-  // On mount: if URL has #candidateId, jump straight to that EDC (no flip)
+  // On mount: if URL has #candidateId (or #candidateId/panel/ourtake), jump to that EDC
+  // Wait for cardOrderReady so the index lookup uses the correct ordering
   useEffect(() => {
+    if (!cardOrderReady) return;
     const hash = window.location.hash.slice(1);
     if (!hash) return;
-    const index = orderedCandidates.findIndex((c) => c.candidate_id === hash);
+    const parts = hash.split('/');
+    const candidateId = parts[0];
+    const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
+    const ourTake = parts[2] === 'ourtake';
+    const index = orderedCandidates.findIndex((c) => c.candidate_id === candidateId);
     if (index !== -1) {
+      if (panel && panel >= 1 && panel <= 3) setInitialPanel(panel as 1 | 2 | 3);
+      setInitialOurTakeOpen(ourTake);
       setView({ mode: "edc", candidateIndex: index, split: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [cardOrderReady]);
 
-  // When view changes, update URL hash
-  useEffect(() => {
+  // Build and sync URL hash with candidate + panel + ourtake state
+  const updateHash = useCallback(() => {
     if (view.mode === "edc") {
       const candidateId = orderedCandidates[view.candidateIndex]?.candidate_id;
       if (candidateId) {
-        const newHash = `#${candidateId}`;
-        if (window.location.hash !== newHash) {
-          window.history.pushState(null, "", newHash);
+        let hash = `#${candidateId}/${currentPanelRef.current}`;
+        if (currentOurTakeRef.current) hash += '/ourtake';
+        if (window.location.hash !== hash) {
+          window.history.replaceState(null, "", hash);
         }
       }
     } else if (view.mode === "grid") {
@@ -264,13 +281,32 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     }
   }, [view, orderedCandidates]);
 
+  // When view changes, update URL hash
+  useEffect(() => { updateHash(); }, [updateHash]);
+
+  const handlePanelChange = useCallback((panel: 1 | 2 | 3) => {
+    currentPanelRef.current = panel;
+    updateHash();
+  }, [updateHash]);
+
+  const handleOurTakeChange = useCallback((open: boolean) => {
+    currentOurTakeRef.current = open;
+    updateHash();
+  }, [updateHash]);
+
   // Handle browser back/forward
   useEffect(() => {
     const handler = () => {
       const hash = window.location.hash.slice(1);
       if (hash) {
-        const index = orderedCandidates.findIndex((c) => c.candidate_id === hash);
+        const parts = hash.split('/');
+        const candidateId = parts[0];
+        const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
+        const ourTake = parts[2] === 'ourtake';
+        const index = orderedCandidates.findIndex((c) => c.candidate_id === candidateId);
         if (index !== -1) {
+          if (panel && panel >= 1 && panel <= 3) setInitialPanel(panel as 1 | 2 | 3);
+          setInitialOurTakeOpen(ourTake);
           setView({ mode: "edc", candidateIndex: index, split: false });
           return;
         }
@@ -284,6 +320,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // ── Card flip handler ───────────────────────────────────────────────────────
   const handleCardClick = (index: number) => {
     setCandidateSlide(null);
+    setInitialPanel(undefined);
+    setInitialOurTakeOpen(false);
+    currentPanelRef.current = 1;
+    currentOurTakeRef.current = false;
     const el = cardRefs.current[index];
     if (!el) {
       // Fallback: skip animation
@@ -309,6 +349,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const handlePrev = useCallback(() => {
     if (view.mode === "edc" && view.candidateIndex > 0) {
       setCandidateSlide('left');
+      setInitialPanel(undefined);
+      setInitialOurTakeOpen(false);
+      currentPanelRef.current = 1;
+      currentOurTakeRef.current = false;
       setView({ ...view, candidateIndex: view.candidateIndex - 1 });
     }
   }, [view]);
@@ -316,6 +360,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const handleNext = useCallback(() => {
     if (view.mode === "edc" && view.candidateIndex < orderedCandidates.length - 1) {
       setCandidateSlide('right');
+      setInitialPanel(undefined);
+      setInitialOurTakeOpen(false);
+      currentPanelRef.current = 1;
+      currentOurTakeRef.current = false;
       setView({ ...view, candidateIndex: view.candidateIndex + 1 });
     }
   }, [view, orderedCandidates.length]);
@@ -1122,6 +1170,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onPrev={view.candidateIndex > 0 ? handlePrev : undefined}
       onNext={view.candidateIndex < orderedCandidates.length - 1 ? handleNext : undefined}
       onToggleSplit={handleToggleSplit}
+      initialPanel={initialPanel}
+      initialOurTakeOpen={initialOurTakeOpen}
+      onPanelChange={handlePanelChange}
+      onOurTakeChange={handleOurTakeChange}
     />
   );
 }

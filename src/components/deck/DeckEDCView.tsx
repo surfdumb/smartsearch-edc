@@ -37,6 +37,10 @@ interface DeckEDCViewProps {
   onPrev?: () => void;
   onNext?: () => void;
   onToggleSplit: () => void;
+  initialPanel?: 1 | 2 | 3;
+  initialOurTakeOpen?: boolean;
+  onPanelChange?: (panel: 1 | 2 | 3) => void;
+  onOurTakeChange?: (open: boolean) => void;
 }
 
 export default function DeckEDCView({
@@ -54,6 +58,10 @@ export default function DeckEDCView({
   onPrev,
   onNext,
   onToggleSplit,
+  initialPanel,
+  initialOurTakeOpen,
+  onPanelChange,
+  onOurTakeChange,
 }: DeckEDCViewProps) {
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const [resetKey, setResetKey] = useState(0);
@@ -212,6 +220,10 @@ export default function DeckEDCView({
               onSwipePrev={onPrev}
               onSwipeNext={onNext}
               candidateSlideFrom={candidateSlideFrom}
+              initialPanel={initialPanel}
+              initialOurTakeOpen={initialOurTakeOpen}
+              onPanelChange={onPanelChange}
+              onOurTakeChange={onOurTakeChange}
             />
             {!split && (
               <CandidateNavigation
