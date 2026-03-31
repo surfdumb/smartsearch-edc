@@ -288,7 +288,7 @@ export default function EDCStatusBar({
               }}
             >
               Locking marks the entire deck as ready for client review.
-              All cards will be shared. You can unlock and edit again at any time.
+              The link provided is for this candidate&apos;s EDC only. You can unlock and edit again at any time.
             </p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
               <button
