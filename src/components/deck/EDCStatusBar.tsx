@@ -53,7 +53,7 @@ export default function EDCStatusBar({
   const handleEmailShare = () => {
     const subject = encodeURIComponent(`EDC: ${candidateName} — ${roleTitle}`);
     const body = encodeURIComponent(
-      `Please find the Executive Decision Card for ${candidateName} below.\n\n${shareUrl}\n\nPassword: ExecFlow2026!\n\nThis card is confidential and for your review only.`
+      `Please find the Executive Decision Card for ${candidateName} below.\n\n${shareUrl}\n\nThis card is confidential and for your review only.`
     );
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };
@@ -494,17 +494,6 @@ export default function EDCStatusBar({
               Send via Email
             </button>
 
-            <p
-              style={{
-                fontSize: "0.68rem",
-                color: "rgba(255,255,255,0.2)",
-                textAlign: "center",
-                marginTop: "16px",
-                lineHeight: 1.5,
-              }}
-            >
-              Password: <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>ExecFlow2026!</span>
-            </p>
           </div>
         </div>
       )}
