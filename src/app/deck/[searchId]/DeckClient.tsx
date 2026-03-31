@@ -95,6 +95,22 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
         setCurrentPdfIdx(updated.length - 1);
         return updated;
       });
+
+      // Fire-and-forget: sync criteria from uploaded JS PDF to Google Sheets
+      fetch(`/api/deck/${searchId}/sync-criteria`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pdfUrl: result.url }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log(`[sync-criteria] Synced ${data.criteriaCount} criteria for ${searchId}`);
+          } else {
+            console.warn('[sync-criteria] Sync failed:', data.error);
+          }
+        })
+        .catch(err => console.error('[sync-criteria] Request failed:', err));
     } catch (err) {
       console.error("Job Summary upload failed:", err);
       alert("Upload failed. Please try again.");

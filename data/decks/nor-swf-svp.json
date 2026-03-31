@@ -5,6 +5,13 @@
   "role_title": "SVP StrikoWestofen",
   "search_lead": "Kalum Gillett",
   "location": "Wiehl, Germany",
+  "key_criteria_names": [
+    "Strong leadership experience with cultural transformation capability",
+    "Global mindset and international experience",
+    "Comfortable running similar-sized business",
+    "Industrial background",
+    "Fluent German speaker with ability to be on-site in Wiehl regularly"
+  ],
   "deck_settings": {
     "match_score_display": "HIDE"
   },
