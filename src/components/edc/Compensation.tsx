@@ -49,7 +49,17 @@ function EditableCell({
   onUpdate: (v: string) => void;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
   const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current) {
+      if (ref.current.textContent !== value) {
+        ref.current.textContent = value;
+      }
+    }
+  }, [value]);
 
   if (!isEditable) {
     return <span style={style}>{value}</span>;
@@ -58,11 +68,19 @@ function EditableCell({
   return (
     <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
       <span
-        ref={ref}
+        ref={(el) => {
+          (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el;
+          if (el && !el.textContent) el.textContent = value;
+        }}
         contentEditable
         suppressContentEditableWarning
         className="editable-cell"
-        onBlur={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => { onUpdate(e.currentTarget.textContent || ""); }}
+        onBlur={(e) => {
+          focusedRef.current = false;
+          onUpdate(e.currentTarget.textContent || "");
+        }}
         style={{
           ...style,
           padding: "2px 6px",
@@ -70,22 +88,30 @@ function EditableCell({
           display: "block",
           outline: "none",
         }}
-      >
-        {value}
-      </span>
-      {isModified && (
+      />
+      {isModified && !confirmingReset && (
         <button
           className="edc-field__reset-dot"
-          onMouseDown={(e) => {
-            e.preventDefault();
-            onUpdate(originalValue);
-            if (ref.current) {
-              ref.current.textContent = originalValue;
-              ref.current.blur();
-            }
-          }}
+          onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }}
           title="Reset to original"
         />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => {
+              e.preventDefault();
+              onUpdate(originalValue);
+              if (ref.current) { ref.current.textContent = originalValue; ref.current.blur(); }
+              setConfirmingReset(false);
+            }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>
+            Reset
+          </button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>
+            Keep
+          </button>
+        </span>
       )}
     </span>
   );
@@ -179,6 +205,82 @@ function CompRow({
   );
 }
 
+/* ── Inline editable for flexibility note with onInput + reset confirm ── */
+function FlexibilityEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const focusedRef = useRef(false);
+  const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <div className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", marginTop: "10px" }}>
+      <div
+        ref={(el) => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; if (el && !el.textContent) el.textContent = value; }}
+        contentEditable suppressContentEditableWarning className="editable-cell"
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.textContent || ""); }}
+        style={{ fontSize: "0.85rem", fontStyle: "italic", color: "var(--ss-gray)", lineHeight: 1.5, padding: "2px 6px", margin: "0 -6px" }}
+      />
+      {isModified && !confirmingReset && (
+        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalValue); if (ref.current) ref.current.textContent = originalValue; setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
+        </span>
+      )}
+    </div>
+  );
+}
+
+/* ── Inline editable for notice period with onInput + reset confirm ── */
+function NoticeEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
+  const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "inline-block" }}>
+      <span
+        ref={(el) => { (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el; if (el && !el.textContent) el.textContent = value; }}
+        contentEditable suppressContentEditableWarning className="editable-cell"
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.textContent || ""); }}
+        style={{ padding: "1px 4px", margin: "-1px -4px" }}
+      />
+      {isModified && !confirmingReset && (
+        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalValue); if (ref.current) ref.current.textContent = originalValue; setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
+        </span>
+      )}
+    </span>
+  );
+}
+
 export default function Compensation({ compensation, notice_period, candidateId }: CompensationProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_comp` : null;
@@ -241,7 +343,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
   const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
   const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
-  const hasBudget = !isEmpty(comp.budget_range) || !isEmpty(comp.budget_base) || !isEmpty(comp.budget_bonus) || !isEmpty(comp.budget_lti);
+  const hasBudget = isEditable || !isEmpty(comp.budget_range) || !isEmpty(comp.budget_base) || !isEmpty(comp.budget_bonus) || !isEmpty(comp.budget_lti);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -258,7 +360,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   };
 
   const cols = hasBudget ? "120px 1fr 1fr 1fr" : "120px 1fr 1fr";
-  const hasStructuredRows = hasBase || hasBonus || hasLTI || hasBenefits;
+  const hasStructuredRows = isEditable || hasBase || hasBonus || hasLTI || hasBenefits;
 
   const hasCompEdits = JSON.stringify(comp) !== JSON.stringify(originalComp.current) || notice !== originalNotice.current;
   const resetCompSection = () => {
@@ -353,53 +455,32 @@ export default function Compensation({ compensation, notice_period, candidateId 
       </div>
 
       {/* Flexibility note */}
-      {!isEmpty(comp.flexibility) && (
+      {(!isEmpty(comp.flexibility) || isEditable) && (
         isEditable ? (
-          <div className={`editable-wrap ${comp.flexibility !== originalComp.current.flexibility ? "edc-field--edited" : ""}`} style={{ position: "relative", marginTop: "10px" }}>
-            <div
-              contentEditable
-              suppressContentEditableWarning
-              className="editable-cell"
-              onBlur={(e) => update("flexibility", e.currentTarget.textContent || "")}
+          <FlexibilityEditable
+            value={comp.flexibility}
+            originalValue={originalComp.current.flexibility}
+            onUpdate={(v) => update("flexibility", v)}
+          />
+        ) : (
+          !isEmpty(comp.flexibility) && (
+            <p
               style={{
                 fontSize: "0.85rem",
                 fontStyle: "italic",
                 color: "var(--ss-gray)",
+                marginTop: "10px",
                 lineHeight: 1.5,
-                padding: "2px 6px",
-                margin: "0 -6px",
               }}
             >
               {comp.flexibility}
-            </div>
-            {comp.flexibility !== originalComp.current.flexibility && (
-              <button
-                className="edc-field__reset-dot"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  update("flexibility", originalComp.current.flexibility);
-                }}
-                title="Reset to original"
-              />
-            )}
-          </div>
-        ) : (
-          <p
-            style={{
-              fontSize: "0.85rem",
-              fontStyle: "italic",
-              color: "var(--ss-gray)",
-              marginTop: "10px",
-              lineHeight: 1.5,
-            }}
-          >
-            {comp.flexibility}
-          </p>
+            </p>
+          )
         )
       )}
 
       {/* Notice period */}
-      {!isEmpty(notice) && (
+      {(!isEmpty(notice) || isEditable) && (
         <div
           style={{
             fontSize: "0.85rem",
@@ -412,27 +493,11 @@ export default function Compensation({ compensation, notice_period, candidateId 
         >
           Notice:{" "}
           {isEditable ? (
-            <span className={`editable-wrap ${notice !== originalNotice.current ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "inline-block" }}>
-              <span
-                contentEditable
-                suppressContentEditableWarning
-                className="editable-cell"
-                onBlur={(e) => setNotice(e.currentTarget.textContent || "")}
-                style={{ padding: "1px 4px", margin: "-1px -4px" }}
-              >
-                {notice}
-              </span>
-              {notice !== originalNotice.current && (
-                <button
-                  className="edc-field__reset-dot"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    setNotice(originalNotice.current);
-                  }}
-                  title="Reset to original"
-                />
-              )}
-            </span>
+            <NoticeEditable
+              value={notice}
+              originalValue={originalNotice.current}
+              onUpdate={setNotice}
+            />
           ) : (
             notice
           )}

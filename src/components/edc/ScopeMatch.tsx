@@ -35,7 +35,17 @@ function EditableCell({
   style?: React.CSSProperties;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
   const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current) {
+      if (ref.current.textContent !== value) {
+        ref.current.textContent = value;
+      }
+    }
+  }, [value]);
 
   const handleReset = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -44,27 +54,46 @@ function EditableCell({
       ref.current.textContent = originalValue;
       ref.current.blur();
     }
+    setConfirmingReset(false);
   };
 
   return (
     <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
       <span
-        ref={ref}
+        ref={(el) => {
+          (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el;
+          if (el && !el.textContent) el.textContent = value;
+        }}
         contentEditable
         suppressContentEditableWarning
         className={`editable-cell ${className}`}
-        onBlur={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => { onUpdate(e.currentTarget.textContent || ""); }}
+        onBlur={(e) => {
+          focusedRef.current = false;
+          onUpdate(e.currentTarget.textContent || "");
+        }}
         style={{
           display: "block",
           padding: "1px 6px",
           margin: "-1px -6px",
           ...style,
         }}
-      >
-        {value}
-      </span>
-      {isModified && (
-        <button className="edc-field__reset-dot" onMouseDown={handleReset} title="Reset to original" />
+      />
+      {isModified && !confirmingReset && (
+        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={handleReset}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>
+            Reset
+          </button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>
+            Keep
+          </button>
+        </span>
       )}
     </span>
   );

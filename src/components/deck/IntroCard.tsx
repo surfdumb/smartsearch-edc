@@ -198,7 +198,7 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         borderTop: "2px solid rgba(197,165,114,0.25)",
         borderRadius: "12px",
         overflow: "hidden",
-        cursor: editMode ? "default" : "pointer",
+        cursor: editMode ? "grab" : "pointer",
         boxShadow: "0 2px 6px rgba(45,40,36,0.10), 0 10px 28px rgba(45,40,36,0.13), 0 28px 64px rgba(45,40,36,0.07)",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         display: "flex",
@@ -328,9 +328,15 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         </p>
 
         {/* Location */}
-        {v.location && (
+        {(v.location || editMode) && (
           <p style={{ fontSize: "0.9rem", color: "#8a857f", marginBottom: "0" }}>
-            {v.location}
+            <Editable
+              value={v.location || ""}
+              onSave={(val) => save({ location: val })}
+              editMode={editMode}
+              singleLine
+              style={{ fontSize: "0.9rem", color: "#8a857f" }}
+            />
           </p>
         )}
 

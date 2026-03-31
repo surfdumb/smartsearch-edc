@@ -85,6 +85,21 @@ function applyEditOverlays(candidates: IntroCardData[], overlays: Record<string,
   }
 }
 
+// ─── Blob card order ───────────────────────────────────────────────────────
+
+/** Load server-persisted card order from Vercel Blob */
+async function getCardOrder(searchId: string): Promise<string[] | null> {
+  if (!BLOB_ENABLED) return null;
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ prefix: `deck-config/${searchId}/card-order.json` });
+    if (blobs.length === 0) return null;
+    const res = await fetch(blobs[0].url);
+    if (res.ok) return await res.json();
+    return null;
+  } catch { return null; }
+}
+
 // ─── Fixture loader ──────────────────────────────────────────────────────────
 
 type FixtureData = SearchContext & {
@@ -417,12 +432,15 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     });
 
     // Attach uploaded photos and edit overlays from Vercel Blob
-    const photos = await getPhotoUrls(searchId);
+    const [photos, editOverlays, cardOrder] = await Promise.all([
+      getPhotoUrls(searchId),
+      getEditOverlays(searchId),
+      getCardOrder(searchId),
+    ]);
     attachPhotos(candidates, photos);
-    const editOverlays = await getEditOverlays(searchId);
     applyEditOverlays(candidates, editOverlays);
 
-    return {
+    const context: SearchContext = {
       search_name: fixture.search_name || searchId,
       client_company: fixture.client_company || '',
       client_location: fixture.client_location || (fixture as unknown as Record<string, string>).location || '',
@@ -433,6 +451,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       deck_settings: fixture.deck_settings,
       candidates,
     };
+    if (cardOrder) context.card_order = cardOrder;
+    return context;
   }
 
   // 1. Try pre-transformed EDC Output Store for structured candidates
@@ -572,9 +592,9 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
           const photos = await getPhotoUrls(searchId);
           attachPhotos(candidates, photos);
-          const eo1 = await getEditOverlays(searchId);
+          const [eo1, co1] = await Promise.all([getEditOverlays(searchId), getCardOrder(searchId)]);
           applyEditOverlays(candidates, eo1);
-          return {
+          const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
             client_location: fixture?.client_location || js[4] || '',
@@ -585,6 +605,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             deck_settings: fixture?.deck_settings,
             candidates,
           };
+          if (co1) ctx1.card_order = co1;
+          return ctx1;
         }
       }
     } catch (err) {
@@ -675,10 +697,14 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           }
         }
 
-        const photos2 = await getPhotoUrls(searchId);
+        const [photos2, eo2, co2] = await Promise.all([
+          getPhotoUrls(searchId),
+          getEditOverlays(searchId),
+          getCardOrder(searchId),
+        ]);
         attachPhotos(context.candidates, photos2);
-        const eo2 = await getEditOverlays(searchId);
         applyEditOverlays(context.candidates, eo2);
+        if (co2) context.card_order = co2;
         return context;
       }
     } catch (err) {

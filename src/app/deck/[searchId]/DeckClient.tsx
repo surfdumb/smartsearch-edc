@@ -128,15 +128,24 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
-  // Load persisted order on mount
+  // Load persisted order on mount — server-provided order takes priority
   useEffect(() => {
     const defaultOrder = data.candidates.map((c) => c.candidate_id);
+    const validSet = new Set(defaultOrder);
+
+    // Server-provided order takes priority (visible to all browsers)
+    if (data.card_order?.length) {
+      const filtered = data.card_order.filter((id) => validSet.has(id));
+      const missing = defaultOrder.filter((id) => !filtered.includes(id));
+      setCardOrder([...filtered, ...missing]);
+      return;
+    }
+
+    // Fall back to localStorage
     try {
       const stored = localStorage.getItem(orderKey);
       if (stored) {
         const parsed: string[] = JSON.parse(stored);
-        // Validate: only keep IDs that still exist, append any new ones
-        const validSet = new Set(defaultOrder);
         const filtered = parsed.filter((id) => validSet.has(id));
         const missing = defaultOrder.filter((id) => !filtered.includes(id));
         setCardOrder([...filtered, ...missing]);
@@ -146,7 +155,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     } catch {
       setCardOrder(defaultOrder);
     }
-  }, [data.candidates, orderKey]);
+  }, [data.candidates, data.card_order, orderKey]);
 
   // Filter candidates by status when candidate_statuses is defined
   // Only show candidates that have a status entry (e.g., "to_send")
@@ -169,7 +178,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const persistOrder = useCallback((newOrder: string[]) => {
     setCardOrder(newOrder);
     try { localStorage.setItem(orderKey, JSON.stringify(newOrder)); } catch { /* ignore */ }
-  }, [orderKey]);
+    // Also save to server for client view (fire-and-forget)
+    fetch(`/api/deck/${searchId}/order`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: newOrder }),
+    }).catch(() => { /* ignore — localStorage is the fallback */ });
+  }, [orderKey, searchId]);
 
   const handleDragStart = (idx: number) => (e: React.DragEvent) => {
     setDragIdx(idx);
@@ -788,33 +803,74 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 alignContent: "flex-start",
               }}
             >
-              {orderedCandidates.map((candidate, i) => (
-                <div
-                  key={candidate.candidate_id}
-                  ref={(el) => { cardRefs.current[i] = el; }}
-                  draggable={editMode}
-                  onDragStart={editMode ? handleDragStart(i) : undefined}
-                  onDragOver={editMode ? handleDragOver(i) : undefined}
-                  onDrop={editMode ? handleDrop(i) : undefined}
-                  onDragEnd={editMode ? handleDragEnd : undefined}
-                  style={{
-                    width: "310px",
-                    opacity: dragIdx === i ? 0.4 : 1,
-                    transition: "opacity 0.15s, transform 0.15s",
-                    transform: dragOverIdx === i ? "scale(1.03)" : "scale(1)",
-                    outline: dragOverIdx === i ? "2px dashed rgba(197,165,114,0.4)" : "none",
-                    outlineOffset: "4px",
-                    borderRadius: "14px",
-                    cursor: editMode ? "grab" : undefined,
-                  }}
-                >
-                  <IntroCard
-                    card={candidate}
-                    onClick={() => handleCardClick(i)}
-                    editMode={editMode}
-                  />
-                </div>
-              ))}
+              {(() => {
+                const elements: React.ReactNode[] = [];
+                orderedCandidates.forEach((candidate, i) => {
+                  // Insert hatched drop zone placeholder BEFORE this card
+                  if (editMode && dragIdx !== null && dragOverIdx === i && dragIdx !== i) {
+                    elements.push(
+                      <div
+                        key="drop-zone"
+                        onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                        onDrop={handleDrop(i)}
+                        style={{
+                          width: "310px",
+                          minHeight: "280px",
+                          borderRadius: "14px",
+                          border: "2px dashed rgba(197,165,114,0.30)",
+                          background: `repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(197,165,114,0.05) 10px, rgba(197,165,114,0.05) 20px)`,
+                          transition: "all 0.15s ease",
+                        }}
+                      />
+                    );
+                  }
+
+                  elements.push(
+                    <div
+                      key={candidate.candidate_id}
+                      ref={(el) => { cardRefs.current[i] = el; }}
+                      draggable={editMode}
+                      onDragStart={editMode ? handleDragStart(i) : undefined}
+                      onDragOver={editMode ? handleDragOver(i) : undefined}
+                      onDrop={editMode ? handleDrop(i) : undefined}
+                      onDragEnd={editMode ? handleDragEnd : undefined}
+                      style={{
+                        width: "310px",
+                        opacity: dragIdx === i ? 0.3 : 1,
+                        transition: "opacity 0.15s",
+                        borderRadius: "14px",
+                        cursor: editMode ? (dragIdx === i ? "grabbing" : "grab") : undefined,
+                      }}
+                    >
+                      <IntroCard
+                        card={candidate}
+                        onClick={() => handleCardClick(i)}
+                        editMode={editMode}
+                      />
+                    </div>
+                  );
+                });
+
+                // Handle drop zone at the END (dropping after the last card)
+                if (editMode && dragIdx !== null && dragOverIdx !== null && dragOverIdx >= orderedCandidates.length) {
+                  elements.push(
+                    <div
+                      key="drop-zone-end"
+                      onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; }}
+                      onDrop={handleDrop(orderedCandidates.length)}
+                      style={{
+                        width: "310px",
+                        minHeight: "280px",
+                        borderRadius: "14px",
+                        border: "2px dashed rgba(197,165,114,0.30)",
+                        background: `repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(197,165,114,0.05) 10px, rgba(197,165,114,0.05) 20px)`,
+                      }}
+                    />
+                  );
+                }
+
+                return elements;
+              })()}
             </div>
 
             {/* Spacer + subtle footer */}

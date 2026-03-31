@@ -29,16 +29,26 @@ function EditablePill({
   onRemove: () => void;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
   const isModified = text !== originalText;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== text) {
+      ref.current.textContent = text;
+    }
+  }, [text]);
 
   return (
     <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
       <span
-        ref={ref}
+        ref={(el) => { (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el; if (el && !el.textContent) el.textContent = text; }}
         contentEditable
         suppressContentEditableWarning
         className="editable-cell"
-        onBlur={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.textContent || ""); }}
         style={{
           display: "inline-block",
           fontSize: "0.72rem",
@@ -50,9 +60,7 @@ function EditablePill({
           whiteSpace: "nowrap",
           outline: "none",
         }}
-      >
-        {text}
-      </span>
+      />
       {/* Remove pill × */}
       <button
         onClick={onRemove}
@@ -77,17 +85,97 @@ function EditablePill({
         ×
       </button>
       {/* Reset dot */}
-      {isModified && (
+      {isModified && !confirmingReset && (
         <button
-          onMouseDown={(e) => {
-            e.preventDefault();
-            onUpdate(originalText);
-            if (ref.current) ref.current.textContent = originalText;
-          }}
+          onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }}
           className="edc-field__reset-dot"
           style={{ top: "-4px", right: "-4px" }}
           title="Reset to original"
         />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalText); if (ref.current) ref.current.textContent = originalText; setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
+        </span>
+      )}
+    </span>
+  );
+}
+
+/* ── Criterion name editable with onInput + reset confirm ── */
+function CriterionNameEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const focusedRef = useRef(false);
+  const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
+      <h4
+        ref={(el) => { (ref as React.MutableRefObject<HTMLHeadingElement | null>).current = el; if (el && !el.textContent) el.textContent = value; }}
+        contentEditable suppressContentEditableWarning className="editable-cell"
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => onUpdate(e.currentTarget.textContent || "")}
+        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.textContent || ""); }}
+        style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--ss-dark)", marginBottom: "3px", padding: "1px 6px", margin: "-1px -6px 3px" }}
+      />
+      {isModified && !confirmingReset && (
+        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalValue); if (ref.current) ref.current.textContent = originalValue; setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
+        </span>
+      )}
+    </span>
+  );
+}
+
+/* ── Criterion evidence editable with onInput + reset confirm (HTML content) ── */
+function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const focusedRef = useRef(false);
+  const isModified = value !== originalValue;
+  const [confirmingReset, setConfirmingReset] = useState(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.innerHTML !== value) {
+      ref.current.innerHTML = value;
+    }
+  }, [value]);
+
+  return (
+    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block", flex: 1, minWidth: 0 }}>
+      <div
+        ref={(el) => { (ref as React.MutableRefObject<HTMLDivElement | null>).current = el; if (el && !el.innerHTML) el.innerHTML = value; }}
+        contentEditable suppressContentEditableWarning className="editable-cell"
+        onFocus={() => { focusedRef.current = true; }}
+        onInput={(e) => onUpdate(e.currentTarget.innerHTML)}
+        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.innerHTML); }}
+        style={{ fontSize: "0.95rem", lineHeight: 1.5, color: "var(--ss-gray)", padding: "1px 6px", margin: "-1px -6px" }}
+      />
+      {isModified && !confirmingReset && (
+        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
+      )}
+      {confirmingReset && (
+        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
+          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalValue); if (ref.current) ref.current.innerHTML = originalValue; setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
+          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
+            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
+        </span>
       )}
     </span>
   );
@@ -168,8 +256,6 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
       <div className="flex flex-col gap-0">
         {items.map((item, i) => {
           const orig = originalItems.current[i];
-          const nameModified = orig && item.name !== orig.name;
-          const evidenceModified = orig && item.evidence !== orig.evidence;
 
           return (
             <div
@@ -206,34 +292,11 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
               <div>
                 {/* Criterion name */}
                 {isEditable ? (
-                  <span className={`editable-wrap ${nameModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
-                    <h4
-                      contentEditable
-                      suppressContentEditableWarning
-                      className="editable-cell"
-                      onBlur={(e) => updateField(i, "name", e.currentTarget.textContent || "")}
-                      style={{
-                        fontSize: "0.95rem",
-                        fontWeight: 600,
-                        color: "var(--ss-dark)",
-                        marginBottom: "3px",
-                        padding: "1px 6px",
-                        margin: "-1px -6px 3px",
-                      }}
-                    >
-                      {item.name}
-                    </h4>
-                    {nameModified && (
-                      <button
-                        className="edc-field__reset-dot"
-                        onMouseDown={(e) => {
-                          e.preventDefault();
-                          updateField(i, "name", orig.name);
-                        }}
-                        title="Reset to original"
-                      />
-                    )}
-                  </span>
+                  <CriterionNameEditable
+                    value={item.name}
+                    originalValue={orig?.name ?? item.name}
+                    onUpdate={(v) => updateField(i, "name", v)}
+                  />
                 ) : (
                   <h4
                     style={{
@@ -250,32 +313,11 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                 {/* Evidence + pill row */}
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
                   {isEditable ? (
-                    <span className={`editable-wrap ${evidenceModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block", flex: 1, minWidth: 0 }}>
-                      <div
-                        contentEditable
-                        suppressContentEditableWarning
-                        className="editable-cell"
-                        onBlur={(e) => updateField(i, "evidence", e.currentTarget.innerHTML)}
-                        style={{
-                          fontSize: "0.95rem",
-                          lineHeight: 1.5,
-                          color: "var(--ss-gray)",
-                          padding: "1px 6px",
-                          margin: "-1px -6px",
-                        }}
-                        dangerouslySetInnerHTML={{ __html: item.evidence }}
-                      />
-                      {evidenceModified && (
-                        <button
-                          className="edc-field__reset-dot"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            updateField(i, "evidence", orig.evidence);
-                          }}
-                          title="Reset to original"
-                        />
-                      )}
-                    </span>
+                    <CriterionEvidenceEditable
+                      value={item.evidence}
+                      originalValue={orig?.evidence ?? item.evidence}
+                      onUpdate={(v) => updateField(i, "evidence", v)}
+                    />
                   ) : (
                     <div
                       style={{

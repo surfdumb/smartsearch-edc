@@ -116,6 +116,8 @@ export interface SearchContext {
   candidates: IntroCardData[];
   /** Map of candidate_id → status for controlling visibility/labels */
   candidate_statuses?: Record<string, string>;
+  /** Server-persisted card order (candidate IDs). Loaded from Vercel Blob. */
+  card_order?: string[];
   deck_settings?: {
     match_score_display: 'SHOW' | 'HIDE';
     our_take_display: 'SHOW' | 'HIDE';
