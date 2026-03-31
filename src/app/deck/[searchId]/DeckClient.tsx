@@ -20,15 +20,40 @@ interface DeckClientProps {
   isEditRoute?: boolean;
 }
 
+// Parse URL hash synchronously to avoid grid flash on EDC refresh
+function parseHashState(candidates: { candidate_id: string }[]) {
+  if (typeof window === 'undefined') return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  const hash = window.location.hash.slice(1);
+  if (!hash) return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  const parts = hash.split('/');
+  const candidateId = parts[0];
+  const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
+  const ourTakeOpen = parts[2] === 'ourtake';
+  const index = candidates.findIndex((c) => c.candidate_id === candidateId);
+  if (index !== -1) {
+    return {
+      view: { mode: "edc", candidateIndex: index, split: false } as DeckView,
+      panel: (panel && panel >= 1 && panel <= 3 ? panel : undefined) as 1 | 2 | 3 | undefined,
+      ourTakeOpen,
+      candidateId,
+    };
+  }
+  return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+}
+
 export default function DeckClient({ data, searchId, isEditRoute = false }: DeckClientProps) {
-  const [view, setView] = useState<DeckView>({ mode: "grid" });
+  // Initialize view + panel + ourTake from URL hash synchronously (no flash)
+  const [hashInit] = useState(() => parseHashState(data.candidates));
+  const [view, setView] = useState<DeckView>(hashInit.view);
   const [editMode, setEditMode] = useState(false);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   // EDC sub-state restored from / synced to URL hash (e.g. #candidateId/2/ourtake)
-  const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | undefined>(undefined);
-  const [initialOurTakeOpen, setInitialOurTakeOpen] = useState(false);
-  const currentPanelRef = useRef<1 | 2 | 3>(1);
-  const currentOurTakeRef = useRef(false);
+  const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | undefined>(hashInit.panel);
+  const [initialOurTakeOpen, setInitialOurTakeOpen] = useState(hashInit.ourTakeOpen);
+  const currentPanelRef = useRef<1 | 2 | 3>(hashInit.panel || 1);
+  const currentOurTakeRef = useRef(hashInit.ourTakeOpen);
+  // Store the candidate ID from hash for re-deriving index after cardOrder loads
+  const hashCandidateIdRef = useRef(hashInit.candidateId);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -244,20 +269,16 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   };
 
   // ── Sync URL hash with selected candidate ─────────────────────────────────
-  // On mount: if URL has #candidateId (or #candidateId/panel/ourtake), jump to that EDC
-  // Wait for cardOrderReady so the index lookup uses the correct ordering
+  // Re-derive candidate index once cardOrder is ready (the initial useState used
+  // data.candidates order which may differ from the card-ordered list)
   useEffect(() => {
     if (!cardOrderReady) return;
-    const hash = window.location.hash.slice(1);
-    if (!hash) return;
-    const parts = hash.split('/');
-    const candidateId = parts[0];
-    const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
-    const ourTake = parts[2] === 'ourtake';
-    const index = orderedCandidates.findIndex((c) => c.candidate_id === candidateId);
-    if (index !== -1) {
-      if (panel && panel >= 1 && panel <= 3) setInitialPanel(panel as 1 | 2 | 3);
-      setInitialOurTakeOpen(ourTake);
+    const cid = hashCandidateIdRef.current;
+    if (!cid) return;
+    // Clear ref so this only runs once
+    hashCandidateIdRef.current = undefined;
+    const index = orderedCandidates.findIndex((c) => c.candidate_id === cid);
+    if (index !== -1 && view.mode === "edc") {
       setView({ mode: "edc", candidateIndex: index, split: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
