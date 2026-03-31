@@ -61,7 +61,7 @@ async function getEditOverlays(searchId: string): Promise<Record<string, EDCData
       const candidateId = filename.replace(/\.json$/, '');
       if (!candidateId) return;
       try {
-        const res = await fetch(blob.url);
+        const res = await fetch(blob.url, { cache: 'no-store' });
         if (res.ok) overlays[candidateId] = await res.json();
       } catch { /* ignore individual fetch failures */ }
     }));
@@ -103,7 +103,7 @@ async function getCardOrder(searchId: string): Promise<string[] | null> {
     const { list } = await import('@vercel/blob');
     const { blobs } = await list({ prefix: `deck-config/${searchId}/card-order.json` });
     if (blobs.length === 0) return null;
-    const res = await fetch(blobs[0].url);
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
     if (res.ok) return await res.json();
     return null;
   } catch { return null; }
