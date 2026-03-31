@@ -277,7 +277,7 @@ export default function EDCStatusBar({
                 fontStyle: "italic",
               }}
             >
-              Lock this card?
+              Lock &amp; share this deck?
             </h2>
             <p
               style={{
@@ -287,8 +287,8 @@ export default function EDCStatusBar({
                 marginBottom: "28px",
               }}
             >
-              Locking marks this card as ready for client review.
-              You can unlock and edit it again at any time.
+              Locking marks the entire deck as ready for client review.
+              All cards will be shared. You can unlock and edit again at any time.
             </p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
               <button
