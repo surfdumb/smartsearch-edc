@@ -83,6 +83,7 @@ function applyEditOverlays(candidates: IntroCardData[], overlays: Record<string,
       c.location = overlay.location;
       // IntroCard fields synced from auto-save
       if (overlay.status) c.edc_data.status = overlay.status;
+      if (overlay.status) (c as unknown as Record<string, unknown>).status = overlay.status;
       const overlayAny = overlay as unknown as Record<string, unknown>;
       if (overlayAny.compensation_alignment) {
         c.compensation_alignment = overlayAny.compensation_alignment as 'green' | 'amber' | 'not_set';

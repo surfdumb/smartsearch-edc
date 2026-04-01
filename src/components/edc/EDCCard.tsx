@@ -196,6 +196,7 @@ export default function EDCCard({
            !data.why_interested.every(w => w.headline === 'See candidate overview' || !w.headline) && (
             <MotivationStrip
               why_interested={data.why_interested}
+              motivation={data.motivation_hook}
               our_take_fragments={data.our_take_fragments}
               candidateId={candidateId}
             />

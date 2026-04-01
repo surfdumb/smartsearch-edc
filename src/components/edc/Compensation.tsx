@@ -29,7 +29,7 @@ interface CompensationProps {
   candidateId?: string;
 }
 
-const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Not specified", "Assessment pending", ""];
+const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Assessment pending", ""];
 
 function isEmpty(v: string | undefined): boolean {
   return !v || EMPTY.some((e) => v.trim().toLowerCase() === e.toLowerCase());
