@@ -56,28 +56,48 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Katie possesses deep hands-on US export compliance expertise across the full regulatory spectrum. She confirmed proficiency in \"ITAR, the EAR, the OFAC\" and stated that responsibilities including \"classifications, licensing, SAP or DECCS. That's all things that I do on a day-to-day basis.\" She serves as \"SAP Global Trade Services (GTS) Business Process Owner\" and was \"co-business process owner for that project\" during the multi-year SAP GTS implementation at Moog. She holds Empowered Official de",
-          "context_anchor": "at Moog Inc."
+          "evidence": "Proficient across ITAR, EAR, and OFAC with hands-on DDTC licensing, classifications, and SAP DECCS experience. Served as co-Business Process Owner for multi-year SAP GTS implementation at **Moog Inc.** and holds Empowered Official designation under ITAR, with authority to sign export licences and make final compliance determinations.",
+          "context_anchor": "at Moog Inc.",
+          "pills": [
+            "at Moog Inc."
+          ],
+          "rating": "strong"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Katie demonstrates acute familiarity with the US export control regulatory environment. She confirmed expertise across \"the Export Administration Regulations (EAR), International Traffic in Arms Regulations (ITAR) and Office of Foreign Assets Control Regulations (OFAC)\" and described acting \"as a focal point and strategic advisor on export matters, providing accurate and consistent interpretation of export regulations.\" She handles \"export classification tasks and obtain a Commodity Jurisdiction",
-          "context_anchor": "at Moog Inc."
+          "evidence": "Confirmed expertise across EAR, ITAR, and OFAC with direct experience using US Government licensing tools and sanctioned party screening lists at **Moog Inc.** Responsible for ensuring compliance policies are updated in line with evolving US trade laws, and acts as strategic advisor on export matters across the organisation.",
+          "context_anchor": "at Moog Inc.",
+          "pills": [
+            "at Moog Inc."
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Katie has exposure to aerospace and defense regulations but her experience depth in this sector requires careful evaluation. She stated her current Industrial Group portfolio at Moog is \"probably 90 to 90 being industrial, 10 being defense or even 85,\" meaning 85-90% of her work involves industrial applications (power generation, paper mills, wood mills) with only 10-15% military/defense work. While she confirmed \"I am familiar with the ITAR and, you know, getting ITAR licenses and those kind of",
-          "context_anchor": "at Moog Inc."
+          "evidence": "Portfolio at **Moog Inc.** is weighted 85–90% industrial applications (power generation, paper mills) with only 10–15% military/defence work. Holds Empowered Official designation under ITAR but interview did not reveal depth in aerospace-specific classification systems or FAR/DFAR requirements central to Doncasters’ focus.",
+          "context_anchor": "at Moog Inc.",
+          "pills": [
+            "at Moog Inc."
+          ],
+          "rating": "partial"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Katie demonstrates strong cross-functional collaboration and global influence capabilities. She described being \"the key contact for the US reg\" across 30+ international industrial subsidiaries at Moog, working through \"trade compliance champions in each of the foreign entities\" who are typically contract managers with part-time compliance duties. She stated she works with \"C-suite or, you know, the executive team, that's also something that I'm doing today and, you know, building those relation",
-          "context_anchor": "at Moog Inc."
+          "evidence": "Primary US regulatory contact across 30+ international industrial subsidiaries at **Moog Inc.**, working through trade compliance champions at each foreign entity without direct authority. Regularly advises C-suite and executive teams, and provides guidance to other operating entities including Space & Defence, Aircraft Group, and corporate purchasing.",
+          "context_anchor": "at Moog Inc.",
+          "pills": [
+            "at Moog Inc."
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Katie demonstrates comfort and capability in lean, entrepreneurial environments requiring independent operation. She acknowledged Doncasters' lean structure by stating \"I get that because like a lot of companies do that. You know, they want to see what they can get done with just one person or a few,\" indicating familiarity with resource-constrained operations. Her current role is individual contributor (\"Industrial, we've always been a team of two—trade compliance manager and then one underneat",
-          "context_anchor": "at Moog Inc."
+          "evidence": "Currently operates as individual contributor after specialist role beneath her went unfilled, handling both strategic and tactical compliance work at **Moog Inc.** Progressed from accepting compliance role after single training session to leading major system implementations and building out UK/Germany compliance programs.",
+          "context_anchor": "at Moog Inc.",
+          "pills": [
+            "at Moog Inc."
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
@@ -130,28 +150,50 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Mary possesses deep US export compliance expertise accumulated over 15 years. She stated she manages \"all the licensing\" including \"writing the licenses, managing all the export, managing all the programs\" and has done \"classification under the EAR and HTS Schedule B.\" At Raytheon, she handles ITAR and Commerce licensing, classifications, managing exports using licenses, exemptions, and exceptions, and serves as \"Part 130 lead.\" She managed licensing processes \"start to finish\" including approva",
-          "context_anchor": "at Raytheon"
+          "evidence": "15 years of deep US export compliance expertise across **Raytheon**, **L3 Technologies**, and **Elbit Systems of America**. Manages all licensing start-to-finish including ITAR and Commerce classifications, and serves as Part 130 lead at Raytheon handling DDTC processes for electronics and infrared technologies.",
+          "context_anchor": "at Raytheon",
+          "pills": [
+            "at Raytheon",
+            "at L3 / Elbit"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Mary demonstrates acute familiarity with the US export control regulatory environment. She explicitly mentioned expertise in \"ITAR, EAR compliance\" and works daily with these regulations at Raytheon. She referenced DDTC processes, Part 130 leadership, BIS regulations, ECCN classifications, and HTS Schedule B classifications. At Raytheon, she operates under heightened government monitoring due to company compliance issues, stating \"the government right now is monitoring them\" and \"when the govern",
-          "context_anchor": "at Raytheon"
+          "evidence": "Daily application of ITAR and EAR regulations at **Raytheon** under heightened government monitoring, with experience across DDTC processes, BIS regulations, ECCN and HTS Schedule B classifications. 15 years managing compliance across major defence contractors demonstrates the regulatory depth required.",
+          "context_anchor": "at Raytheon",
+          "pills": [
+            "at Raytheon"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Mary demonstrates deep aerospace and defense industry expertise spanning 15+ years across multiple major defense contractors. At Raytheon, she manages compliance for electronics and infrared technologies under both ITAR and EAR regulations, with the majority being ITAR-controlled defense work. Her experience at Elbit Systems of America involved managing export compliance for a US-incorporated Israeli-owned defense contractor under FOCI, requiring enhanced government oversight and foreign militar",
-          "context_anchor": "at Raytheon"
+          "evidence": "Deep aerospace and defence expertise spanning 15+ years across **Raytheon**, **Elbit Systems of America**, and **L3 Technologies**. At Raytheon, manages compliance for ITAR-controlled electronics and infrared technologies. At Elbit, managed export compliance under FOCI for a US-incorporated Israeli-owned defence contractor.",
+          "context_anchor": "at Raytheon",
+          "pills": [
+            "at Raytheon",
+            "at Elbit / L3"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Mary demonstrates strong cross-functional influence capabilities, stating she works \"with senior leadership across regions\" and has \"trained and influenced people how to get stuff in and out of the United States\" both for external partners and internal teams. At Raytheon, she provides compliance training and education across global operations, working daily with stakeholders to make compliance decisions. She managed multi-site operations at Open Systems (Fort Worth and Florida) and DRS, requirin",
-          "context_anchor": "at Raytheon"
+          "evidence": "Works with senior leadership across regions at **Raytheon**, providing compliance training and education across global operations. Managed multi-site operations at **Open Systems** (Fort Worth and Florida) and **DRS**. Current role primarily US-focused; international site management depth not explicitly demonstrated.",
+          "context_anchor": "at Raytheon",
+          "pills": [
+            "at Raytheon"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Mary explicitly stated \"I like being hands-on\" when presented with the individual contributor nature of the Doncasters role. She has worked remotely from home for 9 years at Raytheon, demonstrating comfort operating independently without on-site infrastructure. She manages 12 concurrent programs as an individual contributor, requiring autonomous decision-making and prioritization. Her experience at Elbit under FOCI and at Raytheon under government monitoring suggests comfort with high-stakes, fa",
-          "context_anchor": "at Raytheon"
+          "evidence": "Stated preference for being \"hands-on\" and has worked remotely from home for 9 years at **Raytheon**, managing 12 concurrent programmes as an individual contributor. Entire 15-year career within large defence contractors, which may present adjustment to Doncasters’ mid-sized manufacturing environment.",
+          "context_anchor": "at Raytheon",
+          "pills": [
+            "at Raytheon"
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
@@ -198,28 +240,48 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Lauren has 5-6 years of dedicated export compliance experience at Boeing and describes herself as \"heavy on BIS licensing,\" with deep proficiency supporting raw materials teams for titanium and aluminum bar exports. She is \"very familiar\" with titanium export requirements, has completed index floor licensing, and demonstrates strong working knowledge of SnapR, AES, DDTC, and DECKS systems. However, her ITAR and DDTC licensing experience is admittedly limited—she has completed one DFT5 license an",
-          "context_anchor": "at Boeing"
+          "evidence": "5–6 years of dedicated export compliance experience at **Boeing** with deep proficiency in BIS licensing, particularly for titanium and aluminium bar exports. Familiar with SnapR, AES, DDTC, and DECCS systems. ITAR/DDTC licensing experience is limited — completed one DFT5 licence and describes ITAR as not her primary focus.",
+          "context_anchor": "at Boeing",
+          "pills": [
+            "at Boeing"
+          ],
+          "rating": "partial"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Lauren demonstrates working knowledge of the US export control regulatory environment including ITAR, EAR, DDTC, and related systems. She has worked under State Department consent agreements, collaborated with special compliance officers, and participated in auditing and procedure updates to move compliance programs \"from gray areas to black-and-white procedures.\" She shows sophisticated understanding of how regulatory enforcement shifts with political administrations, noting the need to \"figure",
-          "context_anchor": "at Boeing"
+          "evidence": "Working knowledge of ITAR, EAR, and DDTC at **Boeing**, including experience under State Department consent agreements and collaboration with special compliance officers. Participated in auditing and procedure updates to move compliance programmes from grey areas to structured procedures.",
+          "context_anchor": "at Boeing",
+          "pills": [
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Lauren brings 14+ years of aerospace industry experience exclusively at Boeing, working across commercial airplane programs including the 737 and supporting fabrication divisions. She has worked on the 767-KC-46A military airplane program and maintains familiarity with ITAR requirements through commercial programs that cross over with military applications. She demonstrates industry-specific knowledge by asking informed questions about whether Doncasters supports specific military programs like ",
-          "context_anchor": "at Boeing"
+          "evidence": "14+ years of aerospace industry experience exclusively at **Boeing**, working across commercial airplane programmes including the 737 and supporting fabrication divisions. Has worked on the 767-KC-46A military airplane programme but acknowledges being \"not the heaviest on ITAR\" compared to dedicated military counterparts.",
+          "context_anchor": "at Boeing",
+          "pills": [
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Lauren currently supports Boeing's global operations across the Zhoushan China delivery center and fabrication sites in Canada, UK, and Australia, demonstrating comfort working with international stakeholders. She describes her organization as supporting \"everyone and anybody within the company,\" indicating broad cross-functional engagement. Her previous procurement role required her to serve as an intermediary between highly technical engineers and suppliers, translating complex technical requi",
-          "context_anchor": "at Boeing"
+          "evidence": "Supports **Boeing**’s global operations across the Zhoushan China delivery centre and fabrication sites in Canada, UK, and Australia. Previous procurement role required translating complex technical requirements between engineers and suppliers — directly applicable to influencing operational staff without direct authority.",
+          "context_anchor": "at Boeing",
+          "pills": [
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Lauren currently operates as an individual contributor at Boeing, demonstrating comfort working independently without direct reports. She describes her current role as \"hands-on\" and expressed strong interest when the Doncasters role was described as not \"maintain the status quo\" but rather \"being in the middle of things and having a real impact.\" Her comment that the role description \"sounds a lot like my day job right now\" suggests alignment with the hands-on operational nature. However, all o",
-          "context_anchor": "at Boeing"
+          "evidence": "Currently operates as individual contributor at **Boeing** and describes the role as hands-on, expressing strong interest in the Doncasters opportunity to be \"in the middle of things and having a real impact.\" All experience within Boeing’s large corporate infrastructure; transition to mid-sized environment remains untested.",
+          "context_anchor": "at Boeing",
+          "pills": [
+            "at Boeing"
+          ],
+          "rating": "partial"
         }
       ],
       "compensation": {
@@ -272,28 +334,51 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "The candidate possesses deep US export compliance expertise accumulated over 15 years. She explicitly handles DDTC licensing for defense contracts at Safran, managing submissions for missile technology and equipment that require specialized ATF licenses. She described handling 'everything from licenses and facilitating any paperwork or document certification needed for any export or import related issues.' At Sellmark Corporation, she 'acted as the Empowered Official for ITAR and EAR related act",
-          "context_anchor": "at Safran Power Units"
+          "evidence": "15+ years of deep US export compliance expertise, currently handling DDTC licensing for defence contracts at **Safran Power Units** including missile technology requiring specialised ATF licences. Previously served as Empowered Official for ITAR and EAR at **Sellmark Corporation**, managing all licensing for products imported from Asia and Europe.",
+          "context_anchor": "at Safran",
+          "pills": [
+            "at Safran",
+            "at Sellmark"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "The candidate demonstrates acute familiarity with the US export control regulatory environment. She confirmed direct experience with DDTC licensing processes, ITAR, and EAR across all three major roles. At Safran, she is 'responsible for functional adherence to all applicable trade compliance standards and regulations such as ITAR, EAR, FTR, OFAC and C-TPAT' and serves as Export Control Officer coordinating with Empowered Officials and Export Control Coordinators. She also possesses specialized ",
-          "context_anchor": "at Safran Power Units"
+          "evidence": "Direct DDTC licensing experience and functional adherence to ITAR, EAR, FTR, OFAC, and C-TPAT at **Safran Power Units**. Holds ATF Responsible Person certification from **Sellmark** for maintaining firearms inventory. Manages denied parties screening and licence determination across all regulatory frameworks.",
+          "context_anchor": "at Safran",
+          "pills": [
+            "at Safran",
+            "at Sellmark"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "The candidate demonstrates extensive aerospace and defense industry background spanning 15+ years. At Safran Power Units, she manages compliance for military/defense contracts including target drones and cruise missiles at the Grand Prairie site, plus civil/commercial aircraft and private jet parts at the San Diego site. She explicitly confirmed handling DDTC licensing, stating 'that's exactly the business that we handle' and that they 'go through DDTC in order to submit and review different lic",
-          "context_anchor": "at Safran Power Units"
+          "evidence": "Manages compliance for military/defence contracts including target drones and cruise missiles at **Safran Power Units** (Grand Prairie), plus civil/commercial aircraft parts (San Diego). 10+ years at **Airbus Helicopters** maintaining ITAR, EAR, and Export Control Reform compliance with USML/CCL classification expertise.",
+          "context_anchor": "at Safran",
+          "pills": [
+            "at Safran",
+            "at Airbus"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "The candidate demonstrates strong cross-functional influence at multiple organizational levels. At Safran, she stated 'I am actually in every department from the ground up' and holds 'weekly meetings with the CEO, COO, VPs and executive team,' indicating regular C-suite engagement. She manages 'different levels of chaos and all of the challenges that come with each department, whether it's bottlenecks in supply chain or shipping and receiving, customs, you name it.' Her global coordination is ev",
-          "context_anchor": "at Safran Power Units"
+          "evidence": "Operates across every department at **Safran Power Units** with weekly meetings with CEO, COO, VPs, and executive team. Reports bi-weekly to global compliance head in Paris. Manages cross-departmental challenges from supply chain to customs. Global experience primarily US-focused with reporting rather than direct oversight of non-US sites.",
+          "context_anchor": "at Safran",
+          "pills": [
+            "at Safran"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "The candidate demonstrates strong comfort with hands-on, independent work in dynamic environments. She described her current role as 'very hands-on,' noting she works across all departments and manages 'different levels of chaos' accumulated over 15 years. Her response to the tariff crisis exemplifies entrepreneurial agility—she led a rapid scaling effort during what she called 'a whirlwind that just never stopped,' ultimately stabilizing operations. She expressed enthusiasm for Doncasters' entr",
-          "context_anchor": "at Safran Power Units"
+          "evidence": "Describes current role at **Safran Power Units** as \"very hands-on,\" managing different levels of operational complexity across departments. Led rapid scaling response during tariff crisis. Expressed enthusiasm for smaller companies where you can \"effectuate change quickly\" without red tape and welcomed starting as sole compliance team member.",
+          "context_anchor": "at Safran",
+          "pills": [
+            "at Safran"
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
@@ -346,28 +431,52 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Niklas possesses deep US export compliance expertise, stating his current role involves \"a lot of the licensing, it's a lot of ITAR, the EAR, it's a lot of the classification\" plus \"operational shipment type stuff looking at export documentation, EEI filings that are going outside of the US.\" He dedicates approximately 30% of his time to \"overseeing the shipments themselves, looking at the export documentation, auditing the EEI filings, doing things like that to make sure we're all falling withi",
-          "context_anchor": "at Leonardo DRS"
+          "evidence": "Current role at **Leonardo DRS** involves extensive ITAR/EAR licensing, classification, and operational compliance including auditing EEI filings and managing export documentation. At **Boeing**, focused predominantly on F-15 platform licensing with MLA and TAA agreement management across Saudi Arabia, Singapore, and Japan.",
+          "context_anchor": "at Leonardo DRS",
+          "pills": [
+            "at Leonardo DRS",
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Niklas demonstrates acute familiarity with the US export control regulatory environment through daily application of ITAR and EAR regulations. He stated \"everything's an acronym in defense\" and confirmed current work is \"a good chunk of my job, a lot of the licensing\" involving ITAR/EAR classification and compliance. He works with CFR requirements, federalizations, EEI filings, and record-keeping obligations, stating he ensures \"we're meeting kind of all those requirements and kind of record kee",
-          "context_anchor": "at Leonardo DRS"
+          "evidence": "Daily application of ITAR and EAR regulations at **Leonardo DRS** including classification, CFR compliance, and record-keeping across defence programmes. US customs expertise from **Bunge** and **Eastman Chemical** (Category 14 ITAR controlled chemicals). CMMC and FAR/DFAR familiarity not explicitly confirmed.",
+          "context_anchor": "at Leonardo DRS",
+          "pills": [
+            "at Leonardo DRS",
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Niklas demonstrates strong aerospace and defense credentials through his current role at Leonardo DRS managing ITAR/EAR compliance for mission equipment packages on defense platforms including Striker vehicles, JLTV, and Abrams tanks. His 4 years 7 months at Boeing as Trade Control Specialist on the F-15 platform provided deep exposure to aerospace-specific ITAR/EAR licensing and classification systems. He stated his current role involves \"a lot of ITAR, the EAR, a lot of the classification\" and",
-          "context_anchor": "at Leonardo DRS"
+          "evidence": "Manages ITAR/EAR compliance for mission equipment packages on defence platforms including Striker, JLTV, and Abrams at **Leonardo DRS**. 4+ years at **Boeing** on the F-15 platform with deep aerospace-specific licensing. Experience concentrated in land systems and fighter aircraft rather than Doncasters’ casting/forging focus.",
+          "context_anchor": "at Leonardo DRS",
+          "pills": [
+            "at Leonardo DRS",
+            "at Boeing"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Niklas operates in a highly matrixed environment at Leonardo DRS, stating he spends approximately 50% of his time \"fielding questions and providing guidance to the businesses, internal businesses themselves\" including support for \"new foreign military sale opportunities or new government contract or something that's already established.\" He works directly with internal business units and established programs \"giving them kind of guidance and licensing support on a day-to-day basis\" without direc",
-          "context_anchor": "at Leonardo DRS"
+          "evidence": "Spends ~50% of time at **Leonardo DRS** fielding questions and providing guidance to internal business units without direct authority. Currently in Munich establishing Ukraine partnership trade compliance frameworks, demonstrating international stakeholder engagement. Supports primarily one site; Doncasters requires simultaneous multi-country influence.",
+          "context_anchor": "at Leonardo DRS",
+          "pills": [
+            "at Leonardo DRS"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Niklas explicitly confirmed he operates in an entrepreneurial manner, stating \"I would say so because it's kind of how you have to approach the role I'm in now.\" He described his manager's directive as \"okay, so this is your site, this is your responsibility, there's no rigid structure on how you need to do anything, you can approach it as you see fit and just kind of make it work.\" He emphasized having \"to adapt kind of that entrepreneurial mindset to integrating into the business, trying to ge",
-          "context_anchor": "at Leonardo DRS"
+          "evidence": "Explicitly confirmed entrepreneurial approach at **Leonardo DRS**, where manager gave full autonomy to establish processes and \"make it work\" without rigid structure. Left **Boeing** specifically seeking a more hands-on, multi-hat role. Characterises current work as operational and tactical — comfortable with ad-hoc problem-solving.",
+          "context_anchor": "at Leonardo DRS",
+          "pills": [
+            "at Leonardo DRS",
+            "at Boeing"
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
@@ -420,28 +529,51 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Michael exhibits deep proficiency in US export compliance regulations and DDTC licensing processes. He stated \"I am the one who manages, I'm responsible for any licensing program here\" and specifically manages \"DDTC, Department of Commerce\" licensing. He leads \"export licensing strategy and execution via SNAP-R and DECCS, including agreements, proviso management, and ongoing compliance.\" His experience includes \"manufacturing license agreements that allow us to get government authorization to ma",
-          "context_anchor": "at Woodward, Inc."
+          "evidence": "Manages all DDTC and Department of Commerce licensing at **Woodward Inc.** including manufacturing licence agreements and technical assistance agreements for defence articles. Classified 500,000+ aircraft parts at **Kellstrom Aerospace** and leads enterprise classification governance ensuring consistent ECCN/USML determinations across product lines.",
+          "context_anchor": "at Woodward Inc.",
+          "pills": [
+            "at Woodward Inc.",
+            "at Kellstrom"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Michael demonstrates acute familiarity with the US export control regulatory environment. He manages compliance across ITAR, EAR, DDTC licensing, and Department of Commerce regulations at Woodward. He stated his focus is \"primarily the US import and export\" and confirmed expertise in \"US export and import regulations across global operations.\" He manages foreign visitor programs under technology control plans, ensuring compliance with deemed export regulations by restricting \"visual disclosure o",
-          "context_anchor": "at Woodward, Inc."
+          "evidence": "Manages compliance across ITAR, EAR, and DDTC licensing at **Woodward Inc.**, overseeing foreign visitor programmes under technology control plans and directing internal audits with corrective action plans in coordination with Legal and Audit. Familiar with UK classification system, noting alignment with EAR.",
+          "context_anchor": "at Woodward Inc.",
+          "pills": [
+            "at Woodward Inc."
+          ],
+          "rating": "strong"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Michael demonstrates extensive aerospace and defense industry background spanning approximately 15 years. At Woodward, Inc., he manages trade compliance for the entire aerospace segment of a $4B+ publicly traded company, stating \"our company is primarily aerospace, but we do have an industrial sector\" and confirming he has \"worked the entire enterprise, both industrial and aerospace with aerospace being the biggest part of the business, and that's aerospace and defense.\" His experience includes ",
-          "context_anchor": "at Woodward, Inc."
+          "evidence": "~15 years of aerospace and defence experience. At **Woodward Inc.** ($4B+), manages trade compliance for the entire aerospace segment — the largest part of the business. Manages manufacturing licence agreements for defence programmes and technology control plans restricting military technology access to foreign persons.",
+          "context_anchor": "at Woodward Inc.",
+          "pills": [
+            "at Woodward Inc.",
+            "at Kellstrom"
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Michael demonstrates strong cross-functional influence across a global organization. He described \"constant dialogue with our foreign affiliates\" and stated he works globally \"in dealing with different regulations\" across facilities in the UK, India, Germany, Poland, Bulgaria, Canada, and France. He manages training programs across multiple functions, stating he works to \"raise the level of general awareness of the entire org, our commercial ops team, our Salesforce, our supply chain team, our s",
-          "context_anchor": "at Woodward, Inc."
+          "evidence": "Maintains constant dialogue with foreign affiliates across UK, India, Germany, Poland, Bulgaria, Canada, and France at **Woodward Inc.** Raises compliance awareness across commercial ops, sales, supply chain, shipping, and logistics teams, and advises executive leadership on export-controlled transactions and risk exposure.",
+          "context_anchor": "at Woodward Inc.",
+          "pills": [
+            "at Woodward Inc."
+          ],
+          "rating": "strong"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Michael has demonstrated ability to operate independently and build programs in resource-constrained environments. At NB Coatings, he \"built and governed the Export Management Compliance Program (EMCP) from inception\" as an individual contributor over",
-          "context_anchor": "at Woodward, Inc."
+          "evidence": "Built Export Management Compliance Programme from inception as individual contributor over 6.5 years at **NB Coatings**. Has worked in contract and project-based roles demonstrating adaptability. Current role at **Woodward Inc.** managing a team in a $4B company is more resourced than Doncasters’ lean IC structure.",
+          "context_anchor": "at NB Coatings",
+          "pills": [
+            "at NB Coatings",
+            "at Woodward Inc."
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
@@ -488,28 +620,50 @@
       "key_criteria": [
         {
           "name": "Strong Export Compliance Experience",
-          "evidence": "Vivian demonstrates strong US export compliance experience with depth in licensing verification, classification review, and regulatory screening. At GE Aerospace she serves as \"the last person to stop [a] shipment if there is an issue if there's not proper documentation or proper license,\" reviewing all export-controlled shipments across military and commercial divisions for ITAR and EAR compliance. She stated \"I am exposed to anything possible that could... any type of license or any type of is",
-          "context_anchor": "at GE Aerospace"
+          "evidence": "At **GE Aerospace**, serves as final checkpoint for all export-controlled shipments across military and commercial divisions, reviewing ITAR and EAR compliance and tracking licence usage and expiration. Does not have experience preparing or submitting DDTC licences — role is verification and tracking rather than origination.",
+          "context_anchor": "at GE Aerospace",
+          "pills": [
+            "at GE Aerospace"
+          ],
+          "rating": "partial"
         },
         {
           "name": "Experience with US Laws and Regulations",
-          "evidence": "Vivian demonstrates solid familiarity with US export control regulations, particularly ITAR and EAR, though depth in certain areas is still developing. She reviews ITAR and EAR controlled shipments daily at GE Aerospace, ensuring proper licensing for both Commerce and State Department controlled items. She stated she has \"learned a lot about\" ITAR regulations through her GE role and \"did some classes about [EAR and] ITAR\" prior to joining GE, showing proactive self-education. She tracks DDTC lic",
-          "context_anchor": "at GE Aerospace"
+          "evidence": "Reviews ITAR and EAR controlled shipments daily at **GE Aerospace** and tracks DDTC licence compliance. Hands-on regulatory experience relatively recent (1.5 years); prior 8.5 years at **The Dupps Company** involved no military controls or ITAR requirements. Still developing depth beyond ITAR/EAR basics.",
+          "context_anchor": "at GE Aerospace",
+          "pills": [
+            "at GE Aerospace",
+            "at Dupps Co."
+          ],
+          "rating": "partial"
         },
         {
           "name": "Aerospace and Defense Experience",
-          "evidence": "Vivian's aerospace and defense experience is relatively recent and shallow compared to role requirements. She spent",
-          "context_anchor": "at GE Aerospace"
+          "evidence": "Aerospace and defence experience limited to 1.5 years at **GE Aerospace**, where she stated military compliance knowledge \"was new\" and required learning from scratch. Prior 8.5 years at **The Dupps Company** involved non-aerospace manufacturing with no licence or military control requirements.",
+          "context_anchor": "at GE Aerospace",
+          "pills": [
+            "at GE Aerospace"
+          ],
+          "rating": "concern"
         },
         {
           "name": "Ability to Work Cross-Functionally and Influence Across a Global Business",
-          "evidence": "Vivian demonstrates some cross-functional collaboration capability but with limited evidence of influencing across global operations without direct authority. At The Dupps Company she \"fostered strong relationships with internal and external stakeholders, including customers, colleagues, brokers, and freight forwarders\" and supported US-Brazil operations, though she clarified that Brazil had its own team handling import compliance and her scope remained US export controls. At GE Aerospace she wo",
-          "context_anchor": "at GE Aerospace"
+          "evidence": "Built strong stakeholder relationships at **The Dupps Company** including customers, brokers, and freight forwarders for US-Brazil operations. At **GE Aerospace**, works within established process frameworks rather than influencing stakeholders to adopt new approaches. Limited experience collaborating across regions on regulatory matters.",
+          "context_anchor": "at GE Aerospace",
+          "pills": [
+            "at GE Aerospace",
+            "at Dupps Co."
+          ],
+          "rating": "partial"
         },
         {
           "name": "Ability to Work in a Hands-On Entrepreneurial Environment",
-          "evidence": "Vivian demonstrates exceptional fit for hands-on, entrepreneurial environments and explicitly seeks this type of role. At The Dupps Company she operated as sole trade compliance authority for",
-          "context_anchor": "at GE Aerospace"
+          "evidence": "Operated as sole trade compliance authority for 8.5 years at **The Dupps Company** with complete autonomy — was the \"go-to person for anything trade compliance.\" Proactively identified improvement needs and self-directed learning. Explicitly misses the impact and freedom of a smaller environment compared to **GE Aerospace**.",
+          "context_anchor": "at Dupps Co.",
+          "pills": [
+            "at Dupps Co."
+          ],
+          "rating": "strong"
         }
       ],
       "compensation": {
