@@ -249,7 +249,7 @@ export async function getCandidateData(
   if (SHEETS_ENABLED) {
     try {
       const { getEDCOutputRowsForSearch, getEDSRowsForSearch } = await import('./sheets');
-      const { normalizeEDCJson, candidateIdMatchesName, nameToCandidateId, parseKeyCriteria } = await import('./sheets-transform');
+      const { normalizeEDCJson, candidateIdMatchesName, nameToCandidateId, parseKeyCriteria, stripMarkdownJson } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
       const match = outputRows.find((row) => {
@@ -261,7 +261,7 @@ export async function getCandidateData(
         const edcJson = match['edc_json'] || Object.values(match)[4] || '';
         if (edcJson) {
           try {
-            const parsed = JSON.parse(edcJson);
+            const parsed = JSON.parse(stripMarkdownJson(edcJson));
             const edcData = normalizeEDCJson(parsed);
 
             // Enrich from EDS: key_criteria, scope, comp, motivation
@@ -470,7 +470,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
   if (SHEETS_ENABLED) {
     try {
       const { getEDCOutputRowsForSearch, getJSRow, getEDSRowsForSearch } = await import('./sheets');
-      const { normalizeEDCJson, nameToCandidateId, parseKeyCriteria } = await import('./sheets-transform');
+      const { normalizeEDCJson, nameToCandidateId, parseKeyCriteria, stripMarkdownJson } = await import('./sheets-transform');
 
       const outputRows = await getEDCOutputRowsForSearch(searchId);
 
@@ -509,7 +509,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             const edcJson = row['edc_json'] || Object.values(row)[4] || '';
             if (!edcJson) return null;
             try {
-              const parsed = JSON.parse(edcJson);
+              const parsed = JSON.parse(stripMarkdownJson(edcJson));
               const edcData = normalizeEDCJson(parsed);
               const name = edcData.candidate_name;
               const candidateId = nameToCandidateId(name);

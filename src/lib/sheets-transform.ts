@@ -494,6 +494,17 @@ function parseCompensationText(text: string): {
   return result;
 }
 
+// ─── Strip markdown fences from JSON ────────────────────────────────────────
+
+export function stripMarkdownJson(text: string): string {
+  let s = text.trim();
+  if (s.startsWith('```')) {
+    s = s.replace(/^```(?:json)?\s*\n?/, '');
+    s = s.replace(/\n?```\s*$/, '');
+  }
+  return s.trim();
+}
+
 // ─── Normalize Claude JSON to EDCData ────────────────────────────────────────
 
 /**
