@@ -155,12 +155,16 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
 
   const isRejected = v.status === 'rejected';
   const alignmentColor = COMP_COLOR[v.compensation_alignment];
-  // Photo priority: persisted upload (blob URL) > explicit URL > data URL > convention-based path
+  // Photo priority: persisted upload > explicit URL > data URL > initials fallback
   const [storedPhoto] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
-    try { return localStorage.getItem(`edc_photo_${card.candidate_id}`); } catch { return null; }
+    try {
+      const v = localStorage.getItem(`edc_photo_${card.candidate_id}`);
+      return v && v.length > 100 ? v : null; // ignore corrupt/empty entries
+    } catch { return null; }
   });
-  const rawPhotoUrl = storedPhoto ?? card.photo_url ?? card.edc_data?.photo_url ?? `/photos/${card.candidate_id}.jpg`;
+  const explicitPhoto = card.photo_url || card.edc_data?.photo_url || null;
+  const rawPhotoUrl = storedPhoto ?? explicitPhoto;
   const [photoError, setPhotoError] = useState(false);
   const photoUrl = photoError ? null : rawPhotoUrl;
 

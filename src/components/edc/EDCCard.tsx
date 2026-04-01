@@ -91,9 +91,10 @@ export default function EDCCard({
 
   // Photo upload state — persisted in localStorage (blob URLs are small)
   const photoKey = candidateId ? `edc_photo_${candidateId}` : null;
+  const validPhoto = (v: string | null) => v && v.length > 100 ? v : null;
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(() => {
     if (!photoKey || typeof window === 'undefined') return null;
-    try { return localStorage.getItem(photoKey); } catch { return null; }
+    try { return validPhoto(localStorage.getItem(photoKey)); } catch { return null; }
   });
   const handlePhotoUpload = (blobUrl: string) => {
     setUploadedPhoto(blobUrl);
@@ -109,7 +110,7 @@ export default function EDCCard({
     setOurTakeOpen(initialOurTakeOpen || false);
     // Load persisted photo for new candidate
     if (photoKey) {
-      try { setUploadedPhoto(localStorage.getItem(photoKey)); } catch { /* ignore */ }
+      try { setUploadedPhoto(validPhoto(localStorage.getItem(photoKey))); } catch { /* ignore */ }
     } else {
       setUploadedPhoto(null);
     }
@@ -183,7 +184,7 @@ export default function EDCCard({
             current_title={headerEdits.current_title ?? data.current_title}
             current_company={headerEdits.current_company ?? data.current_company}
             location={headerEdits.location ?? data.location}
-            photo_url={uploadedPhoto || data.photo_url || (candidateId ? `/photos/${candidateId}.jpg` : undefined)}
+            photo_url={uploadedPhoto || data.photo_url || undefined}
             context={context}
             candidateId={candidateId}
             searchId={searchId}
