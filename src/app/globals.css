@@ -58,6 +58,7 @@
   --deck-surface: rgba(26, 26, 26, 0.95);
   --deck-card-bg: #2d2824;
   --deck-text-rgb: 255, 255, 255;
+  --deck-bg-text-rgb: 255, 255, 255;
   --deck-gold-border-alpha: 0.1;
 
   /* === Transform Page (dark theme) === */
@@ -74,6 +75,7 @@
   --deck-surface: #faf8f5;
   --deck-card-bg: #faf8f5;
   --deck-text-rgb: 26, 26, 26;
+  --deck-bg-text-rgb: 255, 255, 255;
   --deck-gold-border-alpha: 0.3;
 }
 
@@ -85,6 +87,7 @@
   --deck-surface: rgba(255, 255, 255, 0.92);
   --deck-card-bg: #ffffff;
   --deck-text-rgb: 0, 0, 0;
+  --deck-bg-text-rgb: 0, 0, 0;
   --deck-gold-border-alpha: 0.25;
   --ss-gold: #7a5f30;
   --ss-gold-light: #96783e;

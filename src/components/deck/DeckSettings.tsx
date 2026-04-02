@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import type { SearchContext } from "@/lib/types";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
 
@@ -11,6 +12,7 @@ interface DeckSettingsProps {
 }
 
 export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
+  const router = useRouter();
   const { theme, setTheme } = useDeckTheme(searchId);
   const storageKey = `search_logo_${searchId}`;
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -92,7 +94,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
         }}
       >
         <button
-          onClick={() => window.history.back()}
+          onClick={() => router.push(`/deck/${searchId}`)}
           style={{
             fontSize: "0.78rem",
             color: "var(--ss-gold)",
@@ -108,7 +110,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
         </button>
         <span
           className="font-cormorant"
-          style={{ fontSize: "1rem", color: "rgba(var(--deck-text-rgb),0.35)", fontStyle: "italic" }}
+          style={{ fontSize: "1rem", color: "rgba(var(--deck-bg-text-rgb),0.35)", fontStyle: "italic" }}
         >
           Deck Settings
         </span>
@@ -118,7 +120,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
       <div className="deck-settings-content" style={{ maxWidth: "640px", margin: "0 auto", padding: "48px 24px 0" }}>
 
         {/* Search context line */}
-        <p style={{ fontSize: "0.75rem", color: "rgba(var(--deck-text-rgb),0.2)", marginBottom: "40px" }}>
+        <p style={{ fontSize: "0.75rem", color: "rgba(var(--deck-bg-text-rgb),0.2)", marginBottom: "40px" }}>
           <span style={{ color: "var(--ss-gold)", fontWeight: 600 }}>{data.search_name}</span>
           <span style={{ margin: "0 8px", color: "rgba(197,165,114,0.2)" }}>·</span>
           {data.client_company}
@@ -133,7 +135,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                 fontWeight: 600,
                 letterSpacing: "2px",
                 textTransform: "uppercase",
-                color: "rgba(var(--deck-text-rgb),0.3)",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
               }}
             >
               Display Theme
@@ -157,9 +159,9 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                     borderRadius: "8px",
                     border: active
                       ? "1px solid rgba(197,165,114,0.5)"
-                      : "1px solid rgba(var(--deck-text-rgb),0.1)",
+                      : "1px solid rgba(var(--deck-bg-text-rgb),0.1)",
                     background: active ? "rgba(197,165,114,0.08)" : "transparent",
-                    color: active ? "var(--ss-gold)" : "rgba(var(--deck-text-rgb),0.3)",
+                    color: active ? "var(--ss-gold)" : "rgba(var(--deck-bg-text-rgb),0.3)",
                     cursor: "pointer",
                     transition: "all 0.2s",
                   }}
@@ -170,7 +172,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
             })}
           </div>
 
-          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.15)", marginTop: "14px" }}>
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
             Applies to this deck in this browser.
           </p>
         </section>
@@ -184,7 +186,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                 fontWeight: 600,
                 letterSpacing: "2px",
                 textTransform: "uppercase",
-                color: "rgba(var(--deck-text-rgb),0.3)",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
               }}
             >
               Client Logo
@@ -230,10 +232,10 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
               }
             }}
           >
-            <p style={{ color: "rgba(var(--deck-text-rgb),0.5)", fontSize: "0.9rem", marginBottom: "6px" }}>
+            <p style={{ color: "rgba(var(--deck-bg-text-rgb),0.5)", fontSize: "0.9rem", marginBottom: "6px" }}>
               {logoUrl ? "Click or drag to replace logo" : "Click or drag to upload client logo"}
             </p>
-            <p style={{ color: "rgba(var(--deck-text-rgb),0.25)", fontSize: "0.75rem" }}>
+            <p style={{ color: "rgba(var(--deck-bg-text-rgb),0.25)", fontSize: "0.75rem" }}>
               PNG, JPG, SVG, WebP — displayed at 22px height in deck header
             </p>
           </div>
@@ -254,7 +256,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                   fontWeight: 600,
                   letterSpacing: "2px",
                   textTransform: "uppercase",
-                  color: "rgba(var(--deck-text-rgb),0.25)",
+                  color: "rgba(var(--deck-bg-text-rgb),0.25)",
                   marginBottom: "14px",
                 }}
               >
@@ -288,7 +290,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                 style={{
                   background: "transparent",
                   border: "1px solid rgba(197,165,114,0.15)",
-                  color: "rgba(var(--deck-text-rgb),0.3)",
+                  color: "rgba(var(--deck-bg-text-rgb),0.3)",
                   fontSize: "0.75rem",
                   padding: "6px 14px",
                   borderRadius: "6px",
@@ -301,7 +303,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
                 }}
                 onMouseOut={(e) => {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.15)";
-                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(var(--deck-text-rgb),0.3)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(var(--deck-bg-text-rgb),0.3)";
                 }}
               >
                 Remove logo
@@ -311,7 +313,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
         </section>
 
         {/* ── Storage note ── */}
-        <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-text-rgb),0.15)", lineHeight: 1.6 }}>
+        <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", lineHeight: 1.6 }}>
           Logo is stored locally in this browser. To make it visible to all users, add the file to{" "}
           <code style={{ color: "rgba(197,165,114,0.3)", fontSize: "0.7rem" }}>
             /public/logos/clients/{searchId}.png

@@ -6,14 +6,33 @@ function storageKey(searchId: string) {
   return `deck_theme_${searchId}`;
 }
 
-export function useDeckTheme(searchId: string) {
-  const [theme, setThemeState] = useState<DeckTheme>("hybrid");
+function readStoredTheme(searchId: string): DeckTheme {
+  if (typeof window === "undefined") return "hybrid";
+  try {
+    const stored = localStorage.getItem(storageKey(searchId));
+    if (stored === "dark" || stored === "light") return stored;
+  } catch { /* ignore */ }
+  return "hybrid";
+}
 
+export function useDeckTheme(searchId: string) {
+  const [theme, setThemeState] = useState<DeckTheme>(() => readStoredTheme(searchId));
+
+  // Re-sync from localStorage when the page becomes visible again
+  // (handles bfcache restoration + Next.js router cache scenarios)
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(storageKey(searchId));
-      if (stored === "dark" || stored === "light") setThemeState(stored);
-    } catch { /* ignore */ }
+    const sync = () => {
+      if (document.visibilityState === "visible") {
+        setThemeState(readStoredTheme(searchId));
+      }
+    };
+    document.addEventListener("visibilitychange", sync);
+    // Also re-read on pageshow (bfcache)
+    window.addEventListener("pageshow", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      window.removeEventListener("pageshow", sync);
+    };
   }, [searchId]);
 
   const setTheme = useCallback(
