@@ -110,6 +110,21 @@ async function getCardOrder(searchId: string): Promise<string[] | null> {
   } catch { return null; }
 }
 
+// ─── Blob hidden candidates ────────────────────────────────────────────────
+
+/** Load server-persisted hidden candidate IDs from Vercel Blob */
+async function getHiddenCandidates(searchId: string): Promise<string[] | null> {
+  if (!BLOB_ENABLED) return null;
+  try {
+    const { list } = await import('@vercel/blob');
+    const { blobs } = await list({ prefix: `deck-config/${searchId}/hidden-candidates.json` });
+    if (blobs.length === 0) return null;
+    const res = await fetch(blobs[0].url, { cache: 'no-store' });
+    if (res.ok) return await res.json();
+    return null;
+  } catch { return null; }
+}
+
 // ─── Fixture loader ──────────────────────────────────────────────────────────
 
 type FixtureData = SearchContext & {
@@ -442,10 +457,11 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     });
 
     // Attach uploaded photos and edit overlays from Vercel Blob
-    const [photos, editOverlays, cardOrder] = await Promise.all([
+    const [photos, editOverlays, cardOrder, hiddenCandidates] = await Promise.all([
       getPhotoUrls(searchId),
       getEditOverlays(searchId),
       getCardOrder(searchId),
+      getHiddenCandidates(searchId),
     ]);
     attachPhotos(candidates, photos);
     console.log('[getDeckData] Edit overlays found:', Object.keys(editOverlays));
@@ -463,6 +479,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       candidates,
     };
     if (cardOrder) context.card_order = cardOrder;
+    if (hiddenCandidates) context.hidden_candidates = hiddenCandidates;
     return context;
   }
 
@@ -603,7 +620,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
           const photos = await getPhotoUrls(searchId);
           attachPhotos(candidates, photos);
-          const [eo1, co1] = await Promise.all([getEditOverlays(searchId), getCardOrder(searchId)]);
+          const [eo1, co1, hc1] = await Promise.all([getEditOverlays(searchId), getCardOrder(searchId), getHiddenCandidates(searchId)]);
           console.log('[getDeckData] Edit overlays found:', Object.keys(eo1));
           applyEditOverlays(candidates, eo1);
           const ctx1: SearchContext = {
@@ -618,6 +635,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             candidates,
           };
           if (co1) ctx1.card_order = co1;
+          if (hc1) ctx1.hidden_candidates = hc1;
           return ctx1;
         }
       }
@@ -709,14 +727,16 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           }
         }
 
-        const [photos2, eo2, co2] = await Promise.all([
+        const [photos2, eo2, co2, hc2] = await Promise.all([
           getPhotoUrls(searchId),
           getEditOverlays(searchId),
           getCardOrder(searchId),
+          getHiddenCandidates(searchId),
         ]);
         attachPhotos(context.candidates, photos2);
         applyEditOverlays(context.candidates, eo2);
         if (co2) context.card_order = co2;
+        if (hc2) context.hidden_candidates = hc2;
         return context;
       }
     } catch (err) {

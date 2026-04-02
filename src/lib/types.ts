@@ -118,6 +118,8 @@ export interface SearchContext {
   candidate_statuses?: Record<string, string>;
   /** Server-persisted card order (candidate IDs). Loaded from Vercel Blob. */
   card_order?: string[];
+  /** Server-persisted hidden candidate IDs. Loaded from Vercel Blob. */
+  hidden_candidates?: string[];
   deck_settings?: {
     match_score_display: 'SHOW' | 'HIDE';
     our_take_display: 'SHOW' | 'HIDE';

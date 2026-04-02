@@ -210,6 +210,46 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     setCardOrderReady(true);
   }, [data.candidates, data.card_order, orderKey]);
 
+  // ── Hidden candidates (remove/reinstate from deck) ───────────────────────
+  const hiddenKey = `hidden_${searchId}`;
+  const [hiddenCandidates, setHiddenCandidates] = useState<Set<string>>(new Set());
+  const [showHiddenTray, setShowHiddenTray] = useState(false);
+
+  // Load hidden candidates on mount — server-provided takes priority
+  useEffect(() => {
+    if (data.hidden_candidates?.length) {
+      setHiddenCandidates(new Set(data.hidden_candidates));
+      return;
+    }
+    try {
+      const stored = localStorage.getItem(hiddenKey);
+      if (stored) setHiddenCandidates(new Set(JSON.parse(stored)));
+    } catch { /* ignore */ }
+  }, [data.hidden_candidates, hiddenKey]);
+
+  const persistHidden = useCallback((newSet: Set<string>) => {
+    setHiddenCandidates(newSet);
+    const arr = Array.from(newSet);
+    try { localStorage.setItem(hiddenKey, JSON.stringify(arr)); } catch { /* ignore */ }
+    fetch(`/api/deck/${searchId}/hidden`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hidden: arr }),
+    }).catch(() => { /* ignore */ });
+  }, [hiddenKey, searchId]);
+
+  const hideCandidate = useCallback((id: string) => {
+    const next = new Set(Array.from(hiddenCandidates));
+    next.add(id);
+    persistHidden(next);
+  }, [hiddenCandidates, persistHidden]);
+
+  const reinstateCandidate = useCallback((id: string) => {
+    const next = new Set(hiddenCandidates);
+    next.delete(id);
+    persistHidden(next);
+  }, [hiddenCandidates, persistHidden]);
+
   // Filter candidates by status when candidate_statuses is defined
   // Only show candidates that have a status entry (e.g., "to_send")
   const [showAllCandidates, setShowAllCandidates] = useState(false);
@@ -217,9 +257,13 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {})).length
     : data.candidates.length;
   const hasFilter = data.candidate_statuses && shortlistCount < data.candidates.length;
-  const visibleCandidates = (hasFilter && !showAllCandidates)
+  const statusFiltered = (hasFilter && !showAllCandidates)
     ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {}))
     : data.candidates;
+
+  // Apply hidden candidates filter
+  const visibleCandidates = statusFiltered.filter((c) => !hiddenCandidates.has(c.candidate_id));
+  const hiddenCandidatesList = data.candidates.filter((c) => hiddenCandidates.has(c.candidate_id));
 
   // Derive ordered candidates
   const orderedCandidates = cardOrder.length > 0
@@ -936,6 +980,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                         card={candidate}
                         onClick={() => handleCardClick(i)}
                         editMode={editMode}
+                        onRemove={editMode ? () => hideCandidate(candidate.candidate_id) : undefined}
                       />
                     </div>
                   );
@@ -962,6 +1007,138 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 return elements;
               })()}
             </div>
+
+            {/* ── Hidden candidates tray (edit mode only) ── */}
+            {isEditRoute && editMode && hiddenCandidatesList.length > 0 && (
+              <div style={{ marginTop: "24px" }}>
+                <button
+                  onClick={() => setShowHiddenTray((v) => !v)}
+                  style={{
+                    background: "rgba(160,160,160,0.06)",
+                    border: "1px solid rgba(160,160,160,0.15)",
+                    borderRadius: "8px",
+                    padding: "8px 16px",
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    color: "rgba(255,255,255,0.45)",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                  onMouseOver={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.3)";
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.45)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.15)";
+                  }}
+                >
+                  <span style={{
+                    background: "rgba(197,165,114,0.12)",
+                    color: "var(--ss-gold)",
+                    borderRadius: "10px",
+                    padding: "1px 8px",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                  }}>
+                    {hiddenCandidatesList.length}
+                  </span>
+                  {hiddenCandidatesList.length === 1 ? "candidate" : "candidates"} not in deck
+                  <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>{showHiddenTray ? "▲" : "▼"}</span>
+                </button>
+
+                {showHiddenTray && (
+                  <div style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "12px",
+                    marginTop: "14px",
+                    padding: "16px",
+                    background: "rgba(160,160,160,0.04)",
+                    border: "1px dashed rgba(160,160,160,0.12)",
+                    borderRadius: "10px",
+                  }}>
+                    {hiddenCandidatesList.map((c) => (
+                      <div
+                        key={c.candidate_id}
+                        style={{
+                          background: "rgba(250,248,245,0.05)",
+                          border: "1px solid rgba(160,160,160,0.12)",
+                          borderRadius: "10px",
+                          padding: "14px 18px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "14px",
+                          minWidth: "260px",
+                        }}
+                      >
+                        {/* Mini avatar */}
+                        <div style={{
+                          width: "36px",
+                          height: "36px",
+                          borderRadius: "50%",
+                          background: c.photo_url || c.edc_data?.photo_url
+                            ? `url(${c.photo_url || c.edc_data?.photo_url}) center/cover`
+                            : "linear-gradient(135deg, rgba(197,165,114,0.3), rgba(197,165,114,0.5))",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          color: "rgba(255,255,255,0.7)",
+                          flexShrink: 0,
+                        }}>
+                          {!(c.photo_url || c.edc_data?.photo_url) && c.initials}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "rgba(255,255,255,0.75)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {c.candidate_name || c.edc_data?.candidate_name}
+                          </div>
+                          <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.35)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {c.current_title} · {c.current_company}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => reinstateCandidate(c.candidate_id)}
+                          title="Add back to deck"
+                          style={{
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "50%",
+                            border: "1px solid rgba(74,124,89,0.25)",
+                            background: "rgba(74,124,89,0.08)",
+                            color: "#5a9469",
+                            fontSize: "1rem",
+                            fontWeight: 400,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.2s",
+                            flexShrink: 0,
+                            lineHeight: 1,
+                            padding: 0,
+                          }}
+                          onMouseOver={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.15)";
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(74,124,89,0.4)";
+                          }}
+                          onMouseOut={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.08)";
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(74,124,89,0.25)";
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Spacer + subtle footer */}
             <div style={{ flex: 1 }} />

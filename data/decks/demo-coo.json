@@ -415,7 +415,7 @@
       "current_title": "Chief Executive Officer",
       "current_company": "Pryor Industrial Technologies",
       "location": "Grand Rapids, MI",
-      "photo_url": null,
+      "photo_url": "/photos/james-r-hargrove.jpg",
       "headline": "Full operational turnaround of $680M PE-backed industrial manufacturer — consolidated 24 plants to 18, expanded EBITDA margin from 9% to 17% in four years. Previously SVP Operations at Roper Technologies running $1.2B P&L across 22 sites.",
       "compensation_alignment": "amber",
       "career_trajectory": "Plant Mgr → SVP Ops (Roper $1.2B) → CEO (PE portfolio)",
@@ -426,7 +426,7 @@
         "current_title": "Chief Executive Officer",
         "current_company": "Pryor Industrial Technologies",
         "location": "Grand Rapids, MI",
-        "photo_url": null,
+        "photo_url": "/photos/james-r-hargrove.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
@@ -544,7 +544,7 @@
       "current_title": "Vice President, North American Manufacturing Operations",
       "current_company": "Vanguard Drivetrain Systems",
       "location": "Dearborn, MI",
-      "photo_url": null,
+      "photo_url": "/photos/michael-t-deluca.jpg",
       "headline": "16-year Vanguard veteran overseeing 19 North American plants with $1.8B operational P&L and 8,200 employees. Deep automotive expertise but single-company tenure, zero PE experience, and non-compete concerns place him on hold.",
       "compensation_alignment": "green",
       "career_trajectory": "Manufacturing Eng → Plant Dir → VP NA Manufacturing (16 years at Vanguard)",
@@ -555,7 +555,7 @@
         "current_title": "Vice President, North American Manufacturing Operations",
         "current_company": "Vanguard Drivetrain Systems",
         "location": "Dearborn, MI",
-        "photo_url": null,
+        "photo_url": "/photos/michael-t-deluca.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
@@ -673,7 +673,7 @@
       "current_title": "Regional Director of Operations, EMEA & Asia-Pacific",
       "current_company": "Breitenfeld Aerospace Group",
       "location": "Stuttgart, Germany",
-      "photo_url": null,
+      "photo_url": "/photos/katharina-wendt.jpg",
       "headline": "Cross-border operations leader managing 9 plants across 5 countries with €640M operational budget. Toyota Production System trained (TSSC Japan). Led post-acquisition integration of two French facilities. Open to US relocation — family ties in Chicago.",
       "compensation_alignment": "green",
       "career_trajectory": "Industrial Eng → Plant Dir → Regional Dir Ops EMEA/APAC",
@@ -684,7 +684,7 @@
         "current_title": "Regional Director of Operations, EMEA & Asia-Pacific",
         "current_company": "Breitenfeld Aerospace Group",
         "location": "Stuttgart, Germany",
-        "photo_url": null,
+        "photo_url": "/photos/katharina-wendt.jpg",
         "scope_match": [
           {
             "scope": "P&L Scale",
@@ -785,135 +785,6 @@
         },
         "motivation_hook": "US relocation window, scale step-up from regional to group-level operations",
         "status": "new",
-        "miscellaneous": null,
-        "search_name": "Chief Operations Officer",
-        "role_title": "Chief Operations Officer",
-        "generated_date": "March 2026",
-        "consultant_name": "SmartSearch",
-        "match_score_display": "HIDE",
-        "cv_url": null,
-        "linkedin_url": null
-      }
-    },
-    {
-      "candidate_id": "b-callahan",
-      "initials": "BC",
-      "candidate_name": "Brian P. Callahan",
-      "current_title": "Senior Vice President, Global Operations",
-      "current_company": "Lakeshore Consumer Brands",
-      "location": "Chicago, IL",
-      "photo_url": null,
-      "headline": "Accomplished FMCG operations leader with $1.4B P&L across 12 plants — strong general management and PE credentials but career entirely in consumer goods. No automotive, industrial, or precision manufacturing exposure. Sector mismatch.",
-      "compensation_alignment": "green",
-      "career_trajectory": "Ops Analyst → Plant Dir → VP Ops → SVP Global Ops (PE-backed FMCG)",
-      "industry_shorthand": "FMCG — Personal Care & Household",
-      "status": "rejected",
-      "edc_data": {
-        "candidate_name": "Brian P. Callahan",
-        "current_title": "Senior Vice President, Global Operations",
-        "current_company": "Lakeshore Consumer Brands",
-        "location": "Chicago, IL",
-        "photo_url": null,
-        "scope_match": [
-          {
-            "scope": "P&L Scale",
-            "candidate_actual": "$1.4B global operations P&L",
-            "role_requirement": "$2B+ operational P&L",
-            "alignment": "partial"
-          },
-          {
-            "scope": "Manufacturing Footprint",
-            "candidate_actual": "12 plants (US and Latin America)",
-            "role_requirement": "25+ manufacturing sites globally",
-            "alignment": "gap"
-          },
-          {
-            "scope": "Industry Context",
-            "candidate_actual": "FMCG personal care & household products",
-            "role_requirement": "Automotive OEM or Tier 1",
-            "alignment": "gap"
-          },
-          {
-            "scope": "PE Exposure",
-            "candidate_actual": "5 years under Advent International",
-            "role_requirement": "PE portfolio company operating experience",
-            "alignment": "strong"
-          },
-          {
-            "scope": "Global Scope",
-            "candidate_actual": "US and Latin America",
-            "role_requirement": "Multi-region operational oversight",
-            "alignment": "partial"
-          }
-        ],
-        "scope_seasoning": "Callahan has PE depth and respectable scale, but his entire career is consumer goods — personal care, household products, retail supply chains. Automotive manufacturing operates on different quality systems (IATF 16949 not ISO 22716), different customer dynamics, and different capex cycles. The sector gap is too wide.",
-        "key_criteria": [
-          {
-            "name": "P&L Ownership at Scale",
-            "evidence": "<strong>Full operational P&L of $1.4B</strong> across global manufacturing — meets the scale requirement but FMCG P&L dynamics are structurally different from automotive",
-            "context_anchor": "at Lakeshore ($1.4B global ops)"
-          },
-          {
-            "name": "Multi-Site Manufacturing Leadership",
-            "evidence": "<strong>12 plants in US and Latin America</strong> — below threshold and plants are high-volume batch/continuous process (liquids, aerosols), not discrete manufacturing",
-            "context_anchor": "at Lakeshore (12 plants, FMCG)"
-          },
-          {
-            "name": "Continuous Improvement & Footprint Optimization",
-            "evidence": "<strong>Led Lakeshore Performance System across all 12 sites</strong> — TPM, SMED, and 5S deployment, but continuous improvement in FMCG is a different discipline from automotive (APQP, PPAP, SPC absent)",
-            "context_anchor": "at Lakeshore LPS (FMCG context)"
-          },
-          {
-            "name": "Private Equity Operating Experience",
-            "evidence": "<strong>5 years under Advent International ownership</strong> — led 2 bolt-on acquisition integrations, manages quarterly board reporting; strongest area relative to the brief",
-            "context_anchor": "at Advent International (5 years)"
-          },
-          {
-            "name": "Global Operations Scope",
-            "evidence": "<strong>Consolidated 3 plants post-acquisition</strong> into existing Lakeshore facilities — effective execution but in FMCG context where consolidation decisions differ fundamentally from automotive",
-            "context_anchor": "at Lakeshore (3 plants consolidated)"
-          }
-        ],
-        "compensation": {
-          "current_base": "$340,000",
-          "current_total": "~$510,000 + Advent co-investment (est. $600K unrealised)",
-          "expected_base": "$370,000–$400,000",
-          "expected_total": "~$600,000–$700,000",
-          "flexibility": "Comp expectations within range. Not the issue — sector mismatch is the issue.",
-          "budget_range": "$650,000–$850,000 total package"
-        },
-        "notice_period": "60 days",
-        "why_interested": [
-          {
-            "type": "pull",
-            "headline": "Wants to move from FMCG to industrial — 'I want to build things that matter'",
-            "detail": "Feels consumer goods operations are becoming commoditised. Attracted to automotive complexity and capex intensity."
-          },
-          {
-            "type": "push",
-            "headline": "Feels FMCG operations becoming commoditised",
-            "detail": "Consumer goods manufacturing increasingly outsourced to co-packers. Wants to run real manufacturing."
-          },
-          {
-            "type": "pull",
-            "headline": "Attracted to automotive complexity and capex intensity",
-            "detail": "Self-aware about the sector gap but believes operational fundamentals transfer."
-          }
-        ],
-        "potential_concerns": [],
-        "our_take": {
-          "text": "Good operator, wrong sector. The PE experience is strong and the scale is close, but everything else is consumer goods — personal care, household products, retail supply chains. Automotive manufacturing is a different animal: different quality systems, different customer dynamics, different capex cycles. Callahan would spend his first year learning the sector rather than transforming operations. Plenty of automotive COO candidates available — no reason to cross-sector here. Declined.",
-          "our_take_fragments": [
-            "PE experience is strong — 5 years under Advent, 2 bolt-on integrations",
-            "Everything else is consumer goods — wrong quality systems, wrong customer dynamics",
-            "Would spend Year 1 learning the sector rather than transforming operations",
-            "Plenty of automotive COO candidates available — no reason to cross-sector"
-          ],
-          "original_note": null,
-          "ai_rationale": null
-        },
-        "motivation_hook": "Seeking sector transition from FMCG to industrial manufacturing",
-        "status": "rejected",
         "miscellaneous": null,
         "search_name": "Chief Operations Officer",
         "role_title": "Chief Operations Officer",

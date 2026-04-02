@@ -9,6 +9,7 @@ interface IntroCardProps {
   card: IntroCardData;
   onClick: () => void;
   editMode?: boolean;
+  onRemove?: () => void;
 }
 
 // ── Per-candidate edit overrides stored in localStorage ──────────────────────
@@ -116,7 +117,7 @@ function Editable({
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function IntroCard({ card, onClick, editMode = false }: IntroCardProps) {
+export default function IntroCard({ card, onClick, editMode = false, onRemove }: IntroCardProps) {
   const [edits, setEdits] = useState<CardEdits>({});
 
   useEffect(() => {
@@ -259,6 +260,47 @@ export default function IntroCard({ card, onClick, editMode = false }: IntroCard
         >
           {(!v.status || v.status === 'none') ? "No status" : v.status.charAt(0).toUpperCase() + v.status.slice(1)}
         </div>
+      )}
+
+      {/* ── Remove from deck button (edit mode only) ── */}
+      {editMode && onRemove && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove(); }}
+          title="Remove from deck"
+          style={{
+            position: "absolute",
+            top: "12px",
+            left: "12px",
+            width: "24px",
+            height: "24px",
+            borderRadius: "50%",
+            border: "1px solid rgba(160,160,160,0.2)",
+            background: "rgba(160,160,160,0.06)",
+            color: "rgba(160,160,160,0.5)",
+            fontSize: "0.72rem",
+            fontWeight: 700,
+            cursor: "pointer",
+            zIndex: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.2s",
+            lineHeight: 1,
+            padding: 0,
+          }}
+          onMouseOver={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "#b85450";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(184,84,80,0.3)";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(184,84,80,0.08)";
+          }}
+          onMouseOut={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.color = "rgba(160,160,160,0.5)";
+            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.2)";
+            (e.currentTarget as HTMLButtonElement).style.background = "rgba(160,160,160,0.06)";
+          }}
+        >
+          ✕
+        </button>
       )}
 
       {/* ── Card body ── */}
