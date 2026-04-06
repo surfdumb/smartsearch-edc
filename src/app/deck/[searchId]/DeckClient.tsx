@@ -970,6 +970,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                       onDragEnd={editMode ? handleDragEnd : undefined}
                       style={{
                         width: "310px",
+                        minHeight: "280px",
                         opacity: dragIdx === i ? 0.3 : 1,
                         transition: "opacity 0.15s",
                         borderRadius: "14px",
