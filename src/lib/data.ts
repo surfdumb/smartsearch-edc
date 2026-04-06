@@ -469,6 +469,16 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     // which would wipe photo_url set by attachPhotos if run before.
     attachPhotos(candidates, photos);
 
+    // Enforce deck-level criteria names — Blob overlays may contain stale names
+    const deckCriteriaNames: string[] = fixture.key_criteria_names || [];
+    if (deckCriteriaNames.length > 0) {
+      for (const c of candidates) {
+        for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
+          c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
+        }
+      }
+    }
+
     const context: SearchContext = {
       search_name: fixture.search_name || searchId,
       client_company: fixture.client_company || '',
@@ -625,6 +635,14 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           console.log('[getDeckData] Edit overlays found:', Object.keys(eo1));
           applyEditOverlays(candidates, eo1);
           attachPhotos(candidates, photos);
+          // Enforce deck-level criteria names over stale overlay names
+          if (effectiveCriteriaNames.length > 0) {
+            for (const c of candidates) {
+              for (let i = 0; i < c.edc_data.key_criteria.length && i < effectiveCriteriaNames.length; i++) {
+                c.edc_data.key_criteria[i].name = effectiveCriteriaNames[i];
+              }
+            }
+          }
           const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
@@ -737,6 +755,15 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         ]);
         applyEditOverlays(context.candidates, eo2);
         attachPhotos(context.candidates, photos2);
+        // Enforce deck-level criteria names over stale overlay names
+        const ctxCriteriaNames = context.key_criteria_names || [];
+        if (ctxCriteriaNames.length > 0) {
+          for (const c of context.candidates) {
+            for (let i = 0; i < c.edc_data.key_criteria.length && i < ctxCriteriaNames.length; i++) {
+              c.edc_data.key_criteria[i].name = ctxCriteriaNames[i];
+            }
+          }
+        }
         if (co2) context.card_order = co2;
         if (hc2) context.hidden_candidates = hc2;
         return context;
