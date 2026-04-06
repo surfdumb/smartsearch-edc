@@ -31,7 +31,7 @@ export default function MotivationStrip({
     for (const item of why_interested) {
       const h = item.headline?.trim();
       // Filter out placeholder text
-      if (h && h !== 'See candidate overview' && h !== 'Not mentioned') frags.push(h);
+      if (h && h !== 'See candidate overview' && h !== 'Not mentioned' && h !== 'Opportunity details in assessment') frags.push(h);
     }
     // Include any motivation-adjacent our_take_fragments
     if (our_take_fragments) {
@@ -77,8 +77,9 @@ export default function MotivationStrip({
   const isModified = customText !== null;
 
   const handleRefresh = () => {
-    setCustomText(null);
-    setCurrentIndex(prev => (prev + 1) % fragments.length);
+    const nextIndex = (currentIndex + 1) % fragments.length;
+    setCurrentIndex(nextIndex);
+    setCustomText(fragments[nextIndex] || null);
   };
 
   const handleReset = (e: React.MouseEvent) => {
