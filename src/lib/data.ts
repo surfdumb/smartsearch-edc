@@ -1,4 +1,6 @@
 import type { EDCData, IntroCardData, SearchContext } from './types';
+import { getSupabaseDeckData } from './supabase-data';
+import { SUPABASE_ENABLED } from './supabase';
 import fs from 'fs';
 import path from 'path';
 
@@ -426,9 +428,40 @@ export async function getCandidateData(
 // ─── getDeckData ──────────────────────────────────────────────────────────────
 
 export async function getDeckData(searchId: string): Promise<SearchContext | null> {
+  // Priority 0: Supabase (staging/production)
+  if (SUPABASE_ENABLED) {
+    const supabaseData = await getSupabaseDeckData(searchId);
+    if (supabaseData) {
+      // Still apply Blob overlays (photos, edits, card order) on top
+      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
+        getPhotoUrls(searchId),
+        getEditOverlays(searchId),
+        getCardOrder(searchId),
+        getHiddenCandidates(searchId),
+      ]);
+      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
+      if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
+      if (savedOrder) supabaseData.card_order = savedOrder;
+      if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
+
+      // Enforce deck-level criteria names over stale overlay names
+      const deckCriteriaNames = supabaseData.key_criteria_names || [];
+      if (deckCriteriaNames.length > 0) {
+        for (const c of supabaseData.candidates) {
+          for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
+            c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
+          }
+        }
+      }
+
+      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
+      return supabaseData;
+    }
+  }
+
   const fixture = await loadFixture(searchId);
 
-  // 0. Fixture with pre-structured candidates — highest priority, no enrichment needed
+  // 1. Fixture with pre-structured candidates
   if (fixture?.candidates?.length) {
     const candidates = fixture.candidates.map((c: Record<string, unknown>) => {
       // Already IntroCardData shaped (has edc_data) — pass through with enriched footer
