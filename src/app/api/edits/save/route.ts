@@ -35,7 +35,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         const existingFields: string[] = existing?.manually_edited_fields || [];
         const newFields = Object.keys(edcData);
-        const mergedFields = [...new Set([...existingFields, ...newFields])];
+        const mergedFields = Array.from(new Set([...existingFields, ...newFields]));
 
         // Build update payload — always write edc_data + tracking fields
         const updatePayload: Record<string, unknown> = {
