@@ -463,9 +463,11 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       getCardOrder(searchId),
       getHiddenCandidates(searchId),
     ]);
-    attachPhotos(candidates, photos);
     console.log('[getDeckData] Edit overlays found:', Object.keys(editOverlays));
     applyEditOverlays(candidates, editOverlays);
+    // Photos must be attached AFTER overlays — overlays replace entire edc_data,
+    // which would wipe photo_url set by attachPhotos if run before.
+    attachPhotos(candidates, photos);
 
     const context: SearchContext = {
       search_name: fixture.search_name || searchId,
@@ -618,11 +620,10 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
         if (candidates.length > 0) {
           console.log('[data] Loaded structured deck from EDC Output Store for', searchId, `(${candidates.length} candidates)`);
-          const photos = await getPhotoUrls(searchId);
-          attachPhotos(candidates, photos);
-          const [eo1, co1, hc1] = await Promise.all([getEditOverlays(searchId), getCardOrder(searchId), getHiddenCandidates(searchId)]);
+          const [photos, eo1, co1, hc1] = await Promise.all([getPhotoUrls(searchId), getEditOverlays(searchId), getCardOrder(searchId), getHiddenCandidates(searchId)]);
           console.log('[getDeckData] Edit overlays found:', Object.keys(eo1));
           applyEditOverlays(candidates, eo1);
+          attachPhotos(candidates, photos);
           const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
@@ -733,8 +734,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           getCardOrder(searchId),
           getHiddenCandidates(searchId),
         ]);
-        attachPhotos(context.candidates, photos2);
         applyEditOverlays(context.candidates, eo2);
+        attachPhotos(context.candidates, photos2);
         if (co2) context.card_order = co2;
         if (hc2) context.hidden_candidates = hc2;
         return context;
