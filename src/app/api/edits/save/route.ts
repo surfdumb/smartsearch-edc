@@ -37,13 +37,21 @@ export async function POST(request: Request): Promise<NextResponse> {
         const newFields = Object.keys(edcData);
         const mergedFields = [...new Set([...existingFields, ...newFields])];
 
+        // Build update payload — always write edc_data + tracking fields
+        const updatePayload: Record<string, unknown> = {
+          edc_data: edcData,
+          manually_edited_fields: mergedFields,
+          updated_at: new Date().toISOString(),
+        };
+
+        // Sync deck_status when status is present in edcData
+        if (edcData.status) {
+          updatePayload.deck_status = edcData.status;
+        }
+
         const { error } = await supabase
           .from('candidates')
-          .update({
-            edc_data: edcData,
-            manually_edited_fields: mergedFields,
-            updated_at: new Date().toISOString(),
-          })
+          .update(updatePayload)
           .eq('search_id', searchUUID)
           .eq('candidate_slug', candidateId);
 
