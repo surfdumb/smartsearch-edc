@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
+import { SUPABASE_ENABLED } from "@/lib/supabase";
 
 export async function POST(
   request: Request,
@@ -17,6 +18,20 @@ export async function POST(
       return NextResponse.json({ error: "Invalid searchId" }, { status: 400 });
     }
 
+    // Write to Supabase when enabled
+    if (SUPABASE_ENABLED) {
+      const { getServiceClient } = await import("@/lib/supabase");
+      const supabase = getServiceClient();
+      const { error } = await supabase
+        .from('searches')
+        .update({ hidden_candidates: hidden })
+        .eq('search_key', searchId);
+
+      if (error) console.error("[hidden] Supabase write failed:", error);
+      else console.log("[hidden] Saved hidden candidates to Supabase:", searchId);
+    }
+
+    // Always write to Blob as well (fallback)
     const pathname = `deck-config/${searchId}/hidden-candidates.json`;
     const blob = await put(pathname, JSON.stringify(hidden), {
       access: "public",
