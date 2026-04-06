@@ -680,7 +680,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
             {/* Company + Location */}
             <p style={{ fontSize: "0.85rem", color: "var(--ss-gold)", marginBottom: "2px", fontWeight: 500 }}>
-              {data.client_company}
+              {data.client_display_name || data.client_company}
             </p>
             {data.client_location && (
               <p style={{ fontSize: "0.78rem", color: "rgba(255,255,255,0.35)", marginBottom: "0" }}>

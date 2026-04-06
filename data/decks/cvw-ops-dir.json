@@ -1,6 +1,7 @@
 {
   "search_name": "Operations Director",
   "client_company": "Crestview Aerospace",
+  "client_display_name": "Crestview Aerospace (Kemco)",
   "client_location": "Kirkwood, Missouri, USA",
   "client_logo_url": null,
   "deck_logo_url": null,
@@ -90,7 +91,7 @@
           },
           {
             "name": "Continuous improvement experience",
-            "evidence": "Review in edit mode",
+            "evidence": "<strong>Black Belt continuous improvement credentials</strong> with quality systems background including 8 years as QA Inspector and 50% reduction in non-conformance reports",
             "context_anchor": "at Boeing"
           },
           {
@@ -112,9 +113,14 @@
         "notice_period": "2 weeks",
         "why_interested": [
           {
+            "type": "push",
+            "headline": "Impacted by Boeing RIF",
+            "detail": "Impacted by Boeing's January 2025 workforce reduction affecting 17,000 employees; currently in gap-filler packaging role"
+          },
+          {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Return to aerospace manufacturing operations",
+            "detail": "26-year Boeing manufacturing veteran seeking return to aerospace operations after gap-filler role at Pro Impact Packaging"
           }
         ],
         "potential_concerns": [
@@ -128,7 +134,7 @@
           "14+ years Boeing aerospace but high-volume assembly, not precision CNC machining",
           "Transition from Boeing scale to low-volume high-mix requires validation"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Seeking aerospace return after Boeing RIF",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -227,9 +233,14 @@
         "notice_period": "2 weeks",
         "why_interested": [
           {
+            "type": "push",
+            "headline": "Current role is facilities ops, not manufacturing",
+            "detail": "Managing janitorial operations at ABM Industries — a significant step away from his 28 years of aerospace manufacturing experience"
+          },
+          {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Return to hands-on aerospace manufacturing",
+            "detail": "Compensation not primary motivator at this career stage; emphasising the work itself and return to aerospace operations leadership"
           }
         ],
         "potential_concerns": [
@@ -244,7 +255,7 @@
           "CNC machining credibility is the pivotal question — supervisory vs hands-on",
           "Current ABM facilities role is a significant step away from aerospace"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Drawn back to manufacturing from facilities role",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -321,7 +332,7 @@
           },
           {
             "name": "Continuous improvement experience",
-            "evidence": "Review in edit mode",
+            "evidence": "<strong>Six Sigma Green Belt (working toward Black Belt)</strong> hired specifically as Operational Excellence Leader to install Lean/Six Sigma systems; reduced $19M backlog to $4M in 7 months",
             "context_anchor": "at Samuel, Son & Co."
           },
           {
@@ -343,9 +354,14 @@
         "notice_period": "2 weeks or less",
         "why_interested": [
           {
+            "type": "push",
+            "headline": "Current employer facility closing",
+            "detail": "Samuel, Son & Co. facility is closing; currently receiving 10% monthly retention bonus during wind-down"
+          },
+          {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Aerospace operations leadership with stability",
+            "detail": "Seeking long-term aerospace operations role; no other active interview processes; location and compensation aligned"
           }
         ],
         "potential_concerns": [
@@ -360,7 +376,7 @@
           "CNC depth gap — core expertise is assembly/structures, not precision machining",
           "Recent machining exposure at Samuel is only ~1 year"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Current facility closing, seeking aerospace stability",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -437,12 +453,12 @@
           },
           {
             "name": "Continuous improvement experience",
-            "evidence": "Review in edit mode — CI credentials identified as strongest on shortlist with 20 years building capability from scratch",
+            "evidence": "<strong>Strongest CI credentials on the shortlist with 20 years building lean capability from scratch</strong> across multiple organisations — spent several years as a dedicated lean practitioner, travelling globally to teach and implement lean processes and tools",
             "context_anchor": "at Seyer Industries"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "Review in edit mode",
+            "evidence": "<strong>Professional, measured, and technically articulate</strong> with a 'hockey coach' leadership style; more reserved and process-oriented than outgoing, but builds credibility through deep technical knowledge",
             "context_anchor": "at Seyer Industries"
           }
         ],
@@ -460,8 +476,8 @@
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Right-fit opportunity matching CNC and lean expertise",
+            "detail": "Focused on finding the right cultural and operational fit at this career stage — 'the goal for me is to really be focused on the right role that's a good fit'"
           }
         ],
         "potential_concerns": [
@@ -476,7 +492,7 @@
           "300 employees across 4 shifts at Seyer — scale match",
           "Military platform depth is the one gap — Kemco is 90% military work"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Seeking right cultural and operational fit",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -575,9 +591,14 @@
         "notice_period": "Immediately available",
         "why_interested": [
           {
+            "type": "push",
+            "headline": "Recently departed Boeing",
+            "detail": "Departed Boeing via mutual agreement 3 weeks prior to interview; immediately available"
+          },
+          {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Growth opportunity at right-sized operation",
+            "detail": "Open to slight reduction from current $151k for the right growth opportunity; comfortable with Kemco's compensation range"
           }
         ],
         "potential_concerns": [
@@ -592,7 +613,7 @@
           "CNC filter is pivotal — entire career in assembly, not precision machining",
           "Immediately available and local to St. Louis"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Recently departed Boeing, seeking growth opportunity",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -691,9 +712,14 @@
         "notice_period": "3–4 weeks",
         "why_interested": [
           {
+            "type": "push",
+            "headline": "Missing hands-on operations in current BD role",
+            "detail": "Currently in VP Business Development at LaGesse Products — misses operations and wants to get back to improving things on the floor"
+          },
+          {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Return to operations leadership with CNC focus",
+            "detail": "Knows the Kemco family and has worked with them before; drawn to precision machining operations role matching his career-long CNC background"
           }
         ],
         "potential_concerns": [
@@ -708,7 +734,7 @@
           "Military platform depth is a gap — 90% of Kemco work is military",
           "Current sales role pivot rationale needs exploration"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Misses operations, drawn back from business development",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -808,8 +834,8 @@
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Growth beyond Manufacturing Manager scope",
+            "detail": "Exploring step up from Boeing Manufacturing Manager to Operations Director level; strong local ties to St. Louis area due to family"
           }
         ],
         "potential_concerns": [
@@ -824,7 +850,7 @@
           "May lack polish for customer-facing operations director role",
           "CNC depth limited to ~20% of career"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Exploring growth beyond current Boeing scope",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -924,8 +950,8 @@
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Opportunity details in assessment",
-            "detail": ""
+            "headline": "Smaller company culture and direct impact",
+            "detail": "Attracted to smaller company feel — 'you get more of a family feel at places like that, which can be a positive'; wants more direct ownership and impact"
           }
         ],
         "potential_concerns": [
@@ -940,7 +966,7 @@
           "CNC machining gap is fundamental for precision environment",
           "Energy level and cultural fit are concerns for customer-facing role"
         ],
-        "motivation_hook": "",
+        "motivation_hook": "Attracted to smaller company culture and direct impact",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",

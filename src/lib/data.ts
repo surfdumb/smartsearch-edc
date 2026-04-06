@@ -434,7 +434,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       // Already IntroCardData shaped (has edc_data) — pass through with enriched footer
       if (c.edc_data) {
         const edcData = c.edc_data as EDCData;
-        if (fixture.client_company) edcData.search_name = fixture.client_company;
+        if (fixture.client_company) edcData.search_name = fixture.client_display_name || fixture.client_company;
         if (fixture.role_title || fixture.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
         return c as unknown as IntroCardData;
       }
@@ -472,6 +472,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     const context: SearchContext = {
       search_name: fixture.search_name || searchId,
       client_company: fixture.client_company || '',
+      client_display_name: fixture.client_display_name,
       client_location: fixture.client_location || (fixture as unknown as Record<string, string>).location || '',
       client_logo_url: fixture.client_logo_url,
       key_criteria_names: fixture.key_criteria_names || [],
