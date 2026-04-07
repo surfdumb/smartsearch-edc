@@ -376,20 +376,20 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
           </p>
         )}
 
-        {/* Snippet */}
-        {snippet && (
-          <p
-            style={{
-              fontSize: "0.94rem",
-              color: "#5a5550",
-              lineHeight: 1.5,
-              textAlign: "center",
-              marginTop: "10px",
-              marginBottom: "0",
-            }}
-          >
-            {snippet}
-          </p>
+        {/* Snippet — editable headline */}
+        {(snippet || editMode) && (
+          <div style={{ textAlign: "center", marginTop: "10px", marginBottom: "0" }}>
+            <Editable
+              value={snippet}
+              onSave={(val) => save({ headline: val })}
+              editMode={editMode}
+              style={{
+                fontSize: "0.94rem",
+                color: "#5a5550",
+                lineHeight: 1.5,
+              }}
+            />
+          </div>
         )}
 
         {/* Spacer */}
