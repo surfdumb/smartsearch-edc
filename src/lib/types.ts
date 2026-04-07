@@ -106,6 +106,7 @@ export interface EDCData {
 
 export interface SearchContext {
   search_name: string;
+  role_title?: string;
   client_company: string;
   client_display_name?: string;
   client_location: string;

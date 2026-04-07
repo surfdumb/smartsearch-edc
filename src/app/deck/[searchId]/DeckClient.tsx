@@ -675,7 +675,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 marginBottom: "6px",
               }}
             >
-              {data.search_name}
+              {data.role_title || data.search_name}
             </h1>
 
             {/* Company + Location */}

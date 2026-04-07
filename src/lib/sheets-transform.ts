@@ -755,6 +755,7 @@ export function transformToSearchContext(
 
   return {
     search_name: js[0] || searchId,
+    role_title: js[1] || js[0] || searchId,
     client_company: js[3] || 'Not specified',
     client_location: js[4] || '',
     key_criteria_names: keyCriteriaNames,

@@ -340,7 +340,7 @@ export async function getCandidateData(
             // Override footer metadata from fixture (outside EDS block — always runs)
             if (fixture?.client_company) edcData.search_name = fixture.client_company;
             else if (fixture?.search_name) edcData.search_name = fixture.search_name;
-            if (fixture?.search_name) edcData.role_title = fixture.search_name;
+            if (fixture?.role_title || fixture?.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
 
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
             return edcData;
@@ -399,7 +399,7 @@ export async function getCandidateData(
         // Override footer metadata from fixture (same as path 1)
         if (fixture?.client_company) edcData.search_name = fixture.client_company;
         else if (fixture?.search_name) edcData.search_name = fixture.search_name;
-        if (fixture?.search_name) edcData.role_title = fixture.search_name;
+        if (fixture?.role_title || fixture?.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
 
         return edcData;
       }
@@ -514,6 +514,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
     const context: SearchContext = {
       search_name: fixture.search_name || searchId,
+      role_title: fixture.role_title || fixture.search_name || searchId,
       client_company: fixture.client_company || '',
       client_display_name: fixture.client_display_name,
       client_location: fixture.client_location || (fixture as unknown as Record<string, string>).location || '',
@@ -638,8 +639,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
               } else if (fixture?.search_name) {
                 edcData.search_name = fixture.search_name;
               }
-              if (fixture?.search_name) {
-                edcData.role_title = fixture.search_name;
+              if (fixture?.role_title || fixture?.search_name) {
+                edcData.role_title = fixture.role_title || fixture.search_name || '';
               }
 
               return {
@@ -678,6 +679,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           }
           const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
+            role_title: fixture?.role_title || fixture?.search_name || js[0] || searchId,
             client_company: fixture?.client_company || js[3] || 'Not specified',
             client_location: fixture?.client_location || js[4] || '',
             client_logo_url: fixture?.client_logo_url,
@@ -717,6 +719,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           if (fixture.deck_settings) context.deck_settings = fixture.deck_settings;
           if (fixture.client_logo_url) context.client_logo_url = fixture.client_logo_url;
           if (fixture.search_name) context.search_name = fixture.search_name;
+          if (fixture.role_title || fixture.search_name) context.role_title = fixture.role_title || fixture.search_name;
           if (fixture.client_company) context.client_company = fixture.client_company;
           if (fixture.search_lead) context.search_lead = fixture.search_lead;
           if (fixture.key_criteria_names?.length) {
@@ -771,7 +774,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           // Footer override from fixture
           if (fixture?.client_company) edcData.search_name = fixture.client_company;
           else if (fixture?.search_name) edcData.search_name = fixture.search_name;
-          if (fixture?.search_name) edcData.role_title = fixture.search_name;
+          if (fixture?.role_title || fixture?.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
 
           // Merge status from fixture
           const statuses = fixture?.candidate_statuses || {};
