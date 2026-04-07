@@ -12,7 +12,7 @@ import TabNavigation from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { type EDCData, type EDCContext } from "@/lib/types";
+import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
 
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
@@ -317,6 +317,8 @@ export default function EDCCard({
           candidateId={candidateId}
           triggerRef={ourTakeTriggerRef}
           onClose={() => handleOurTakeToggle(false)}
+          candidateContext={buildCandidateContext(data)}
+          manualNotes={data.our_take?.original_note}
         />
       )}
     </div>

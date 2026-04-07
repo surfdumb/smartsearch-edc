@@ -12,6 +12,8 @@ interface OurTakePopoverProps {
   candidateId?: string;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
+  candidateContext?: string;
+  manualNotes?: string;
 }
 
 export default function OurTakePopover({
@@ -21,10 +23,13 @@ export default function OurTakePopover({
   candidateId,
   triggerRef,
   onClose,
+  candidateContext,
+  manualNotes,
 }: OurTakePopoverProps) {
   const { isEditable } = useEditorContext();
   const popoverRef = useRef<HTMLDivElement>(null);
   const storageKey = candidateId ? `edc_edit_${candidateId}_ourtake` : null;
+  const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Load persisted edits or fall back to props
   const loadStored = () => {
@@ -130,6 +135,28 @@ export default function OurTakePopover({
     }
   };
 
+  const handleRegenerate = useCallback(async () => {
+    if (!candidateContext || isRegenerating) return;
+    setIsRegenerating(true);
+    try {
+      const res = await fetch('/api/generate-our-take', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ candidateContext, manualNotes }),
+      });
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const result = await res.json();
+      if (result.text) {
+        setText(result.text);
+        setFragments([]);
+      }
+    } catch (err) {
+      console.error('Regenerate Our Take failed:', err);
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [candidateContext, manualNotes, isRegenerating]);
+
   if (!pos) return null;
 
   const popover = (
@@ -183,7 +210,8 @@ export default function OurTakePopover({
           }}
         />
 
-        {/* Consultant name — editable */}
+        {/* Consultant name row — flex: name left, regenerate right */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         {isEditable ? (
           showName ? (
             <span className="editable-wrap" style={{ position: "relative", display: "inline-block" }}>
@@ -274,6 +302,45 @@ export default function OurTakePopover({
             </span>
           )
         )}
+
+        {/* Regenerate button — edit mode only */}
+        {isEditable && candidateContext && (
+          <button
+            onClick={handleRegenerate}
+            disabled={isRegenerating}
+            title={isRegenerating ? "Regenerating…" : "Regenerate"}
+            style={{
+              background: "transparent",
+              border: "none",
+              padding: "4px",
+              color: isRegenerating ? "var(--ss-gray-light)" : "#b0a080",
+              fontSize: "16px",
+              lineHeight: 1,
+              cursor: isRegenerating ? "default" : "pointer",
+              transition: "all 0.2s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              flexShrink: 0,
+            }}
+            onMouseOver={(e) => {
+              if (!isRegenerating) {
+                (e.currentTarget as HTMLButtonElement).style.color = "#c5a572";
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(197,165,114,0.08)";
+              }
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = isRegenerating ? "var(--ss-gray-light)" : "#b0a080";
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+            }}
+          >
+            <span style={isRegenerating ? { display: "inline-block", animation: "regenerateSpin 1s linear infinite" } : undefined}>↻</span>
+          </button>
+        )}
+        </div>
       </div>
 
       {/* Fragment list */}
@@ -441,6 +508,7 @@ export default function OurTakePopover({
         </div>
       )}
       </div>
+      <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
     </>
   );
 
