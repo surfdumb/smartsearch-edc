@@ -158,6 +158,25 @@ export default function EDCCard({
   const hasOurTake = (data.our_take_fragments && data.our_take_fragments.length > 0) ||
     (data.our_take?.text && data.our_take.text.trim().length > 0);
 
+  // Our Take overlay: shows Our Take as a full-panel cover on first open
+  const PLACEHOLDER_TEXT = "Our take will be added following consultant review";
+  const ourTakeText = data.our_take?.text?.trim() || "";
+  const hasRealOurTake = hasOurTake
+    && ourTakeText.length > 0
+    && !ourTakeText.includes(PLACEHOLDER_TEXT)
+    && deckSettings?.our_take_display !== 'HIDE';
+
+  const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(hasRealOurTake && (initialOurTakeOpen || !initialPanel));
+
+  // Reset overlay state when candidate changes
+  useEffect(() => {
+    const text = data.our_take?.text?.trim() || "";
+    const frags = data.our_take_fragments && data.our_take_fragments.length > 0;
+    const real = (frags || (text.length > 0 && !text.includes(PLACEHOLDER_TEXT))) && deckSettings?.our_take_display !== 'HIDE';
+    // Show overlay on new candidate if they have real Our Take (unless restoring a specific panel from hash)
+    setOurTakeOverlayOpen(real && !initialPanel);
+  }, [candidateId]);
+
   return (
     <div
       className="edc-card font-outfit"
@@ -211,7 +230,7 @@ export default function EDCCard({
           {/* Content area */}
           <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
             {/* Our Take pill — persistent across all panels, top-right */}
-            {hasOurTake && (
+            {hasOurTake && !ourTakeOverlayOpen && (
               <div
                 style={{
                   position: "absolute",
@@ -224,7 +243,14 @@ export default function EDCCard({
               >
                 <button
                   ref={ourTakeTriggerRef}
-                  onClick={() => handleOurTakeToggle(!ourTakeOpen)}
+                  onClick={() => {
+                    if (hasRealOurTake) {
+                      setOurTakeOverlayOpen(true);
+                      onOurTakeChange?.(true);
+                    } else {
+                      handleOurTakeToggle(!ourTakeOpen);
+                    }
+                  }}
                   className={ourTakeOpen ? "" : "our-take-glow"}
                   style={{
                     fontSize: fluid ? "0.82rem" : "0.92rem",
@@ -263,58 +289,152 @@ export default function EDCCard({
               </div>
             )}
 
-            <div
-              className={`criteria-scroll ${slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}`}
-              style={{
-                height: "100%",
-                minHeight: "200px",
-                background: "white",
-              }}
-            >
-            {/* Scroll fade indicator — signals content extends below */}
-            <div className="scroll-fade-indicator" />
-              {/* All tabs stay mounted to preserve edit state across tab switches */}
-              <div style={{ display: currentPanel === 1 ? 'block' : 'none' }}>
-                <ScopeMatch
-                  scope_match={data.scope_match}
-                  scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
-                  candidateId={candidateId}
-                />
-              </div>
+            {/* Our Take overlay — fills content area on first open */}
+            {ourTakeOverlayOpen && hasRealOurTake ? (
+              <div
+                style={{
+                  height: "100%",
+                  background: "white",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "auto",
+                }}
+              >
+                <div style={{ flex: 1, padding: fluid ? "28px 20px" : "36px 48px" }}>
+                  {/* Our Take header */}
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
+                    <span style={{ color: "var(--ss-gold)", fontSize: "1rem" }}>&#10022;</span>
+                    <span
+                      className="font-cormorant"
+                      style={{
+                        fontSize: "1.3rem",
+                        fontWeight: 600,
+                        color: "var(--ss-dark)",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      Our Take
+                    </span>
+                  </div>
 
-              <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
-                <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
-              </div>
+                  {/* Our Take text content */}
+                  <div
+                    style={{
+                      border: "1px solid rgba(74,124,89,0.2)",
+                      borderRadius: "12px",
+                      padding: "20px 24px",
+                      background: "rgba(74,124,89,0.03)",
+                      marginBottom: "24px",
+                    }}
+                  >
+                    {/* Fragments */}
+                    {data.our_take_fragments && data.our_take_fragments.length > 0 && (
+                      <div style={{ marginBottom: data.our_take?.text ? "16px" : 0 }}>
+                        {data.our_take_fragments.map((frag, i) => (
+                          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "8px" }}>
+                            <span style={{ color: "var(--ss-gold)", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>●</span>
+                            <p style={{ fontSize: "0.85rem", lineHeight: 1.7, color: "var(--ss-dark)", margin: 0, whiteSpace: "pre-line" }}>{frag}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Full text */}
+                    {data.our_take?.text && (
+                      <p style={{ fontSize: "0.85rem", lineHeight: 1.7, color: "var(--ss-dark)", margin: 0, whiteSpace: "pre-line" }}>
+                        {data.our_take.text}
+                      </p>
+                    )}
+                  </div>
 
-              <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
-                <Compensation
-                  compensation={data.compensation}
-                  notice_period={data.notice_period}
-                  candidateId={candidateId}
-                />
-                {/* WhyInterested removed — motivation lives in MotivationStrip */}
-                {data.miscellaneous && (
-                  <Miscellaneous
-                    text={data.miscellaneous.text}
-                    display={data.miscellaneous.display}
+                  {/* View Evidence button */}
+                  <div style={{ textAlign: "center" }}>
+                    <button
+                      onClick={() => {
+                        setOurTakeOverlayOpen(false);
+                        onOurTakeChange?.(false);
+                      }}
+                      style={{
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        color: "var(--ss-gold)",
+                        background: "transparent",
+                        border: "1.5px solid rgba(197,165,114,0.35)",
+                        borderRadius: "10px",
+                        padding: "10px 28px",
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        letterSpacing: "0.3px",
+                      }}
+                      onMouseOver={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.06)";
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.5)";
+                      }}
+                      onMouseOut={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.35)";
+                      }}
+                    >
+                      View Evidence →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className={`criteria-scroll ${slideDirection === 'right' ? 'panel-enter-right' : 'panel-enter-left'}`}
+                style={{
+                  height: "100%",
+                  minHeight: "200px",
+                  background: "white",
+                }}
+              >
+              {/* Scroll fade indicator — signals content extends below */}
+              <div className="scroll-fade-indicator" />
+                {/* All tabs stay mounted to preserve edit state across tab switches */}
+                <div style={{ display: currentPanel === 1 ? 'block' : 'none' }}>
+                  <ScopeMatch
+                    scope_match={data.scope_match}
+                    scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+                    candidateId={candidateId}
                   />
-                )}
+                </div>
+
+                <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
+                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
+                </div>
+
+                <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
+                  <Compensation
+                    compensation={data.compensation}
+                    notice_period={data.notice_period}
+                    candidateId={candidateId}
+                  />
+                  {/* WhyInterested removed — motivation lives in MotivationStrip */}
+                  {data.miscellaneous && (
+                    <Miscellaneous
+                      text={data.miscellaneous.text}
+                      display={data.miscellaneous.display}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* ── Static zone: tab nav + footer (don't swipe) ──────────────── */}
-      <TabNavigation current={currentPanel} onChange={navigateToPanel} />
+      {!ourTakeOverlayOpen && (
+        <TabNavigation current={currentPanel} onChange={navigateToPanel} />
+      )}
 
       <EDCFooter
         search_name={data.search_name}
         roleTitle={data.role_title}
       />
 
-      {/* Our Take Popover — portal rendered */}
-      {ourTakeOpen && hasOurTake && (
+      {/* Our Take Popover — portal rendered (only when overlay is NOT showing) */}
+      {ourTakeOpen && hasOurTake && !ourTakeOverlayOpen && (
         <OurTakePopover
           fragments={data.our_take_fragments}
           text={data.our_take?.text}
