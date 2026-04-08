@@ -17,6 +17,7 @@ import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/type
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
+  scoring_display?: 'rag' | 'none';
 }
 
 interface EDCCardProps {
@@ -141,6 +142,16 @@ export default function EDCCard({
   };
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
+
+  // RAG scoring display — read from localStorage per search, default 'rag'
+  const [scoringDisplay, setScoringDisplay] = useState<'rag' | 'none'>('rag');
+  useEffect(() => {
+    if (!searchId) return;
+    try {
+      const stored = localStorage.getItem(`deck_scoring_display_${searchId}`);
+      if (stored === 'none') setScoringDisplay('none');
+    } catch { /* ignore */ }
+  }, [searchId]);
 
   // Swipe detection for candidate navigation
   const swipeRef = useSwipeNavigation({
@@ -396,11 +407,12 @@ export default function EDCCard({
                     scope_match={data.scope_match}
                     scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
                     candidateId={candidateId}
+                    scoringDisplay={scoringDisplay}
                   />
                 </div>
 
                 <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
-                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
+                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} scoringDisplay={scoringDisplay} />
                 </div>
 
                 <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
