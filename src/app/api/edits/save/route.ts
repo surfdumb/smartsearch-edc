@@ -1,6 +1,13 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase";
+import fs from "fs";
+import path from "path";
+
+function fixtureExists(searchId: string): boolean {
+  const fixturePath = path.join(process.cwd(), "data", "decks", `${searchId}.json`);
+  return fs.existsSync(fixturePath);
+}
 
 export async function POST(request: Request): Promise<NextResponse> {
   try {
@@ -16,8 +23,10 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: "Invalid searchId or candidateId" }, { status: 400 });
     }
 
-    // Write to Supabase when enabled (primary store)
-    if (SUPABASE_ENABLED) {
+    const hasFixture = fixtureExists(searchId);
+
+    // Write to Supabase only for non-fixture searches (e.g., ktj-cor-ctl)
+    if (SUPABASE_ENABLED && !hasFixture) {
       const { getServiceClient } = await import("@/lib/supabase");
       const { resolveSearchId } = await import("@/lib/supabase-data");
       const searchUUID = await resolveSearchId(searchId);
