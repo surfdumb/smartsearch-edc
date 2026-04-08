@@ -33,7 +33,7 @@ function parseHashState(candidates: { candidate_id: string }[]) {
   const index = candidates.findIndex((c) => c.candidate_id === candidateId);
   if (index !== -1) {
     return {
-      view: { mode: "edc", candidateIndex: index, split: false } as DeckView,
+      view: { mode: "edc", candidateIndex: index, split: true } as DeckView,
       panel: (panel && panel >= 1 && panel <= 3 ? panel : undefined) as 1 | 2 | 3 | undefined,
       ourTakeOpen,
       candidateId,
@@ -328,7 +328,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     hashCandidateIdRef.current = undefined;
     const index = orderedCandidates.findIndex((c) => c.candidate_id === cid);
     if (index !== -1 && view.mode === "edc") {
-      setView({ mode: "edc", candidateIndex: index, split: false });
+      setView({ mode: "edc", candidateIndex: index, split: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardOrderReady]);
@@ -378,7 +378,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
         if (index !== -1) {
           if (panel && panel >= 1 && panel <= 3) setInitialPanel(panel as 1 | 2 | 3);
           setInitialOurTakeOpen(ourTake);
-          setView({ mode: "edc", candidateIndex: index, split: false });
+          setView({ mode: "edc", candidateIndex: index, split: true });
           return;
         }
       }
@@ -398,7 +398,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     const el = cardRefs.current[index];
     if (!el) {
       // Fallback: skip animation
-      setView({ mode: "edc", candidateIndex: index, split: false });
+      setView({ mode: "edc", candidateIndex: index, split: true });
       return;
     }
     const rect = el.getBoundingClientRect();
@@ -409,7 +409,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   useEffect(() => {
     if (view.mode !== "flipping") return;
     const timer = setTimeout(() => {
-      setView({ mode: "edc", candidateIndex: view.candidateIndex, split: false });
+      setView({ mode: "edc", candidateIndex: view.candidateIndex, split: true });
     }, 750);
     return () => clearTimeout(timer);
   }, [view]);
