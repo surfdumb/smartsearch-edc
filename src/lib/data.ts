@@ -428,37 +428,7 @@ export async function getCandidateData(
 // ─── getDeckData ──────────────────────────────────────────────────────────────
 
 export async function getDeckData(searchId: string): Promise<SearchContext | null> {
-  // Priority 0: Supabase (staging/production)
-  if (SUPABASE_ENABLED) {
-    const supabaseData = await getSupabaseDeckData(searchId);
-    if (supabaseData) {
-      // Still apply Blob overlays (photos, edits, card order) on top
-      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
-        getPhotoUrls(searchId),
-        getEditOverlays(searchId),
-        getCardOrder(searchId),
-        getHiddenCandidates(searchId),
-      ]);
-      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
-      if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
-      if (savedOrder) supabaseData.card_order = savedOrder;
-      if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
-
-      // Enforce deck-level criteria names over stale overlay names
-      const deckCriteriaNames = supabaseData.key_criteria_names || [];
-      if (deckCriteriaNames.length > 0) {
-        for (const c of supabaseData.candidates) {
-          for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
-            c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
-          }
-        }
-      }
-
-      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
-      return supabaseData;
-    }
-  }
-
+  // Priority chain: Fixture + Blob ALWAYS wins. Supabase is fallback only.
   const fixture = await loadFixture(searchId);
 
   // 1. Fixture with pre-structured candidates
@@ -811,6 +781,37 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
   // 3. JSON fixture file
   if (fixture) return fixture;
+
+  // 4. Supabase fallback — only reached for searches WITHOUT fixture files (e.g., ktj-cor-ctl)
+  if (SUPABASE_ENABLED) {
+    const supabaseData = await getSupabaseDeckData(searchId);
+    if (supabaseData) {
+      // Still apply Blob overlays (photos, edits, card order) on top
+      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
+        getPhotoUrls(searchId),
+        getEditOverlays(searchId),
+        getCardOrder(searchId),
+        getHiddenCandidates(searchId),
+      ]);
+      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
+      if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
+      if (savedOrder) supabaseData.card_order = savedOrder;
+      if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
+
+      // Enforce deck-level criteria names over stale overlay names
+      const deckCriteriaNames = supabaseData.key_criteria_names || [];
+      if (deckCriteriaNames.length > 0) {
+        for (const c of supabaseData.candidates) {
+          for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
+            c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
+          }
+        }
+      }
+
+      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
+      return supabaseData;
+    }
+  }
 
   return null;
 }

@@ -87,6 +87,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
   const keyCriteria = search.key_criteria as { name: string }[] | null;
   const ctx: SearchContext = {
     search_name: search.client_display_name || search.client,
+    role_title: search.role_title || search.position || '',
     client_company: search.client,
     client_display_name: search.client_display_name || undefined,
     client_location: search.location || '',
