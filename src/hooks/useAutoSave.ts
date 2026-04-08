@@ -43,6 +43,7 @@ async function saveEdits(searchId: string, candidateId: string, baseEdc: EDCData
       if (h.current_title) merged.current_title = h.current_title;
       if (h.current_company) merged.current_company = h.current_company;
       if (h.location) merged.location = h.location;
+      if (h.linkedin_url) merged.linkedin_url = h.linkedin_url;
     }
 
     // Scope edits

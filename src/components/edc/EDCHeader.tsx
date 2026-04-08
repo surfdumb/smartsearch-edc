@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit } from "@/hooks/useAutoSave";
+import LinkedInLink from "@/components/ui/LinkedInLink";
 import type { EDCContext } from "@/lib/types";
 
 interface EDCHeaderProps {
@@ -11,6 +12,7 @@ interface EDCHeaderProps {
   current_company: string;
   location: string;
   photo_url?: string;
+  linkedin_url?: string;
   initials?: string;
   context?: EDCContext;
   /** Candidate ID — used for blob upload path */
@@ -21,6 +23,8 @@ interface EDCHeaderProps {
   onPhotoUpload?: (blobUrl: string) => void;
   /** Called when a header text field is edited */
   onFieldUpdate?: (field: 'candidate_name' | 'current_title' | 'current_company' | 'location', value: string) => void;
+  /** Called when LinkedIn URL is set/updated */
+  onLinkedInUpdate?: (url: string) => void;
 }
 
 export default function EDCHeader({
@@ -29,18 +33,32 @@ export default function EDCHeader({
   current_company,
   location,
   photo_url,
+  linkedin_url,
   initials,
   context = 'standalone',
   candidateId,
   searchId,
   onPhotoUpload,
   onFieldUpdate,
+  onLinkedInUpdate,
 }: EDCHeaderProps) {
   const { isEditable } = useEditorContext();
   const [photoErr, setPhotoErr] = useState(false);
   const [uploadedPhoto, setUploadedPhoto] = useState<string | null>(null);
   const [avatarHover, setAvatarHover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showLinkedInInput, setShowLinkedInInput] = useState(false);
+  const [linkedInDraft, setLinkedInDraft] = useState("");
+  const [showLinkedin, setShowLinkedin] = useState(true);
+
+  // Read show_linkedin setting from localStorage
+  useEffect(() => {
+    if (!searchId) return;
+    try {
+      const stored = localStorage.getItem(`deck_show_linkedin_${searchId}`);
+      if (stored === "false") setShowLinkedin(false);
+    } catch { /* ignore */ }
+  }, [searchId]);
 
   const effectivePhoto = uploadedPhoto || (photoErr ? undefined : photo_url);
 
@@ -225,41 +243,117 @@ export default function EDCHeader({
 
           {/* Name + bio line */}
           <div style={{ minWidth: 0, flex: 1 }}>
-            {isEditable ? (
-              <h1
-                contentEditable
-                suppressContentEditableWarning
-                className="font-cormorant editable-cell"
-                onBlur={(e) => onFieldUpdate?.('candidate_name', e.currentTarget.textContent || '')}
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  lineHeight: 1.1,
-                  letterSpacing: "-0.3px",
-                  color: "#faf8f5",
-                  margin: 0,
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                {candidate_name}
-              </h1>
-            ) : (
-              <h1
-                className="font-cormorant"
-                title={candidate_name}
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 600,
-                  lineHeight: 1.1,
-                  letterSpacing: "-0.3px",
-                  color: "#faf8f5",
-                  margin: 0,
-                }}
-              >
-                {candidate_name}
-              </h1>
-            )}
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {isEditable ? (
+                <h1
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="font-cormorant editable-cell"
+                  onBlur={(e) => onFieldUpdate?.('candidate_name', e.currentTarget.textContent || '')}
+                  style={{
+                    fontSize: "1.6rem",
+                    fontWeight: 600,
+                    lineHeight: 1.1,
+                    letterSpacing: "-0.3px",
+                    color: "#faf8f5",
+                    margin: 0,
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                  }}
+                >
+                  {candidate_name}
+                </h1>
+              ) : (
+                <h1
+                  className="font-cormorant"
+                  title={candidate_name}
+                  style={{
+                    fontSize: "1.6rem",
+                    fontWeight: 600,
+                    lineHeight: 1.1,
+                    letterSpacing: "-0.3px",
+                    color: "#faf8f5",
+                    margin: 0,
+                  }}
+                >
+                  {candidate_name}
+                </h1>
+              )}
+              {/* LinkedIn icon */}
+              {showLinkedin && linkedin_url && (
+                <LinkedInLink url={linkedin_url} />
+              )}
+              {/* Add LinkedIn button (edit mode, no URL yet) */}
+              {isEditable && showLinkedin && !linkedin_url && !showLinkedInInput && (
+                <button
+                  onClick={() => { setShowLinkedInInput(true); setLinkedInDraft(""); }}
+                  style={{
+                    marginLeft: "8px",
+                    fontSize: "0.62rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.5px",
+                    color: "rgba(255,255,255,0.25)",
+                    background: "none",
+                    border: "1px dashed rgba(255,255,255,0.15)",
+                    borderRadius: "4px",
+                    padding: "2px 8px",
+                    cursor: "pointer",
+                    transition: "all 0.15s",
+                    whiteSpace: "nowrap",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.5)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.25)"; }}
+                >
+                  + LinkedIn
+                </button>
+              )}
+              {/* Inline LinkedIn URL input */}
+              {isEditable && showLinkedInInput && (
+                <div style={{ marginLeft: "8px", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <input
+                    autoFocus
+                    type="url"
+                    placeholder="linkedin.com/in/..."
+                    value={linkedInDraft}
+                    onChange={(e) => setLinkedInDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && linkedInDraft.trim()) {
+                        onLinkedInUpdate?.(linkedInDraft.trim());
+                        setShowLinkedInInput(false);
+                      }
+                      if (e.key === "Escape") setShowLinkedInInput(false);
+                    }}
+                    style={{
+                      width: "180px",
+                      fontSize: "0.7rem",
+                      padding: "3px 8px",
+                      background: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(197,165,114,0.25)",
+                      borderRadius: "4px",
+                      color: "rgba(255,255,255,0.7)",
+                      outline: "none",
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (linkedInDraft.trim()) onLinkedInUpdate?.(linkedInDraft.trim());
+                      setShowLinkedInInput(false);
+                    }}
+                    style={{
+                      fontSize: "0.65rem",
+                      fontWeight: 600,
+                      color: "var(--ss-gold)",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "2px 4px",
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
+            </div>
             {isEditable ? (
               <div
                 className="font-outfit"

@@ -68,7 +68,7 @@ export default function EDCCard({
 
   // Header field edits — persisted in localStorage
   const headerKey = candidateId ? `edc_edit_${candidateId}_header` : null;
-  type HeaderEdits = { candidate_name?: string; current_title?: string; current_company?: string; location?: string };
+  type HeaderEdits = { candidate_name?: string; current_title?: string; current_company?: string; location?: string; linkedin_url?: string };
   const [headerEdits, setHeaderEdits] = useState<HeaderEdits>(() => {
     if (headerKey && typeof window !== 'undefined') {
       try {
@@ -87,6 +87,9 @@ export default function EDCCard({
       }
       return next;
     });
+  };
+  const handleLinkedInUpdate = (url: string) => {
+    handleHeaderFieldUpdate('linkedin_url', url);
   };
 
   // Photo upload state — persisted in localStorage (blob URLs are small)
@@ -185,11 +188,13 @@ export default function EDCCard({
             current_company={headerEdits.current_company ?? data.current_company}
             location={headerEdits.location ?? data.location}
             photo_url={uploadedPhoto || data.photo_url || undefined}
+            linkedin_url={headerEdits.linkedin_url ?? data.linkedin_url}
             context={context}
             candidateId={candidateId}
             searchId={searchId}
             onPhotoUpload={handlePhotoUpload}
             onFieldUpdate={handleHeaderFieldUpdate}
+            onLinkedInUpdate={handleLinkedInUpdate}
           />
 
           {/* Motivation scrambler — visible only when real motivation data exists */}

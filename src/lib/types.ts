@@ -127,6 +127,7 @@ export interface SearchContext {
     our_take_display: 'SHOW' | 'HIDE';
     scope_narrative_display: 'SHOW' | 'HIDE';
     edit_mode: boolean;
+    show_linkedin?: boolean;
   };
 }
 

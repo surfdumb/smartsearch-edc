@@ -18,6 +18,8 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [saved, setSaved] = useState(false);
+  const linkedInKey = `deck_show_linkedin_${searchId}`;
+  const [showLinkedin, setShowLinkedin] = useState(true);
 
   useEffect(() => {
     try {
@@ -26,7 +28,11 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
     } catch {
       // localStorage unavailable
     }
-  }, [storageKey]);
+    try {
+      const li = localStorage.getItem(linkedInKey);
+      if (li === "false") setShowLinkedin(false);
+    } catch { /* ignore */ }
+  }, [storageKey, linkedInKey]);
 
   const handleFile = useCallback(
     (file: File) => {
@@ -310,6 +316,64 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
               </button>
             )}
           </div>
+        </section>
+
+        {/* ── LinkedIn toggle section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              LinkedIn Links
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)" }}>
+              Show LinkedIn links on candidate cards
+            </span>
+            <button
+              onClick={() => {
+                const next = !showLinkedin;
+                setShowLinkedin(next);
+                try { localStorage.setItem(linkedInKey, String(next)); } catch { /* ignore */ }
+              }}
+              style={{
+                width: "44px",
+                height: "24px",
+                borderRadius: "12px",
+                border: "none",
+                background: showLinkedin ? "rgba(74,124,89,0.4)" : "rgba(var(--deck-bg-text-rgb),0.12)",
+                cursor: "pointer",
+                position: "relative",
+                transition: "background 0.2s",
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  left: showLinkedin ? "22px" : "2px",
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  background: showLinkedin ? "var(--ss-green)" : "rgba(var(--deck-bg-text-rgb),0.3)",
+                  transition: "all 0.2s",
+                }}
+              />
+            </button>
+          </div>
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
+            When enabled, a LinkedIn icon appears next to candidate names. URLs are set per-candidate in edit mode.
+          </p>
         </section>
 
         {/* ── Storage note ── */}
