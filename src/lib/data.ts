@@ -476,6 +476,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     const deckCriteriaNames: string[] = fixture.key_criteria_names || [];
     if (deckCriteriaNames.length > 0) {
       for (const c of candidates) {
+        if (!c.edc_data?.key_criteria?.length) continue;
         for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
           c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
         }
@@ -642,6 +643,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           // Enforce deck-level criteria names over stale overlay names
           if (effectiveCriteriaNames.length > 0) {
             for (const c of candidates) {
+              if (!c.edc_data?.key_criteria?.length) continue;
               for (let i = 0; i < c.edc_data.key_criteria.length && i < effectiveCriteriaNames.length; i++) {
                 c.edc_data.key_criteria[i].name = effectiveCriteriaNames[i];
               }
@@ -765,6 +767,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         const ctxCriteriaNames = context.key_criteria_names || [];
         if (ctxCriteriaNames.length > 0) {
           for (const c of context.candidates) {
+            if (!c.edc_data?.key_criteria?.length) continue;
             for (let i = 0; i < c.edc_data.key_criteria.length && i < ctxCriteriaNames.length; i++) {
               c.edc_data.key_criteria[i].name = ctxCriteriaNames[i];
             }
@@ -802,6 +805,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
       if (deckCriteriaNames.length > 0) {
         for (const c of supabaseData.candidates) {
+          if (!c.edc_data?.key_criteria?.length) continue;
           for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
             c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
           }
