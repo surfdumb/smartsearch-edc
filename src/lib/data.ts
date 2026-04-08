@@ -78,6 +78,8 @@ function applyEditOverlays(candidates: IntroCardData[], overlays: Record<string,
   for (const c of candidates) {
     const overlay = overlays[c.candidate_id];
     if (overlay) {
+      // Skip overlays that lack essential EDC fields (e.g. test/corrupt saves)
+      if (!overlay.candidate_name || !overlay.key_criteria) continue;
       c.edc_data = overlay;
       c.candidate_name = overlay.candidate_name;
       c.current_title = overlay.current_title;
