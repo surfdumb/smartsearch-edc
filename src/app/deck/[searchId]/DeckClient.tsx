@@ -47,6 +47,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [hashInit] = useState(() => parseHashState(data.candidates));
   const [view, setView] = useState<DeckView>(hashInit.view);
   const [editMode, setEditMode] = useState(false);
+  const [copiedClientLink, setCopiedClientLink] = useState(false);
 
   // Auto-save IntroCard edits (status, comp alignment, etc.) from grid view
   useAutoSaveGrid(searchId, data.candidates);
@@ -612,6 +613,34 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 >
                   Client View
                 </a>
+                <button
+                  onClick={async () => {
+                    const clientUrl = `${window.location.origin}/deck/${searchId}`;
+                    await navigator.clipboard.writeText(clientUrl);
+                    setCopiedClientLink(true);
+                    setTimeout(() => setCopiedClientLink(false), 2000);
+                  }}
+                  style={{
+                    fontSize: "0.68rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.5px",
+                    color: copiedClientLink ? "var(--ss-green)" : "rgba(197,165,114,0.4)",
+                    padding: "4px 12px",
+                    border: `1px solid ${copiedClientLink ? "rgba(74,124,89,0.35)" : "rgba(197,165,114,0.10)"}`,
+                    borderRadius: "6px",
+                    background: "transparent",
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseOver={(e) => {
+                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+                  }}
+                  onMouseOut={(e) => {
+                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
+                  }}
+                >
+                  {copiedClientLink ? "Copied ✓" : "Copy Client Link"}
+                </button>
               </>
             ) : null}
             {isEditRoute && (
