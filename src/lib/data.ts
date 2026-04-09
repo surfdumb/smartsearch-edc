@@ -503,7 +503,49 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
     return context;
   }
 
-  // 1. Try pre-transformed EDC Output Store for structured candidates
+  // 1b. Supabase — for Supabase-native searches (e.g., ktj-cor-ctl) that have no fixture
+  if (SUPABASE_ENABLED) {
+    const supabaseData = await getSupabaseDeckData(searchId);
+    if (supabaseData) {
+      // Still apply Blob overlays (photos, edits, card order) on top
+      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
+        getPhotoUrls(searchId),
+        getEditOverlays(searchId),
+        getCardOrder(searchId),
+        getHiddenCandidates(searchId),
+      ]);
+      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
+      if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
+      if (savedOrder) supabaseData.card_order = savedOrder;
+      if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
+
+      // Seed empty criteria from search-level names, then enforce names on existing ones
+      const deckCriteriaNames = supabaseData.key_criteria_names || [];
+      if (deckCriteriaNames.length > 0) {
+        for (const c of supabaseData.candidates) {
+          if (!c.edc_data) continue;
+          if (!c.edc_data.key_criteria || c.edc_data.key_criteria.length === 0) {
+            // Candidate has no criteria — seed from search-level names
+            c.edc_data.key_criteria = deckCriteriaNames.map((name) => ({
+              name,
+              evidence: '',
+              context_anchor: '',
+            }));
+          } else {
+            // Candidate has criteria — enforce search-level names
+            for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
+              c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
+            }
+          }
+        }
+      }
+
+      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
+      return supabaseData;
+    }
+  }
+
+  // 2. Try pre-transformed EDC Output Store for structured candidates (Sheets)
   if (SHEETS_ENABLED) {
     try {
       const { getEDCOutputRowsForSearch, getJSRow, getEDSRowsForSearch } = await import('./sheets');
@@ -786,38 +828,6 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
 
   // 3. JSON fixture file
   if (fixture) return fixture;
-
-  // 4. Supabase fallback — only reached for searches WITHOUT fixture files (e.g., ktj-cor-ctl)
-  if (SUPABASE_ENABLED) {
-    const supabaseData = await getSupabaseDeckData(searchId);
-    if (supabaseData) {
-      // Still apply Blob overlays (photos, edits, card order) on top
-      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
-        getPhotoUrls(searchId),
-        getEditOverlays(searchId),
-        getCardOrder(searchId),
-        getHiddenCandidates(searchId),
-      ]);
-      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
-      if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
-      if (savedOrder) supabaseData.card_order = savedOrder;
-      if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
-
-      // Enforce deck-level criteria names over stale overlay names
-      const deckCriteriaNames = supabaseData.key_criteria_names || [];
-      if (deckCriteriaNames.length > 0) {
-        for (const c of supabaseData.candidates) {
-          if (!c.edc_data?.key_criteria?.length) continue;
-          for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
-            c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
-          }
-        }
-      }
-
-      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
-      return supabaseData;
-    }
-  }
 
   return null;
 }

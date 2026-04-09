@@ -52,18 +52,49 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
 
   // 3. Transform candidates into IntroCardData[]
   const introCards: IntroCardData[] = candidates.map((c) => {
-    const raw = c.edc_data as Record<string, unknown>;
+    const raw = (c.edc_data || null) as Record<string, unknown> | null;
 
-    // Handle nested vs flat edc_data structure
-    // Norican: flat (key_criteria at top level)
-    // Crestview: nested (edc_data.edc_data.key_criteria)
-    const edcPayload: EDCData = (
-      raw.edc_data &&
-      typeof raw.edc_data === 'object' &&
-      'key_criteria' in (raw.edc_data as Record<string, unknown>)
-    )
-      ? raw.edc_data as unknown as EDCData
-      : raw as unknown as EDCData;
+    let edcPayload: EDCData;
+
+    if (raw && typeof raw === 'object' && Object.keys(raw).length > 0) {
+      // Handle nested vs flat edc_data structure
+      // Norican: flat (key_criteria at top level)
+      // Crestview: nested (edc_data.edc_data.key_criteria)
+      edcPayload = (
+        raw.edc_data &&
+        typeof raw.edc_data === 'object' &&
+        'key_criteria' in (raw.edc_data as Record<string, unknown>)
+      )
+        ? raw.edc_data as unknown as EDCData
+        : raw as unknown as EDCData;
+    } else {
+      // edc_data is NULL — build minimal EDCData from top-level candidate fields
+      edcPayload = {
+        candidate_name: c.candidate_name || '',
+        current_title: c.current_title || '',
+        current_company: c.current_company || '',
+        location: c.location || '',
+        scope_match: [],
+        key_criteria: [], // Will be seeded from search-level criteria in getDeckData
+        compensation: {
+          current_base: '',
+          current_bonus: '',
+          current_total: c.compensation_current_total || '',
+          expected_base: '',
+          expected_bonus: '',
+          expected_total: c.compensation_expected_total || '',
+          flexibility: c.compensation_flexibility || '',
+        },
+        notice_period: c.notice_period || 'Not mentioned',
+        why_interested: [],
+        potential_concerns: [],
+        our_take: { text: c.our_take || '' },
+        search_name: '',
+        role_title: '',
+        generated_date: '',
+        consultant_name: '',
+      } as EDCData;
+    }
 
     return {
       candidate_name: c.candidate_name,
@@ -72,13 +103,13 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       current_company: c.current_company || '',
       location: c.location || '',
       initials: c.initials || makeInitials(c.candidate_name),
-      headline: c.headline || (raw.headline as string) || `${c.current_title} at ${c.current_company}`,
-      flash_summary: c.flash_summary || (raw.flash_summary as string) || undefined,
+      headline: c.headline || (raw?.headline as string) || `${c.current_title} at ${c.current_company}`,
+      flash_summary: c.flash_summary || (raw?.flash_summary as string) || undefined,
       compensation_alignment: (c.compensation_alignment || 'not_set') as 'green' | 'amber' | 'not_set',
-      career_trajectory: c.career_trajectory || (raw.career_trajectory as string) || undefined,
-      industry_shorthand: c.industry_shorthand || (raw.industry_shorthand as string) || undefined,
-      photo_url: (raw.photo_url as string) || undefined,
-      motivation_hook: c.motivation_hook || (raw.motivation_hook as string) || undefined,
+      career_trajectory: c.career_trajectory || (raw?.career_trajectory as string) || undefined,
+      industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
+      photo_url: (raw?.photo_url as string) || undefined,
+      motivation_hook: c.motivation_hook || (raw?.motivation_hook as string) || undefined,
       edc_data: edcPayload,
     } as IntroCardData;
   });
