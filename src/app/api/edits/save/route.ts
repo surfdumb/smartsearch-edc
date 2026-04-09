@@ -35,8 +35,15 @@ export async function POST(request: Request): Promise<NextResponse> {
       const { resolveSearchId } = await import("@/lib/supabase-data");
       const searchUUID = await resolveSearchId(searchId);
 
-      if (searchUUID) {
-        let skipSupabaseEdcWrite = false;
+      if (!searchUUID) {
+        console.error(`[edits] resolveSearchId returned null for "${searchId}" — edits will not persist`);
+        return NextResponse.json(
+          { error: `Search "${searchId}" not found in Supabase` },
+          { status: 404 }
+        );
+      }
+
+      let skipSupabaseEdcWrite = false;
 
         // Guard: if edc_data was constructed from raw EDS fields (fallback),
         // do NOT write it to Supabase — it would overwrite Engine-generated data.
@@ -139,7 +146,6 @@ export async function POST(request: Request): Promise<NextResponse> {
             }
           }
         }
-      }
     }
 
     // Write to Blob as fallback / backward compat — but skip when Supabase guards
@@ -157,8 +163,8 @@ export async function POST(request: Request): Promise<NextResponse> {
       return NextResponse.json({ url: blob.url, pathname });
     }
 
-    console.log("[edits] Skipped Blob write (sparse data blocked):", searchId, candidateId);
-    return NextResponse.json({ skipped: true, reason: "sparse data blocked" });
+    console.log("[edits] Supabase-native search — Blob write skipped:", searchId, candidateId);
+    return NextResponse.json({ saved: "supabase", searchId, candidateId });
   } catch (error) {
     console.error("[edits] Save failed:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
