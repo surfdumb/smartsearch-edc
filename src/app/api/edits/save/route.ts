@@ -24,7 +24,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const hasFixture = fixtureExists(searchId);
-    let skipBlobWrite = false;
+    // For Supabase-native searches, Supabase is the canonical store — never write
+    // to Blob (overlays would mask future Supabase updates from the Engine).
+    // Fixture-based searches always write to Blob (it's their only persistence).
+    let skipBlobWrite = SUPABASE_ENABLED && !hasFixture;
 
     // Write to Supabase only for non-fixture searches (e.g., ktj-cor-ctl)
     if (SUPABASE_ENABLED && !hasFixture) {
