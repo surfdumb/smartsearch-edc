@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
-import RAGDot from "@/components/ui/RAGDot";
 import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 
@@ -11,13 +10,11 @@ interface CriterionItem {
   name: string;
   evidence: string;
   context_anchor?: string;
-  rag_status?: 'red' | 'amber' | 'green' | null;
 }
 
 interface KeyCriteriaProps {
   key_criteria: CriterionItem[];
   candidateId?: string;
-  scoringDisplay?: 'rag' | 'none';
 }
 
 /* ── Editable pill with remove button ── */
@@ -185,7 +182,7 @@ function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: 
   );
 }
 
-export default function KeyCriteria({ key_criteria, candidateId, scoringDisplay }: KeyCriteriaProps) {
+export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_criteria` : null;
   const [items, setItems] = useState<CriterionItem[]>(() => {
@@ -221,12 +218,6 @@ export default function KeyCriteria({ key_criteria, candidateId, scoringDisplay 
   const updateField = (index: number, field: keyof CriterionItem, value: string) => {
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
-    ));
-  };
-
-  const updateRAG = (index: number, status: 'red' | 'amber' | 'green' | null) => {
-    setItems(prev => prev.map((item, i) =>
-      i === index ? { ...item, rag_status: status } : item
     ));
   };
 
@@ -268,16 +259,12 @@ export default function KeyCriteria({ key_criteria, candidateId, scoringDisplay 
         {items.map((item, i) => {
           const orig = originalItems.current[i];
 
-          const showRAG = scoringDisplay !== 'none';
-
           return (
             <div
               key={i}
               style={{
                 display: "grid",
-                gridTemplateColumns: isEditable
-                  ? (showRAG ? "10px 24px 1fr 20px" : "24px 1fr 20px")
-                  : (showRAG && item.rag_status ? "10px 24px 1fr" : "24px 1fr"),
+                gridTemplateColumns: isEditable ? "24px 1fr 20px" : "24px 1fr",
                 gap: "10px",
                 alignItems: "flex-start",
                 padding: "7px 0",
@@ -287,17 +274,6 @@ export default function KeyCriteria({ key_criteria, candidateId, scoringDisplay 
                     : "none",
               }}
             >
-              {/* RAG dot — before number badge */}
-              {showRAG && (isEditable || item.rag_status) && (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginTop: "7px" }}>
-                  <RAGDot
-                    status={item.rag_status || null}
-                    editable={isEditable}
-                    onChange={(status) => updateRAG(i, status)}
-                  />
-                </div>
-              )}
-
               {/* Green number badge */}
               <span
                 className="inline-flex items-center justify-center shrink-0 font-bold"

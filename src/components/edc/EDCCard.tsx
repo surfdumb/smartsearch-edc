@@ -12,12 +12,12 @@ import TabNavigation from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
+import { useEditorContext } from "@/contexts/EditorContext";
 import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
 
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
-  scoring_display?: 'rag' | 'none';
 }
 
 interface EDCCardProps {
@@ -62,6 +62,7 @@ export default function EDCCard({
   onPanelChange,
   onOurTakeChange,
 }: EDCCardProps) {
+  const { isEditable } = useEditorContext();
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>('right');
   const [ourTakeOpen, setOurTakeOpen] = useState(initialOurTakeOpen || false);
@@ -143,16 +144,6 @@ export default function EDCCard({
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
 
-  // RAG scoring display — read from localStorage per search, default 'rag'
-  const [scoringDisplay, setScoringDisplay] = useState<'rag' | 'none'>('rag');
-  useEffect(() => {
-    if (!searchId) return;
-    try {
-      const stored = localStorage.getItem(`deck_scoring_display_${searchId}`);
-      if (stored === 'none') setScoringDisplay('none');
-    } catch { /* ignore */ }
-  }, [searchId]);
-
   // Swipe detection for candidate navigation
   const swipeRef = useSwipeNavigation({
     onSwipeLeft: onSwipeNext,   // swipe left → next candidate
@@ -177,16 +168,20 @@ export default function EDCCard({
     && !ourTakeText.includes(PLACEHOLDER_TEXT)
     && deckSettings?.our_take_display !== 'HIDE';
 
-  const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(hasRealOurTake && (initialOurTakeOpen || !initialPanel));
+  // Overlay only in client view (not edit mode) — edit mode uses the editable popover
+  const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(
+    !isEditable && hasRealOurTake && (initialOurTakeOpen || !initialPanel)
+  );
 
   // Reset overlay state when candidate changes
   useEffect(() => {
+    if (isEditable) { setOurTakeOverlayOpen(false); return; }
     const text = data.our_take?.text?.trim() || "";
     const frags = data.our_take_fragments && data.our_take_fragments.length > 0;
     const real = (frags || (text.length > 0 && !text.includes(PLACEHOLDER_TEXT))) && deckSettings?.our_take_display !== 'HIDE';
     // Show overlay on new candidate if they have real Our Take (unless restoring a specific panel from hash)
     setOurTakeOverlayOpen(real && !initialPanel);
-  }, [candidateId]);
+  }, [candidateId, isEditable]);
 
   return (
     <div
@@ -255,10 +250,12 @@ export default function EDCCard({
                 <button
                   ref={ourTakeTriggerRef}
                   onClick={() => {
-                    if (hasRealOurTake) {
+                    if (!isEditable && hasRealOurTake) {
+                      // Client view: reopen the overlay
                       setOurTakeOverlayOpen(true);
                       onOurTakeChange?.(true);
                     } else {
+                      // Edit mode: open the editable popover
                       handleOurTakeToggle(!ourTakeOpen);
                     }
                   }}
@@ -407,12 +404,11 @@ export default function EDCCard({
                     scope_match={data.scope_match}
                     scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
                     candidateId={candidateId}
-                    scoringDisplay={scoringDisplay}
                   />
                 </div>
 
                 <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
-                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} scoringDisplay={scoringDisplay} />
+                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
                 </div>
 
                 <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>

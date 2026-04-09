@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
-import RAGDot from "@/components/ui/RAGDot";
 import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 
@@ -12,14 +11,12 @@ interface ScopeRow {
   candidate_actual: string;
   role_requirement: string;
   alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
-  rag_status?: 'red' | 'amber' | 'green' | null;
 }
 
 interface ScopeMatchProps {
   scope_match: ScopeRow[];
   scope_seasoning?: string;
   candidateId?: string;
-  scoringDisplay?: 'rag' | 'none';
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
@@ -103,7 +100,7 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match, candidateId, scoringDisplay }: ScopeMatchProps) {
+export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
   const [rows, setRows] = useState<ScopeRow[]>(() => {
@@ -157,12 +154,6 @@ export default function ScopeMatch({ scope_match, candidateId, scoringDisplay }:
     setRows(prev => prev.filter((_, i) => i !== index));
   };
 
-  const updateRAG = (index: number, status: 'red' | 'amber' | 'green' | null) => {
-    setRows(prev => prev.map((row, i) =>
-      i === index ? { ...row, rag_status: status } : row
-    ));
-  };
-
   const addRow = () => {
     setRows(prev => [...prev, {
       scope: "New dimension",
@@ -187,55 +178,34 @@ export default function ScopeMatch({ scope_match, candidateId, scoringDisplay }:
         <div className="scope-match-inner">
 
           {/* Table header */}
-          {(() => {
-            const showRAG = scoringDisplay !== 'none';
-            const ragHasAny = showRAG && (isEditable || rows.some(r => r.rag_status));
-            const baseCols = "140px 1fr 1fr 36px";
-            const editCols = "140px 1fr 1fr 36px 24px";
-            const headerCols = isEditable
-              ? (ragHasAny ? `16px ${editCols}` : editCols)
-              : (ragHasAny ? `16px ${baseCols}` : baseCols);
-
-            return (
-              <div
-                className="grid gap-3"
-                style={{
-                  gridTemplateColumns: headerCols,
-                  paddingBottom: "6px",
-                  borderBottom: "1px solid #eeebe6",
-                }}
-              >
-                {ragHasAny && <span />}
-                <span />
-                <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.68rem" }}>
-                  Candidate
-                </span>
-                <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.68rem" }}>
-                  Role Requirement
-                </span>
-                <span />
-                {isEditable && <span />}
-              </div>
-            );
-          })()}
+          <div
+            className="grid gap-3"
+            style={{
+              gridTemplateColumns: isEditable ? "140px 1fr 1fr 36px 24px" : "140px 1fr 1fr 36px",
+              paddingBottom: "6px",
+              borderBottom: "1px solid #eeebe6",
+            }}
+          >
+            <span />
+            <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.68rem" }}>
+              Candidate
+            </span>
+            <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.68rem" }}>
+              Role Requirement
+            </span>
+            <span />
+            {isEditable && <span />}
+          </div>
 
           {/* Table rows */}
           {rows.map((item, i) => {
             const orig = originalRows.current[i];
-            const showRAG = scoringDisplay !== 'none';
-            const ragHasAny = showRAG && (isEditable || rows.some(r => r.rag_status));
-            const baseCols = "140px 1fr 1fr 36px";
-            const editCols = "140px 1fr 1fr 36px 24px";
-            const rowCols = isEditable
-              ? (ragHasAny ? `16px ${editCols}` : editCols)
-              : (ragHasAny ? `16px ${baseCols}` : baseCols);
-
             return (
               <div
                 key={i}
                 className="grid gap-3 items-start"
                 style={{
-                  gridTemplateColumns: rowCols,
+                  gridTemplateColumns: isEditable ? "140px 1fr 1fr 36px 24px" : "140px 1fr 1fr 36px",
                   padding: "6px 0",
                   borderBottom:
                     i < rows.length - 1 ? "1px solid var(--ss-border-light)" : "none",
@@ -244,17 +214,6 @@ export default function ScopeMatch({ scope_match, candidateId, scoringDisplay }:
                 onMouseEnter={() => isEditable && setHoveredRow(i)}
                 onMouseLeave={() => isEditable && setHoveredRow(null)}
               >
-                {/* RAG dot */}
-                {ragHasAny && (
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", paddingTop: "3px" }}>
-                    <RAGDot
-                      status={item.rag_status || null}
-                      editable={isEditable}
-                      onChange={(status) => updateRAG(i, status)}
-                    />
-                  </div>
-                )}
-
                 {/* Scope name */}
                 {isEditable ? (
                   <EditableCell

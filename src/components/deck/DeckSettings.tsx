@@ -20,8 +20,6 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
   const [saved, setSaved] = useState(false);
   const linkedInKey = `deck_show_linkedin_${searchId}`;
   const [showLinkedin, setShowLinkedin] = useState(true);
-  const scoringKey = `deck_scoring_display_${searchId}`;
-  const [scoringDisplay, setScoringDisplay] = useState<'rag' | 'none'>('rag');
 
   useEffect(() => {
     try {
@@ -34,11 +32,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
       const li = localStorage.getItem(linkedInKey);
       if (li === "false") setShowLinkedin(false);
     } catch { /* ignore */ }
-    try {
-      const sd = localStorage.getItem(scoringKey);
-      if (sd === "none") setScoringDisplay("none");
-    } catch { /* ignore */ }
-  }, [storageKey, linkedInKey, scoringKey]);
+  }, [storageKey, linkedInKey]);
 
   const handleFile = useCallback(
     (file: File) => {
@@ -380,80 +374,6 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
           <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
             When enabled, a LinkedIn icon appears next to candidate names. URLs are set per-candidate in edit mode.
           </p>
-        </section>
-
-        {/* ── RAG indicators toggle section ── */}
-        <section style={{ marginBottom: "48px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-            <span
-              style={{
-                fontSize: "0.65rem",
-                fontWeight: 600,
-                letterSpacing: "2px",
-                textTransform: "uppercase",
-                color: "rgba(var(--deck-bg-text-rgb),0.3)",
-              }}
-            >
-              RAG Indicators
-            </span>
-            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)" }}>
-              Show traffic light indicators on criteria
-            </span>
-            <button
-              onClick={() => {
-                const next = scoringDisplay === 'rag' ? 'none' : 'rag';
-                setScoringDisplay(next);
-                try { localStorage.setItem(scoringKey, next); } catch { /* ignore */ }
-              }}
-              style={{
-                width: "44px",
-                height: "24px",
-                borderRadius: "12px",
-                border: "none",
-                background: scoringDisplay === 'rag' ? "rgba(74,124,89,0.4)" : "rgba(var(--deck-bg-text-rgb),0.12)",
-                cursor: "pointer",
-                position: "relative",
-                transition: "background 0.2s",
-              }}
-            >
-              <span
-                style={{
-                  position: "absolute",
-                  top: "2px",
-                  left: scoringDisplay === 'rag' ? "22px" : "2px",
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  background: scoringDisplay === 'rag' ? "var(--ss-green)" : "rgba(var(--deck-bg-text-rgb),0.3)",
-                  transition: "all 0.2s",
-                }}
-              />
-            </button>
-          </div>
-
-          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
-            When enabled, red/amber/green dots appear on key criteria and scope match rows. Consultants set them per criterion in edit mode. Clients see the set dots only.
-          </p>
-
-          {/* RAG legend */}
-          {scoringDisplay === 'rag' && (
-            <div style={{ display: "flex", gap: "16px", marginTop: "12px" }}>
-              {[
-                { color: "#4a7c59", label: "Strong" },
-                { color: "#d4a543", label: "Partial" },
-                { color: "#c45a5a", label: "Concern" },
-              ].map(({ color, label }) => (
-                <div key={label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <span style={{ width: "10px", height: "10px", borderRadius: "50%", background: color, display: "inline-block" }} />
-                  <span style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.35)" }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </section>
 
         {/* ── Storage note ── */}

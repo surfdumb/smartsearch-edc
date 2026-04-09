@@ -46,7 +46,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // Initialize view + panel + ourTake from URL hash synchronously (no flash)
   const [hashInit] = useState(() => parseHashState(data.candidates));
   const [view, setView] = useState<DeckView>(hashInit.view);
-  const [editMode, setEditMode] = useState(false);
+  // Edit mode is always active when on the edit route — no toggle needed
+  const editMode = isEditRoute;
   const [copiedClientLink, setCopiedClientLink] = useState(false);
 
   // Auto-save IntroCard edits (status, comp alignment, etc.) from grid view
@@ -562,57 +563,43 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             Executive Decision
             <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "7px" }}>Deck</span>
           </span>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             {isEditRoute ? (
               <>
-                <span
-                  style={{
-                    fontSize: "0.62rem",
-                    fontWeight: 700,
-                    letterSpacing: "1.5px",
-                    textTransform: "uppercase",
-                    color: "rgba(201,149,58,0.6)",
-                    background: "rgba(201,149,58,0.06)",
-                    border: "1px solid rgba(201,149,58,0.15)",
-                    borderRadius: "5px",
-                    padding: "3px 8px",
-                  }}
-                >
-                  Edit
-                </span>
-                <button
-                  onClick={() => setEditMode((v) => !v)}
-                  style={{
-                    background: editMode ? "rgba(197,165,114,0.10)" : "transparent",
-                    border: `1px solid ${editMode ? "rgba(197,165,114,0.35)" : "rgba(197,165,114,0.12)"}`,
-                    borderRadius: "6px",
-                    padding: "4px 12px",
-                    fontSize: "0.68rem",
-                    fontWeight: 600,
-                    color: editMode ? "var(--ss-gold)" : "rgba(197,165,114,0.4)",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                  }}
-                >
-                  {editMode ? "Editing" : "Edit Cards"}
-                </button>
+                {/* Mode indicator — not interactive */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginRight: "8px" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--ss-gold, #c5a572)", display: "inline-block" }} />
+                  <span style={{ fontSize: "11px", color: "rgba(197, 165, 114, 0.5)", letterSpacing: "0.04em" }}>Editing</span>
+                </div>
+
+                {/* Client View — secondary ghost button */}
                 <a
                   href={`/deck/${searchId}`}
                   style={{
-                    fontSize: "0.68rem",
-                    fontWeight: 600,
-                    color: "rgba(197,165,114,0.4)",
-                    textDecoration: "none",
-                    padding: "4px 12px",
-                    border: "1px solid rgba(197,165,114,0.10)",
+                    background: "transparent",
+                    border: "1px solid rgba(197, 165, 114, 0.25)",
+                    color: "rgba(197, 165, 114, 0.7)",
+                    fontSize: "12px",
+                    padding: "6px 14px",
                     borderRadius: "6px",
-                    transition: "all 0.2s",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.15s",
+                    textDecoration: "none",
                   }}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.4)"; }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(197, 165, 114, 0.08)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
                 >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
                   Client View
                 </a>
+
+                {/* Copy Deck Link — primary tinted button */}
                 <button
                   onClick={async () => {
                     const clientUrl = `${window.location.origin}/deck/${searchId}`;
@@ -621,47 +608,59 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                     setTimeout(() => setCopiedClientLink(false), 2000);
                   }}
                   style={{
-                    fontSize: "0.68rem",
-                    fontWeight: 600,
-                    letterSpacing: "0.5px",
-                    color: copiedClientLink ? "var(--ss-green)" : "rgba(197,165,114,0.4)",
-                    padding: "4px 12px",
-                    border: `1px solid ${copiedClientLink ? "rgba(74,124,89,0.35)" : "rgba(197,165,114,0.10)"}`,
+                    background: copiedClientLink ? "rgba(74,124,89,0.12)" : "rgba(197, 165, 114, 0.12)",
+                    border: `1px solid ${copiedClientLink ? "rgba(74,124,89,0.35)" : "rgba(197, 165, 114, 0.3)"}`,
+                    color: copiedClientLink ? "var(--ss-green)" : "#c5a572",
+                    fontSize: "12px",
+                    padding: "6px 14px",
                     borderRadius: "6px",
-                    background: "transparent",
                     cursor: "pointer",
-                    transition: "all 0.2s",
+                    fontWeight: 500,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.15s",
                   }}
                   onMouseOver={(e) => {
-                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)";
+                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.background = "rgba(197, 165, 114, 0.2)";
                   }}
                   onMouseOut={(e) => {
-                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
+                    if (!copiedClientLink) (e.currentTarget as HTMLButtonElement).style.background = "rgba(197, 165, 114, 0.12)";
                   }}
                 >
-                  {copiedClientLink ? "Copied ✓" : "Copy Client Link"}
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                  </svg>
+                  {copiedClientLink ? "Copied ✓" : "Copy Deck Link"}
                 </button>
+
+                {/* Settings cog — proper icon with hit target */}
+                <a
+                  href={`/deck/${searchId}/settings`}
+                  title="Deck settings"
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    border: "1px solid rgba(197, 165, 114, 0.2)",
+                    transition: "all 0.15s",
+                    textDecoration: "none",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(197, 165, 114, 0.1)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(197, 165, 114, 0.55)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                  </svg>
+                </a>
               </>
             ) : null}
-            {isEditRoute && (
-              <a
-                href={`/deck/${searchId}/settings`}
-                title="Deck settings"
-                style={{
-                  fontSize: "0.8rem",
-                  color: "rgba(197,165,114,0.3)",
-                  textDecoration: "none",
-                  padding: "4px 6px",
-                  borderRadius: "6px",
-                  transition: "color 0.2s",
-                  lineHeight: 1,
-                }}
-                onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--ss-gold)"; }}
-                onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(197,165,114,0.3)"; }}
-              >
-                ⚙
-              </a>
-            )}
           </div>
         </div>
 

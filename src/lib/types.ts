@@ -21,7 +21,6 @@ export interface EDCData {
     candidate_actual: string;
     role_requirement: string;
     alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
-    rag_status?: 'red' | 'amber' | 'green' | null;
   }[];
   scope_seasoning?: string;
 
@@ -32,7 +31,6 @@ export interface EDCData {
                                    // MUST include company name inline for v1.0.
     context_anchor?: string;       // Pill text — company name for v1.0.
                                    // v1.1: "VP Aftermarket, Norican · 2021–24"
-    rag_status?: 'red' | 'amber' | 'green' | null;
   }[];
 
   // Compensation
@@ -130,7 +128,6 @@ export interface SearchContext {
     scope_narrative_display: 'SHOW' | 'HIDE';
     edit_mode: boolean;
     show_linkedin?: boolean;
-    scoring_display?: 'rag' | 'none';
   };
 }
 
