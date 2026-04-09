@@ -50,6 +50,25 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
 
   if (candErr || !candidates) return null;
 
+  // Debug: log raw Supabase query result for first candidate
+  if (candidates?.length) {
+    const c0 = candidates[0];
+    const raw = c0.edc_data as Record<string, unknown> | null;
+    console.log('[SUPABASE-DEBUG] raw query result', {
+      name: c0.candidate_name,
+      edc_data_type: typeof c0.edc_data,
+      edc_data_is_null: c0.edc_data === null,
+      edc_data_keys: raw ? Object.keys(raw) : 'null',
+      edc_data_key_count: raw ? Object.keys(raw).length : 0,
+      has_key_criteria: raw ? 'key_criteria' in raw : false,
+      first_evidence: (raw as Record<string, unknown> & { key_criteria?: { evidence?: string }[] })?.key_criteria?.[0]?.evidence?.slice(0, 80),
+      scope_count: (raw as Record<string, unknown> & { scope_match?: unknown[] })?.scope_match?.length,
+      scope_first_field: (raw as Record<string, unknown> & { scope_match?: { scope?: string }[] })?.scope_match?.[0]?.scope?.slice(0, 50),
+      compensation_budget: (raw as Record<string, unknown> & { compensation?: { budget_base?: string } })?.compensation?.budget_base?.slice(0, 30),
+      supabase_url_tail: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(-20),
+    });
+  }
+
   // 3. Transform candidates into IntroCardData[]
   const introCards: IntroCardData[] = candidates.map((c) => {
     const raw = (c.edc_data || null) as Record<string, unknown> | null;
@@ -57,6 +76,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     let edcPayload: EDCData;
 
     if (raw && typeof raw === 'object' && Object.keys(raw).length > 0) {
+      console.log('[SUPABASE-DEBUG] transform decision', {
+        name: c.candidate_name,
+        raw_exists: !!raw,
+        raw_is_object: typeof raw === 'object',
+        raw_key_count: raw ? Object.keys(raw as Record<string, unknown>).length : 0,
+        has_nested_edc_data: raw ? 'edc_data' in (raw as Record<string, unknown>) : false,
+        path: 'engine',
+      });
       // Handle nested vs flat edc_data structure
       // Norican: flat (key_criteria at top level)
       // Crestview: nested (edc_data.edc_data.key_criteria)
@@ -68,6 +95,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
     } else {
+      console.log('[SUPABASE-DEBUG] transform decision', {
+        name: c.candidate_name,
+        raw_exists: !!raw,
+        raw_is_object: typeof raw === 'object',
+        raw_key_count: raw ? Object.keys(raw as Record<string, unknown>).length : 0,
+        has_nested_edc_data: raw ? 'edc_data' in (raw as Record<string, unknown>) : false,
+        path: 'fallback',
+      });
       // edc_data is NULL — build EDCData from raw EDS candidate fields
 
       // Parse scope_match_dimensions ("Headcount, Geography, ...") into scope rows
