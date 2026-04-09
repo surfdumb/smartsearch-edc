@@ -68,14 +68,42 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
     } else {
-      // edc_data is NULL — build minimal EDCData from top-level candidate fields
+      // edc_data is NULL — build EDCData from raw EDS candidate fields
+
+      // Parse scope_match_dimensions ("Headcount, Geography, ...") into scope rows
+      const scopeRows = c.scope_match_dimensions
+        ? (c.scope_match_dimensions as string).split(',').map((d: string) => ({
+            scope: d.trim(),
+            candidate_actual: 'Not assessed',
+            role_requirement: '',
+            alignment: 'not_assessed' as const,
+          }))
+        : [];
+
+      // Parse key_criteria_assessment_prose ("External reporting: Very Good. Manufacturing: Strong.")
+      // and match against search-level criteria names
+      const keyCriteriaFromSearch = (search.key_criteria as { name: string; detail?: string }[] | null) || [];
+      const assessmentProse = (c.key_criteria_assessment_prose as string) || '';
+      const parsedAssessments = parseAssessmentProse(assessmentProse);
+      const keyCriteria = keyCriteriaFromSearch.map((kc) => {
+        // Try to match assessment by checking if criteria name starts with the short key
+        const match = parsedAssessments.find((a) =>
+          kc.name.toLowerCase().startsWith(a.shortName.toLowerCase())
+        );
+        return {
+          name: kc.name,
+          evidence: match ? match.rating : '',
+          context_anchor: '',
+        };
+      });
+
       edcPayload = {
         candidate_name: c.candidate_name || '',
         current_title: c.current_title || '',
         current_company: c.current_company || '',
         location: c.location || '',
-        scope_match: [],
-        key_criteria: [], // Will be seeded from search-level criteria in getDeckData
+        scope_match: scopeRows,
+        key_criteria: keyCriteria,
         compensation: {
           current_base: '',
           current_bonus: '',
@@ -89,6 +117,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         why_interested: [],
         potential_concerns: [],
         our_take: { text: c.our_take || '' },
+        motivation_hook: c.key_strength || undefined,
         search_name: '',
         role_title: '',
         generated_date: '',
@@ -103,13 +132,13 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       current_company: c.current_company || '',
       location: c.location || '',
       initials: c.initials || makeInitials(c.candidate_name),
-      headline: c.headline || (raw?.headline as string) || `${c.current_title} at ${c.current_company}`,
-      flash_summary: c.flash_summary || (raw?.flash_summary as string) || undefined,
+      headline: c.headline || (raw?.headline as string) || c.candidate_overview_prose || `${c.current_title} at ${c.current_company}`,
+      flash_summary: c.flash_summary || (raw?.flash_summary as string) || c.candidate_overview_prose || undefined,
       compensation_alignment: (c.compensation_alignment || 'not_set') as 'green' | 'amber' | 'not_set',
       career_trajectory: c.career_trajectory || (raw?.career_trajectory as string) || undefined,
       industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
       photo_url: (raw?.photo_url as string) || undefined,
-      motivation_hook: c.motivation_hook || (raw?.motivation_hook as string) || undefined,
+      motivation_hook: c.motivation_hook || (raw?.motivation_hook as string) || c.key_strength || undefined,
       edc_data: edcPayload,
     } as IntroCardData;
   });
@@ -142,4 +171,18 @@ function makeInitials(name: string): string {
   return parts.length >= 2
     ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
     : name.slice(0, 2).toUpperCase();
+}
+
+/** Parse "External reporting: Very Good. Manufacturing: Strong." into [{shortName, rating}] */
+function parseAssessmentProse(prose: string): { shortName: string; rating: string }[] {
+  if (!prose) return [];
+  // Split on period followed by space or end of string
+  return prose.split(/\.\s*/).filter(Boolean).map((segment) => {
+    const colonIdx = segment.indexOf(':');
+    if (colonIdx === -1) return null;
+    return {
+      shortName: segment.slice(0, colonIdx).trim(),
+      rating: segment.slice(colonIdx + 1).trim(),
+    };
+  }).filter((x): x is { shortName: string; rating: string } => x !== null);
 }
