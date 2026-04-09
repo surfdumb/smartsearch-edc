@@ -2,6 +2,8 @@ import { getDeckData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import DeckClient from "../DeckClient";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DeckEditPage({
   params,
 }: {
