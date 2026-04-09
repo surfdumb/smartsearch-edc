@@ -42,20 +42,28 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
   searchKeyCache.set(searchKey, search.id);
 
   // 2. Fetch candidates for this search
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: candidates, error: candErr } = await supabase
     .from('candidates')
-    .select('*')
+    .select('*, edc_data, ai_generated_edc')
     .eq('search_id', search.id)
-    .order('candidate_name');
+    .order('candidate_name') as { data: Record<string, unknown>[] | null; error: unknown };
 
-  if (candErr || !candidates) return null;
+  if (candErr) {
+    console.error('[SUPABASE-DEBUG] candidates query error', candErr);
+    return null;
+  }
+  if (!candidates) return null;
 
   // Debug: log raw Supabase query result for first candidate
   if (candidates?.length) {
-    const c0 = candidates[0];
-    const raw = c0.edc_data as Record<string, unknown> | null;
+    const c0 = candidates[0] as Record<string, unknown>;
+    const rawColumns = Object.keys(c0);
+    const raw = (c0.edc_data || null) as Record<string, unknown> | null;
     console.log('[SUPABASE-DEBUG] raw query result', {
       name: c0.candidate_name,
+      returned_columns: rawColumns,
+      returned_column_count: rawColumns.length,
       edc_data_type: typeof c0.edc_data,
       edc_data_is_null: c0.edc_data === null,
       edc_data_keys: raw ? Object.keys(raw) : 'null',
@@ -65,12 +73,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       scope_count: (raw as Record<string, unknown> & { scope_match?: unknown[] })?.scope_match?.length,
       scope_first_field: (raw as Record<string, unknown> & { scope_match?: { scope?: string }[] })?.scope_match?.[0]?.scope?.slice(0, 50),
       compensation_budget: (raw as Record<string, unknown> & { compensation?: { budget_base?: string } })?.compensation?.budget_base?.slice(0, 30),
+      has_ai_generated_edc: c0.ai_generated_edc !== null && c0.ai_generated_edc !== undefined,
       supabase_url_tail: process.env.NEXT_PUBLIC_SUPABASE_URL?.slice(-20),
     });
   }
 
   // 3. Transform candidates into IntroCardData[]
-  const introCards: IntroCardData[] = candidates.map((c) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const introCards: IntroCardData[] = candidates.map((c: any) => {
     const raw = (c.edc_data || null) as Record<string, unknown> | null;
 
     let edcPayload: EDCData;
