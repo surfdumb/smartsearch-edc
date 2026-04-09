@@ -104,6 +104,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       )
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       console.log('[SUPABASE-DEBUG] transform path', {
         name: c.candidate_name,
         path: 'engine',
@@ -113,6 +114,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         edcPayload_first_evidence: (edcPayload as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
         edcPayload_scope_count: (edcPayload as any)?.scope_match?.length,
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     } else {
       console.log('[SUPABASE-DEBUG] transform decision', {
         name: c.candidate_name,
@@ -182,6 +184,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         // to avoid overwriting future Engine-generated data.
         _fromFallback: true,
       } as EDCData;
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       console.log('[SUPABASE-DEBUG] transform path', {
         name: c.candidate_name,
         path: 'fallback',
@@ -190,6 +193,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         edcPayload_first_evidence: (edcPayload as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
         edcPayload_scope_count: (edcPayload as any)?.scope_match?.length,
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
     }
 
     return {

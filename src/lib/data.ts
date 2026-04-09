@@ -507,6 +507,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
   if (SUPABASE_ENABLED) {
     const supabaseData = await getSupabaseDeckData(searchId);
     if (supabaseData) {
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       console.log('[DATA-DEBUG] after getSupabaseDeckData', {
         candidateCount: supabaseData.candidates?.length,
         firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
@@ -514,6 +515,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
         firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
       // Still apply Blob overlays (photos, edits, card order) on top
       const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
         getPhotoUrls(searchId),
@@ -527,6 +529,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
 
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       console.log('[DATA-DEBUG] after overlays applied', {
         overlayCount,
         overlayKeys: Object.keys(overlays),
@@ -534,6 +537,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
         firstFromFallback: (supabaseData.candidates?.[0]?.edc_data as any)?._fromFallback,
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       // Seed empty criteria from search-level names, then enforce names on existing ones
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
@@ -557,6 +561,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       }
 
       console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
+      /* eslint-disable @typescript-eslint/no-explicit-any */
       console.log('[DATA-DEBUG] final getDeckData output', {
         firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
         firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
@@ -564,6 +569,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         criteriaCount: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.length,
         scopeCount: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.length,
       });
+      /* eslint-enable @typescript-eslint/no-explicit-any */
       return supabaseData;
     }
   }
