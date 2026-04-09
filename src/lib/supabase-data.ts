@@ -104,6 +104,15 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       )
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
+      console.log('[SUPABASE-DEBUG] transform path', {
+        name: c.candidate_name,
+        path: 'engine',
+        used_nested: !!(raw.edc_data && typeof raw.edc_data === 'object' && 'key_criteria' in (raw.edc_data as Record<string, unknown>)),
+        edcPayload_keys: Object.keys(edcPayload),
+        edcPayload_criteria_count: (edcPayload as any)?.key_criteria?.length,
+        edcPayload_first_evidence: (edcPayload as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
+        edcPayload_scope_count: (edcPayload as any)?.scope_match?.length,
+      });
     } else {
       console.log('[SUPABASE-DEBUG] transform decision', {
         name: c.candidate_name,
@@ -173,6 +182,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         // to avoid overwriting future Engine-generated data.
         _fromFallback: true,
       } as EDCData;
+      console.log('[SUPABASE-DEBUG] transform path', {
+        name: c.candidate_name,
+        path: 'fallback',
+        edcPayload_keys: Object.keys(edcPayload),
+        edcPayload_criteria_count: (edcPayload as any)?.key_criteria?.length,
+        edcPayload_first_evidence: (edcPayload as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
+        edcPayload_scope_count: (edcPayload as any)?.scope_match?.length,
+      });
     }
 
     return {

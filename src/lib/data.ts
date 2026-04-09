@@ -507,6 +507,13 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
   if (SUPABASE_ENABLED) {
     const supabaseData = await getSupabaseDeckData(searchId);
     if (supabaseData) {
+      console.log('[DATA-DEBUG] after getSupabaseDeckData', {
+        candidateCount: supabaseData.candidates?.length,
+        firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
+        firstCandidateEdcKeys: supabaseData.candidates?.[0]?.edc_data ? Object.keys(supabaseData.candidates[0].edc_data) : 'none',
+        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
+        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
+      });
       // Still apply Blob overlays (photos, edits, card order) on top
       const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
         getPhotoUrls(searchId),
@@ -514,10 +521,19 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         getCardOrder(searchId),
         getHiddenCandidates(searchId),
       ]);
-      if (Object.keys(overlays).length > 0) applyEditOverlays(supabaseData.candidates, overlays);
+      const overlayCount = Object.keys(overlays).length;
+      if (overlayCount > 0) applyEditOverlays(supabaseData.candidates, overlays);
       if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
+
+      console.log('[DATA-DEBUG] after overlays applied', {
+        overlayCount,
+        overlayKeys: Object.keys(overlays),
+        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
+        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
+        firstFromFallback: (supabaseData.candidates?.[0]?.edc_data as any)?._fromFallback,
+      });
 
       // Seed empty criteria from search-level names, then enforce names on existing ones
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
@@ -541,6 +557,13 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       }
 
       console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
+      console.log('[DATA-DEBUG] final getDeckData output', {
+        firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
+        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
+        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
+        criteriaCount: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.length,
+        scopeCount: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.length,
+      });
       return supabaseData;
     }
   }
