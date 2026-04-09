@@ -24,6 +24,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const hasFixture = fixtureExists(searchId);
+    let skipBlobWrite = false;
 
     // Write to Supabase only for non-fixture searches (e.g., ktj-cor-ctl)
     if (SUPABASE_ENABLED && !hasFixture) {
@@ -39,6 +40,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         const isFallbackData = edcData._fromFallback === true;
 
         if (isFallbackData) {
+          skipBlobWrite = true;
           console.log("[edits] Skipping Supabase edc_data write — fallback-constructed data:", searchId, candidateId);
 
           // Still sync non-edc_data fields (deck_status, etc.)
@@ -88,6 +90,7 @@ export async function POST(request: Request): Promise<NextResponse> {
                 .eq('candidate_slug', candidateId);
 
               skipSupabaseEdcWrite = true;
+              skipBlobWrite = true;
             }
           }
 
@@ -136,17 +139,23 @@ export async function POST(request: Request): Promise<NextResponse> {
       }
     }
 
-    // Always write to Blob as well (fallback / backward compat)
-    const pathname = `edits/${searchId}/${candidateId}.json`;
-    const blob = await put(pathname, JSON.stringify(edcData), {
-      access: "public",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json",
-    });
+    // Write to Blob as fallback / backward compat — but skip when Supabase guards
+    // blocked the write (sparse data would create a self-perpetuating overlay loop)
+    if (!skipBlobWrite) {
+      const pathname = `edits/${searchId}/${candidateId}.json`;
+      const blob = await put(pathname, JSON.stringify(edcData), {
+        access: "public",
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: "application/json",
+      });
 
-    console.log("[edits] Saved edit overlay:", pathname, blob.url);
-    return NextResponse.json({ url: blob.url, pathname });
+      console.log("[edits] Saved edit overlay:", pathname, blob.url);
+      return NextResponse.json({ url: blob.url, pathname });
+    }
+
+    console.log("[edits] Skipped Blob write (sparse data blocked):", searchId, candidateId);
+    return NextResponse.json({ skipped: true, reason: "sparse data blocked" });
   } catch (error) {
     console.error("[edits] Save failed:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
