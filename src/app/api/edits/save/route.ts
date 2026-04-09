@@ -32,42 +32,64 @@ export async function POST(request: Request): Promise<NextResponse> {
       const searchUUID = await resolveSearchId(searchId);
 
       if (searchUUID) {
-        const supabase = getServiceClient();
+        // Guard: if edc_data was constructed from raw EDS fields (fallback),
+        // do NOT write it to Supabase — it would overwrite Engine-generated data.
+        const isFallbackData = edcData._fromFallback === true;
 
-        // Fetch current manually_edited_fields to merge
-        const { data: existing } = await supabase
-          .from('candidates')
-          .select('manually_edited_fields')
-          .eq('search_id', searchUUID)
-          .eq('candidate_slug', candidateId)
-          .single();
+        if (isFallbackData) {
+          console.log("[edits] Skipping Supabase edc_data write — fallback-constructed data:", searchId, candidateId);
 
-        const existingFields: string[] = existing?.manually_edited_fields || [];
-        const newFields = Object.keys(edcData);
-        const mergedFields = Array.from(new Set([...existingFields, ...newFields]));
-
-        // Build update payload — always write edc_data + tracking fields
-        const updatePayload: Record<string, unknown> = {
-          edc_data: edcData,
-          manually_edited_fields: mergedFields,
-          updated_at: new Date().toISOString(),
-        };
-
-        // Sync deck_status when status is present in edcData
-        if (edcData.status) {
-          updatePayload.deck_status = edcData.status;
-        }
-
-        const { error } = await supabase
-          .from('candidates')
-          .update(updatePayload)
-          .eq('search_id', searchUUID)
-          .eq('candidate_slug', candidateId);
-
-        if (error) {
-          console.error("[edits] Supabase write failed:", error);
+          // Still sync non-edc_data fields (deck_status, etc.)
+          if (edcData.status) {
+            const supabase = getServiceClient();
+            await supabase
+              .from('candidates')
+              .update({ deck_status: edcData.status, updated_at: new Date().toISOString() })
+              .eq('search_id', searchUUID)
+              .eq('candidate_slug', candidateId);
+          }
         } else {
-          console.log("[edits] Saved to Supabase:", searchId, candidateId);
+          const supabase = getServiceClient();
+
+          // Fetch current manually_edited_fields to merge
+          const { data: existing } = await supabase
+            .from('candidates')
+            .select('manually_edited_fields')
+            .eq('search_id', searchUUID)
+            .eq('candidate_slug', candidateId)
+            .single();
+
+          const existingFields: string[] = existing?.manually_edited_fields || [];
+          const newFields = Object.keys(edcData);
+          const mergedFields = Array.from(new Set([...existingFields, ...newFields]));
+
+          // Strip internal flags before writing to Supabase
+          const cleanEdcData = { ...edcData };
+          delete cleanEdcData._fromFallback;
+
+          // Build update payload — always write edc_data + tracking fields
+          const updatePayload: Record<string, unknown> = {
+            edc_data: cleanEdcData,
+            manually_edited_fields: mergedFields,
+            updated_at: new Date().toISOString(),
+          };
+
+          // Sync deck_status when status is present in edcData
+          if (edcData.status) {
+            updatePayload.deck_status = edcData.status;
+          }
+
+          const { error } = await supabase
+            .from('candidates')
+            .update(updatePayload)
+            .eq('search_id', searchUUID)
+            .eq('candidate_slug', candidateId);
+
+          if (error) {
+            console.error("[edits] Supabase write failed:", error);
+          } else {
+            console.log("[edits] Saved to Supabase:", searchId, candidateId);
+          }
         }
       }
     }

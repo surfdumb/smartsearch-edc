@@ -122,6 +122,11 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         role_title: '',
         generated_date: '',
         consultant_name: '',
+        // Guard flag: this edc_data was constructed from raw EDS fields,
+        // NOT loaded from Supabase edc_data column. The save handler must
+        // skip writing edc_data back to Supabase when this flag is present
+        // to avoid overwriting future Engine-generated data.
+        _fromFallback: true,
       } as EDCData;
     }
 
