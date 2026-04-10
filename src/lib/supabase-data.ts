@@ -71,6 +71,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       )
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
+
+      // Always prefer pristine Engine criteria from ai_generated_edc.
+      // Auto-save can corrupt edc_data.key_criteria with stale client data,
+      // but ai_generated_edc is never modified by the client.
+      const aiGenerated = c.ai_generated_edc as Record<string, unknown> | null;
+      if (aiGenerated?.key_criteria && Array.isArray(aiGenerated.key_criteria) && aiGenerated.key_criteria.length > 0) {
+        edcPayload.key_criteria = aiGenerated.key_criteria as EDCData['key_criteria'];
+      }
     } else {
       // edc_data is NULL — build EDCData from raw EDS candidate fields
 

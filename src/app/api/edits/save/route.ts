@@ -43,7 +43,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         );
       }
 
-      let skipSupabaseEdcWrite = false;
+      const skipSupabaseEdcWrite = false;
 
         // Guard: if edc_data was constructed from raw EDS fields (fallback),
         // do NOT write it to Supabase — it would overwrite Engine-generated data.
@@ -65,10 +65,10 @@ export async function POST(request: Request): Promise<NextResponse> {
         } else {
           const supabase = getServiceClient();
 
-          // Guard 2: Don't overwrite rich Engine-generated edc_data with sparse client state.
+          // Guard 2: Don't overwrite Engine-generated edc_data with stale client state.
           // When the Engine populates edc_data, it also writes ai_generated_edc as a pristine copy.
-          // If ai_generated_edc exists and has rich evidence, but the incoming payload has sparse
-          // evidence, the client is sending stale localStorage data that predates the Engine run.
+          // Compare incoming key_criteria against the Engine's — if names or count differ,
+          // the client is sending stale data (e.g. "name: flash" format, EDS assessment text).
           const { data: aiCheck } = await supabase
             .from('candidates')
             .select('ai_generated_edc')
@@ -76,31 +76,27 @@ export async function POST(request: Request): Promise<NextResponse> {
             .eq('candidate_slug', candidateId)
             .single();
 
-          if (aiCheck?.ai_generated_edc) {
-            const engineEvidence = aiCheck.ai_generated_edc?.key_criteria?.[0]?.evidence || '';
-            const incomingEvidence = edcData?.key_criteria?.[0]?.evidence || '';
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const aiEdc = (aiCheck as any)?.ai_generated_edc;
+          if (aiEdc?.key_criteria?.length > 0) {
+            const engineCriteria = aiEdc.key_criteria;
+            const incomingCriteria = edcData?.key_criteria || [];
+            const engineName0 = engineCriteria[0]?.name || '';
+            const incomingName0 = incomingCriteria[0]?.name || '';
 
-            if (engineEvidence.length > 50 && incomingEvidence.length < 50) {
+            // Block if: different criteria count, or first criterion name doesn't match Engine
+            const countMismatch = incomingCriteria.length !== engineCriteria.length;
+            const nameMismatch = engineName0 && incomingName0 && incomingName0 !== engineName0;
+
+            if (countMismatch || nameMismatch) {
               console.log(
                 `[edits] BLOCKED edc_data overwrite for ${candidateId}: ` +
-                `Engine evidence ${engineEvidence.length} chars vs incoming ${incomingEvidence.length} chars. ` +
-                `Client is sending stale pre-Engine data.`
+                `Engine has ${engineCriteria.length} criteria "${engineName0.slice(0, 40)}" ` +
+                `vs incoming ${incomingCriteria.length} criteria "${incomingName0.slice(0, 40)}". ` +
+                `Preserving Engine key_criteria in edc_data.`
               );
-              // Still sync lightweight display fields that don't come from the Engine
-              const lightweightUpdate: Record<string, unknown> = { updated_at: new Date().toISOString() };
-              if (edcData.status) lightweightUpdate.deck_status = edcData.status;
-              if ((edcData as Record<string, unknown>).compensation_alignment) {
-                lightweightUpdate.compensation_alignment = (edcData as Record<string, unknown>).compensation_alignment;
-              }
-
-              await supabase
-                .from('candidates')
-                .update(lightweightUpdate)
-                .eq('search_id', searchUUID)
-                .eq('candidate_slug', candidateId);
-
-              skipSupabaseEdcWrite = true;
-              skipBlobWrite = true;
+              // Preserve Engine key_criteria but allow other fields to update
+              edcData.key_criteria = engineCriteria;
             }
           }
 
