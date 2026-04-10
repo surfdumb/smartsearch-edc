@@ -219,6 +219,7 @@ export default function OurTakePopover({
                 contentEditable
                 suppressContentEditableWarning
                 className="editable-cell"
+                onInput={(e) => setName(e.currentTarget.textContent || "")}
                 onBlur={(e) => setName(e.currentTarget.textContent || "")}
                 style={{
                   fontSize: "0.72rem",
@@ -358,6 +359,7 @@ export default function OurTakePopover({
                     contentEditable
                     suppressContentEditableWarning
                     className="editable-cell"
+                    onInput={(e) => updateFragment(i, e.currentTarget.textContent || "")}
                     onBlur={(e) => updateFragment(i, e.currentTarget.textContent || "")}
                     style={{
                       fontSize: "0.85rem",
@@ -445,6 +447,7 @@ export default function OurTakePopover({
               contentEditable
               suppressContentEditableWarning
               className="editable-cell"
+              onInput={(e) => setText(e.currentTarget.textContent || "")}
               onBlur={(e) => setText(e.currentTarget.textContent || "")}
               style={{
                 fontSize: "0.85rem",
