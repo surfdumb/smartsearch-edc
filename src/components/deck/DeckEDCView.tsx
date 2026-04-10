@@ -72,21 +72,44 @@ export default function DeckEDCView({
   // Our Take result — persisted in localStorage so generated text survives page nav
   const [ourTakeOverride, setOurTakeOverride] = useState<OurTakeOverride | null>(null);
 
+  // Our Take popover edits — read from localStorage so the client-view overlay
+  // shows edits immediately (same pattern as KeyCriteria reading localStorage on mount)
+  const [ourTakeLocalEdits, setOurTakeLocalEdits] = useState<{ text?: string; fragments?: string[] } | null>(null);
+
   useEffect(() => {
     try {
       const stored = localStorage.getItem(ourTakeStorageKey(candidate.candidate_id));
       if (stored) setOurTakeOverride(JSON.parse(stored));
       else setOurTakeOverride(null);
     } catch { /* ignore */ }
+    try {
+      const popover = localStorage.getItem(`edc_edit_${candidate.candidate_id}_ourtake`);
+      if (popover) {
+        const p = JSON.parse(popover);
+        setOurTakeLocalEdits({ text: p.text, fragments: p.fragments });
+      } else {
+        setOurTakeLocalEdits(null);
+      }
+    } catch { setOurTakeLocalEdits(null); }
   }, [candidate.candidate_id]);
 
-  // Merge any generated/stored Our Take into the EDC data
-  const edcWithOurTake: EDCData = useMemo(() =>
-    ourTakeOverride
+  // Merge any generated/stored Our Take AND popover edits into the EDC data.
+  // This ensures the client-view overlay (which reads from data, not localStorage)
+  // shows the consultant's edits — matching how KeyCriteria works.
+  const edcWithOurTake: EDCData = useMemo(() => {
+    let result = ourTakeOverride
       ? { ...edc, our_take: { ...edc.our_take, ...ourTakeOverride } }
-      : edc,
-    [edc, ourTakeOverride]
-  );
+      : { ...edc };
+    if (ourTakeLocalEdits) {
+      if (ourTakeLocalEdits.text !== undefined) {
+        result = { ...result, our_take: { ...result.our_take, text: ourTakeLocalEdits.text } };
+      }
+      if (ourTakeLocalEdits.fragments && ourTakeLocalEdits.fragments.length > 0) {
+        result = { ...result, our_take_fragments: ourTakeLocalEdits.fragments };
+      }
+    }
+    return result;
+  }, [edc, ourTakeOverride, ourTakeLocalEdits]);
 
   // Auto-save edits to Vercel Blob on every change (debounced)
   useAutoSave(searchId, candidate.candidate_id, edcWithOurTake);
@@ -200,6 +223,7 @@ export default function DeckEDCView({
                 localStorage.removeItem(`edc_edit_${cid}_motivation`);
               } catch { /* ignore */ }
               setOurTakeOverride(null);
+              setOurTakeLocalEdits(null);
               setResetKey(k => k + 1);
             }}
           />
