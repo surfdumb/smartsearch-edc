@@ -279,9 +279,34 @@ export default function EDCHeader({
                   {candidate_name}
                 </h1>
               )}
-              {/* LinkedIn icon */}
+              {/* LinkedIn icon + remove button in edit mode */}
               {showLinkedin && linkedin_url && (
-                <LinkedInLink url={linkedin_url} />
+                <>
+                  <LinkedInLink url={linkedin_url} />
+                  {isEditable && (
+                    <button
+                      onClick={() => {
+                        onLinkedInUpdate?.("");
+                      }}
+                      title="Remove LinkedIn profile"
+                      style={{
+                        marginLeft: "2px",
+                        fontSize: "0.6rem",
+                        color: "rgba(255,255,255,0.25)",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "2px 4px",
+                        lineHeight: 1,
+                        transition: "color 0.15s",
+                      }}
+                      onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)"; }}
+                      onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.25)"; }}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </>
               )}
               {/* Add LinkedIn button (edit mode, no URL yet) */}
               {isEditable && showLinkedin && !linkedin_url && !showLinkedInInput && (
