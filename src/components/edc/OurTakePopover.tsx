@@ -77,6 +77,21 @@ export default function OurTakePopover({
     }
   }, [fragments, text, name, showName, storageKey, isEditable, candidateId]);
 
+  // Write to localStorage directly (no React state update, no re-render, no cursor jump).
+  // Used by onInput handlers so handleLock always reads fresh data.
+  const flushToStorage = useCallback((overrides: { text?: string; fragments?: string[]; name?: string }) => {
+    if (!storageKey || !isEditable) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({
+        fragments: overrides.fragments ?? fragments,
+        text: overrides.text ?? text,
+        name: overrides.name ?? name,
+        showName,
+      }));
+    } catch { /* ignore */ }
+    if (candidateId) signalEdit(candidateId);
+  }, [storageKey, isEditable, fragments, text, name, showName, candidateId]);
+
   // Position popover BELOW the trigger button (drops down)
   useEffect(() => {
     const trigger = triggerRef.current;
@@ -219,7 +234,7 @@ export default function OurTakePopover({
                 contentEditable
                 suppressContentEditableWarning
                 className="editable-cell"
-                onInput={(e) => setName(e.currentTarget.textContent || "")}
+                onInput={(e) => flushToStorage({ name: e.currentTarget.textContent || "" })}
                 onBlur={(e) => setName(e.currentTarget.textContent || "")}
                 style={{
                   fontSize: "0.72rem",
@@ -359,7 +374,7 @@ export default function OurTakePopover({
                     contentEditable
                     suppressContentEditableWarning
                     className="editable-cell"
-                    onInput={(e) => updateFragment(i, e.currentTarget.textContent || "")}
+                    onInput={(e) => { const updated = [...fragments]; updated[i] = e.currentTarget.textContent || ""; flushToStorage({ fragments: updated }); }}
                     onBlur={(e) => updateFragment(i, e.currentTarget.textContent || "")}
                     style={{
                       fontSize: "0.85rem",
@@ -447,7 +462,7 @@ export default function OurTakePopover({
               contentEditable
               suppressContentEditableWarning
               className="editable-cell"
-              onInput={(e) => setText(e.currentTarget.textContent || "")}
+              onInput={(e) => flushToStorage({ text: e.currentTarget.textContent || "" })}
               onBlur={(e) => setText(e.currentTarget.textContent || "")}
               style={{
                 fontSize: "0.85rem",
