@@ -507,37 +507,18 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
   if (SUPABASE_ENABLED) {
     const supabaseData = await getSupabaseDeckData(searchId);
     if (supabaseData) {
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      console.log('[DATA-DEBUG] after getSupabaseDeckData', {
-        candidateCount: supabaseData.candidates?.length,
-        firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
-        firstCandidateEdcKeys: supabaseData.candidates?.[0]?.edc_data ? Object.keys(supabaseData.candidates[0].edc_data) : 'none',
-        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
-        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
-      });
-      /* eslint-enable @typescript-eslint/no-explicit-any */
-      // Still apply Blob overlays (photos, edits, card order) on top
-      const [photos, overlays, savedOrder, hiddenCandidates] = await Promise.all([
+      // Supabase is canonical for these searches — do NOT load Blob edit overlays,
+      // which may contain stale pre-Engine data that would overwrite rich edc_data.
+      // (The save handler already skips Blob writes for Supabase-native searches.)
+      // Still load photos, card order, and hidden candidates from Blob.
+      const [photos, savedOrder, hiddenCandidates] = await Promise.all([
         getPhotoUrls(searchId),
-        getEditOverlays(searchId),
         getCardOrder(searchId),
         getHiddenCandidates(searchId),
       ]);
-      const overlayCount = Object.keys(overlays).length;
-      if (overlayCount > 0) applyEditOverlays(supabaseData.candidates, overlays);
       if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
-
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      console.log('[DATA-DEBUG] after overlays applied', {
-        overlayCount,
-        overlayKeys: Object.keys(overlays),
-        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
-        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
-        firstFromFallback: (supabaseData.candidates?.[0]?.edc_data as any)?._fromFallback,
-      });
-      /* eslint-enable @typescript-eslint/no-explicit-any */
 
       // Seed empty criteria from search-level names, then enforce names on existing ones
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
@@ -560,16 +541,15 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         }
       }
 
-      console.log('[getDeckData] Loaded from Supabase for', searchId, `(${supabaseData.candidates.length} candidates)`);
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      console.log('[DATA-DEBUG] final getDeckData output', {
-        firstCandidate: supabaseData.candidates?.[0]?.candidate_name,
-        firstEvidence: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.[0]?.evidence?.slice(0, 60),
-        firstScope: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.[0]?.candidate_actual?.slice(0, 40),
-        criteriaCount: (supabaseData.candidates?.[0]?.edc_data as any)?.key_criteria?.length,
-        scopeCount: (supabaseData.candidates?.[0]?.edc_data as any)?.scope_match?.length,
-      });
-      /* eslint-enable @typescript-eslint/no-explicit-any */
+      // Ensure edc_data.search_name and role_title are populated from search context
+      const ctxSearchName = supabaseData.search_name || '';
+      const ctxRoleTitle = supabaseData.role_title || '';
+      for (const c of supabaseData.candidates) {
+        if (!c.edc_data) continue;
+        if (!c.edc_data.search_name) c.edc_data.search_name = ctxSearchName;
+        if (!c.edc_data.role_title) c.edc_data.role_title = ctxRoleTitle;
+      }
+
       return supabaseData;
     }
   }
