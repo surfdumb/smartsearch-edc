@@ -1388,6 +1388,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   return (
     <DeckEDCView
+      key={candidate.candidate_id}
       candidate={candidate}
       candidateIndex={view.candidateIndex}
       totalCount={orderedCandidates.length}

@@ -16,6 +16,8 @@ export function useEDCState(candidateId: string) {
       const stored = localStorage.getItem(stateKey(candidateId));
       if (stored === "locked" || stored === "draft") {
         setState(stored as EDCState);
+      } else {
+        setState("draft");
       }
     } catch { /* ignore */ }
   }, [candidateId]);

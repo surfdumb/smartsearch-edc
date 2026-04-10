@@ -58,7 +58,7 @@ function EditablePill({
           borderRadius: "12px",
           background: "rgba(74, 106, 140, 0.10)",
           color: "#4a6a8c",
-          whiteSpace: "nowrap",
+          whiteSpace: "normal",
           outline: "none",
         }}
       />
@@ -190,31 +190,47 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
   // stale localStorage which may contain old fallback/EDS data.
   const propHasEvidence = key_criteria.length > 0 && !!key_criteria[0]?.evidence;
 
+  // Check if stored criteria names match prop criteria names.
+  // If names match, localStorage holds consultant edits on Engine data — preserve them.
+  // If names don't match, it's stale fallback data — clear it.
+  function storedCriteriaMatchProps(stored: CriterionItem[]): boolean {
+    if (stored.length === 0 || key_criteria.length === 0) return false;
+    const storedNames = stored.map(c => c.name).sort();
+    const propNames = key_criteria.map(c => c.name).sort();
+    if (storedNames.length !== propNames.length) return false;
+    return storedNames.every((n, i) => n === propNames[i]);
+  }
+
+  function readStoredCriteria(): CriterionItem[] | null {
+    if (!storageKey || typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as CriterionItem[];
+      if (storedCriteriaMatchProps(parsed)) return parsed;
+      // Stale — names don't match, clear it
+      localStorage.removeItem(storageKey);
+    } catch { /* ignore */ }
+    return null;
+  }
+
   const [items, setItems] = useState<CriterionItem[]>(() => {
-    if (!propHasEvidence && storageKey && typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(storageKey);
-        if (stored) return JSON.parse(stored);
-      } catch { /* ignore */ }
-    }
+    const stored = readStoredCriteria();
+    if (stored) return stored;
     return key_criteria;
   });
   const originalItems = useRef<CriterionItem[]>(key_criteria);
 
   useEffect(() => {
-    if (!propHasEvidence && storageKey && typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem(storageKey);
-        if (stored) { setItems(JSON.parse(stored)); originalItems.current = key_criteria; return; }
-      } catch { /* ignore */ }
-    }
-    // Prop has Engine evidence or no localStorage — use prop directly.
-    // Also clear stale localStorage that would override on next mount.
-    if (propHasEvidence && storageKey) {
-      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+    const stored = readStoredCriteria();
+    if (stored) {
+      setItems(stored);
+      originalItems.current = key_criteria;
+      return;
     }
     setItems(key_criteria);
     originalItems.current = key_criteria;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key_criteria, storageKey, propHasEvidence]);
 
   // Persist edits to localStorage
@@ -323,7 +339,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                 )}
 
                 {/* Evidence + pill row */}
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
                   {isEditable ? (
                     <CriterionEvidenceEditable
                       value={item.evidence}
@@ -344,7 +360,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                   )}
 
                   {/* Context anchor pill */}
-                  <div style={{ flexShrink: 0, marginTop: "1px" }}>
+                  <div style={{ flexShrink: 1, minWidth: 0, maxWidth: "100%", marginTop: "1px" }}>
                     {isEditable ? (
                       item.context_anchor ? (
                         <EditablePill

@@ -5,7 +5,7 @@ interface ContextAnchorPillProps {
 export default function ContextAnchorPill({ text }: ContextAnchorPillProps) {
   return (
     <span
-      className="inline-block font-semibold whitespace-nowrap"
+      className="inline-block font-semibold"
       style={{
         fontSize: "0.68rem",
         padding: "4px 11px",
