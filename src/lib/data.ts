@@ -238,17 +238,19 @@ export async function getCandidateData(
   searchId: string,
   candidateId: string
 ): Promise<EDCData | null> {
-  // -1. Check for persisted edit overlay (highest priority — locked edits from consultant)
-  const overlays = await getEditOverlays(searchId);
-  if (overlays[candidateId]) {
-    // Attach photo if uploaded
-    const photos = await getPhotoUrls(searchId);
-    const overlay = overlays[candidateId];
-    if (photos[candidateId]) overlay.photo_url = photos[candidateId];
-    return overlay;
-  }
-
   const fixture = await loadFixture(searchId);
+
+  // Blob edit overlays only apply to fixture-based searches.
+  // Supabase-native searches persist edits to Supabase directly.
+  if (fixture) {
+    const overlays = await getEditOverlays(searchId);
+    if (overlays[candidateId]) {
+      const photos = await getPhotoUrls(searchId);
+      const overlay = overlays[candidateId];
+      if (photos[candidateId]) overlay.photo_url = photos[candidateId];
+      return overlay;
+    }
+  }
 
   // 0. Fixture with pre-structured candidates — highest priority, no enrichment needed
   if (fixture?.candidates?.length) {
@@ -520,34 +522,31 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
 
-      // Seed empty criteria from search-level names, then enforce names on existing ones
+      // Criteria enforcement: only for candidates WITHOUT Engine-generated evidence.
+      // Engine data already has correct names, evidence, and context anchors — skip it.
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
       if (deckCriteriaNames.length > 0) {
         for (const c of supabaseData.candidates) {
           if (!c.edc_data) continue;
-          if (!c.edc_data.key_criteria || c.edc_data.key_criteria.length === 0) {
-            // Candidate has no criteria — seed from search-level names
-            c.edc_data.key_criteria = deckCriteriaNames.map((name) => ({
-              name,
-              evidence: '',
-              context_anchor: '',
-            }));
-          } else {
-            // Candidate has criteria — enforce search-level names
-            for (let i = 0; i < c.edc_data.key_criteria.length && i < deckCriteriaNames.length; i++) {
-              c.edc_data.key_criteria[i].name = deckCriteriaNames[i];
-            }
-          }
+          const hasEngineEvidence = c.edc_data.key_criteria?.length > 0
+            && !!c.edc_data.key_criteria[0]?.evidence;
+          if (hasEngineEvidence) continue; // Engine data — don't touch
+          // No criteria or empty evidence — seed from search-level names
+          c.edc_data.key_criteria = deckCriteriaNames.map((name) => ({
+            name,
+            evidence: '',
+            context_anchor: '',
+          }));
         }
       }
 
-      // Ensure edc_data.search_name and role_title are populated from search context
+      // Always set search_name and role_title from search context (authoritative source)
       const ctxSearchName = supabaseData.search_name || '';
       const ctxRoleTitle = supabaseData.role_title || '';
       for (const c of supabaseData.candidates) {
         if (!c.edc_data) continue;
-        if (!c.edc_data.search_name) c.edc_data.search_name = ctxSearchName;
-        if (!c.edc_data.role_title) c.edc_data.role_title = ctxRoleTitle;
+        c.edc_data.search_name = ctxSearchName;
+        c.edc_data.role_title = ctxRoleTitle;
       }
 
       return supabaseData;
