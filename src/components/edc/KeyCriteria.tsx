@@ -185,8 +185,13 @@ function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: 
 export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_criteria` : null;
+
+  // Engine-generated criteria have non-empty evidence — prefer the prop over
+  // stale localStorage which may contain old fallback/EDS data.
+  const propHasEvidence = key_criteria.length > 0 && !!key_criteria[0]?.evidence;
+
   const [items, setItems] = useState<CriterionItem[]>(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (!propHasEvidence && storageKey && typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) return JSON.parse(stored);
@@ -197,15 +202,20 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
   const originalItems = useRef<CriterionItem[]>(key_criteria);
 
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (!propHasEvidence && storageKey && typeof window !== 'undefined') {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) { setItems(JSON.parse(stored)); originalItems.current = key_criteria; return; }
       } catch { /* ignore */ }
     }
+    // Prop has Engine evidence or no localStorage — use prop directly.
+    // Also clear stale localStorage that would override on next mount.
+    if (propHasEvidence && storageKey) {
+      try { localStorage.removeItem(storageKey); } catch { /* ignore */ }
+    }
     setItems(key_criteria);
     originalItems.current = key_criteria;
-  }, [key_criteria, storageKey]);
+  }, [key_criteria, storageKey, propHasEvidence]);
 
   // Persist edits to localStorage
   useEffect(() => {
