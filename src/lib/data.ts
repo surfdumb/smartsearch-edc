@@ -1,6 +1,7 @@
 import type { EDCData, IntroCardData, SearchContext } from './types';
 import { getSupabaseDeckData } from './supabase-data';
 import { SUPABASE_ENABLED } from './supabase';
+import { mergeKeyCriteria } from './merge-criteria';
 import fs from 'fs';
 import path from 'path';
 
@@ -545,7 +546,10 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
               if (!c.edc_data) continue;
               const ai = aiMap.get(c.candidate_id);
               if (ai?.key_criteria && Array.isArray(ai.key_criteria) && ai.key_criteria.length > 0) {
-                c.edc_data.key_criteria = ai.key_criteria as EDCData['key_criteria'];
+                c.edc_data.key_criteria = mergeKeyCriteria(
+                  ai.key_criteria as EDCData['key_criteria'],
+                  c.edc_data.key_criteria,
+                );
               }
             }
           }

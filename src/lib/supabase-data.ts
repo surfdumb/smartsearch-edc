@@ -1,5 +1,6 @@
 import { getServiceClient, SUPABASE_ENABLED } from './supabase';
 import type { SearchContext, IntroCardData, EDCData } from './types';
+import { mergeKeyCriteria } from './merge-criteria';
 
 // ─── Search key → UUID resolver with cache ─────────────────────────────────
 
@@ -72,12 +73,15 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
         ? raw.edc_data as unknown as EDCData
         : raw as unknown as EDCData;
 
-      // Always prefer pristine Engine criteria from ai_generated_edc.
-      // Auto-save can corrupt edc_data.key_criteria with stale client data,
-      // but ai_generated_edc is never modified by the client.
+      // Merge pristine Engine criteria with edc_data, preserving consultant edits.
+      // ai_generated_edc is never modified by the client, so it's the structural authority.
+      // But if a consultant edited evidence/context_anchor in edc_data, keep their version.
       const aiGenerated = c.ai_generated_edc as Record<string, unknown> | null;
       if (aiGenerated?.key_criteria && Array.isArray(aiGenerated.key_criteria) && aiGenerated.key_criteria.length > 0) {
-        edcPayload.key_criteria = aiGenerated.key_criteria as EDCData['key_criteria'];
+        edcPayload.key_criteria = mergeKeyCriteria(
+          aiGenerated.key_criteria as EDCData['key_criteria'],
+          edcPayload.key_criteria,
+        );
       }
     } else {
       // edc_data is NULL — build EDCData from raw EDS candidate fields

@@ -1,6 +1,7 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase";
+import { mergeKeyCriteria } from "@/lib/merge-criteria";
 import fs from "fs";
 import path from "path";
 
@@ -90,13 +91,13 @@ export async function POST(request: Request): Promise<NextResponse> {
 
             if (countMismatch || nameMismatch) {
               console.log(
-                `[edits] BLOCKED edc_data overwrite for ${candidateId}: ` +
+                `[edits] Stale criteria structure for ${candidateId}: ` +
                 `Engine has ${engineCriteria.length} criteria "${engineName0.slice(0, 40)}" ` +
                 `vs incoming ${incomingCriteria.length} criteria "${incomingName0.slice(0, 40)}". ` +
-                `Preserving Engine key_criteria in edc_data.`
+                `Using Engine structure with merged consultant edits.`
               );
-              // Preserve Engine key_criteria but allow other fields to update
-              edcData.key_criteria = engineCriteria;
+              // Use Engine structure but preserve consultant-edited evidence/anchors
+              edcData.key_criteria = mergeKeyCriteria(engineCriteria, incomingCriteria);
             }
           }
 
