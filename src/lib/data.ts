@@ -522,16 +522,44 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
 
-      // Criteria enforcement: only for candidates WITHOUT Engine-generated evidence.
-      // Engine data already has correct names, evidence, and context anchors — skip it.
+      // Fetch pristine Engine criteria directly and inject into candidates.
+      // ai_generated_edc is never modified by auto-save, so it's always correct.
+      try {
+        const { getServiceClient } = await import('./supabase');
+        const { resolveSearchId } = await import('./supabase-data');
+        const searchUUID = await resolveSearchId(searchId);
+        if (searchUUID) {
+          const sb = getServiceClient();
+          const { data: aiRows } = await sb
+            .from('candidates')
+            .select('candidate_slug, ai_generated_edc')
+            .eq('search_id', searchUUID);
+          if (aiRows) {
+            const aiMap = new Map<string, Record<string, unknown>>();
+            for (const r of aiRows) {
+              if (r.ai_generated_edc && typeof r.ai_generated_edc === 'object') {
+                aiMap.set(r.candidate_slug as string, r.ai_generated_edc as Record<string, unknown>);
+              }
+            }
+            for (const c of supabaseData.candidates) {
+              if (!c.edc_data) continue;
+              const ai = aiMap.get(c.candidate_id);
+              if (ai?.key_criteria && Array.isArray(ai.key_criteria) && ai.key_criteria.length > 0) {
+                c.edc_data.key_criteria = ai.key_criteria as EDCData['key_criteria'];
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('[getDeckData] ai_generated_edc fetch failed, using edc_data as-is:', err);
+      }
+
+      // Seed criteria from search-level names only for candidates without any evidence
       const deckCriteriaNames = supabaseData.key_criteria_names || [];
       if (deckCriteriaNames.length > 0) {
         for (const c of supabaseData.candidates) {
           if (!c.edc_data) continue;
-          const hasEngineEvidence = c.edc_data.key_criteria?.length > 0
-            && !!c.edc_data.key_criteria[0]?.evidence;
-          if (hasEngineEvidence) continue; // Engine data — don't touch
-          // No criteria or empty evidence — seed from search-level names
+          if (c.edc_data.key_criteria?.length > 0 && c.edc_data.key_criteria[0]?.evidence) continue;
           c.edc_data.key_criteria = deckCriteriaNames.map((name) => ({
             name,
             evidence: '',
