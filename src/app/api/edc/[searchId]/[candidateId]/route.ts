@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getCandidateData } from '@/lib/data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _request: Request,
   { params }: { params: { searchId: string; candidateId: string } }
@@ -19,7 +21,7 @@ export async function GET(
 
     return NextResponse.json(edcData, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
       },
     });
   } catch (error) {

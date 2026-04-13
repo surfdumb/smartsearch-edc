@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { getDeckData } from "@/lib/data";
 import DeckSettings from "@/components/deck/DeckSettings";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage({
   params,
 }: {

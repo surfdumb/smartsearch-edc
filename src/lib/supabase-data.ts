@@ -2,13 +2,9 @@ import { getServiceClient, SUPABASE_ENABLED } from './supabase';
 import type { SearchContext, IntroCardData, EDCData } from './types';
 import { mergeKeyCriteria } from './merge-criteria';
 
-// ─── Search key → UUID resolver with cache ─────────────────────────────────
-
-const searchKeyCache = new Map<string, string>();
+// ─── Search key → UUID resolver ─────────────────────────────────────────────
 
 export async function resolveSearchId(searchKey: string): Promise<string | null> {
-  if (searchKeyCache.has(searchKey)) return searchKeyCache.get(searchKey)!;
-
   const supabase = getServiceClient();
   const { data } = await supabase
     .from('searches')
@@ -16,11 +12,7 @@ export async function resolveSearchId(searchKey: string): Promise<string | null>
     .eq('search_key', searchKey)
     .single();
 
-  if (data?.id) {
-    searchKeyCache.set(searchKey, data.id);
-    return data.id;
-  }
-  return null;
+  return data?.id ?? null;
 }
 
 // ─── Main deck data loader ──────────────────────────────────────────────────
@@ -38,9 +30,6 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     .single();
 
   if (searchErr || !search) return null;
-
-  // Cache the UUID for later write operations
-  searchKeyCache.set(searchKey, search.id);
 
   // 2. Fetch candidates for this search
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
