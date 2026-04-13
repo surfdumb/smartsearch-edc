@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
@@ -245,28 +245,33 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
   }, [items, storageKey, isEditable, candidateId]);
 
   const updateField = (index: number, field: keyof CriterionItem, value: string) => {
+    if (candidateId) markDirty(candidateId);
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
   };
 
   const removePill = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, context_anchor: undefined } : item
     ));
   };
 
   const addPill = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setItems(prev => prev.map((item, i) =>
       i === index ? { ...item, context_anchor: "at Company" } : item
     ));
   };
 
   const removeRow = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setItems(prev => prev.filter((_, i) => i !== index));
   };
 
   const addRow = () => {
+    if (candidateId) markDirty(candidateId);
     setItems(prev => [...prev, {
       name: "New criterion",
       evidence: "",

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface MotivationStripProps {
@@ -79,6 +79,7 @@ export default function MotivationStrip({
   const isModified = customText !== null;
 
   const handleRefresh = () => {
+    if (candidateId) markDirty(candidateId);
     const nextIndex = (currentIndex + 1) % fragments.length;
     setCurrentIndex(nextIndex);
     setCustomText(fragments[nextIndex] || null);
@@ -86,6 +87,7 @@ export default function MotivationStrip({
 
   const handleReset = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (candidateId) markDirty(candidateId);
     setCustomText(null);
     setCurrentIndex(0);
   };
@@ -110,7 +112,7 @@ export default function MotivationStrip({
             const raw = e.currentTarget.textContent || "";
             // Strip the "Motivation — " prefix if the user left it
             const stripped = raw.replace(/^Motivation\s*[—–-]\s*/i, "").trim();
-            if (stripped !== displayText) setCustomText(stripped);
+            if (stripped !== displayText) { if (candidateId) markDirty(candidateId); setCustomText(stripped); }
           }}
           style={{
             fontSize: "0.85rem",

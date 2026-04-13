@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 
 interface OurTakePopoverProps {
@@ -83,6 +83,7 @@ export default function OurTakePopover({
   // Used by onInput handlers so handleLock always reads fresh data.
   const flushToStorage = useCallback((overrides: { text?: string; fragments?: string[]; name?: string }) => {
     if (!storageKey || !isEditable) return;
+    if (candidateId) markDirty(candidateId);
     try {
       localStorage.setItem(storageKey, JSON.stringify({
         fragments: overrides.fragments ?? fragments,
@@ -135,18 +136,22 @@ export default function OurTakePopover({
   const hasText = text.trim().length > 0;
 
   const updateFragment = (index: number, value: string) => {
+    if (candidateId) markDirty(candidateId);
     setFragments(prev => prev.map((f, i) => i === index ? value : f));
   };
 
   const removeFragment = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setFragments(prev => prev.filter((_, i) => i !== index));
   };
 
   const addFragment = () => {
+    if (candidateId) markDirty(candidateId);
     setFragments(prev => [...prev, ""]);
   };
 
   const resetFragment = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     const orig = origFragments.current[index];
     if (orig !== undefined) {
       setFragments(prev => prev.map((f, i) => i === index ? orig : f));
@@ -165,6 +170,7 @@ export default function OurTakePopover({
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const result = await res.json();
       if (result.text) {
+        if (candidateId) markDirty(candidateId);
         setText(result.text);
         setFragments([]);
       }
@@ -173,7 +179,7 @@ export default function OurTakePopover({
     } finally {
       setIsRegenerating(false);
     }
-  }, [candidateContext, manualNotes, isRegenerating]);
+  }, [candidateContext, manualNotes, isRegenerating, candidateId]);
 
   if (!pos) return null;
 
@@ -252,7 +258,7 @@ export default function OurTakePopover({
               </span>
               {/* Remove name */}
               <button
-                onClick={() => { setShowName(false); setName(""); }}
+                onClick={() => { if (candidateId) markDirty(candidateId); setShowName(false); setName(""); }}
                 style={{
                   position: "absolute",
                   right: "0",
@@ -278,14 +284,14 @@ export default function OurTakePopover({
                 <button
                   className="edc-field__reset-dot"
                   style={{ top: "-4px", right: "-4px" }}
-                  onMouseDown={(e) => { e.preventDefault(); setName(origName.current); }}
+                  onMouseDown={(e) => { e.preventDefault(); if (candidateId) markDirty(candidateId); setName(origName.current); }}
                   title="Reset to original"
                 />
               )}
             </span>
           ) : (
             <button
-              onClick={() => { setShowName(true); setName(origName.current || "Consultant"); }}
+              onClick={() => { if (candidateId) markDirty(candidateId); setShowName(true); setName(origName.current || "Consultant"); }}
               style={{
                 background: "none",
                 border: "1px dashed rgba(160,160,160,0.3)",
@@ -482,7 +488,7 @@ export default function OurTakePopover({
             {hasText && text !== origText.current && (
               <button
                 className="edc-field__reset-dot"
-                onMouseDown={(e) => { e.preventDefault(); setText(origText.current); }}
+                onMouseDown={(e) => { e.preventDefault(); if (candidateId) markDirty(candidateId); setText(origText.current); }}
                 title="Reset to original"
               />
             )}
@@ -490,6 +496,7 @@ export default function OurTakePopover({
           {/* Switch to fragments mode */}
           <button
             onClick={() => {
+              if (candidateId) markDirty(candidateId);
               const lines = text.split("\n").filter(l => l.trim());
               if (lines.length > 0) {
                 setFragments(lines);

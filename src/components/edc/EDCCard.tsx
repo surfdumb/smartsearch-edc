@@ -14,6 +14,7 @@ import OurTakePopover from "@/components/edc/OurTakePopover";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
+import { markDirty } from "@/hooks/useAutoSave";
 import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
 
 interface DeckSettings {
@@ -87,7 +88,7 @@ export default function EDCCard({
       const next = { ...prev, [field]: value };
       if (headerKey) {
         try { localStorage.setItem(headerKey, JSON.stringify(next)); writeBaseHash(headerKey, headerPropData); } catch { /* ignore */ }
-        if (candidateId) { import("@/hooks/useAutoSave").then(m => m.signalEdit(candidateId)); }
+        if (candidateId) { markDirty(candidateId); import("@/hooks/useAutoSave").then(m => m.signalEdit(candidateId)); }
       }
       return next;
     });

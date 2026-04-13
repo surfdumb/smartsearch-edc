@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { IntroCardData } from "@/lib/types";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 
 interface IntroCardProps {
@@ -145,6 +145,7 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
           else (merged as Record<string, unknown>)[k] = v;
         }
         try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); writeBaseHash(editsKey(card.candidate_id), { candidate_name: card.candidate_name, current_title: card.current_title, current_company: card.current_company, location: card.location, compensation_alignment: card.compensation_alignment }); } catch { /* ignore */ }
+        markDirty(card.candidate_id);
         signalEdit(card.candidate_id);
         return merged;
       });

@@ -9,7 +9,7 @@ import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
 import type { IntroCardData, EDCData } from "@/lib/types";
-import { useAutoSave } from "@/hooks/useAutoSave";
+import { useAutoSave, clearDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, clearEditWithHash } from "@/lib/edit-hash";
 
 type OurTakeOverride = {
@@ -227,6 +227,7 @@ export default function DeckEDCView({
             onUnlock={unlock}
             onReset={() => {
               const cid = candidate.candidate_id;
+              clearDirty(cid);
               try {
                 clearEditWithHash(`edc_edit_${cid}_scope`);
                 clearEditWithHash(`edc_edit_${cid}_criteria`);

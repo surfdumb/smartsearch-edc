@@ -14,6 +14,19 @@ import type { EDCData } from "@/lib/types";
 // ─── Custom event for same-tab edit signaling ──────────────────────────────
 const EDIT_EVENT = 'edc-edit';
 
+// ─── Dirty flag: auto-save only fires after a real user edit ──────────────
+const dirtySet = new Set<string>();
+
+/** Mark a candidate as having user edits so auto-save will proceed. */
+export function markDirty(candidateId: string) {
+  dirtySet.add(candidateId);
+}
+
+/** Clear dirty flag (e.g., on navigation or reset). */
+export function clearDirty(candidateId: string) {
+  dirtySet.delete(candidateId);
+}
+
 /** Call this after writing to localStorage to trigger auto-save. */
 export function signalEdit(candidateId: string) {
   if (typeof window !== 'undefined') {
@@ -28,6 +41,10 @@ const DEBOUNCE_MS = 2000;
 
 /** Collect all localStorage edits for a candidate and POST to /api/edits/save */
 async function saveEdits(searchId: string, candidateId: string, baseEdc: EDCData) {
+  if (!dirtySet.has(candidateId)) {
+    console.log(`[auto-save] Skipped — no user edits for ${candidateId}`);
+    return;
+  }
   const key = `${searchId}/${candidateId}`;
   if (pendingSaves.has(key)) return;
   pendingSaves.add(key);
@@ -156,6 +173,7 @@ export function useAutoSave(searchId: string, candidateId: string, baseEdc: EDCD
     return () => {
       window.removeEventListener(EDIT_EVENT, handler);
       window.removeEventListener('storage', handleStorage);
+      clearDirty(candidateId);
     };
   }, [searchId, candidateId]);
 }

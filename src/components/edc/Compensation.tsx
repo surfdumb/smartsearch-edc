@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useEditorContext } from "@/contexts/EditorContext";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface CompensationData {
@@ -342,6 +342,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   }, [comp, notice, storageKey, isEditable, candidateId]);
 
   const update = (field: keyof CompensationData, value: string) => {
+    if (candidateId) markDirty(candidateId);
     setComp(prev => ({ ...prev, [field]: value }));
   };
 
@@ -503,7 +504,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
             <NoticeEditable
               value={notice}
               originalValue={originalNotice.current}
-              onUpdate={setNotice}
+              onUpdate={(v) => { if (candidateId) markDirty(candidateId); setNotice(v); }}
             />
           ) : (
             notice

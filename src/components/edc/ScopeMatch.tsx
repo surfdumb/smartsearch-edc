@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
-import { signalEdit } from "@/hooks/useAutoSave";
+import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
@@ -137,12 +137,14 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   }, [rows, storageKey, isEditable, candidateId]);
 
   const updateCell = (index: number, field: keyof ScopeRow, value: string) => {
+    if (candidateId) markDirty(candidateId);
     setRows(prev => prev.map((row, i) =>
       i === index ? { ...row, [field]: value } : row
     ));
   };
 
   const cycleAlignment = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setRows(prev => prev.map((row, i) => {
       if (i !== index) return row;
       const currentIdx = ALIGNMENT_CYCLE.indexOf(row.alignment);
@@ -152,10 +154,12 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   };
 
   const removeRow = (index: number) => {
+    if (candidateId) markDirty(candidateId);
     setRows(prev => prev.filter((_, i) => i !== index));
   };
 
   const addRow = () => {
+    if (candidateId) markDirty(candidateId);
     setRows(prev => [...prev, {
       scope: "New dimension",
       candidate_actual: "",
