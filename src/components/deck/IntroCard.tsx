@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { IntroCardData } from "@/lib/types";
 import { signalEdit } from "@/hooks/useAutoSave";
+import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 
 interface IntroCardProps {
   card: IntroCardData;
@@ -120,11 +121,19 @@ function Editable({
 export default function IntroCard({ card, onClick, editMode = false, onRemove }: IntroCardProps) {
   const [edits, setEdits] = useState<CardEdits>({});
 
+  const cardPropData = { candidate_name: card.candidate_name, current_title: card.current_title, current_company: card.current_company, location: card.location, compensation_alignment: card.compensation_alignment };
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(editsKey(card.candidate_id));
-      if (stored) setEdits(JSON.parse(stored));
+      const key = editsKey(card.candidate_id);
+      if (isEditFresh(key, cardPropData)) {
+        const stored = localStorage.getItem(key);
+        if (stored) setEdits(JSON.parse(stored));
+        else setEdits({});
+      } else {
+        setEdits({});
+      }
     } catch { /* ignore */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.candidate_id]);
 
   const save = useCallback(
@@ -135,7 +144,7 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
           if (v === undefined) delete merged[k as keyof CardEdits];
           else (merged as Record<string, unknown>)[k] = v;
         }
-        try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); } catch { /* ignore */ }
+        try { localStorage.setItem(editsKey(card.candidate_id), JSON.stringify(merged)); writeBaseHash(editsKey(card.candidate_id), { candidate_name: card.candidate_name, current_title: card.current_title, current_company: card.current_company, location: card.location, compensation_alignment: card.compensation_alignment }); } catch { /* ignore */ }
         signalEdit(card.candidate_id);
         return merged;
       });

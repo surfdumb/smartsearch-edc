@@ -13,6 +13,7 @@ import MotivationStrip from "@/components/edc/MotivationStrip";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
 
 interface DeckSettings {
@@ -70,9 +71,10 @@ export default function EDCCard({
 
   // Header field edits — persisted in localStorage
   const headerKey = candidateId ? `edc_edit_${candidateId}_header` : null;
+  const headerPropData = { candidate_name: data.candidate_name, current_title: data.current_title, current_company: data.current_company, location: data.location, linkedin_url: data.linkedin_url };
   type HeaderEdits = { candidate_name?: string; current_title?: string; current_company?: string; location?: string; linkedin_url?: string };
   const [headerEdits, setHeaderEdits] = useState<HeaderEdits>(() => {
-    if (headerKey && typeof window !== 'undefined') {
+    if (headerKey && typeof window !== 'undefined' && isEditFresh(headerKey, headerPropData)) {
       try {
         const stored = localStorage.getItem(headerKey);
         if (stored) return JSON.parse(stored);
@@ -84,7 +86,7 @@ export default function EDCCard({
     setHeaderEdits(prev => {
       const next = { ...prev, [field]: value };
       if (headerKey) {
-        try { localStorage.setItem(headerKey, JSON.stringify(next)); } catch { /* ignore */ }
+        try { localStorage.setItem(headerKey, JSON.stringify(next)); writeBaseHash(headerKey, headerPropData); } catch { /* ignore */ }
         if (candidateId) { import("@/hooks/useAutoSave").then(m => m.signalEdit(candidateId)); }
       }
       return next;
@@ -120,7 +122,7 @@ export default function EDCCard({
       setUploadedPhoto(null);
     }
     // Load persisted header edits
-    if (headerKey) {
+    if (headerKey && isEditFresh(headerKey, { candidate_name: data.candidate_name, current_title: data.current_title, current_company: data.current_company, location: data.location, linkedin_url: data.linkedin_url })) {
       try {
         const stored = localStorage.getItem(headerKey);
         setHeaderEdits(stored ? JSON.parse(stored) : {});

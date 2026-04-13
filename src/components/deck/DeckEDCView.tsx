@@ -10,6 +10,7 @@ import { useEDCState } from "@/hooks/useEDCState";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
 import type { IntroCardData, EDCData } from "@/lib/types";
 import { useAutoSave } from "@/hooks/useAutoSave";
+import { isEditFresh, clearEditWithHash } from "@/lib/edit-hash";
 
 type OurTakeOverride = {
   text: string;
@@ -76,21 +77,33 @@ export default function DeckEDCView({
   // shows edits immediately (same pattern as KeyCriteria reading localStorage on mount)
   const [ourTakeLocalEdits, setOurTakeLocalEdits] = useState<{ text?: string; fragments?: string[] } | null>(null);
 
+  const ourTakePropData = { text: edc.our_take?.text, fragments: (edc as unknown as Record<string, unknown>).our_take_fragments };
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(ourTakeStorageKey(candidate.candidate_id));
-      if (stored) setOurTakeOverride(JSON.parse(stored));
-      else setOurTakeOverride(null);
+      const otKey = ourTakeStorageKey(candidate.candidate_id);
+      if (isEditFresh(otKey, ourTakePropData)) {
+        const stored = localStorage.getItem(otKey);
+        if (stored) setOurTakeOverride(JSON.parse(stored));
+        else setOurTakeOverride(null);
+      } else {
+        setOurTakeOverride(null);
+      }
     } catch { /* ignore */ }
     try {
-      const popover = localStorage.getItem(`edc_edit_${candidate.candidate_id}_ourtake`);
-      if (popover) {
-        const p = JSON.parse(popover);
-        setOurTakeLocalEdits({ text: p.text, fragments: p.fragments });
+      const popKey = `edc_edit_${candidate.candidate_id}_ourtake`;
+      if (isEditFresh(popKey, ourTakePropData)) {
+        const popover = localStorage.getItem(popKey);
+        if (popover) {
+          const p = JSON.parse(popover);
+          setOurTakeLocalEdits({ text: p.text, fragments: p.fragments });
+        } else {
+          setOurTakeLocalEdits(null);
+        }
       } else {
         setOurTakeLocalEdits(null);
       }
     } catch { setOurTakeLocalEdits(null); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candidate.candidate_id]);
 
   // Merge any generated/stored Our Take AND popover edits into the EDC data.
@@ -215,12 +228,12 @@ export default function DeckEDCView({
             onReset={() => {
               const cid = candidate.candidate_id;
               try {
-                localStorage.removeItem(`edc_edit_${cid}_scope`);
-                localStorage.removeItem(`edc_edit_${cid}_criteria`);
-                localStorage.removeItem(`edc_edit_${cid}_comp`);
-                localStorage.removeItem(`edc_edit_${cid}_header`);
-                localStorage.removeItem(`edc_edit_${cid}_ourtake`);
-                localStorage.removeItem(`edc_edit_${cid}_motivation`);
+                clearEditWithHash(`edc_edit_${cid}_scope`);
+                clearEditWithHash(`edc_edit_${cid}_criteria`);
+                clearEditWithHash(`edc_edit_${cid}_comp`);
+                clearEditWithHash(`edc_edit_${cid}_header`);
+                clearEditWithHash(`edc_edit_${cid}_ourtake`);
+                clearEditWithHash(`edc_edit_${cid}_motivation`);
               } catch { /* ignore */ }
               setOurTakeOverride(null);
               setOurTakeLocalEdits(null);

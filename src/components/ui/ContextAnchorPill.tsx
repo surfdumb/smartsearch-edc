@@ -12,6 +12,9 @@ export default function ContextAnchorPill({ text }: ContextAnchorPillProps) {
         borderRadius: "12px",
         background: "rgba(74, 106, 140, 0.10)",
         color: "#4a6a8c",
+        whiteSpace: "normal",
+        overflowWrap: "break-word",
+        wordBreak: "break-word",
       }}
     >
       {text}

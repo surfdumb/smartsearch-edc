@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit } from "@/hooks/useAutoSave";
+import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 
 interface OurTakePopoverProps {
   fragments?: string[];
@@ -32,8 +33,9 @@ export default function OurTakePopover({
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Load persisted edits or fall back to props
+  const ourTakePropHash = { text: initialText, fragments: initialFragments, name: initialName };
   const loadStored = () => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, ourTakePropHash)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) return JSON.parse(stored) as { fragments?: string[]; text?: string; name?: string; showName?: boolean };
@@ -72,7 +74,7 @@ export default function OurTakePopover({
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify({ fragments, text, name, showName })); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify({ fragments, text, name, showName })); writeBaseHash(storageKey, ourTakePropHash); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
   }, [fragments, text, name, showName, storageKey, isEditable, candidateId]);
@@ -88,9 +90,10 @@ export default function OurTakePopover({
         name: overrides.name ?? name,
         showName,
       }));
+      writeBaseHash(storageKey, { text: initialText, fragments: initialFragments, name: initialName });
     } catch { /* ignore */ }
     if (candidateId) signalEdit(candidateId);
-  }, [storageKey, isEditable, fragments, text, name, showName, candidateId]);
+  }, [storageKey, isEditable, fragments, text, name, showName, candidateId, initialText, initialFragments, initialName]);
 
   // Position popover BELOW the trigger button (drops down)
   useEffect(() => {

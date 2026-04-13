@@ -111,12 +111,41 @@ export async function POST(request: Request): Promise<NextResponse> {
               .single();
 
             const existingFields: string[] = existing?.manually_edited_fields || [];
-            const newFields = Object.keys(edcData);
-            const mergedFields = Array.from(new Set([...existingFields, ...newFields]));
 
-            // Strip internal flags before writing to Supabase
-            const cleanEdcData = { ...edcData };
-            delete cleanEdcData._fromFallback;
+            // Fields that are always client-owned (not from Engine)
+            const CLIENT_OWNED = new Set([
+              'status', 'photo_url', 'headline', 'compensation_alignment',
+              'motivation_hook', 'our_take_fragments', 'linkedin_url',
+            ]);
+
+            // Diff incoming edcData against AI base to find real edits
+            const realEditedFieldNames: string[] = [];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const cleanEdcData: Record<string, any> = aiEdc ? { ...aiEdc } : {};
+
+            for (const field of Object.keys(edcData)) {
+              if (field === '_fromFallback') continue;
+
+              const value = edcData[field];
+              if (value === undefined) continue;
+
+              if (CLIENT_OWNED.has(field)) {
+                // Always accept client-owned fields
+                cleanEdcData[field] = value;
+                if (JSON.stringify(value) !== JSON.stringify(aiEdc?.[field])) {
+                  realEditedFieldNames.push(field);
+                }
+                continue;
+              }
+
+              // Standard diff: only write if different from AI base
+              if (!aiEdc || JSON.stringify(value) !== JSON.stringify(aiEdc[field])) {
+                cleanEdcData[field] = value;
+                realEditedFieldNames.push(field);
+              }
+            }
+
+            const mergedFields = Array.from(new Set([...existingFields, ...realEditedFieldNames]));
 
             // Build update payload — always write edc_data + tracking fields
             const updatePayload: Record<string, unknown> = {

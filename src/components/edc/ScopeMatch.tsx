@@ -5,6 +5,7 @@ import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
 import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface ScopeRow {
   scope: string;
@@ -104,7 +105,7 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
   const [rows, setRows] = useState<ScopeRow[]>(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, scope_match)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) return JSON.parse(stored);
@@ -117,7 +118,7 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
 
   // Sync rows when candidate changes (prop change means new candidate)
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, scope_match)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) { setRows(JSON.parse(stored)); originalRows.current = scope_match; return; }
@@ -130,7 +131,7 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify(rows)); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify(rows)); writeBaseHash(storageKey, scope_match); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
   }, [rows, storageKey, isEditable, candidateId]);
@@ -166,7 +167,7 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
   const hasEdits = JSON.stringify(rows) !== JSON.stringify(originalRows.current);
   const resetSection = () => {
     setRows(originalRows.current);
-    if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* ignore */ } }
+    if (storageKey) { try { clearEditWithHash(storageKey); } catch { /* ignore */ } }
   };
 
   return (

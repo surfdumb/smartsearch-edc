@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit } from "@/hooks/useAutoSave";
+import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface CompensationData {
   current_base: string;
@@ -288,8 +289,9 @@ function NoticeEditable({ value, originalValue, onUpdate }: { value: string; ori
 export default function Compensation({ compensation, notice_period, candidateId }: CompensationProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_comp` : null;
+  const compPropHash = { compensation, notice_period };
   const [comp, setComp] = useState<CompensationData>(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, compPropHash)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) { const p = JSON.parse(stored); return p.comp || compensation; }
@@ -298,7 +300,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
     return compensation;
   });
   const [notice, setNotice] = useState(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, compPropHash)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) { const p = JSON.parse(stored); return p.notice || notice_period; }
@@ -310,7 +312,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   const originalNotice = useRef(notice_period);
 
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, { compensation, notice_period })) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) {
@@ -334,7 +336,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify({ comp, notice })); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify({ comp, notice })); writeBaseHash(storageKey, { compensation, notice_period }); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
   }, [comp, notice, storageKey, isEditable, candidateId]);
@@ -371,7 +373,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   const resetCompSection = () => {
     setComp(originalComp.current);
     setNotice(originalNotice.current);
-    if (storageKey) { try { localStorage.removeItem(storageKey); } catch { /* ignore */ } }
+    if (storageKey) { try { clearEditWithHash(storageKey); } catch { /* ignore */ } }
   };
 
   return (

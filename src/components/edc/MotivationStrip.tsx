@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit } from "@/hooks/useAutoSave";
+import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface MotivationStripProps {
   why_interested: {
@@ -44,8 +45,9 @@ export default function MotivationStrip({
 
   const fragments = buildFragments();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const motivationPropHash = { motivation, why_interested };
   const [customText, setCustomText] = useState<string | null>(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, motivationPropHash)) {
       try { return localStorage.getItem(storageKey); } catch { /* ignore */ }
     }
     return null;
@@ -53,7 +55,7 @@ export default function MotivationStrip({
 
   // Load persisted text on candidate change
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined') {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, { motivation, why_interested })) {
       try { setCustomText(localStorage.getItem(storageKey)); } catch { setCustomText(null); }
     } else {
       setCustomText(null);
@@ -65,8 +67,8 @@ export default function MotivationStrip({
   useEffect(() => {
     if (storageKey && isEditable) {
       try {
-        if (customText !== null) { localStorage.setItem(storageKey, customText); if (candidateId) signalEdit(candidateId); }
-        else localStorage.removeItem(storageKey);
+        if (customText !== null) { localStorage.setItem(storageKey, customText); writeBaseHash(storageKey, { motivation, why_interested }); if (candidateId) signalEdit(candidateId); }
+        else clearEditWithHash(storageKey);
       } catch { /* ignore */ }
     }
   }, [customText, storageKey, isEditable]);

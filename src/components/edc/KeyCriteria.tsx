@@ -5,6 +5,7 @@ import SectionLabel from "@/components/ui/SectionLabel";
 import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
 import { signalEdit } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 
 interface CriterionItem {
   name: string;
@@ -203,13 +204,15 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
 
   function readStoredCriteria(): CriterionItem[] | null {
     if (!storageKey || typeof window === 'undefined') return null;
+    // Hash-based freshness check — clears stale data automatically
+    if (!isEditFresh(storageKey, key_criteria)) return null;
     try {
       const raw = localStorage.getItem(storageKey);
       if (!raw) return null;
       const parsed = JSON.parse(raw) as CriterionItem[];
       if (storedCriteriaMatchProps(parsed)) return parsed;
       // Stale — names don't match, clear it
-      localStorage.removeItem(storageKey);
+      clearEditWithHash(storageKey);
     } catch { /* ignore */ }
     return null;
   }
@@ -236,7 +239,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify(items)); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify(items)); writeBaseHash(storageKey, key_criteria); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
   }, [items, storageKey, isEditable, candidateId]);
