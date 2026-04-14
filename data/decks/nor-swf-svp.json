@@ -6,9 +6,9 @@
   "search_lead": "Kalum Gillett",
   "location": "Wiehl, Germany",
   "key_criteria_names": [
-    "Strong leadership experience with cultural transformation capability",
+    "Hands-on Leadership with strategic and cultural transformation capability",
     "Global mindset and international experience",
-    "Comfortable running similar-sized business",
+    "Similar business size experience",
     "Industrial background",
     "Fluent German speaker with ability to be on-site in Wiehl regularly"
   ],
@@ -25,14 +25,67 @@
     "rebecca-hammes": "Active"
   },
   "scope_requirements": {
-    "P&L": "\u20ac60M revenue",
+    "P&L": "€60M revenue",
     "Headcount": "170 FTEs globally",
     "Geography": "Wiehl, Germany (3+ days/week on-site)",
-    "Revenue Target": "\u20ac60M",
+    "Revenue Target": "€60M",
     "Industry Segment": "Industrial technology / foundry / casting"
   },
   "js_search_name": "JS Norican Group SVP StrikoWestofen",
   "candidates": [
+    {
+      "candidate_name": "Tobias Brune",
+      "candidate_id": "tobias-brune",
+      "current_title": "Managing Director",
+      "current_company": "Hirsch Servo Group",
+      "location": "Germany",
+      "status": "New",
+      "generated_date": "14 Apr 2026",
+      "consultant_name": "Kalum Gillett",
+      "scope_match": [],
+      "key_criteria": [
+        {
+          "name": "Hands-on Leadership with strategic and cultural transformation capability",
+          "evidence": "Pending — EDC data being processed",
+          "context_anchor": ""
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Pending — EDC data being processed",
+          "context_anchor": ""
+        },
+        {
+          "name": "Similar business size experience",
+          "evidence": "Pending — EDC data being processed",
+          "context_anchor": ""
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "Pending — EDC data being processed",
+          "context_anchor": ""
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Pending — EDC data being processed",
+          "context_anchor": ""
+        }
+      ],
+      "compensation": {
+        "current_base": "Not mentioned",
+        "current_total": "Not mentioned",
+        "expected_total": "Not mentioned",
+        "flexibility": "Not mentioned",
+        "notice_period": "Not mentioned"
+      },
+      "why_interested": [],
+      "potential_concerns": [],
+      "our_take": {
+        "text": ""
+      },
+      "flash_summary": "Managing Director at Hirsch Servo Group. Full EDC assessment pending — data being processed.",
+      "compensation_alignment": "not_set",
+      "compensation_alignment_note": ""
+    },
     {
       "candidate_name": "Sebastian Eickens",
       "candidate_id": "sebastian-eickens",
@@ -45,8 +98,8 @@
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac12-15M revenue",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€12-15M revenue",
+          "role_requirement": "€60M revenue",
           "alignment": "gap"
         },
         {
@@ -63,8 +116,8 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "\u20ac12-15M at Nico; \u20ac4.5M largest single order secured",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "€12-15M at Nico; €4.5M largest single order secured",
+          "role_requirement": "€60M",
           "alignment": "gap"
         },
         {
@@ -77,7 +130,7 @@
       "key_criteria": [
         {
           "name": "Strong leadership experience with cultural transformation capability",
-          "evidence": "Turned around underperforming sales operations at <strong>Nico</strong> and secured the company's largest-ever order (\u20ac4.5M with Lorenz Bahlsen), but this was within a 75-person privately-owned organisation over just 2 years \u2014 significantly smaller scale than the 170-person PE-backed transformation required.",
+          "evidence": "Turned around underperforming sales operations at <strong>Nico</strong> and secured the company's largest-ever order (€4.5M with Lorenz Bahlsen), but this was within a 75-person privately-owned organisation over just 2 years — significantly smaller scale than the 170-person PE-backed transformation required.",
           "context_anchor": "at Nico"
         },
         {
@@ -87,7 +140,7 @@
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Currently leads a 75-person, \u20ac12-15M revenue business at <strong>Nico</strong> \u2014 approximately 20-25% of the StrikoWestofen scope. Previous role at KraussMaffei was technical leadership (Head of Order Engineering, 36 reports) rather than full P&L.",
+          "evidence": "Currently leads a 75-person, €12-15M revenue business at <strong>Nico</strong> — approximately 20-25% of the StrikoWestofen scope. Previous role at KraussMaffei was technical leadership (Head of Order Engineering, 36 reports) rather than full P&L.",
           "context_anchor": "at Nico"
         },
         {
@@ -106,10 +159,10 @@
         "current_bonus": "Not disclosed",
         "current_lti": "Not disclosed",
         "current_total": "Not disclosed",
-        "expected_total": "\u20ac220,000",
-        "flexibility": "Baseline expectation rather than fixed demand. Acknowledged the task scope is unclear, suggesting openness to discussion. Consultant noted most candidates at \u20ac150-170K base; with 30% STI + 30% LTI, packages would exceed \u20ac220K.",
+        "expected_total": "€220,000",
+        "flexibility": "Baseline expectation rather than fixed demand. Acknowledged the task scope is unclear, suggesting openness to discussion. Consultant noted most candidates at €150-170K base; with 30% STI + 30% LTI, packages would exceed €220K.",
         "notice_period": "6 months contractual, non-negotiable",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -122,16 +175,16 @@
         {
           "type": "push",
           "headline": "Outgrowing current scope at Nico",
-          "detail": "Acknowledged the 75-person, \u20ac12-15M business may not offer enough growth runway for his ambitions."
+          "detail": "Acknowledged the 75-person, €12-15M business may not offer enough growth runway for his ambitions."
         }
       ],
       "potential_concerns": [
         {
-          "concern": "Current P&L scope (\u20ac12-15M) is 20-25% of the target role (\u20ac60M), with only 2 years in a GM position",
+          "concern": "Current P&L scope (€12-15M) is 20-25% of the target role (€60M), with only 2 years in a GM position",
           "severity": "significant"
         },
         {
-          "concern": "Expressed timing hesitation \u2014 'not sure if it is right time already to change again' \u2014 which may signal ambivalence about a high-resistance transformation mandate",
+          "concern": "Expressed timing hesitation — 'not sure if it is right time already to change again' — which may signal ambivalence about a high-resistance transformation mandate",
           "severity": "development"
         },
         {
@@ -142,9 +195,9 @@
       "our_take": {
         "text": "We believe Sebastian is a solid technical candidate with the right KraussMaffei pedigree and genuine international appetite, but there are real questions about scale readiness and commitment timing. His technology transfer experience is directly relevant to the global integration mandate, however his current GM scope is significantly below what this role demands. The hesitation about timing needs careful probing in any follow-up."
       },
-      "flash_summary": "General Manager at Nico with 16 years of automotive machinery experience at KraussMaffei. Led technology transfer to international subsidiaries but current P&L scope (\u20ac12-15M) is 20-25% of the target role.",
+      "flash_summary": "General Manager at Nico with 16 years of automotive machinery experience at KraussMaffei. Led technology transfer to international subsidiaries but current P&L scope (€12-15M) is 20-25% of the target role.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Expects \u20ac220K; budget range of \u20ac175K base + 30% STI + 30% LTI exceeds expectation"
+      "compensation_alignment_note": "Expects €220K; budget range of €175K base + 30% STI + 30% LTI exceeds expectation"
     },
     {
       "candidate_name": "Patrik Vogtel",
@@ -159,7 +212,7 @@
         {
           "dimension": "P&L",
           "candidate_actual": "Dual MD with full commercial responsibility; revenue not explicitly stated",
-          "role_requirement": "\u20ac60M revenue",
+          "role_requirement": "€60M revenue",
           "alignment": "partial"
         },
         {
@@ -177,12 +230,12 @@
         {
           "dimension": "Revenue Target",
           "candidate_actual": "Not explicitly stated; 130-employee industrial machinery business",
-          "role_requirement": "\u20ac60M",
+          "role_requirement": "€60M",
           "alignment": "partial"
         },
         {
           "dimension": "Industry Segment",
-          "candidate_actual": "Industrial machinery \u2014 machine tools and cutting tools for automotive and aviation",
+          "candidate_actual": "Industrial machinery — machine tools and cutting tools for automotive and aviation",
           "role_requirement": "Industrial technology / foundry / casting",
           "alignment": "strong"
         }
@@ -200,7 +253,7 @@
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Leads 130-employee dual division at <strong>FORST Technologie</strong> as Managing Director, with hands-on operational involvement across sales, technology, and production \u2014 close to the target scale.",
+          "evidence": "Leads 130-employee dual division at <strong>FORST Technologie</strong> as Managing Director, with hands-on operational involvement across sales, technology, and production — close to the target scale.",
           "context_anchor": "at FORST Technologie"
         },
         {
@@ -215,14 +268,14 @@
         }
       ],
       "compensation": {
-        "current_base": "\u20ac190,000",
-        "current_bonus": "~\u20ac25,000 (2.5% of company profit)",
+        "current_base": "€190,000",
+        "current_bonus": "~€25,000 (2.5% of company profit)",
         "current_lti": "Not mentioned",
-        "current_total": "~\u20ac235,000",
+        "current_total": "~€235,000",
         "expected_total": "To be confirmed",
-        "flexibility": "Current total approximately \u20ac235,000 including car and pension. Expectations to be confirmed after learning more about opportunity scope and structure.",
+        "flexibility": "Current total approximately €235,000 including car and pension. Expectations to be confirmed after learning more about opportunity scope and structure.",
         "notice_period": "3 months contractual, tied to June 30 business year",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -240,7 +293,7 @@
       ],
       "potential_concerns": [
         {
-          "concern": "Pure Mittelstand background \u2014 exactly the profile the client asked to avoid \u2014 with centralised leadership style and no experience in PE-backed matrix environments",
+          "concern": "Pure Mittelstand background — exactly the profile the client asked to avoid — with centralised leadership style and no experience in PE-backed matrix environments",
           "severity": "significant"
         },
         {
@@ -249,11 +302,11 @@
         }
       ],
       "our_take": {
-        "text": "We see a capable technical leader with strong operational instincts and a proven innovation track record, but significant concerns exist about cultural fit for the transformation mandate. His pure Mittelstand background \u2014 exactly what the client flagged as a risk \u2014 and preference for centralised, hands-on control contrast with the delegation and global integration the role demands. Proceed with caution."
+        "text": "We see a capable technical leader with strong operational instincts and a proven innovation track record, but significant concerns exist about cultural fit for the transformation mandate. His pure Mittelstand background — exactly what the client flagged as a risk — and preference for centralised, hands-on control contrast with the delegation and global integration the role demands. Proceed with caution."
       },
       "flash_summary": "Managing Director at FORST Technologie for 15 years, leading 130 employees across industrial machinery for automotive and aviation. Strong product innovation (75% CO2 reduction) but pure Mittelstand background with no matrix or PE experience.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current total ~\u20ac235K; budget structure would match or exceed"
+      "compensation_alignment_note": "Current total ~€235K; budget structure would match or exceed"
     },
     {
       "candidate_name": "Markus Deimel",
@@ -267,8 +320,8 @@
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac75M at Spear; grew Vollert from \u20ac60M to \u20ac90M",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€75M at Spear; grew Vollert from €60M to €90M",
+          "role_requirement": "€60M revenue",
           "alignment": "strong"
         },
         {
@@ -285,8 +338,8 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "Grew Vollert from \u20ac60M to \u20ac90M over tenure",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "Grew Vollert from €60M to €90M over tenure",
+          "role_requirement": "€60M",
           "alignment": "strong"
         },
         {
@@ -309,29 +362,29 @@
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Led \u20ac75M / 400-employee business at <strong>Spear</strong> and grew <strong>Vollert</strong> from \u20ac60M to \u20ac90M with 300 employees \u2014 directly comparable to the \u20ac60M / 170-FTE StrikoWestofen scope.",
+          "evidence": "Led €75M / 400-employee business at <strong>Spear</strong> and grew <strong>Vollert</strong> from €60M to €90M with 300 employees — directly comparable to the €60M / 170-FTE StrikoWestofen scope.",
           "context_anchor": "at Vollert"
         },
         {
           "name": "Industrial background",
-          "evidence": "Career spanning industrial machinery (<strong>Vollert</strong> \u2014 heavy logistics equipment), specialty vehicles (<strong>Spear</strong>), and coating machinery (<strong>Coatema</strong>). Deep R&D and engineering credentials with 65 patents to his name.",
+          "evidence": "Career spanning industrial machinery (<strong>Vollert</strong> — heavy logistics equipment), specialty vehicles (<strong>Spear</strong>), and coating machinery (<strong>Coatema</strong>). Deep R&D and engineering credentials with 65 patents to his name.",
           "context_anchor": "at Vollert"
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
-          "evidence": "Native German speaker based in Steinheim, NRW \u2014 within commuting distance of Wiehl. Currently between roles and available immediately.",
+          "evidence": "Native German speaker based in Steinheim, NRW — within commuting distance of Wiehl. Currently between roles and available immediately.",
           "context_anchor": "at Steinheim"
         }
       ],
       "compensation": {
-        "current_base": "\u20ac200,000 (most recent at Spear)",
-        "current_bonus": "\u20ac50,000",
+        "current_base": "€200,000 (most recent at Spear)",
+        "current_bonus": "€50,000",
         "current_lti": "None (family-owned)",
-        "current_total": "\u20ac250,000",
-        "expected_total": "Not explicitly stated; \u20ac250K provides baseline",
+        "current_total": "€250,000",
+        "expected_total": "Not explicitly stated; €250K provides baseline",
         "flexibility": "Did not indicate compensation would be a barrier. Currently between roles, which may increase flexibility.",
         "notice_period": "Immediately available",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -349,7 +402,7 @@
       ],
       "potential_concerns": [
         {
-          "concern": "Pattern of 2-5 year tenures with two departures linked to post-acquisition or organisational changes \u2014 may indicate difficulty with ownership transitions",
+          "concern": "Pattern of 2-5 year tenures with two departures linked to post-acquisition or organisational changes — may indicate difficulty with ownership transitions",
           "severity": "development"
         },
         {
@@ -358,11 +411,11 @@
         }
       ],
       "our_take": {
-        "text": "We see Deimel as a highly compelling candidate with exceptional energy and executive presence. His Vollert experience mirrors the target role almost exactly \u2014 growing an industrial machinery business from \u20ac60M to \u20ac90M while building international production operations. His technical credentials (65 patents), immediate availability, and hands-on global operations experience position him as a potential strong fit for the transformation mandate."
+        "text": "We see Deimel as a highly compelling candidate with exceptional energy and executive presence. His Vollert experience mirrors the target role almost exactly — growing an industrial machinery business from €60M to €90M while building international production operations. His technical credentials (65 patents), immediate availability, and hands-on global operations experience position him as a potential strong fit for the transformation mandate."
       },
-      "flash_summary": "Experienced industrial MD currently available, having grown Vollert from \u20ac60M to \u20ac90M revenue while building production in India, Poland, and Thailand. 65 patents. Immediate start. Scope directly mirrors the target role.",
+      "flash_summary": "Experienced industrial MD currently available, having grown Vollert from €60M to €90M revenue while building production in India, Poland, and Thailand. 65 patents. Immediate start. Scope directly mirrors the target role.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current \u20ac250K at Spear; budget structure competitive and candidate between roles"
+      "compensation_alignment_note": "Current €250K at Spear; budget structure competitive and candidate between roles"
     },
     {
       "candidate_name": "Lukas Armatys",
@@ -376,13 +429,13 @@
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac8-10M at Steinert; \u20ac60-65M at B\u00fchler Group; grew Kaiser Filter Tech \u20ac30M to \u20ac50M",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€8-10M at Steinert; €60-65M at Bühler Group; grew Kaiser Filter Tech €30M to €50M",
+          "role_requirement": "€60M revenue",
           "alignment": "strong"
         },
         {
           "dimension": "Headcount",
-          "candidate_actual": "30 at Steinert; 30-35 at B\u00fchler; 300 at Kaiser Filter Tech",
+          "candidate_actual": "30 at Steinert; 30-35 at Bühler; 300 at Kaiser Filter Tech",
           "role_requirement": "170 FTEs globally",
           "alignment": "strong"
         },
@@ -394,13 +447,13 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "\u20ac60-65M business unit at B\u00fchler Group",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "€60-65M business unit at Bühler Group",
+          "role_requirement": "€60M",
           "alignment": "strong"
         },
         {
           "dimension": "Industry Segment",
-          "candidate_actual": "Industrial machinery \u2014 screening/sorting (Steinert), food processing (B\u00fchler), filtration (Kaiser Filter Tech)",
+          "candidate_actual": "Industrial machinery — screening/sorting (Steinert), food processing (Bühler), filtration (Kaiser Filter Tech)",
           "role_requirement": "Industrial technology / foundry / casting",
           "alignment": "strong"
         }
@@ -408,23 +461,23 @@
       "key_criteria": [
         {
           "name": "Strong leadership experience with cultural transformation capability",
-          "evidence": "At <strong>Kaiser Filter Tech</strong>, led comprehensive cultural change and turnaround of unprofitable operations, growing from \u20ac30M to \u20ac50M. Explicitly challenged German-centric headquarters mentality \u2014 advocates decentralisation based on local needs.",
+          "evidence": "At <strong>Kaiser Filter Tech</strong>, led comprehensive cultural change and turnaround of unprofitable operations, growing from €30M to €50M. Explicitly challenged German-centric headquarters mentality — advocates decentralisation based on local needs.",
           "context_anchor": "at Kaiser Filter Tech"
         },
         {
           "name": "Global mindset and international experience",
-          "evidence": "Exceptional multicultural experience across <strong>Europe, Africa, and Asia</strong> at <strong>B\u00fchler Group</strong>, including South Africa, Middle East, and Turkey. Fluent in multiple languages with proven ability to empower regional teams.",
-          "context_anchor": "at B\u00fchler Group"
+          "evidence": "Exceptional multicultural experience across <strong>Europe, Africa, and Asia</strong> at <strong>Bühler Group</strong>, including South Africa, Middle East, and Turkey. Fluent in multiple languages with proven ability to empower regional teams.",
+          "context_anchor": "at Bühler Group"
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Led \u20ac60-65M business unit at <strong>B\u00fchler Group</strong> with 30-35 employees and grew <strong>Kaiser Filter Tech</strong> from \u20ac30M to \u20ac50M with 300 employees across multiple manufacturing sites.",
-          "context_anchor": "at B\u00fchler Group"
+          "evidence": "Led €60-65M business unit at <strong>Bühler Group</strong> with 30-35 employees and grew <strong>Kaiser Filter Tech</strong> from €30M to €50M with 300 employees across multiple manufacturing sites.",
+          "context_anchor": "at Bühler Group"
         },
         {
           "name": "Industrial background",
-          "evidence": "25 years of continuous experience in industrial machinery and capital equipment \u2014 screening and sorting (<strong>Steinert/Mogensen</strong>), food processing equipment (<strong>B\u00fchler</strong>), and industrial filtration (<strong>Kaiser Filter Tech</strong>).",
-          "context_anchor": "at B\u00fchler Group"
+          "evidence": "25 years of continuous experience in industrial machinery and capital equipment — screening and sorting (<strong>Steinert/Mogensen</strong>), food processing equipment (<strong>Bühler</strong>), and industrial filtration (<strong>Kaiser Filter Tech</strong>).",
+          "context_anchor": "at Bühler Group"
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
@@ -433,14 +486,14 @@
         }
       ],
       "compensation": {
-        "current_base": "\u20ac190,000",
-        "current_bonus": "\u20ac50,000-60,000",
+        "current_base": "€190,000",
+        "current_bonus": "€50,000-60,000",
         "current_lti": "None",
-        "current_total": "\u20ac240,000-250,000",
+        "current_total": "€240,000-250,000",
         "expected_total": "To be discussed",
-        "flexibility": "Pragmatic approach \u2014 stated compensation is 'part of the job' rather than primary driver. Acknowledged client's proposed base + 30% STI + 30% LTI structure without objection.",
+        "flexibility": "Pragmatic approach — stated compensation is 'part of the job' rather than primary driver. Acknowledged client's proposed base + 30% STI + 30% LTI structure without objection.",
         "notice_period": "~6 months; contract through end of 2025",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -458,35 +511,35 @@
       ],
       "potential_concerns": [
         {
-          "concern": "Strong reservations about automotive industry exposure \u2014 stated it 'gives me a lot of bad days' \u2014 despite role's 50%+ automotive revenue base",
+          "concern": "Strong reservations about automotive industry exposure — stated it 'gives me a lot of bad days' — despite role's 50%+ automotive revenue base",
           "severity": "significant"
         },
         {
-          "concern": "Current scope at Steinert (\u20ac8-10M, 30 people) is well below peak; real comparable experience is 4+ years dated at B\u00fchler/Kaiser",
+          "concern": "Current scope at Steinert (€8-10M, 30 people) is well below peak; real comparable experience is 4+ years dated at Bühler/Kaiser",
           "severity": "development"
         }
       ],
       "our_take": {
         "text": "We believe Armatys is a standout candidate who interviews exceptionally well and brings the right combination of hands-on leadership, multicultural sophistication, and resilience to drive the transformation Norican needs. His commanding executive presence, proven ability to navigate complex organisational transitions, and explicit philosophy of decentralisation directly address the brief. The automotive reservation warrants discussion but does not disqualify."
       },
-      "flash_summary": "Managing Director at Steinert with 25 years in industrial machinery. Led \u20ac60-65M business unit at B\u00fchler Group and grew Kaiser Filter Tech from \u20ac30M to \u20ac50M. Exceptional multicultural leader who explicitly challenges German-centric mindsets.",
+      "flash_summary": "Managing Director at Steinert with 25 years in industrial machinery. Led €60-65M business unit at Bühler Group and grew Kaiser Filter Tech from €30M to €50M. Exceptional multicultural leader who explicitly challenges German-centric mindsets.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current \u20ac240-250K; budget competitive and compensation not a primary driver"
+      "compensation_alignment_note": "Current €240-250K; budget competitive and compensation not a primary driver"
     },
     {
       "candidate_name": "Dirk Voessing",
       "candidate_id": "dirk-voessing",
       "current_title": "CEO",
       "current_company": "MSB Maschinenbau GmbH",
-      "location": "D\u00fcren, Germany",
+      "location": "Düren, Germany",
       "status": "Active",
       "generated_date": "30 Mar 2026",
       "consultant_name": "Kalum Gillett",
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac20-25M at MSB; previously \u20ac170M at Bielomatik",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€20-25M at MSB; previously €170M at Bielomatik",
+          "role_requirement": "€60M revenue",
           "alignment": "strong"
         },
         {
@@ -503,13 +556,13 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "\u20ac170M at Bielomatik; \u20ac20-25M current at MSB",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "€170M at Bielomatik; €20-25M current at MSB",
+          "role_requirement": "€60M",
           "alignment": "strong"
         },
         {
           "dimension": "Industry Segment",
-          "candidate_actual": "Industrial machinery \u2014 conveying systems for paper, automotive, pharmaceutical (MSB); packaging/welding (Bielomatik)",
+          "candidate_actual": "Industrial machinery — conveying systems for paper, automotive, pharmaceutical (MSB); packaging/welding (Bielomatik)",
           "role_requirement": "Industrial technology / foundry / casting",
           "alignment": "strong"
         }
@@ -522,34 +575,34 @@
         },
         {
           "name": "Global mindset and international experience",
-          "evidence": "Managed multi-site international operations across <strong>Germany, Italy, China</strong> at <strong>Bielomatik</strong>, driving technology transfer from Germany to China and establishing global production model \u2014 directly mirrors the StrikoWestofen mandate.",
+          "evidence": "Managed multi-site international operations across <strong>Germany, Italy, China</strong> at <strong>Bielomatik</strong>, driving technology transfer from Germany to China and establishing global production model — directly mirrors the StrikoWestofen mandate.",
           "context_anchor": "at Bielomatik"
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Led \u20ac170M / 800-900 employee business at <strong>Bielomatik</strong>, significantly exceeding the target scope. Current \u20ac20-25M role at <strong>MSB</strong> demonstrates comfort operating at smaller scale too.",
+          "evidence": "Led €170M / 800-900 employee business at <strong>Bielomatik</strong>, significantly exceeding the target scope. Current €20-25M role at <strong>MSB</strong> demonstrates comfort operating at smaller scale too.",
           "context_anchor": "at Bielomatik"
         },
         {
           "name": "Industrial background",
-          "evidence": "Career spanning industrial machinery and capital equipment \u2014 conveying systems at <strong>MSB</strong>, packaging/welding technology at <strong>Bielomatik</strong>. Deep sector credibility in German industrial manufacturing.",
+          "evidence": "Career spanning industrial machinery and capital equipment — conveying systems at <strong>MSB</strong>, packaging/welding technology at <strong>Bielomatik</strong>. Deep sector credibility in German industrial manufacturing.",
           "context_anchor": "at MSB / Bielomatik"
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
-          "evidence": "Native German speaker based in D\u00fcren \u2014 within reasonable commuting distance of Wiehl. Eight years at current single-site role demonstrates commitment to on-site leadership.",
+          "evidence": "Native German speaker based in Düren — within reasonable commuting distance of Wiehl. Eight years at current single-site role demonstrates commitment to on-site leadership.",
           "context_anchor": "at MSB"
         }
       ],
       "compensation": {
-        "current_base": "\u20ac190,000",
-        "current_bonus": "~\u20ac50,000 (P&L-based)",
+        "current_base": "€190,000",
+        "current_bonus": "~€50,000 (P&L-based)",
         "current_lti": "Not mentioned",
-        "current_total": "~\u20ac240,000",
+        "current_total": "~€240,000",
         "expected_total": "Seeking increase to justify move",
-        "flexibility": "Indicated current base of \u20ac190K and bonus of \u20ac50K; likely seeking uplift to justify leaving an 8-year CEO position.",
+        "flexibility": "Indicated current base of €190K and bonus of €50K; likely seeking uplift to justify leaving an 8-year CEO position.",
         "notice_period": "6-9 months (best case 6 months to end of quarter)",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -576,26 +629,26 @@
         }
       ],
       "our_take": {
-        "text": "We believe Voessing's direct experience transforming German-centric operations into global businesses at Bielomatik, combined with his proven ability to overcome cultural resistance and manage multi-site international teams, makes him a strong strategic fit for the StrikoWestofen mandate. The key question is whether his current eight-year tenure at a single-site \u20ac20-25M business has dulled the operational intensity needed for this transformation."
+        "text": "We believe Voessing's direct experience transforming German-centric operations into global businesses at Bielomatik, combined with his proven ability to overcome cultural resistance and manage multi-site international teams, makes him a strong strategic fit for the StrikoWestofen mandate. The key question is whether his current eight-year tenure at a single-site €20-25M business has dulled the operational intensity needed for this transformation."
       },
-      "flash_summary": "CEO of MSB Maschinenbau for eight years. Previously led \u20ac170M / 800-person Bielomatik operation, converting a German export business into a globally integrated operation \u2014 directly mirrors the StrikoWestofen mandate.",
+      "flash_summary": "CEO of MSB Maschinenbau for eight years. Previously led €170M / 800-person Bielomatik operation, converting a German export business into a globally integrated operation — directly mirrors the StrikoWestofen mandate.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current ~\u20ac240K; budget structure would be competitive"
+      "compensation_alignment_note": "Current ~€240K; budget structure would be competitive"
     },
     {
       "candidate_name": "Rainer Janotta",
       "candidate_id": "rainer-janotta",
       "current_title": "Chief Technology Officer",
       "current_company": "Frimo Group",
-      "location": "Osnabr\u00fcck, Germany",
+      "location": "Osnabrück, Germany",
       "status": "Active",
       "generated_date": "30 Mar 2026",
       "consultant_name": "Kalum Gillett",
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac145M at Frimo Group; \u20ac230M at Motherson",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€145M at Frimo Group; €230M at Motherson",
+          "role_requirement": "€60M revenue",
           "alignment": "strong"
         },
         {
@@ -612,8 +665,8 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "\u20ac145M P&L at Frimo Group",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "€145M P&L at Frimo Group",
+          "role_requirement": "€60M",
           "alignment": "strong"
         },
         {
@@ -626,7 +679,7 @@
       "key_criteria": [
         {
           "name": "Strong leadership experience with cultural transformation capability",
-          "evidence": "At <strong>Frimo Group</strong>, shifted production from two of four German sites to Hungary and China, repositioning Germany as a technology and innovation centre. At <strong>Motherson</strong>, led turnaround of a \u20ac230M / 1,200-employee operation acquired out of insolvency with significant workforce restructuring.",
+          "evidence": "At <strong>Frimo Group</strong>, shifted production from two of four German sites to Hungary and China, repositioning Germany as a technology and innovation centre. At <strong>Motherson</strong>, led turnaround of a €230M / 1,200-employee operation acquired out of insolvency with significant workforce restructuring.",
           "context_anchor": "at Frimo Group"
         },
         {
@@ -636,7 +689,7 @@
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Currently CTO with full P&L responsibility for \u20ac145M revenue and 900 employees at <strong>Frimo Group</strong> \u2014 significantly exceeding the target scope. Comfortable operating at both larger (Motherson \u20ac230M) and smaller scales.",
+          "evidence": "Currently CTO with full P&L responsibility for €145M revenue and 900 employees at <strong>Frimo Group</strong> — significantly exceeding the target scope. Comfortable operating at both larger (Motherson €230M) and smaller scales.",
           "context_anchor": "at Frimo Group"
         },
         {
@@ -646,19 +699,19 @@
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
-          "evidence": "Native German speaker based in Osnabr\u00fcck. Open to relocation and comfortable with the Monday-Friday commuting arrangement the role requires.",
+          "evidence": "Native German speaker based in Osnabrück. Open to relocation and comfortable with the Monday-Friday commuting arrangement the role requires.",
           "context_anchor": "at Frimo Group"
         }
       ],
       "compensation": {
-        "current_base": "\u20ac180,000",
-        "current_bonus": "\u20ac30,000",
+        "current_base": "€180,000",
+        "current_bonus": "€30,000",
         "current_lti": "None",
-        "current_total": "\u20ac210,000",
+        "current_total": "€210,000",
         "expected_total": "Not explicitly stated",
-        "flexibility": "Consultant noted client can 'absolutely make a competitive offer.' Current package of \u20ac210K is below the role's budget range, suggesting compensation would not be a barrier.",
+        "flexibility": "Consultant noted client can 'absolutely make a competitive offer.' Current package of €210K is below the role's budget range, suggesting compensation would not be a barrier.",
         "notice_period": "6 months, potentially negotiable",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
@@ -685,11 +738,11 @@
         }
       ],
       "our_take": {
-        "text": "We believe Janotta brings proven operational transformation credentials at directly relevant scale \u2014 his work shifting Frimo's production from Germany to Hungary and China while positioning Germany as a technology centre is essentially the StrikoWestofen playbook. His 40-year German industrial career is both a strength (deep credibility) and a flag (potential mindset limitation). Compensation would not be a barrier given the step-up from his current \u20ac210K package."
+        "text": "We believe Janotta brings proven operational transformation credentials at directly relevant scale — his work shifting Frimo's production from Germany to Hungary and China while positioning Germany as a technology centre is essentially the StrikoWestofen playbook. His 40-year German industrial career is both a strength (deep credibility) and a flag (potential mindset limitation). Compensation would not be a barrier given the step-up from his current €210K package."
       },
-      "flash_summary": "CTO at Frimo Group with \u20ac145M P&L and 900 employees across six countries. Currently shifting production from Germany to Hungary and China while positioning Germany as a technology centre \u2014 essentially the StrikoWestofen playbook.",
+      "flash_summary": "CTO at Frimo Group with €145M P&L and 900 employees across six countries. Currently shifting production from Germany to Hungary and China while positioning Germany as a technology centre — essentially the StrikoWestofen playbook.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current \u20ac210K is below budget range; significant step-up available"
+      "compensation_alignment_note": "Current €210K is below budget range; significant step-up available"
     },
     {
       "candidate_name": "Rebecca Hammes",
@@ -700,14 +753,14 @@
       "status": "Active",
       "generated_date": "30 Mar 2026",
       "consultant_name": "Kalum Gillett",
-      "flash_summary": "Division Manager at Yaskawa with full P&L responsibility for \u20ac100-150M revenue and 280 direct reports. Proven operational leader across multi-site international industrial businesses. Originally from D\u00fcsseldorf area \u2014 location is a strong pull factor.",
+      "flash_summary": "Division Manager at Yaskawa with full P&L responsibility for €100-150M revenue and 280 direct reports. Proven operational leader across multi-site international industrial businesses. Originally from Düsseldorf area — location is a strong pull factor.",
       "compensation_alignment": "aligned",
-      "compensation_alignment_note": "Current \u20ac185K base + 40% bonus; budget structure is competitive and compensation not the primary driver",
+      "compensation_alignment_note": "Current €185K base + 40% bonus; budget structure is competitive and compensation not the primary driver",
       "scope_match": [
         {
           "dimension": "P&L",
-          "candidate_actual": "\u20ac100-150M revenue at Yaskawa (varies by project cycle)",
-          "role_requirement": "\u20ac60M revenue",
+          "candidate_actual": "€100-150M revenue at Yaskawa (varies by project cycle)",
+          "role_requirement": "€60M revenue",
           "alignment": "strong"
         },
         {
@@ -724,8 +777,8 @@
         },
         {
           "dimension": "Revenue Target",
-          "candidate_actual": "\u20ac100-150M at Yaskawa; \u20ac80M at Parker Hannifin",
-          "role_requirement": "\u20ac60M",
+          "candidate_actual": "€100-150M at Yaskawa; €80M at Parker Hannifin",
+          "role_requirement": "€60M",
           "alignment": "strong"
         },
         {
@@ -738,7 +791,7 @@
       "key_criteria": [
         {
           "name": "Strong leadership experience with cultural transformation capability",
-          "evidence": "Led operational restructuring at <strong>Parker Hannifin</strong> including closing the Netherlands plant and consolidating to France, managing a 3-shift operation. At <strong>Yaskawa</strong>, manages 280 people across all functions. However, limited evidence of driving cultural transformation in resistant, entrenched organisations \u2014 experience is more operational turnaround than mindset change.",
+          "evidence": "Led operational restructuring at <strong>Parker Hannifin</strong> including closing the Netherlands plant and consolidating to France, managing a 3-shift operation. At <strong>Yaskawa</strong>, manages 280 people across all functions. However, limited evidence of driving cultural transformation in resistant, entrenched organisations — experience is more operational turnaround than mindset change.",
           "context_anchor": "at Parker Hannifin / Yaskawa"
         },
         {
@@ -748,7 +801,7 @@
         },
         {
           "name": "Comfortable running similar-sized business",
-          "evidence": "Full P&L ownership of \u20ac100-150M revenue with 280 direct reports at <strong>Yaskawa</strong>, and previously \u20ac80M at <strong>Parker Hannifin</strong> \u2014 significantly exceeding the \u20ac60M / 170-FTE target scope.",
+          "evidence": "Full P&L ownership of €100-150M revenue with 280 direct reports at <strong>Yaskawa</strong>, and previously €80M at <strong>Parker Hannifin</strong> — significantly exceeding the €60M / 170-FTE target scope.",
           "context_anchor": "at Yaskawa"
         },
         {
@@ -758,27 +811,27 @@
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
-          "evidence": "Native German speaker, originally from the D\u00fcsseldorf area. Confirmed location is not an issue \u2014 estimated 30-minute commute from east D\u00fcsseldorf to site. Relocation from Munich to home region is a positive pull factor.",
-          "context_anchor": "at Munich / D\u00fcsseldorf"
+          "evidence": "Native German speaker, originally from the Düsseldorf area. Confirmed location is not an issue — estimated 30-minute commute from east Düsseldorf to site. Relocation from Munich to home region is a positive pull factor.",
+          "context_anchor": "at Munich / Düsseldorf"
         }
       ],
       "compensation": {
-        "current_base": "\u20ac185,000",
+        "current_base": "€185,000",
         "current_bonus": "40% of base (up to 120% for overachievement)",
         "current_lti": "Not mentioned",
-        "current_total": "~\u20ac260,000+",
-        "expected_total": "\u20ac175-185K base range; seeking clarity on 30% STI + 30% LTI structure",
-        "flexibility": "Current comp is above the stated budget base (\u20ac185K vs \u20ac175K), but she did not indicate compensation is the primary driver. Location and international mandate appear more important. No explicit deal-breakers stated.",
+        "current_total": "~€260,000+",
+        "expected_total": "€175-185K base range; seeking clarity on 30% STI + 30% LTI structure",
+        "flexibility": "Current comp is above the stated budget base (€185K vs €175K), but she did not indicate compensation is the primary driver. Location and international mandate appear more important. No explicit deal-breakers stated.",
         "notice_period": "3 months contractual",
-        "budget_base": "\u20ac175,000",
+        "budget_base": "€175,000",
         "budget_bonus": "30% of base salary",
         "budget_lti": "LTIP ~30%"
       },
       "why_interested": [
         {
           "type": "pull",
-          "headline": "Returning to home region near D\u00fcsseldorf",
-          "detail": "Originally from the D\u00fcsseldorf area and confirmed the Wiehl location is attractive \u2014 sees it as a homecoming rather than a relocation."
+          "headline": "Returning to home region near Düsseldorf",
+          "detail": "Originally from the Düsseldorf area and confirmed the Wiehl location is attractive — sees it as a homecoming rather than a relocation."
         },
         {
           "type": "pull",
@@ -788,7 +841,7 @@
       ],
       "potential_concerns": [
         {
-          "concern": "Motivation appears more location-driven than transformation-driven \u2014 the cultural change mandate may be underestimated given her collaborative style",
+          "concern": "Motivation appears more location-driven than transformation-driven — the cultural change mandate may be underestimated given her collaborative style",
           "severity": "development"
         },
         {
@@ -797,7 +850,7 @@
         }
       ],
       "our_take": {
-        "text": "We believe Rebecca is a strong operational leader with the right scale and international experience, but her motivation appears more location-driven than transformation-driven. The cultural change mandate may be underestimated given her collaborative style and lack of evidence navigating entrenched resistance. Her P&L scale significantly exceeds the target, and the D\u00fcsseldorf proximity is a genuine retention advantage."
+        "text": "We believe Rebecca is a strong operational leader with the right scale and international experience, but her motivation appears more location-driven than transformation-driven. The cultural change mandate may be underestimated given her collaborative style and lack of evidence navigating entrenched resistance. Her P&L scale significantly exceeds the target, and the Düsseldorf proximity is a genuine retention advantage."
       }
     }
   ]
