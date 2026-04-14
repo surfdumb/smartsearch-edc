@@ -37,54 +37,113 @@
       "candidate_name": "Tobias Brune",
       "candidate_id": "tobias-brune",
       "current_title": "Managing Director",
-      "current_company": "Hirsch Servo Group",
-      "location": "Germany",
+      "current_company": "Hirsch",
+      "location": "Near Düsseldorf, Germany",
       "status": "New",
-      "generated_date": "14 Apr 2026",
+      "generated_date": "09 Apr 2026",
       "consultant_name": "Kalum Gillett",
-      "scope_match": [],
+      "headline": "Leads €300M metals manufacturer with 300 employees across Germany and China production sites.",
+      "motivation_hook": "Escaping centralized family ownership to lead global transformation in matrix environment.",
+      "scope_match": [
+        {
+          "dimension": "P&L Size",
+          "candidate_actual": "€300M at Hirsch, €180M at SMS Group",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "300 at Hirsch, 120+ at SMS Group",
+          "role_requirement": "170",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "Germany, Italy, India, US, China, Japan at SMS Group; Germany and China at Hirsch",
+          "role_requirement": "Germany, Czech Republic, China, India, US",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Automotive, aerospace, defense, general industry machinery at SMS Group; aluminum manufacturing at Hirsch",
+          "role_requirement": "Automotive tier-one suppliers and industrial segments",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Revenue Growth",
+          "candidate_actual": "Grew Italian acquisition from €30M to €80M in 2 years",
+          "role_requirement": "Growth capability required",
+          "alignment": "strong"
+        }
+      ],
+      "scope_seasoning": "Tobias brings scope above the role across all dimensions. At SMS Group, he led a <strong>€180M business unit with 120+ employees</strong> across six countries in a matrix organization. Currently at Hirsch, he manages <strong>€300M revenue with 300 employees</strong> across German and Chinese production sites. His experience deliberately transforming a German-centric operation into a globally integrated model—reducing German headcount while expanding India from 5 to 30 employees and localizing production to Italy—directly mirrors the transformation StrikoWestofen requires.",
       "key_criteria": [
         {
           "name": "Hands-on Leadership with strategic and cultural transformation capability",
-          "evidence": "Pending — EDC data being processed",
-          "context_anchor": ""
+          "evidence": "Tobias transformed SMS Group's German-centric operation into a globally integrated model by reducing German workforce, expanding India operations from <strong>5 to 30 employees</strong>, and localizing production to Italy. He integrated an acquired Italian company, growing it from <strong>€30M to €80M in two years</strong>.",
+          "context_anchor": "at SMS Group"
         },
         {
           "name": "Global mindset and international experience",
-          "evidence": "Pending — EDC data being processed",
-          "context_anchor": ""
+          "evidence": "Tobias managed <strong>120+ employees across Germany, Italy, India, US, China, and Japan</strong> in a matrix organization at SMS Group, with markets evenly split across Europe, North America, and Asia. He deliberately localized products to India for cost competitiveness and is actively leaving Hirsch specifically to escape centralized German family ownership.",
+          "context_anchor": "at SMS Group"
         },
         {
           "name": "Similar business size experience",
-          "evidence": "Pending — EDC data being processed",
-          "context_anchor": ""
+          "evidence": "Tobias led a <strong>€180M business unit with 120+ employees</strong> at SMS Group and currently manages <strong>€300M with 300 employees</strong> at Hirsch. He operates hands-on across R&D, sales, and finance without extensive support infrastructure, personally driving technical sales and customer negotiations.",
+          "context_anchor": "at SMS Group and Hirsch"
         },
         {
           "name": "Industrial background",
-          "evidence": "Pending — EDC data being processed",
-          "context_anchor": ""
+          "evidence": "Tobias led a business unit producing machinery for automotive, aerospace, defense, and general industry at SMS Group, managing the complete value chain from engineering through production to technical sales and installation. Currently serves the <strong>aluminum industry (90% of business)</strong>, providing customer perspective for aluminum foundry equipment.",
+          "context_anchor": "at SMS Group"
         },
         {
           "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
-          "evidence": "Pending — EDC data being processed",
-          "context_anchor": ""
+          "evidence": "Tobias is a native German speaker based near Düsseldorf. He confirmed the <strong>1-2 hour commute</strong> to the role location and stated his proven approach of securing a small apartment near the office for regular on-site presence.",
+          "context_anchor": "Current location and previous roles"
         }
       ],
       "compensation": {
-        "current_base": "Not mentioned",
-        "current_total": "Not mentioned",
-        "expected_total": "Not mentioned",
-        "flexibility": "Not mentioned",
-        "notice_period": "Not mentioned"
+        "current_base": "€200,000",
+        "current_bonus": "€160,000 (80% of 50% target)",
+        "current_lti": "None",
+        "current_total": "€282,000",
+        "expected_total": "Open to discussion — no fixed expectations stated",
+        "flexibility": "Demonstrated strong flexibility — open to base + 30% STI + 30% LTI structure. Recruiter assessed current comp as 'right in the sweet spot' for the role.",
+        "notice_period": "6 months to end of month. Realistic earliest start: 3-4 months if negotiation successful.",
+        "budget_base": "€175,000",
+        "budget_bonus": "~30% of base",
+        "budget_lti": "~30% of base"
       },
-      "why_interested": [],
-      "potential_concerns": [],
+      "why_interested": [
+        {
+          "type": "push",
+          "headline": "Frustrated by centralized family ownership blocking delegation",
+          "detail": "Actively seeking to leave Hirsch because the owner refuses to delegate authority, creating a traditional German family-owned structure that limits strategic decisions and global expansion."
+        },
+        {
+          "type": "pull",
+          "headline": "Seeks global matrix environment with transformation mandate",
+          "detail": "Explicitly stated he loves global matrixed organizations and is drawn to transforming German-centric operations into globally integrated businesses — directly aligned with the StrikoWestofen mandate."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Brief 1.5-year tenure at Trumpf during restructuring — context suggests role misalignment rather than performance issues.",
+          "severity": "medium"
+        },
+        {
+          "concern": "Current role at Hirsch is metals manufacturing rather than capital equipment, representing a sector shift from SMS Group industrial machinery background.",
+          "severity": "low"
+        }
+      ],
       "our_take": {
-        "text": ""
+        "text": "We believe Tobias represents an outstanding cultural and experiential fit for this transformation mandate. His frustration with traditional German family-owned centralization and his demonstrated success building globally integrated operations at SMS Group position him as someone who deeply understands both the current state StrikoWestofen needs to move from and the future state it must achieve. His hands-on leadership across sales, production, and R&D, combined with his comfort in matrix environments, suggests he can drive the required change without requiring extensive support infrastructure."
       },
-      "flash_summary": "Managing Director at Hirsch Servo Group. Full EDC assessment pending — data being processed.",
-      "compensation_alignment": "not_set",
-      "compensation_alignment_note": ""
+      "flash_summary": "Managing Director at Hirsch (€300M, 300 employees). Previously VP Nonferrous Manufacturing at SMS Group — led 120+ across 6 countries, grew Italian acquisition from €30M to €80M in 2 years. Native German speaker near Düsseldorf.",
+      "compensation_alignment": "aligned",
+      "compensation_alignment_note": "Current total €282K; budget €175K base + 30% STI + 30% LTI ≈ €280K total package. Recruiter confirmed 'sweet spot.'"
     },
     {
       "candidate_name": "Sebastian Eickens",
