@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
@@ -10,8 +10,10 @@ interface JobSummaryBriefProps {
   data: SearchContext;
   isEditMode: boolean;
   searchId: string;
-  isFullPage?: boolean; // State 1 (no candidates) vs State 2/3 (tab view)
+  isFullPage?: boolean;
 }
+
+type Criterion = { name: string; detail?: string; priority?: string };
 
 // ─── Section divider ────────────────────────────────────────────────────────
 
@@ -58,10 +60,55 @@ function Section({
   );
 }
 
-// ─── Role Profile row ───────────────────────────────────────────────────────
+// ─── Editable text field (inline, no label) ─────────────────────────────────
 
-function ProfileRow({ label, value }: { label: string; value?: string }) {
-  if (!value) return null;
+function BriefField({
+  value,
+  field,
+  onSave,
+  isEdit,
+  style,
+  as = "p",
+}: {
+  value: string;
+  field: string;
+  onSave: (field: string, value: string) => void;
+  isEdit: boolean;
+  style?: React.CSSProperties;
+  as?: "p" | "div" | "span";
+}) {
+  if (!value && !isEdit) return null;
+  if (isEdit) {
+    return (
+      <EditableField
+        value={value || ""}
+        as={as}
+        html={false}
+        style={style}
+        onUpdate={(v) => onSave(field, v)}
+      />
+    );
+  }
+  const Tag = as;
+  return <Tag style={style}>{value}</Tag>;
+}
+
+// ─── Role Profile row (editable) ────────────────────────────────────────────
+
+function ProfileRow({
+  label,
+  value,
+  field,
+  onSave,
+  isEdit,
+}: {
+  label: string;
+  value?: string;
+  field?: string;
+  onSave?: (field: string, value: string) => void;
+  isEdit?: boolean;
+}) {
+  if (!value && !isEdit) return null;
   return (
     <div
       style={{
@@ -81,22 +128,45 @@ function ProfileRow({ label, value }: { label: string; value?: string }) {
       >
         {label}
       </span>
-      <span style={{ fontSize: "0.82rem", color: "#3a3a3a", lineHeight: 1.5 }}>
-        {value}
-      </span>
+      {isEdit && field && onSave ? (
+        <EditableField
+          value={value || ""}
+          as="span"
+          html={false}
+          style={{ fontSize: "0.82rem", color: "#3a3a3a", lineHeight: 1.5, flex: 1 }}
+          onUpdate={(v) => onSave(field, v)}
+        />
+      ) : (
+        <span style={{ fontSize: "0.82rem", color: "#3a3a3a", lineHeight: 1.5 }}>
+          {value}
+        </span>
+      )}
     </div>
   );
 }
 
-// ─── Compensation row ───────────────────────────────────────────────────────
+// ─── Compensation row (editable) ────────────────────────────────────────────
 
-function CompRow({ label, value }: { label: string; value?: string }) {
-  if (!value) return null;
+function CompRow({
+  label,
+  value,
+  field,
+  onSave,
+  isEdit,
+}: {
+  label: string;
+  value?: string;
+  field?: string;
+  onSave?: (field: string, value: string) => void;
+  isEdit?: boolean;
+}) {
+  if (!value && !isEdit) return null;
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "space-between",
+        alignItems: "center",
         padding: "10px 0",
         borderBottom: "1px solid rgba(197,165,114,0.08)",
       }}
@@ -104,9 +174,62 @@ function CompRow({ label, value }: { label: string; value?: string }) {
       <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#1a1a1a" }}>
         {label}
       </span>
-      <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a" }}>
-        {value}
-      </span>
+      {isEdit && field && onSave ? (
+        <EditableField
+          value={value || ""}
+          as="span"
+          html={false}
+          style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const }}
+          onUpdate={(v) => onSave(field, v)}
+        />
+      ) : (
+        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a" }}>
+          {value}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ─── Internal panel field (editable, dark theme) ────────────────────────────
+
+function IntelField({
+  label,
+  value,
+  field,
+  onSave,
+}: {
+  label: string;
+  value?: string;
+  field: string;
+  onSave: (field: string, value: string) => void;
+}) {
+  if (!value) return null;
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <p
+        style={{
+          fontSize: "0.68rem",
+          fontWeight: 700,
+          color: "rgba(201,149,58,0.8)",
+          marginBottom: "6px",
+          letterSpacing: "0.5px",
+        }}
+      >
+        {label}
+      </p>
+      <EditableField
+        value={value}
+        as="p"
+        html={false}
+        style={{
+          fontSize: "0.78rem",
+          color: "rgba(255,255,255,0.55)",
+          lineHeight: 1.5,
+          whiteSpace: "pre-wrap" as const,
+        }}
+        onUpdate={(v) => onSave(field, v)}
+      />
     </div>
   );
 }
@@ -123,16 +246,22 @@ export default function JobSummaryBrief({
   const [showIntel, setShowIntel] = useState(false);
   const [savingFields, setSavingFields] = useState<Set<string>>(new Set());
 
+  // Local state for key criteria (supports add/remove)
+  const [criteria, setCriteria] = useState<Criterion[]>(
+    () => js?.key_criteria_detailed || []
+  );
+
   if (!js) return null;
 
   const hasCompData =
-    js.budget_base || js.budget_bonus || js.budget_lti || js.budget_di;
+    js.budget_base || js.budget_bonus || js.budget_lti || js.budget_di || isEditMode;
   const hasProfileData =
     data.client_location ||
     js.line_manager ||
     js.team_size ||
     js.remit ||
-    js.confidentiality;
+    js.confidentiality ||
+    isEditMode;
   const hasInternalData =
     js.red_flag_title ||
     js.red_flag_detail ||
@@ -140,12 +269,12 @@ export default function JobSummaryBrief({
     js.candidate_messaging ||
     js.additional_internal_notes;
 
-  // ── Debounced save for Brief edits ──────────────────────────────────────
+  // ── Debounced save ────────────────────────────────────────────────────────
 
-  const saveTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  const saveTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
-  const handleFieldSave = (field: string, value: string) => {
-    // Clear any existing timer for this field
+  const handleFieldSave = useCallback((field: string, value: string | unknown) => {
+    const saveTimers = saveTimersRef.current;
     const existing = saveTimers.get(field);
     if (existing) clearTimeout(existing);
 
@@ -171,6 +300,37 @@ export default function JobSummaryBrief({
     }, 2000);
 
     saveTimers.set(field, timer);
+  }, [searchId]);
+
+  // ── Key criteria mutations ────────────────────────────────────────────────
+
+  const saveCriteria = useCallback((updated: Criterion[]) => {
+    setCriteria(updated);
+    handleFieldSave("key_criteria", updated);
+  }, [handleFieldSave]);
+
+  const updateCriterionName = (index: number, name: string) => {
+    const updated = criteria.map((c, i) =>
+      i === index ? { ...c, name } : c
+    );
+    saveCriteria(updated);
+  };
+
+  const updateCriterionDetail = (index: number, detail: string) => {
+    const updated = criteria.map((c, i) =>
+      i === index ? { ...c, detail } : c
+    );
+    saveCriteria(updated);
+  };
+
+  const removeCriterion = (index: number) => {
+    const updated = criteria.filter((_, i) => i !== index);
+    saveCriteria(updated);
+  };
+
+  const addCriterion = () => {
+    const updated = [...criteria, { name: "New Criterion", detail: "", priority: "preferred" }];
+    saveCriteria(updated);
   };
 
   // Derive display values
@@ -282,13 +442,10 @@ export default function JobSummaryBrief({
                 <Section label="Role Profile">
                   <div>
                     <ProfileRow label="Location" value={data.client_location} />
-                    <ProfileRow label="Line Manager" value={js.line_manager} />
-                    <ProfileRow label="Team Size" value={js.team_size} />
-                    <ProfileRow label="Remit" value={js.remit} />
-                    <ProfileRow
-                      label="Confidentiality"
-                      value={js.confidentiality}
-                    />
+                    <ProfileRow label="Line Manager" value={js.line_manager} field="line_manager" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Team Size" value={js.team_size} field="team_size" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Remit" value={js.remit} field="remit" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Confidentiality" value={js.confidentiality} field="confidentiality" onSave={handleFieldSave} isEdit={isEditMode} />
                   </div>
                 </Section>
                 <GoldRule />
@@ -296,166 +453,220 @@ export default function JobSummaryBrief({
             )}
 
             {/* ── Core Mission ────────────────────────────────────── */}
-            {js.core_mission && (
+            {(js.core_mission || isEditMode) && (
               <>
                 <Section label="Core Mission">
-                  {isEditMode ? (
-                    <EditableField
-                      value={js.core_mission}
-                      as="p"
-                      html={false}
-                      style={{
-                        fontSize: "0.88rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.65,
-                        fontStyle: "italic",
-                      }}
-                      onUpdate={(v) => handleFieldSave("core_mission", v)}
-                    />
-                  ) : (
-                    <p
-                      style={{
-                        fontSize: "0.88rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.65,
-                        fontStyle: "italic",
-                      }}
-                    >
-                      {js.core_mission}
-                    </p>
-                  )}
+                  <BriefField
+                    value={js.core_mission || ""}
+                    field="core_mission"
+                    onSave={handleFieldSave}
+                    isEdit={isEditMode}
+                    style={{
+                      fontSize: "0.88rem",
+                      color: "#3a3a3a",
+                      lineHeight: 1.65,
+                      fontStyle: "italic",
+                    }}
+                  />
                 </Section>
                 <GoldRule />
               </>
             )}
 
             {/* ── Why Is This Role Open? ──────────────────────────── */}
-            {js.why_open && (
+            {(js.why_open || isEditMode) && (
               <>
                 <Section label="Why Is This Role Open?">
-                  {isEditMode ? (
-                    <EditableField
-                      value={js.why_open}
-                      as="p"
-                      html={false}
-                      style={{
-                        fontSize: "0.85rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.6,
-                      }}
-                      onUpdate={(v) => handleFieldSave("why_open", v)}
-                    />
-                  ) : (
-                    <p
-                      style={{
-                        fontSize: "0.85rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.6,
-                      }}
-                    >
-                      {js.why_open}
-                    </p>
-                  )}
+                  <BriefField
+                    value={js.why_open || ""}
+                    field="why_open"
+                    onSave={handleFieldSave}
+                    isEdit={isEditMode}
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#3a3a3a",
+                      lineHeight: 1.6,
+                    }}
+                  />
                 </Section>
                 <GoldRule />
               </>
             )}
 
             {/* ── Key Criteria ────────────────────────────────────── */}
-            {js.key_criteria_detailed &&
-              js.key_criteria_detailed.length > 0 && (
-                <>
-                  <Section label="Key Criteria">
-                    <ol
-                      style={{
-                        listStyle: "none",
-                        padding: 0,
-                        margin: 0,
-                        counterReset: "criteria",
-                      }}
-                    >
-                      {js.key_criteria_detailed.map((kc, i) => (
-                        <li
-                          key={i}
+            {(criteria.length > 0 || isEditMode) && (
+              <>
+                <Section label="Key Criteria">
+                  <ol
+                    style={{
+                      listStyle: "none",
+                      padding: 0,
+                      margin: 0,
+                    }}
+                  >
+                    {criteria.map((kc, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          marginBottom: "14px",
+                          lineHeight: 1.55,
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <span
                           style={{
-                            display: "flex",
-                            gap: "12px",
-                            marginBottom: "14px",
-                            lineHeight: 1.55,
+                            color: "var(--ss-gold, #c5a572)",
+                            fontWeight: 700,
+                            fontSize: "0.88rem",
+                            minWidth: "18px",
+                            flexShrink: 0,
+                            paddingTop: "1px",
                           }}
                         >
-                          <span
-                            style={{
-                              color: "var(--ss-gold, #c5a572)",
-                              fontWeight: 700,
-                              fontSize: "0.88rem",
-                              minWidth: "18px",
-                              flexShrink: 0,
-                            }}
-                          >
-                            {i + 1}.
-                          </span>
-                          <div style={{ flex: 1 }}>
-                            <span
-                              style={{
-                                fontWeight: 700,
-                                fontSize: "0.88rem",
-                                color: "#1a1a1a",
-                              }}
-                            >
-                              {kc.name}
-                            </span>
-                            {kc.detail && (
-                              <span
+                          {i + 1}.
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          {isEditMode ? (
+                            <>
+                              <EditableField
+                                value={kc.name}
+                                as="span"
+                                html={false}
+                                style={{
+                                  fontWeight: 700,
+                                  fontSize: "0.88rem",
+                                  color: "#1a1a1a",
+                                  display: "inline",
+                                }}
+                                onUpdate={(v) => updateCriterionName(i, v)}
+                              />
+                              <span style={{ color: "#4a4a4a", fontSize: "0.85rem" }}> &mdash; </span>
+                              <EditableField
+                                value={kc.detail || ""}
+                                as="span"
+                                html={false}
                                 style={{
                                   fontSize: "0.85rem",
                                   color: "#4a4a4a",
+                                  display: "inline",
+                                }}
+                                onUpdate={(v) => updateCriterionDetail(i, v)}
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <span
+                                style={{
+                                  fontWeight: 700,
+                                  fontSize: "0.88rem",
+                                  color: "#1a1a1a",
                                 }}
                               >
-                                {" "}
-                                &mdash; {kc.detail}
+                                {kc.name}
                               </span>
-                            )}
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-                  </Section>
-                  <GoldRule />
-                </>
-              )}
-
-            {/* ── Key Responsibilities ────────────────────────────── */}
-            {js.key_responsibilities && (
-              <>
-                <Section label="Key Responsibilities">
-                  {isEditMode ? (
-                    <EditableField
-                      value={js.key_responsibilities}
-                      as="div"
-                      html={false}
+                              {kc.detail && (
+                                <span
+                                  style={{
+                                    fontSize: "0.85rem",
+                                    color: "#4a4a4a",
+                                  }}
+                                >
+                                  {" "}&mdash; {kc.detail}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {/* Remove button (edit mode only) */}
+                        {isEditMode && (
+                          <button
+                            onClick={() => removeCriterion(i)}
+                            title="Remove criterion"
+                            style={{
+                              width: "20px",
+                              height: "20px",
+                              borderRadius: "50%",
+                              border: "1px solid rgba(197,165,114,0.2)",
+                              background: "transparent",
+                              color: "rgba(197,165,114,0.4)",
+                              fontSize: "0.72rem",
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              marginTop: "2px",
+                              transition: "all 0.15s",
+                            }}
+                            onMouseOver={(e) => {
+                              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(184,84,80,0.4)";
+                              (e.currentTarget as HTMLButtonElement).style.color = "rgba(184,84,80,0.7)";
+                            }}
+                            onMouseOut={(e) => {
+                              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                              (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
+                            }}
+                          >
+                            &times;
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ol>
+                  {/* Add criterion button (edit mode only) */}
+                  {isEditMode && (
+                    <button
+                      onClick={addCriterion}
                       style={{
-                        fontSize: "0.85rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.65,
-                        whiteSpace: "pre-wrap",
+                        background: "transparent",
+                        border: "1px dashed rgba(197,165,114,0.25)",
+                        borderRadius: "6px",
+                        padding: "8px 16px",
+                        fontSize: "0.78rem",
+                        fontWeight: 500,
+                        color: "rgba(197,165,114,0.5)",
+                        cursor: "pointer",
+                        transition: "all 0.15s",
+                        width: "100%",
+                        textAlign: "left",
+                        marginTop: "4px",
                       }}
-                      onUpdate={(v) =>
-                        handleFieldSave("key_responsibilities", v)
-                      }
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        fontSize: "0.85rem",
-                        color: "#3a3a3a",
-                        lineHeight: 1.65,
-                        whiteSpace: "pre-wrap",
+                      onMouseOver={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.5)";
+                        (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold, #c5a572)";
+                      }}
+                      onMouseOut={(e) => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.25)";
+                        (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)";
                       }}
                     >
-                      {js.key_responsibilities}
-                    </div>
+                      + Add criterion
+                    </button>
                   )}
+                </Section>
+                <GoldRule />
+              </>
+            )}
+
+            {/* ── Key Responsibilities ────────────────────────────── */}
+            {(js.key_responsibilities || isEditMode) && (
+              <>
+                <Section label="Key Responsibilities">
+                  <BriefField
+                    value={js.key_responsibilities || ""}
+                    field="key_responsibilities"
+                    onSave={handleFieldSave}
+                    isEdit={isEditMode}
+                    as="div"
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#3a3a3a",
+                      lineHeight: 1.65,
+                      whiteSpace: "pre-wrap",
+                    }}
+                  />
                 </Section>
                 <GoldRule />
               </>
@@ -466,13 +677,10 @@ export default function JobSummaryBrief({
               <>
                 <Section label="Compensation">
                   <div>
-                    <CompRow label="Base Salary" value={js.budget_base} />
-                    <CompRow label="Target Bonus" value={js.budget_bonus} />
-                    <CompRow label="LTIP / MIP" value={js.budget_lti} />
-                    <CompRow
-                      label="Direct Investment"
-                      value={js.budget_di}
-                    />
+                    <CompRow label="Base Salary" value={js.budget_base} field="budget_base" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="Target Bonus" value={js.budget_bonus} field="budget_bonus" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="LTIP / MIP" value={js.budget_lti} field="budget_lti" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="Direct Investment" value={js.budget_di} field="budget_di" onSave={handleFieldSave} isEdit={isEditMode} />
                   </div>
                 </Section>
                 <GoldRule />
@@ -577,7 +785,7 @@ export default function JobSummaryBrief({
         </div>
 
         {/* ── Internal Intelligence panel (edit mode only) ──────── */}
-        {isEditMode && hasInternalData && (
+        {isEditMode && (hasInternalData || isEditMode) && (
           <>
             {/* Toggle button */}
             <button
@@ -640,127 +848,48 @@ export default function JobSummaryBrief({
                   Not visible to clients
                 </p>
 
-                {/* Red Flags */}
-                {(js.red_flag_title || js.red_flag_detail) && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <p
-                      style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        color: "rgba(201,149,58,0.8)",
-                        marginBottom: "6px",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      Hard Requirements &amp; Red Flags
-                    </p>
-                    {js.red_flag_title && (
-                      <p
-                        style={{
-                          fontSize: "0.82rem",
-                          fontWeight: 600,
-                          color: "rgba(255,255,255,0.8)",
-                          marginBottom: "4px",
-                        }}
-                      >
-                        {js.red_flag_title}
-                      </p>
-                    )}
-                    {js.red_flag_detail && (
-                      <p
-                        style={{
-                          fontSize: "0.78rem",
-                          color: "rgba(255,255,255,0.55)",
-                          lineHeight: 1.5,
-                          whiteSpace: "pre-wrap",
-                        }}
-                      >
-                        {js.red_flag_detail}
-                      </p>
-                    )}
-                  </div>
-                )}
+                {/* Red Flags — title */}
+                <div style={{ marginBottom: "20px" }}>
+                  <p
+                    style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 700,
+                      color: "rgba(201,149,58,0.8)",
+                      marginBottom: "6px",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Hard Requirements &amp; Red Flags
+                  </p>
+                  <EditableField
+                    value={js.red_flag_title || ""}
+                    as="p"
+                    html={false}
+                    style={{
+                      fontSize: "0.82rem",
+                      fontWeight: 600,
+                      color: "rgba(255,255,255,0.8)",
+                      marginBottom: "4px",
+                    }}
+                    onUpdate={(v) => handleFieldSave("red_flag_title", v)}
+                  />
+                  <EditableField
+                    value={js.red_flag_detail || ""}
+                    as="p"
+                    html={false}
+                    style={{
+                      fontSize: "0.78rem",
+                      color: "rgba(255,255,255,0.55)",
+                      lineHeight: 1.5,
+                      whiteSpace: "pre-wrap" as const,
+                    }}
+                    onUpdate={(v) => handleFieldSave("red_flag_detail", v)}
+                  />
+                </div>
 
-                {/* Predecessor Context */}
-                {js.predecessor_context && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <p
-                      style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        color: "rgba(201,149,58,0.8)",
-                        marginBottom: "6px",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      Predecessor Context
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.78rem",
-                        color: "rgba(255,255,255,0.55)",
-                        lineHeight: 1.5,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {js.predecessor_context}
-                    </p>
-                  </div>
-                )}
-
-                {/* Candidate Messaging */}
-                {js.candidate_messaging && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <p
-                      style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        color: "rgba(201,149,58,0.8)",
-                        marginBottom: "6px",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      Candidate Messaging
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.78rem",
-                        color: "rgba(255,255,255,0.55)",
-                        lineHeight: 1.5,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {js.candidate_messaging}
-                    </p>
-                  </div>
-                )}
-
-                {/* Additional Intelligence */}
-                {js.additional_internal_notes && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <p
-                      style={{
-                        fontSize: "0.68rem",
-                        fontWeight: 700,
-                        color: "rgba(201,149,58,0.8)",
-                        marginBottom: "6px",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      Additional Intelligence
-                    </p>
-                    <p
-                      style={{
-                        fontSize: "0.78rem",
-                        color: "rgba(255,255,255,0.55)",
-                        lineHeight: 1.5,
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {js.additional_internal_notes}
-                    </p>
-                  </div>
-                )}
+                <IntelField label="Predecessor Context" value={js.predecessor_context} field="predecessor_context" onSave={handleFieldSave} />
+                <IntelField label="Candidate Messaging" value={js.candidate_messaging} field="candidate_messaging" onSave={handleFieldSave} />
+                <IntelField label="Additional Intelligence" value={js.additional_internal_notes} field="additional_internal_notes" onSave={handleFieldSave} />
               </div>
             )}
           </>
