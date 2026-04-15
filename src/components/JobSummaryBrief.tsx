@@ -442,6 +442,10 @@ export default function JobSummaryBrief({
     }
   }, [searchId]);
 
+  // ── Drag-to-reorder criteria (edit mode only) ────────────────────────────
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
   // ── Early return after all hooks ──────────────────────────────────────────
 
   if (!js) return null;
@@ -485,10 +489,6 @@ export default function JobSummaryBrief({
     const updated = [...criteria, { name: "New Criterion", detail: "", priority: "preferred" }];
     saveCriteria(updated);
   };
-
-  // ── Drag-to-reorder criteria (edit mode only) ────────────────────────────
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
   const handleCriteriaDragStart = (idx: number) => (e: React.DragEvent) => {
     setDragIdx(idx);
