@@ -1050,7 +1050,22 @@ export default function JobSummaryBrief({
                   margin: 0,
                 }}
               >
-                Intelligence by Sittin&rsquo; Pretty
+                SmartSearch &times;{" "}
+                <a
+                  href="https://sittinpretty.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "#c8c8c8",
+                    textDecoration: "none",
+                    borderBottom: "1px solid rgba(200,200,200,0.3)",
+                    transition: "border-color 0.15s",
+                  }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderBottomColor = "rgba(200,200,200,0.7)"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderBottomColor = "rgba(200,200,200,0.3)"; }}
+                >
+                  Sittin&rsquo; Pretty
+                </a>
               </p>
             </div>
 
