@@ -61,6 +61,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // Edit mode is always active when on the edit route — no toggle needed
   const editMode = isEditRoute;
   const [copiedClientLink, setCopiedClientLink] = useState(false);
+  const [showBriefShareDialog, setShowBriefShareDialog] = useState(false);
+  const [briefLocking, setBriefLocking] = useState(false);
+  const [briefShareCopied, setBriefShareCopied] = useState(false);
 
   // Auto-save IntroCard edits (status, comp alignment, etc.) from grid view
   useAutoSaveGrid(searchId, data.candidates);
@@ -482,6 +485,38 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     return () => window.removeEventListener("keydown", handler);
   }, [view, handlePrev, handleNext, handleToggleSplit]);
 
+  // ── Brief Lock & Share handler ──────────────────────────────────────────────
+  const handleBriefLockAndShare = useCallback(async () => {
+    setBriefLocking(true);
+    try {
+      const key = `brief_edit_${searchId}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const edits = JSON.parse(raw);
+        if (edits && typeof edits === "object" && Object.keys(edits).length > 0) {
+          await fetch(`/api/deck/${searchId}/brief`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(edits),
+          });
+        }
+        localStorage.removeItem(key);
+      }
+      setShowBriefShareDialog(true);
+    } catch (err) {
+      console.error("[brief-lock] Failed:", err);
+    } finally {
+      setBriefLocking(false);
+    }
+  }, [searchId]);
+
+  const handleBriefCopyLink = useCallback(() => {
+    const url = `${window.location.origin}/deck/${searchId}`;
+    navigator.clipboard.writeText(url);
+    setBriefShareCopied(true);
+    setTimeout(() => setBriefShareCopied(false), 2000);
+  }, [searchId]);
+
   // ── BRIEF VIEW ───────────────────────────────────────────────────────────────
   if (view.mode === "brief") {
     const hasActiveCandidates = orderedCandidates.length > 0;
@@ -517,6 +552,45 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--ss-gold, #c5a572)", display: "inline-block" }} />
                   <span style={{ fontSize: "11px", color: "rgba(197, 165, 114, 0.5)", letterSpacing: "0.04em" }}>Editing</span>
                 </div>
+                <button
+                  className="js-brief-lock-share-btn"
+                  onClick={handleBriefLockAndShare}
+                  disabled={briefLocking}
+                  style={{
+                    background: "rgba(197, 165, 114, 0.1)",
+                    border: "1px solid rgba(197, 165, 114, 0.35)",
+                    color: "var(--ss-gold, #c5a572)",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    cursor: briefLocking ? "wait" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    opacity: briefLocking ? 0.6 : 1,
+                  }}
+                >
+                  {briefLocking ? "Saving..." : "Lock & Share →"}
+                </button>
+                <button
+                  className="js-brief-export-btn"
+                  onClick={() => window.print()}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197, 165, 114, 0.25)",
+                    color: "rgba(197, 165, 114, 0.7)",
+                    fontSize: "12px",
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                  }}
+                >
+                  Export PDF
+                </button>
                 <a
                   href={`/deck/${searchId}`}
                   style={{
@@ -539,6 +613,108 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             )}
           </div>
         </div>
+
+        {/* ── Brief Share dialog ── */}
+        {showBriefShareDialog && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(4px)",
+            }}
+            onClick={() => setShowBriefShareDialog(false)}
+          >
+            <div
+              style={{
+                background: "#faf8f5",
+                borderRadius: "12px",
+                padding: "32px 36px",
+                maxWidth: "480px",
+                width: "90%",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <h3 className="font-cormorant" style={{ fontSize: "1.3rem", fontWeight: 600, color: "#1a1a1a", margin: 0 }}>
+                  Brief Locked
+                </h3>
+                <button
+                  onClick={() => setShowBriefShareDialog(false)}
+                  style={{ background: "none", border: "none", fontSize: "1.2rem", color: "#999", cursor: "pointer" }}
+                >
+                  &times;
+                </button>
+              </div>
+              <p style={{ fontSize: "0.82rem", color: "#6b6b6b", marginBottom: "16px", lineHeight: 1.5 }}>
+                Your edits have been saved. Share the client view link below.
+              </p>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                <input
+                  readOnly
+                  value={typeof window !== "undefined" ? `${window.location.origin}/deck/${searchId}` : ""}
+                  style={{
+                    flex: 1,
+                    padding: "10px 12px",
+                    fontSize: "0.78rem",
+                    fontFamily: "monospace",
+                    border: "1px solid #d4d2ce",
+                    borderRadius: "6px",
+                    background: "#f7f5f1",
+                    color: "#3a3a3a",
+                  }}
+                />
+                <button
+                  onClick={handleBriefCopyLink}
+                  style={{
+                    padding: "10px 18px",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    border: briefShareCopied ? "1px solid #4a7c59" : "1px solid var(--ss-gold, #c5a572)",
+                    borderRadius: "6px",
+                    background: briefShareCopied ? "rgba(74,124,89,0.1)" : "rgba(197,165,114,0.1)",
+                    color: briefShareCopied ? "#4a7c59" : "var(--ss-gold, #c5a572)",
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  {briefShareCopied ? "✓ Copied" : "Copy Link"}
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/deck/${searchId}`;
+                  const subject = encodeURIComponent(`Job Summary Brief — ${data.role_title || data.search_name}`);
+                  const body = encodeURIComponent(`Here is the Job Summary Brief:\n\n${url}\n\nThis link is confidential. Please do not share.`);
+                  window.open(`mailto:?subject=${subject}&body=${body}`, "_self");
+                }}
+                style={{
+                  width: "100%",
+                  padding: "10px 16px",
+                  fontSize: "0.82rem",
+                  fontWeight: 500,
+                  border: "1px solid #d4d2ce",
+                  borderRadius: "6px",
+                  background: "transparent",
+                  color: "#6b6b6b",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                }}
+              >
+                ✉ Send via Email
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Tab bar (State 2/3 — when candidates exist alongside brief) ── */}
         {briefAvailable && hasActiveCandidates && (

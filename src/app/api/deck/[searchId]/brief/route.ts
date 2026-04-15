@@ -6,6 +6,9 @@ export const dynamic = 'force-dynamic';
 
 /** Allowed fields that can be updated via the Brief editor. */
 const ALLOWED_FIELDS = new Set([
+  'position',
+  'location',
+  'client_display_name',
   'remit',
   'core_mission',
   'why_open',

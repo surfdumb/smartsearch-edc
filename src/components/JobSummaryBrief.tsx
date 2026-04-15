@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
@@ -25,7 +25,7 @@ function GoldRule() {
         height: "1px",
         background: "var(--ss-gold, #c5a572)",
         opacity: 0.35,
-        margin: "28px 0",
+        margin: "36px 0",
       }}
     />
   );
@@ -68,6 +68,7 @@ function BriefField({
   onSave,
   isEdit,
   style,
+  className,
   as = "p",
 }: {
   value: string;
@@ -75,22 +76,24 @@ function BriefField({
   onSave: (field: string, value: string) => void;
   isEdit: boolean;
   style?: React.CSSProperties;
-  as?: "p" | "div" | "span";
+  className?: string;
+  as?: "p" | "div" | "span" | "h1";
 }) {
   if (!value && !isEdit) return null;
   if (isEdit) {
     return (
       <EditableField
         value={value || ""}
-        as={as}
+        as={as === "h1" ? "h1" : as}
         html={false}
         style={style}
+        className={className}
         onUpdate={(v) => onSave(field, v)}
       />
     );
   }
   const Tag = as;
-  return <Tag style={style}>{value}</Tag>;
+  return <Tag style={style} className={className}>{value}</Tag>;
 }
 
 // ─── Role Profile row (editable) ────────────────────────────────────────────
@@ -179,11 +182,11 @@ function CompRow({
           value={value || ""}
           as="span"
           html={false}
-          style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const }}
+          style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const, fontVariantNumeric: "tabular-nums" }}
           onUpdate={(v) => onSave(field, v)}
         />
       ) : (
-        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a" }}>
+        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", fontVariantNumeric: "tabular-nums" }}>
           {value}
         </span>
       )}
@@ -234,6 +237,69 @@ function IntelField({
   );
 }
 
+// ─── Key Responsibilities bullet formatter ─────────────────────────────────
+
+function splitResponsibilities(text: string): string[] {
+  const raw = text.split(/\.\s+/);
+  const result: string[] = [];
+  let buffer = "";
+  for (const segment of raw) {
+    if (buffer) buffer += ". ";
+    buffer += segment;
+    if (buffer.length >= 20) {
+      result.push(buffer.endsWith(".") ? buffer : buffer);
+      buffer = "";
+    }
+  }
+  if (buffer) {
+    if (result.length > 0) {
+      result[result.length - 1] += ". " + buffer;
+    } else {
+      result.push(buffer);
+    }
+  }
+  return result;
+}
+
+function ResponsibilitiesList({ text }: { text: string }) {
+  const sentences = splitResponsibilities(text);
+  if (sentences.length <= 1) {
+    return (
+      <p style={{ fontSize: "0.85rem", color: "#3a3a3a", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>
+        {text}
+      </p>
+    );
+  }
+  return (
+    <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+      {sentences.map((s, i) => (
+        <li
+          key={i}
+          style={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "8px",
+            lineHeight: 1.6,
+            alignItems: "flex-start",
+          }}
+        >
+          <span
+            style={{
+              color: "var(--ss-gold, #c5a572)",
+              fontSize: "0.55rem",
+              marginTop: "5px",
+              flexShrink: 0,
+            }}
+          >
+            ●
+          </span>
+          <span style={{ fontSize: "0.85rem", color: "#3a3a3a" }}>{s}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function JobSummaryBrief({
@@ -245,17 +311,84 @@ export default function JobSummaryBrief({
   const js = data.job_summary_data;
   const [showIntel, setShowIntel] = useState(false);
   const [savingFields, setSavingFields] = useState<Set<string>>(new Set());
+  const [intelSaving, setIntelSaving] = useState(false);
+  const [intelSaved, setIntelSaved] = useState(false);
+
+  // ── localStorage edit persistence ────────────────────────────────────────
+  const BRIEF_EDIT_KEY = `brief_edit_${searchId}`;
+  const [showRecoverModal, setShowRecoverModal] = useState(false);
+  const [localOverrides, setLocalOverrides] = useState<Record<string, unknown>>({});
+
+  // Check for existing edits on mount (edit mode only)
+  useEffect(() => {
+    if (!isEditMode) return;
+    try {
+      const raw = localStorage.getItem(BRIEF_EDIT_KEY);
+      if (raw) {
+        const edits = JSON.parse(raw);
+        if (edits && typeof edits === "object" && Object.keys(edits).length > 0) {
+          setLocalOverrides(edits);
+          setShowRecoverModal(true);
+        }
+      }
+    } catch { /* ignore corrupt data */ }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleRecoverKeep = () => {
+    // localOverrides already set — they'll be used by getField()
+    setShowRecoverModal(false);
+  };
+
+  const handleRecoverReset = () => {
+    setLocalOverrides({});
+    try { localStorage.removeItem(BRIEF_EDIT_KEY); } catch { /* */ }
+    setShowRecoverModal(false);
+  };
+
+  // Helper to get field value with localStorage overrides
+  const getField = useCallback(
+    (serverValue: string | undefined, field: string) =>
+      localOverrides[field] !== undefined ? String(localOverrides[field]) : (serverValue || ""),
+    [localOverrides]
+  );
 
   // Local state for key criteria (supports add/remove)
   const [criteria, setCriteria] = useState<Criterion[]>(
     () => js?.key_criteria_detailed || []
   );
 
+  // Apply recovered criteria overrides
+  useEffect(() => {
+    if (localOverrides.key_criteria && Array.isArray(localOverrides.key_criteria)) {
+      setCriteria(localOverrides.key_criteria as Criterion[]);
+    }
+  }, [localOverrides]);
+
   // ── Debounced save (all hooks must be before early return) ────────────────
 
   const saveTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const intelEditsRef = useRef<Record<string, string>>({});
 
   const handleFieldSave = useCallback((field: string, value: string | unknown) => {
+    // Write to localStorage immediately
+    try {
+      const raw = localStorage.getItem(BRIEF_EDIT_KEY);
+      const edits = raw ? JSON.parse(raw) : {};
+      edits[field] = value;
+      localStorage.setItem(BRIEF_EDIT_KEY, JSON.stringify(edits));
+    } catch { /* quota exceeded */ }
+
+    // Track intel field edits in ref for Save Intelligence
+    const INTEL_FIELDS = ["red_flag_title", "red_flag_detail", "predecessor_context", "candidate_messaging", "additional_internal_notes"];
+    if (INTEL_FIELDS.includes(field)) {
+      intelEditsRef.current[field] = typeof value === "string" ? value : JSON.stringify(value);
+    }
+
+    // Update local overrides for live display
+    setLocalOverrides((prev) => ({ ...prev, [field]: value }));
+
+    // Debounced Supabase save
     const saveTimers = saveTimersRef.current;
     const existing = saveTimers.get(field);
     if (existing) clearTimeout(existing);
@@ -282,12 +415,32 @@ export default function JobSummaryBrief({
     }, 2000);
 
     saveTimers.set(field, timer);
-  }, [searchId]);
+  }, [searchId, BRIEF_EDIT_KEY]);
 
   const saveCriteria = useCallback((updated: Criterion[]) => {
     setCriteria(updated);
     handleFieldSave("key_criteria", updated);
   }, [handleFieldSave]);
+
+  const handleSaveIntelligence = useCallback(async () => {
+    setIntelSaving(true);
+    try {
+      const payload = { ...intelEditsRef.current };
+      if (Object.keys(payload).length > 0) {
+        await fetch(`/api/deck/${searchId}/brief`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+      setIntelSaved(true);
+      setTimeout(() => setIntelSaved(false), 2000);
+    } catch (err) {
+      console.error("[intel-save] Failed:", err);
+    } finally {
+      setIntelSaving(false);
+    }
+  }, [searchId]);
 
   // ── Early return after all hooks ──────────────────────────────────────────
 
@@ -333,12 +486,12 @@ export default function JobSummaryBrief({
     saveCriteria(updated);
   };
 
-  // Derive display values
+  // Derive display values (with localStorage overrides)
   const roleTitle =
-    js.position || data.role_title || data.search_name || "Role Brief";
+    getField(js.position || data.role_title || data.search_name, "position") || "Role Brief";
   const companyName =
-    data.client_display_name || data.client_company || "";
-  const flashParts = [companyName, js.revenue, data.client_location].filter(
+    getField(data.client_display_name || data.client_company, "client_display_name") || "";
+  const flashParts = [companyName, getField(js.revenue, "revenue"), getField(data.client_location, "location")].filter(
     Boolean
   );
 
@@ -349,7 +502,7 @@ export default function JobSummaryBrief({
           display: "flex",
           flex: 1,
           minHeight: 0,
-          overflow: "auto",
+          overflow: "hidden",
           background: "#1a1816",
         }}
       >
@@ -358,6 +511,7 @@ export default function JobSummaryBrief({
           className="js-brief-container"
           style={{
             flex: 1,
+            minHeight: 0,
             display: "flex",
             justifyContent: "center",
             padding: isFullPage ? "40px 24px 60px" : "32px 24px 48px",
@@ -372,7 +526,7 @@ export default function JobSummaryBrief({
               borderRadius: "12px",
               padding: "48px 56px",
               boxShadow:
-                "0 4px 24px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1)",
+                "0 4px 24px rgba(0,0,0,0.15), inset 0 0 80px rgba(197,165,114,0.03)",
               position: "relative",
             }}
           >
@@ -406,32 +560,73 @@ export default function JobSummaryBrief({
 
             <GoldRule />
 
-            {/* ── Role Title ─────────────────────────────────────── */}
-            <h1
+            {/* ── Role Title (editable) ──────────────────────────── */}
+            <BriefField
+              value={roleTitle}
+              field="position"
+              onSave={handleFieldSave}
+              isEdit={isEditMode}
+              as="h1"
               className="font-cormorant"
               style={{
-                fontSize: "2rem",
-                fontWeight: 700,
+                fontSize: "2.1rem",
+                fontWeight: 600,
                 color: "#1a1a1a",
                 lineHeight: 1.15,
                 marginBottom: "8px",
                 letterSpacing: "-0.3px",
               }}
-            >
-              {roleTitle}
-            </h1>
+            />
 
-            {/* Flash bio bar */}
-            {flashParts.length > 0 && (
-              <p
+            {/* Flash bio bar (editable segments in edit mode) */}
+            {isEditMode ? (
+              <div
                 style={{
                   fontSize: "0.88rem",
                   color: "#6b6b6b",
                   marginBottom: "0",
+                  display: "flex",
+                  alignItems: "baseline",
+                  flexWrap: "wrap",
+                  gap: "0",
                 }}
               >
-                {flashParts.join("  |  ")}
-              </p>
+                <EditableField
+                  value={companyName}
+                  as="span"
+                  html={false}
+                  style={{ fontSize: "0.88rem", color: "#6b6b6b" }}
+                  onUpdate={(v) => handleFieldSave("client_display_name", v)}
+                />
+                <span style={{ margin: "0 8px", color: "#c0c0c0" }}>|</span>
+                <EditableField
+                  value={getField(js.revenue, "revenue")}
+                  as="span"
+                  html={false}
+                  style={{ fontSize: "0.88rem", color: "#6b6b6b" }}
+                  onUpdate={(v) => handleFieldSave("revenue", v)}
+                />
+                <span style={{ margin: "0 8px", color: "#c0c0c0" }}>|</span>
+                <EditableField
+                  value={getField(data.client_location, "location")}
+                  as="span"
+                  html={false}
+                  style={{ fontSize: "0.88rem", color: "#6b6b6b" }}
+                  onUpdate={(v) => handleFieldSave("location", v)}
+                />
+              </div>
+            ) : (
+              flashParts.length > 0 && (
+                <p
+                  style={{
+                    fontSize: "0.88rem",
+                    color: "#6b6b6b",
+                    marginBottom: "0",
+                  }}
+                >
+                  {flashParts.join("  |  ")}
+                </p>
+              )
             )}
 
             <GoldRule />
@@ -441,11 +636,11 @@ export default function JobSummaryBrief({
               <>
                 <Section label="Role Profile">
                   <div>
-                    <ProfileRow label="Location" value={data.client_location} />
-                    <ProfileRow label="Line Manager" value={js.line_manager} field="line_manager" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <ProfileRow label="Team Size" value={js.team_size} field="team_size" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <ProfileRow label="Remit" value={js.remit} field="remit" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <ProfileRow label="Confidentiality" value={js.confidentiality} field="confidentiality" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Location" value={getField(data.client_location, "location")} field="location" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Line Manager" value={getField(js.line_manager, "line_manager")} field="line_manager" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Team Size" value={getField(js.team_size, "team_size")} field="team_size" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Remit" value={getField(js.remit, "remit")} field="remit" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <ProfileRow label="Confidentiality" value={getField(js.confidentiality, "confidentiality")} field="confidentiality" onSave={handleFieldSave} isEdit={isEditMode} />
                   </div>
                 </Section>
                 <GoldRule />
@@ -457,7 +652,7 @@ export default function JobSummaryBrief({
               <>
                 <Section label="Core Mission">
                   <BriefField
-                    value={js.core_mission || ""}
+                    value={getField(js.core_mission, "core_mission")}
                     field="core_mission"
                     onSave={handleFieldSave}
                     isEdit={isEditMode}
@@ -478,7 +673,7 @@ export default function JobSummaryBrief({
               <>
                 <Section label="Why Is This Role Open?">
                   <BriefField
-                    value={js.why_open || ""}
+                    value={getField(js.why_open, "why_open")}
                     field="why_open"
                     onSave={handleFieldSave}
                     isEdit={isEditMode}
@@ -513,6 +708,21 @@ export default function JobSummaryBrief({
                           marginBottom: "14px",
                           lineHeight: 1.55,
                           alignItems: "flex-start",
+                          padding: "6px 8px",
+                          borderRadius: "6px",
+                          borderLeft: "2px solid transparent",
+                          transition: "all 0.15s",
+                          marginLeft: "-10px",
+                        }}
+                        onMouseOver={(e) => {
+                          if (!isEditMode) {
+                            e.currentTarget.style.borderLeftColor = "var(--ss-gold, #c5a572)";
+                            e.currentTarget.style.background = "rgba(197,165,114,0.03)";
+                          }
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.borderLeftColor = "transparent";
+                          e.currentTarget.style.background = "transparent";
                         }}
                       >
                         <span
@@ -654,19 +864,23 @@ export default function JobSummaryBrief({
             {(js.key_responsibilities || isEditMode) && (
               <>
                 <Section label="Key Responsibilities">
-                  <BriefField
-                    value={js.key_responsibilities || ""}
-                    field="key_responsibilities"
-                    onSave={handleFieldSave}
-                    isEdit={isEditMode}
-                    as="div"
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#3a3a3a",
-                      lineHeight: 1.65,
-                      whiteSpace: "pre-wrap",
-                    }}
-                  />
+                  {isEditMode ? (
+                    <BriefField
+                      value={getField(js.key_responsibilities, "key_responsibilities")}
+                      field="key_responsibilities"
+                      onSave={handleFieldSave}
+                      isEdit={true}
+                      as="div"
+                      style={{
+                        fontSize: "0.85rem",
+                        color: "#3a3a3a",
+                        lineHeight: 1.65,
+                        whiteSpace: "pre-wrap",
+                      }}
+                    />
+                  ) : (
+                    <ResponsibilitiesList text={getField(js.key_responsibilities, "key_responsibilities")} />
+                  )}
                 </Section>
                 <GoldRule />
               </>
@@ -677,10 +891,10 @@ export default function JobSummaryBrief({
               <>
                 <Section label="Compensation">
                   <div>
-                    <CompRow label="Base Salary" value={js.budget_base} field="budget_base" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <CompRow label="Target Bonus" value={js.budget_bonus} field="budget_bonus" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <CompRow label="LTIP / MIP" value={js.budget_lti} field="budget_lti" onSave={handleFieldSave} isEdit={isEditMode} />
-                    <CompRow label="Direct Investment" value={js.budget_di} field="budget_di" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="Base Salary" value={getField(js.budget_base, "budget_base")} field="budget_base" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="Target Bonus" value={getField(js.budget_bonus, "budget_bonus")} field="budget_bonus" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="LTIP / MIP" value={getField(js.budget_lti, "budget_lti")} field="budget_lti" onSave={handleFieldSave} isEdit={isEditMode} />
+                    <CompRow label="Direct Investment" value={getField(js.budget_di, "budget_di")} field="budget_di" onSave={handleFieldSave} isEdit={isEditMode} />
                   </div>
                 </Section>
                 <GoldRule />
@@ -756,12 +970,20 @@ export default function JobSummaryBrief({
               <p
                 style={{
                   fontSize: "0.62rem",
-                  color: "#c0c0c0",
+                  color: "#b0b0b0",
+                  marginBottom: "3px",
+                }}
+              >
+                SmartSearch Executive Recruitment
+              </p>
+              <p
+                style={{
+                  fontSize: "0.58rem",
+                  color: "#c8c8c8",
                   margin: 0,
                 }}
               >
-                SmartSearch Executive Recruitment &middot;
-                smartsearchexec.com
+                Intelligence by Sittin&rsquo; Pretty
               </p>
             </div>
 
@@ -818,6 +1040,7 @@ export default function JobSummaryBrief({
                 style={{
                   width: "320px",
                   minWidth: "320px",
+                  minHeight: 0,
                   background: "rgba(45,40,36,0.95)",
                   borderLeft: "1px solid rgba(201,149,58,0.15)",
                   padding: "24px 20px",
@@ -862,7 +1085,7 @@ export default function JobSummaryBrief({
                     Hard Requirements &amp; Red Flags
                   </p>
                   <EditableField
-                    value={js.red_flag_title || ""}
+                    value={getField(js.red_flag_title, "red_flag_title")}
                     as="p"
                     html={false}
                     style={{
@@ -874,7 +1097,7 @@ export default function JobSummaryBrief({
                     onUpdate={(v) => handleFieldSave("red_flag_title", v)}
                   />
                   <EditableField
-                    value={js.red_flag_detail || ""}
+                    value={getField(js.red_flag_detail, "red_flag_detail")}
                     as="p"
                     html={false}
                     style={{
@@ -887,14 +1110,120 @@ export default function JobSummaryBrief({
                   />
                 </div>
 
-                <IntelField label="Predecessor Context" value={js.predecessor_context} field="predecessor_context" onSave={handleFieldSave} />
-                <IntelField label="Candidate Messaging" value={js.candidate_messaging} field="candidate_messaging" onSave={handleFieldSave} />
-                <IntelField label="Additional Intelligence" value={js.additional_internal_notes} field="additional_internal_notes" onSave={handleFieldSave} />
+                <IntelField label="Predecessor Context" value={getField(js.predecessor_context, "predecessor_context")} field="predecessor_context" onSave={handleFieldSave} />
+                <IntelField label="Candidate Messaging" value={getField(js.candidate_messaging, "candidate_messaging")} field="candidate_messaging" onSave={handleFieldSave} />
+                <IntelField label="Additional Intelligence" value={getField(js.additional_internal_notes, "additional_internal_notes")} field="additional_internal_notes" onSave={handleFieldSave} />
+
+                {/* Save Intelligence button */}
+                <button
+                  onClick={handleSaveIntelligence}
+                  disabled={intelSaving}
+                  style={{
+                    width: "100%",
+                    marginTop: "24px",
+                    padding: "10px 16px",
+                    background: intelSaved ? "rgba(74,124,89,0.12)" : "transparent",
+                    border: intelSaved ? "1px solid rgba(74,124,89,0.35)" : "1px solid rgba(201,149,58,0.35)",
+                    borderRadius: "8px",
+                    color: intelSaved ? "#4a7c59" : "var(--ss-yellow, #c9953a)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    cursor: intelSaving ? "wait" : "pointer",
+                    letterSpacing: "0.3px",
+                    transition: "all 0.2s",
+                    opacity: intelSaving ? 0.6 : 1,
+                  }}
+                >
+                  {intelSaved ? "✓ Saved" : intelSaving ? "Saving..." : "Save Intelligence"}
+                </button>
               </div>
             )}
           </>
         )}
       </div>
+
+      {/* ── Recovery modal (edit persistence) ─────────────────────────── */}
+      {showRecoverModal && (
+        <div
+          className="js-brief-recover-modal"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background: "rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div
+            style={{
+              background: "#faf8f5",
+              borderRadius: "12px",
+              padding: "32px 36px",
+              maxWidth: "420px",
+              width: "90%",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              textAlign: "center",
+            }}
+          >
+            <h3
+              className="font-cormorant"
+              style={{
+                fontSize: "1.35rem",
+                fontWeight: 600,
+                color: "#1a1a1a",
+                marginBottom: "12px",
+              }}
+            >
+              Unsaved Edits Found
+            </h3>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "#6b6b6b",
+                lineHeight: 1.6,
+                marginBottom: "24px",
+              }}
+            >
+              You have edits from a previous session. Would you like to restore them or start fresh from the saved version?
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button
+                onClick={handleRecoverReset}
+                style={{
+                  padding: "10px 24px",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  border: "1px solid #d4d2ce",
+                  borderRadius: "8px",
+                  background: "transparent",
+                  color: "#6b6b6b",
+                  cursor: "pointer",
+                }}
+              >
+                Reset
+              </button>
+              <button
+                onClick={handleRecoverKeep}
+                style={{
+                  padding: "10px 24px",
+                  fontSize: "0.82rem",
+                  fontWeight: 600,
+                  border: "1px solid var(--ss-gold, #c5a572)",
+                  borderRadius: "8px",
+                  background: "rgba(197,165,114,0.1)",
+                  color: "var(--ss-gold, #c5a572)",
+                  cursor: "pointer",
+                }}
+              >
+                Restore Edits
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </EditorContext.Provider>
   );
 }

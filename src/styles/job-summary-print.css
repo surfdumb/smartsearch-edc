@@ -16,7 +16,10 @@
   .js-brief-internal-panel,
   .js-brief-edit-controls,
   .js-brief-closing-banner,
-  .js-brief-back-button {
+  .js-brief-back-button,
+  .js-brief-export-btn,
+  .js-brief-lock-share-btn,
+  .js-brief-recover-modal {
     display: none !important;
   }
 
@@ -44,7 +47,7 @@
 
   /* Gold rules print as darker gold for visibility */
   .js-brief-gold-rule {
-    opacity: 0.5 !important;
+    opacity: 1 !important;
     background: #7a5f30 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
