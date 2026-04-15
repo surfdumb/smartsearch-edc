@@ -115,7 +115,7 @@ export async function POST(request: Request): Promise<NextResponse> {
             // Fields that are always client-owned (not from Engine)
             const CLIENT_OWNED = new Set([
               'status', 'photo_url', 'headline', 'compensation_alignment',
-              'motivation_hook', 'our_take_fragments', 'linkedin_url',
+              'motivation_hook', 'our_take_fragments', 'our_take', 'linkedin_url',
             ]);
 
             // Diff incoming edcData against AI base to find real edits
