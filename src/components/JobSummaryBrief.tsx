@@ -486,6 +486,42 @@ export default function JobSummaryBrief({
     saveCriteria(updated);
   };
 
+  // ── Drag-to-reorder criteria (edit mode only) ────────────────────────────
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  const handleCriteriaDragStart = (idx: number) => (e: React.DragEvent) => {
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = "move";
+    if (e.currentTarget instanceof HTMLElement) {
+      e.dataTransfer.setDragImage(e.currentTarget, e.currentTarget.offsetWidth / 2, 20);
+    }
+  };
+
+  const handleCriteriaDragOver = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragIdx !== null && idx !== dragIdx) {
+      setDragOverIdx(idx);
+    }
+  };
+
+  const handleCriteriaDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setDragOverIdx(null); return; }
+    const reordered = [...criteria];
+    const [moved] = reordered.splice(dragIdx, 1);
+    reordered.splice(idx, 0, moved);
+    saveCriteria(reordered);
+    setDragIdx(null);
+    setDragOverIdx(null);
+  };
+
+  const handleCriteriaDragEnd = () => {
+    setDragIdx(null);
+    setDragOverIdx(null);
+  };
+
   // Derive display values (with localStorage overrides)
   const roleTitle =
     getField(js.position || data.role_title || data.search_name, "position") || "Role Brief";
@@ -702,6 +738,11 @@ export default function JobSummaryBrief({
                     {criteria.map((kc, i) => (
                       <li
                         key={i}
+                        draggable={isEditMode}
+                        onDragStart={isEditMode ? handleCriteriaDragStart(i) : undefined}
+                        onDragOver={isEditMode ? handleCriteriaDragOver(i) : undefined}
+                        onDrop={isEditMode ? handleCriteriaDrop(i) : undefined}
+                        onDragEnd={isEditMode ? handleCriteriaDragEnd : undefined}
                         style={{
                           display: "flex",
                           gap: "12px",
@@ -713,6 +754,14 @@ export default function JobSummaryBrief({
                           borderLeft: "2px solid transparent",
                           transition: "all 0.15s",
                           marginLeft: "-10px",
+                          opacity: dragIdx === i ? 0.3 : 1,
+                          cursor: isEditMode ? (dragIdx === i ? "grabbing" : "grab") : undefined,
+                          borderTop: isEditMode && dragOverIdx === i && dragIdx !== null && dragIdx > i
+                            ? "2px solid var(--ss-gold, #c5a572)"
+                            : undefined,
+                          borderBottom: isEditMode && dragOverIdx === i && dragIdx !== null && dragIdx < i
+                            ? "2px solid var(--ss-gold, #c5a572)"
+                            : undefined,
                         }}
                         onMouseOver={(e) => {
                           if (!isEditMode) {
@@ -721,10 +770,28 @@ export default function JobSummaryBrief({
                           }
                         }}
                         onMouseOut={(e) => {
-                          e.currentTarget.style.borderLeftColor = "transparent";
-                          e.currentTarget.style.background = "transparent";
+                          if (!isEditMode) {
+                            e.currentTarget.style.borderLeftColor = "transparent";
+                            e.currentTarget.style.background = "transparent";
+                          }
                         }}
                       >
+                        {/* Drag handle (edit mode) */}
+                        {isEditMode && (
+                          <span
+                            style={{
+                              color: "rgba(197,165,114,0.35)",
+                              fontSize: "0.75rem",
+                              flexShrink: 0,
+                              paddingTop: "2px",
+                              cursor: "grab",
+                              userSelect: "none",
+                            }}
+                            title="Drag to reorder"
+                          >
+                            ⠿
+                          </span>
+                        )}
                         <span
                           style={{
                             color: "var(--ss-gold, #c5a572)",
