@@ -251,25 +251,7 @@ export default function JobSummaryBrief({
     () => js?.key_criteria_detailed || []
   );
 
-  if (!js) return null;
-
-  const hasCompData =
-    js.budget_base || js.budget_bonus || js.budget_lti || js.budget_di || isEditMode;
-  const hasProfileData =
-    data.client_location ||
-    js.line_manager ||
-    js.team_size ||
-    js.remit ||
-    js.confidentiality ||
-    isEditMode;
-  const hasInternalData =
-    js.red_flag_title ||
-    js.red_flag_detail ||
-    js.predecessor_context ||
-    js.candidate_messaging ||
-    js.additional_internal_notes;
-
-  // ── Debounced save ────────────────────────────────────────────────────────
+  // ── Debounced save (all hooks must be before early return) ────────────────
 
   const saveTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
@@ -302,12 +284,30 @@ export default function JobSummaryBrief({
     saveTimers.set(field, timer);
   }, [searchId]);
 
-  // ── Key criteria mutations ────────────────────────────────────────────────
-
   const saveCriteria = useCallback((updated: Criterion[]) => {
     setCriteria(updated);
     handleFieldSave("key_criteria", updated);
   }, [handleFieldSave]);
+
+  // ── Early return after all hooks ──────────────────────────────────────────
+
+  if (!js) return null;
+
+  const hasCompData =
+    js.budget_base || js.budget_bonus || js.budget_lti || js.budget_di || isEditMode;
+  const hasProfileData =
+    data.client_location ||
+    js.line_manager ||
+    js.team_size ||
+    js.remit ||
+    js.confidentiality ||
+    isEditMode;
+  const hasInternalData =
+    js.red_flag_title ||
+    js.red_flag_detail ||
+    js.predecessor_context ||
+    js.candidate_messaging ||
+    js.additional_internal_notes;
 
   const updateCriterionName = (index: number, name: string) => {
     const updated = criteria.map((c, i) =>
