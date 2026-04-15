@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import IntroCard from "@/components/deck/IntroCard";
 import DeckEDCView from "@/components/deck/DeckEDCView";
+import JobSummaryBrief from "@/components/JobSummaryBrief";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
 import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
 import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
@@ -11,6 +12,7 @@ import type { SearchContext } from "@/lib/types";
 import { useAutoSaveGrid } from "@/hooks/useAutoSave";
 
 type DeckView =
+  | { mode: "brief" }
   | { mode: "grid" }
   | { mode: "flipping"; candidateIndex: number; cardRect: DOMRect }
   | { mode: "edc"; candidateIndex: number; split: boolean };
@@ -22,10 +24,13 @@ interface DeckClientProps {
 }
 
 // Parse URL hash synchronously to avoid grid flash on EDC refresh
-function parseHashState(candidates: { candidate_id: string }[]) {
-  if (typeof window === 'undefined') return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+function parseHashState(candidates: { candidate_id: string }[], briefOnlyState?: boolean) {
+  const defaultView = briefOnlyState ? { mode: "brief" } as DeckView : { mode: "grid" } as DeckView;
+  if (typeof window === 'undefined') return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
   const hash = window.location.hash.slice(1);
-  if (!hash) return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  if (!hash) return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  // Recognise #brief as brief mode
+  if (hash === 'brief') return { view: { mode: "brief" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
   const parts = hash.split('/');
   const candidateId = parts[0];
   const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
@@ -39,12 +44,19 @@ function parseHashState(candidates: { candidate_id: string }[]) {
       candidateId,
     };
   }
-  return { view: { mode: "grid" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
 }
 
 export default function DeckClient({ data, searchId, isEditRoute = false }: DeckClientProps) {
+  // ── Brief state detection ────────────────────────────────────────────────
+  const jsInPortal = data.deck_settings?.js_in_portal === true;
+  const hasJSData = !!(data.job_summary_data?.core_mission || data.job_summary_data?.remit);
+  const briefAvailable = jsInPortal && hasJSData;
+  // State 1: Brief-only when no candidates exist at all (raw DB count, not UI-filtered)
+  const isBriefOnlyState = briefAvailable && data.candidates.length === 0;
+
   // Initialize view + panel + ourTake from URL hash synchronously (no flash)
-  const [hashInit] = useState(() => parseHashState(data.candidates));
+  const [hashInit] = useState(() => parseHashState(data.candidates, isBriefOnlyState));
   const [view, setView] = useState<DeckView>(hashInit.view);
   // Edit mode is always active when on the edit route — no toggle needed
   const editMode = isEditRoute;
@@ -337,7 +349,12 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // Build and sync URL hash with candidate + panel + ourtake state
   // Don't clear hash until cardOrder is ready (otherwise initial grid render wipes it before restore)
   const updateHash = useCallback(() => {
-    if (view.mode === "edc") {
+    if (view.mode === "brief") {
+      const hash = '#brief';
+      if (window.location.hash !== hash) {
+        window.history.replaceState(null, "", hash);
+      }
+    } else if (view.mode === "edc") {
       const candidateId = orderedCandidates[view.candidateIndex]?.candidate_id;
       if (candidateId) {
         let hash = `#${candidateId}/${currentPanelRef.current}`;
@@ -370,6 +387,10 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   useEffect(() => {
     const handler = () => {
       const hash = window.location.hash.slice(1);
+      if (hash === 'brief') {
+        setView({ mode: "brief" });
+        return;
+      }
       if (hash) {
         const parts = hash.split('/');
         const candidateId = parts[0];
@@ -460,6 +481,121 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [view, handlePrev, handleNext, handleToggleSplit]);
+
+  // ── BRIEF VIEW ───────────────────────────────────────────────────────────────
+  if (view.mode === "brief") {
+    const hasActiveCandidates = orderedCandidates.length > 0;
+    return (
+      <main data-deck-theme={theme} style={{ minHeight: "100vh", background: "#1a1816", display: "flex", flexDirection: "column" }}>
+        {/* ── Top bar ── */}
+        <div
+          className="js-brief-top-bar"
+          style={{
+            padding: "12px 24px",
+            borderBottom: "1px solid rgba(197,165,114,0.08)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexShrink: 0,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <img
+              src="/logos/smartsearch-white.png"
+              alt="SmartSearch"
+              style={{ height: "28px", opacity: 0.6 }}
+            />
+          </div>
+          <span className="font-cormorant" style={{ fontSize: "1.75rem", fontWeight: 400, letterSpacing: "0.5px", color: "rgba(197,165,114,0.75)", whiteSpace: "nowrap" }}>
+            Executive Decision
+            <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "7px" }}>Deck</span>
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {isEditRoute && (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginRight: "8px" }}>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "var(--ss-gold, #c5a572)", display: "inline-block" }} />
+                  <span style={{ fontSize: "11px", color: "rgba(197, 165, 114, 0.5)", letterSpacing: "0.04em" }}>Editing</span>
+                </div>
+                <a
+                  href={`/deck/${searchId}`}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197, 165, 114, 0.25)",
+                    color: "rgba(197, 165, 114, 0.7)",
+                    fontSize: "12px",
+                    padding: "6px 14px",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    textDecoration: "none",
+                  }}
+                >
+                  Client View
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ── Tab bar (State 2/3 — when candidates exist alongside brief) ── */}
+        {briefAvailable && hasActiveCandidates && (
+          <div
+            className="js-brief-nav-tabs"
+            style={{
+              display: "flex",
+              gap: "0",
+              borderBottom: "1px solid rgba(197,165,114,0.08)",
+              padding: "0 24px",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              onClick={() => setView({ mode: "brief" })}
+              style={{
+                padding: "10px 20px",
+                fontSize: "0.82rem",
+                fontWeight: 600,
+                color: "var(--ss-gold)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid var(--ss-gold)",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              The Brief
+            </button>
+            <button
+              onClick={() => setView({ mode: "grid" })}
+              style={{
+                padding: "10px 20px",
+                fontSize: "0.82rem",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.45)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid transparent",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              Candidates ({orderedCandidates.length})
+            </button>
+          </div>
+        )}
+
+        <JobSummaryBrief
+          data={data}
+          isEditMode={editMode}
+          searchId={searchId}
+          isFullPage={isBriefOnlyState}
+        />
+      </main>
+    );
+  }
 
   // ── FLIP ANIMATION OVERLAY ──────────────────────────────────────────────────
   if (view.mode === "flipping") {
@@ -664,6 +800,52 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
           </div>
         </div>
 
+        {/* ── Tab bar (Brief + Candidates) — only when Brief is available ── */}
+        {briefAvailable && orderedCandidates.length > 0 && (
+          <div
+            className="js-brief-nav-tabs"
+            style={{
+              display: "flex",
+              gap: "0",
+              borderBottom: "1px solid rgba(197,165,114,0.08)",
+              padding: "0 24px",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              onClick={() => setView({ mode: "brief" })}
+              style={{
+                padding: "10px 20px",
+                fontSize: "0.82rem",
+                fontWeight: 400,
+                color: "rgba(255,255,255,0.45)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid transparent",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              The Brief
+            </button>
+            <button
+              style={{
+                padding: "10px 20px",
+                fontSize: "0.82rem",
+                fontWeight: 600,
+                color: "var(--ss-gold)",
+                background: "transparent",
+                border: "none",
+                borderBottom: "2px solid var(--ss-gold)",
+                cursor: "default",
+                transition: "all 0.2s",
+              }}
+            >
+              Candidates ({orderedCandidates.length})
+            </button>
+          </div>
+        )}
+
         {/* ── Two-panel layout ── */}
         <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
           {/* ── Left panel (search context sidebar) — collapsible ── */}
@@ -765,8 +947,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             {/* Divider */}
             <div style={{ height: "1px", background: "rgba(197,165,114,0.08)", margin: "20px 0" }} />
 
-            {/* View Job Summary button — or upload prompt */}
-            {hasJobSummary ? (
+            {/* View Job Summary button — or upload prompt (hidden when Brief tab replaces it) */}
+            {briefAvailable ? null : hasJobSummary ? (
               <div style={{ marginBottom: "16px", display: "flex", flexDirection: "column", gap: "6px" }}>
                 <button
                   onClick={() => setShowJobSummary(true)}

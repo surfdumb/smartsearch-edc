@@ -173,6 +173,35 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     deck_settings: (search.deck_settings as SearchContext['deck_settings']) || undefined,
   };
 
+  // Thread raw Job Summary fields when js_in_portal is enabled
+  const ds = search.deck_settings as Record<string, unknown> | null;
+  if (ds?.js_in_portal) {
+    ctx.job_summary_data = {
+      position: (search.position as string) || undefined,
+      remit: (search.remit as string) || undefined,
+      core_mission: (search.core_mission as string) || undefined,
+      why_open: (search.why_open as string) || undefined,
+      key_responsibilities: (search.key_responsibilities as string) || undefined,
+      budget_base: (search.budget_base as string) || undefined,
+      budget_bonus: (search.budget_bonus as string) || undefined,
+      budget_lti: (search.budget_lti as string) || undefined,
+      budget_di: (search.budget_di as string) || undefined,
+      red_flag_title: (search.red_flag_title as string) || undefined,
+      red_flag_detail: (search.red_flag_detail as string) || undefined,
+      predecessor_context: (search.predecessor_context as string) || undefined,
+      candidate_messaging: (search.candidate_messaging as string) || undefined,
+      additional_internal_notes: (search.additional_internal_notes as string) || undefined,
+      confidentiality: (search.confidentiality as string) || undefined,
+      revenue: (search.revenue as string) || undefined,
+      team_size: (search.team_size as string) || undefined,
+      line_manager: (search.line_manager as string) || undefined,
+      key_criteria_detailed: (search.key_criteria as { name: string; detail?: string; priority?: string }[] | null) || undefined,
+      scope_dimensions: search.scope_dimensions || undefined,
+      alt_criteria: search.alt_criteria || undefined,
+      js_last_synced_at: (search.js_last_synced_at as string) || (search.updated_at as string) || undefined,
+    };
+  }
+
   return ctx;
 }
 

@@ -104,6 +104,32 @@ export interface EDCData {
   cv_highlights?: string[];
 }
 
+/** Raw Job Summary fields from the searches table, threaded through when js_in_portal is enabled. */
+export interface JobSummaryData {
+  position?: string;
+  remit?: string;
+  core_mission?: string;
+  why_open?: string;
+  key_responsibilities?: string;
+  budget_base?: string;
+  budget_bonus?: string;
+  budget_lti?: string;
+  budget_di?: string;
+  red_flag_title?: string;
+  red_flag_detail?: string;
+  predecessor_context?: string;
+  candidate_messaging?: string;
+  additional_internal_notes?: string;
+  confidentiality?: string;
+  revenue?: string;
+  team_size?: string;
+  line_manager?: string;
+  key_criteria_detailed?: { name: string; detail?: string; priority?: string }[];
+  scope_dimensions?: unknown;
+  alt_criteria?: unknown;
+  js_last_synced_at?: string;
+}
+
 export interface SearchContext {
   search_name: string;
   role_title?: string;
@@ -128,7 +154,10 @@ export interface SearchContext {
     scope_narrative_display: 'SHOW' | 'HIDE';
     edit_mode: boolean;
     show_linkedin?: boolean;
+    js_in_portal?: boolean;
   };
+  /** Raw Job Summary data from the searches table. Only populated when deck_settings.js_in_portal is true. */
+  job_summary_data?: JobSummaryData;
 }
 
 /**

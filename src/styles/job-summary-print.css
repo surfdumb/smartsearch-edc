@@ -1,0 +1,76 @@
+/* ─── Print styles for Job Summary Brief ─────────────────────────────────────
+ * Ctrl+P → Save as PDF produces a clean A4 document.
+ * All portal chrome, edit controls, and internal-only panels are hidden.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+@media print {
+  /* Page setup */
+  @page {
+    size: A4;
+    margin: 20mm 15mm;
+  }
+
+  /* Hide portal chrome */
+  .js-brief-top-bar,
+  .js-brief-nav-tabs,
+  .js-brief-internal-panel,
+  .js-brief-edit-controls,
+  .js-brief-closing-banner,
+  .js-brief-back-button {
+    display: none !important;
+  }
+
+  /* Reset backgrounds */
+  body {
+    background: white !important;
+  }
+
+  .js-brief-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .js-brief-container > div {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+
+  /* Gold rules print as darker gold for visibility */
+  .js-brief-gold-rule {
+    opacity: 0.5 !important;
+    background: #7a5f30 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Page break control */
+  .js-brief-section {
+    break-inside: avoid;
+  }
+
+  .js-brief-header {
+    break-after: avoid;
+  }
+
+  /* Hide editable field indicators */
+  .editable-cell {
+    cursor: default !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .edc-field__reset-dot {
+    display: none !important;
+  }
+
+  .editable-wrap {
+    border: none !important;
+  }
+}
