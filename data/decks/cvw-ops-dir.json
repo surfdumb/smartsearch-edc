@@ -1,16 +1,15 @@
 {
   "search_name": "Operations Director",
   "client_company": "Crestview Aerospace",
-  "client_display_name": "Crestview Aerospace (Kemco)",
   "client_location": "Kirkwood, Missouri, USA",
   "client_logo_url": null,
   "deck_logo_url": null,
   "search_lead": "Tara Nugent",
   "key_criteria_names": [
     "Aerospace experience",
-    "Operations background with technical credibility at the right scale",
-    "CNC and machining experience",
-    "Continuous improvement mindset and background",
+    "Operations/production experience with engineering/technical exposure/credibility",
+    "CNC machining experience",
+    "Continuous improvement experience",
     "Personality and culture fit — outgoing and personable"
   ],
   "job_summary_url": null,
@@ -27,47 +26,41 @@
       "initials": "MB",
       "candidate_name": "Marla Brown",
       "current_title": "Operations Manager",
-      "current_company": "Pro Impact Packaging",
-      "location": "St. Louis, Missouri",
+      "current_company": "Pro Impact Packaging (gap-filler role after Boeing)",
+      "location": "St. Louis, Missouri, United States",
       "photo_url": null,
-      "headline": "26-year Boeing manufacturing veteran (14+ years aerospace) in gap-filler packaging role; 787 and military platform experience.",
+      "headline": "Operations Manager with Aerospace manufacturing (Boeing);...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "Boeing QA Inspector → Boeing Ops Manager → Pro Impact (gap-filler)",
-      "industry_shorthand": "Aerospace Manufacturing (Boeing)",
+      "career_trajectory": "Aerospace manufacturing (Boeing); currently packag",
+      "industry_shorthand": "Aerospace manufacturing (Boein",
       "status": "new",
       "edc_data": {
         "candidate_name": "Marla Brown",
         "current_title": "Operations Manager",
-        "current_company": "Pro Impact Packaging",
-        "location": "St. Louis, Missouri",
+        "current_company": "Pro Impact Packaging (gap-filler role after Boeing)",
+        "location": "St. Louis, Missouri, United States",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Aerospace manufacturing (Boeing, 14+ years); currently packaging",
+            "candidate_actual": "Aerospace manufacturing (Boeing); currently packaging (gap-f",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "~70 people at peak, F-15 night shift at Boeing",
+            "candidate_actual": "Approximately 70 people at peak during F-15 program night shift leadership at Boeing",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Quality assurance and operations management; CNC depth unclear",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
             "alignment": "not_assessed"
           },
           {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "Review in edit mode",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
-            "alignment": "not_assessed"
-          },
-          {
             "scope": "Geography",
-            "candidate_actual": "St. Louis, Missouri",
+            "candidate_actual": "St. Louis, Missouri, United States",
             "role_requirement": "Kirkwood, MO (on-site)",
             "alignment": "not_assessed"
           }
@@ -76,65 +69,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>14+ years of dedicated aerospace experience at Boeing</strong> across both commercial (787 program in Charleston, 8 years) and military platforms",
-            "context_anchor": "at Boeing"
+            "evidence": "<strong>Hands-on operations leadership with 26 years manufacturing e</strong> Marla brings 14+ years of dedicated aerospace experience at Boeing across both commercial (787 program in Charleston, 8 years) and military ",
+            "context_anchor": "at Pro Impact Packaging"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>Operations Manager at Boeing for 6+ years</strong> and Quality Assurance Inspector for 8 years prior, with 26 years total manufacturing experience",
-            "context_anchor": "at Boeing"
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Hands-on operations leadership with 26 years manufacturing e</strong> Marla has clear operations leadership background as Operations Manager at Boeing for 6+ years and Quality Assurance Inspector for 8 years pr",
+            "context_anchor": "at Pro Impact Packaging"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "Review in edit mode — CNC machining depth not validated from Boeing compartmentalised operations structure",
-            "context_anchor": "at Boeing"
+            "name": "CNC machining experience",
+            "evidence": "<strong>Hands-on operations leadership with 26 years manufacturing e</strong> Marla has clear operations leadership background as Operations Manager at Boeing for 6+ years and Quality Assurance Inspector for 8 years pr",
+            "context_anchor": "at Pro Impact Packaging"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Black Belt continuous improvement credentials</strong> with quality systems background including 8 years as QA Inspector and 50% reduction in non-conformance reports",
-            "context_anchor": "at Boeing"
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Hands-on operations leadership with 26 years manufacturing e</strong> Marla brings 14+ years of dedicated aerospace experience at Boeing across both commercial (787 program in Charleston, 8 years) and military ",
+            "context_anchor": "at Pro Impact Packaging"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Exceptionally warm, enthusiastic, and personable</strong> with leadership philosophy of being 'very transparent' and building inclusive team environments",
-            "context_anchor": "at Boeing"
+            "evidence": "<strong>Hands-on operations leadership with 26 years manufacturing e</strong> Marla presents as exceptionally warm, enthusiastic, and personable throughout the interview. She describes her leadership philosophy as \"ver",
+            "context_anchor": "at Pro Impact Packaging"
           }
         ],
         "compensation": {
-          "current_base": "Not disclosed",
+          "current_base": "Current: Not discussed for Pro Impact Packaging gap-filler role. Previous Boeing",
           "current_bonus": "",
-          "current_total": "Not disclosed (previous Boeing compensation not specified)",
-          "expected_base": "$170,000",
+          "current_total": "Current: Not discussed for Pro Impact Packaging gap-filler role. Previous Boeing compensation not specified. No bonus at",
+          "expected_base": "Expected: $170k base described as \"sounds great\" and \"aligned with the market\" and \"very generous\" for Chemco's scale. A",
           "expected_bonus": "",
-          "expected_total": "$170,000 + bonus (TBD)",
-          "flexibility": "Views $170k as generous for Kemco's scale and aligned with market. Understands budget constraints at smaller company vs Boeing.",
+          "expected_total": "Expected: $170k base described as \"sounds great\" and \"aligned with the market\" and \"very generous\" for Chemco's scale. A",
+          "flexibility": "Flexibility: Marla views $170k base as generous for the opportunity and aligned with market, acknowledging the different scale from Boeing. She stated \"I understand how the whole budget works\" regardi",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "2 weeks",
+        "notice_period": "Notice Period: Two weeks. Current employer (Pro Impact Packaging) is aware of her aerospace backgrou",
         "why_interested": [
           {
-            "type": "push",
-            "headline": "Impacted by Boeing RIF",
-            "detail": "Impacted by Boeing's January 2025 workforce reduction affecting 17,000 employees; currently in gap-filler packaging role"
-          },
-          {
             "type": "pull",
-            "headline": "Return to aerospace manufacturing operations",
-            "detail": "26-year Boeing manufacturing veteran seeking return to aerospace operations after gap-filler role at Pro Impact Packaging"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "Transition from Boeing high-volume operations to low-volume high-mix environment not validated; engineering technical leadership depth unclear given compartmentalised structure at Boeing"
+          "Transition from Boeing high-volume operations to low-volume high-mix environment not validated; engineering technical leadership depth unclear given compartmentalized structure at Boeing"
         ],
         "our_take": {
           "text": "We believe Marla is a genuinely warm, inclusive leader with strong cultural fit for Kemco's tenure-driven environment and solid continuous improvement credentials. However, the transition from Boeing's high-volume operations to low-volume high-mix manufacturing and the depth of her technical credibility to challenge engineers require careful validation in next interviews."
         },
-        "our_take_fragments": [
-          "Strong cultural fit — warm, inclusive leadership matches Kemco's tenure-driven environment",
-          "14+ years Boeing aerospace but high-volume assembly, not precision CNC machining",
-          "Transition from Boeing scale to low-volume high-mix requires validation"
-        ],
-        "motivation_hook": "Seeking aerospace return after Boeing RIF",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -148,46 +132,40 @@
       "candidate_name": "Matt Stokes",
       "current_title": "Senior Operations Manager",
       "current_company": "ABM Industries",
-      "location": "Chesterfield, Missouri",
+      "location": "Chesterfield, Missouri, United States",
       "photo_url": null,
-      "headline": "28 years continuous aerospace/defense experience (USAF, Boeing) with exceptional CI credentials; currently in facilities gap-filler role.",
+      "headline": "Senior Operations Manager with Facilities services contra...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "USAF → Boeing Tooling Ops → ABM Industries (gap-filler)",
-      "industry_shorthand": "Aerospace/Defense → Facilities",
+      "career_trajectory": "Facilities services contractor providing janitoria",
+      "industry_shorthand": "Facilities services contractor",
       "status": "new",
       "edc_data": {
         "candidate_name": "Matt Stokes",
         "current_title": "Senior Operations Manager",
         "current_company": "ABM Industries",
-        "location": "Chesterfield, Missouri",
+        "location": "Chesterfield, Missouri, United States",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "28 years aerospace/defense (USAF, Boeing); currently facilities",
+            "candidate_actual": "Facilities services contractor providing janitorial operatio",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "152 heads including supervisors and managers at ABM",
+            "candidate_actual": "152 heads including 2 admins, 12 supervisors, 3 mid-level managers, 1 lead manager",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Avionics troubleshooting background; Boeing tooling supervision",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
             "alignment": "not_assessed"
           },
           {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "Built CI infrastructure from scratch; TRACC and QRM experience",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
-            "alignment": "not_assessed"
-          },
-          {
             "scope": "Geography",
-            "candidate_actual": "Chesterfield, Missouri",
+            "candidate_actual": "Chesterfield, Missouri, United States",
             "role_requirement": "Kirkwood, MO (on-site)",
             "alignment": "not_assessed"
           }
@@ -196,66 +174,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>28 years of continuous aerospace and defense experience</strong> spanning United States Air Force (1997–2001), Air National Guard, and Boeing tooling operations management",
-            "context_anchor": "at Boeing / USAF"
+            "evidence": "<strong>Exceptional continuous improvement and innovation leadership</strong> The candidate has 28 years of continuous aerospace and defense experience spanning United States Air Force (1997-2001), Air National Guard (",
+            "context_anchor": "at ABM Industries"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>Operations management across Boeing tooling operations</strong> but technical credibility in CNC machining is uncertain — supervisory rather than hands-on exposure",
-            "context_anchor": "at Boeing"
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Exceptional continuous improvement and innovation leadership</strong> The candidate comes from operations backgrounds but his technical credibility in CNC machining is uncertain. He managed Boeing tooling opera",
+            "context_anchor": "at ABM Industries"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Managed Boeing tooling operations for 8+ years</strong> with supervisory exposure to machining; hands-on background is avionics troubleshooting rather than CNC",
-            "context_anchor": "at Boeing"
+            "name": "CNC machining experience",
+            "evidence": "<strong>Exceptional continuous improvement and innovation leadership</strong> The candidate comes from operations backgrounds but his technical credibility in CNC machining is uncertain. He managed Boeing tooling opera",
+            "context_anchor": "at ABM Industries"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Exceptional CI credentials with track record of building CI infrastructure from scratch</strong> including TRACC and Quick-Response Manufacturing implementation",
-            "context_anchor": "at Boeing"
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Exceptional continuous improvement and innovation leadership</strong> The candidate has exceptional continuous improvement credentials and a track record of building CI infrastructure from the ground up. At Boe",
+            "context_anchor": "at ABM Industries"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Strong interpersonal and communication skills</strong> describing himself as collaborative and team-oriented; emphasis on soft skills aligns with CEO's priorities",
+            "evidence": "<strong>Exceptional continuous improvement and innovation leadership</strong> The candidate demonstrates strong interpersonal and communication skills aligned with the CEO's emphasis on soft skills. He described himsel",
             "context_anchor": "at ABM Industries"
           }
         ],
         "compensation": {
-          "current_base": "Not disclosed",
+          "current_base": "Not disclosed; candidate stated current role bonus has been paid out and commiss",
           "current_bonus": "",
-          "current_total": "Not disclosed",
-          "expected_base": "$160,000–$180,000",
+          "current_total": "Not disclosed; candidate stated current role bonus has been paid out and commission check received day of interview",
+          "expected_base": "$160-180K base salary range; candidate stated \"we're in range\" and \"in the ballpark\" when presented with this range and ",
           "expected_bonus": "",
-          "expected_total": "$160,000–$180,000 + bonus (TBD)",
-          "flexibility": "Compensation is not primary motivator — 'what's motivating me is the work itself.' Comfortable with $160–$175k range.",
+          "expected_total": "$160-180K base salary range; candidate stated \"we're in range\" and \"in the ballpark\" when presented with this range and ",
+          "flexibility": "Candidate stated compensation is not his primary motivator at this career stage, emphasizing \"what's motivating me is the work itself and not necessarily the money.\" He expressed comfort with the $160",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "2 weeks",
+        "notice_period": "Prefers to give as much notice as possible but acknowledges two weeks is standard; stated \"I care ab",
         "why_interested": [
           {
-            "type": "push",
-            "headline": "Current role is facilities ops, not manufacturing",
-            "detail": "Managing janitorial operations at ABM Industries — a significant step away from his 28 years of aerospace manufacturing experience"
-          },
-          {
             "type": "pull",
-            "headline": "Return to hands-on aerospace manufacturing",
-            "detail": "Compensation not primary motivator at this career stage; emphasising the work itself and return to aerospace operations leadership"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "Technical credibility gap in precision CNC machining — hands-on background is avionics troubleshooting, not machining; 8 years Boeing tooling supervision falls short of required depth. Current ABM facilities role is a significant step away from aerospace operations leadership."
+          "Technical credibility gap in precision CNC machining—candidate's hands-on background is avionics troubleshooting, not machining, and his eight years of supervisory oversight in Boeing tooling operations (29% of 28-year career) falls well short of the"
         ],
         "our_take": {
-          "text": "We believe the TRACC and Quick-Response Manufacturing experience is the critical thread — if that supervisory exposure gave him genuine CNC machining floor credibility, the conversation becomes more compelling, but if it was primarily coordination without technical depth, he's likely better suited to a different kind of operations or integration role than this one. The current ABM facilities role is a significant step away from aerospace operations leadership and warrants a clear explanation."
+          "text": "We believe the TRACC and Quick-Response Manufacturing experience is the critical thread—if that supervisory exposure gave him genuine CNC machining floor credibility, the conversation becomes more compelling, but if it was primarily coordination without technical depth, he's likely better suited to a different kind of operations or integration role than this one. The current ABM facilities role is a significant step away from aerospace operations leadership and warrants a clear explanation to un"
         },
-        "our_take_fragments": [
-          "28 years aerospace/defense continuity is the strongest in the pool",
-          "Exceptional CI credentials — built CI infrastructure from scratch",
-          "CNC machining credibility is the pivotal question — supervisory vs hands-on",
-          "Current ABM facilities role is a significant step away from aerospace"
-        ],
-        "motivation_hook": "Drawn back to manufacturing from facilities role",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -269,46 +237,40 @@
       "candidate_name": "Schon Kohnen",
       "current_title": "Head of Business Operations",
       "current_company": "Samuel, Son & Co.",
-      "location": "St. Peters, Missouri",
+      "location": "St. Peters, Missouri, United States",
       "photo_url": null,
-      "headline": "18+ years Boeing Defense operations leadership managing F-15 production; now leading aerospace parts manufacturing turnaround at Samuel.",
+      "headline": "Head of Business Operations with Aerospace parts manufact...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "Boeing Defense F-15 (18 years) → Samuel, Son & Co.",
-      "industry_shorthand": "Aerospace Parts Manufacturing",
+      "career_trajectory": "Aerospace parts manufacturing and metals distribut",
+      "industry_shorthand": "Aerospace parts manufacturing ",
       "status": "new",
       "edc_data": {
         "candidate_name": "Schon Kohnen",
         "current_title": "Head of Business Operations",
         "current_company": "Samuel, Son & Co.",
-        "location": "St. Peters, Missouri",
+        "location": "St. Peters, Missouri, United States",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "18+ years Boeing Defense; current aerospace parts at Samuel",
+            "candidate_actual": "Aerospace parts manufacturing and metals distribution/proces",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "77 people (52 union, 25 salaried) at Samuel",
+            "candidate_actual": "77 people total (52 union, 25 salaried)",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Large-scale assembly/structures; recent machining at Samuel",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
             "alignment": "not_assessed"
           },
           {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "Review in edit mode",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
-            "alignment": "not_assessed"
-          },
-          {
             "scope": "Geography",
-            "candidate_actual": "St. Peters, Missouri",
+            "candidate_actual": "St. Peters, Missouri, United States",
             "role_requirement": "Kirkwood, MO (on-site)",
             "alignment": "not_assessed"
           }
@@ -317,66 +279,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>18+ years at Boeing Defense managing F-15 and military aircraft production</strong> followed by current aerospace parts manufacturing leadership at Samuel, Son & Co.",
-            "context_anchor": "at Boeing / Samuel, Son & Co."
-          },
-          {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>25+ years manufacturing operations experience</strong> leading 77 people across union and salaried staff at Samuel with proven operational turnaround capability",
+            "evidence": "<strong>Proven operational turnaround leadership with ability to bui</strong> Kohnen has 18+ years of aerospace manufacturing operational leadership. He spent nearly 18 years at Boeing Defense (2005–2025) managing F-15",
             "context_anchor": "at Samuel, Son & Co."
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Recent machining exposure at Samuel over the past year</strong> but core expertise is large-scale aerospace assembly and structures rather than precision CNC machining",
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Proven operational turnaround leadership with ability to bui</strong> Kohnen has 18+ years of aerospace manufacturing operational leadership. He spent nearly 18 years at Boeing Defense (2005–2025) managing F-15",
             "context_anchor": "at Samuel, Son & Co."
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Six Sigma Green Belt (working toward Black Belt)</strong> hired specifically as Operational Excellence Leader to install Lean/Six Sigma systems; reduced $19M backlog to $4M in 7 months",
+            "name": "CNC machining experience",
+            "evidence": "<strong>Proven operational turnaround leadership with ability to bui</strong> Kohnen comes from a clear operations background with 25+ years of manufacturing operations experience. At Samuel, he leads 77 people across ",
+            "context_anchor": "at Samuel, Son & Co."
+          },
+          {
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Proven operational turnaround leadership with ability to bui</strong> Assessment available — review in edit mode",
             "context_anchor": "at Samuel, Son & Co."
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Strong interpersonal skills with hands-on leadership approach</strong> — 'I went and spent time on the floor, learned every single job' to build credibility with team",
+            "evidence": "<strong>Proven operational turnaround leadership with ability to bui</strong> Kohnen demonstrates strong interpersonal and communication skills throughout the interview. He described his approach at Samuel: \"I went and",
             "context_anchor": "at Samuel, Son & Co."
           }
         ],
         "compensation": {
-          "current_base": "Not disclosed (10% monthly retention bonus)",
-          "current_bonus": "10% monthly retention bonus",
-          "current_total": "Not disclosed",
-          "expected_base": "$165,000–$173,000",
+          "current_base": "Current base salary not disclosed. Currently receiving 10% monthly retention bon",
+          "current_bonus": "",
+          "current_total": "Current base salary not disclosed. Currently receiving 10% monthly retention bonus due to company closure. Total current",
+          "expected_base": "$165,000–$173,000 base salary",
           "expected_bonus": "",
-          "expected_total": "$165,000–$173,000 + bonus (TBD)",
-          "flexibility": "Aligned with Kemco's $160–$180k range — said 'that's perfect.' Acknowledged different scale from Boeing but comfortable.",
+          "expected_total": "$165,000–$173,000 base salary",
+          "flexibility": "Kohnen stated he did not want to \"lowball myself\" but confirmed his expectations of $165,000–$173,000 aligned with Chemco's range of $160,000–$180,000 base, saying \"that's perfect.\" He acknowledged \"t",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "2 weeks or less",
+        "notice_period": "2 weeks or possibly less. Kohnen stated, \"Two weeks or maybe even less... they know what's coming...",
         "why_interested": [
           {
-            "type": "push",
-            "headline": "Current employer facility closing",
-            "detail": "Samuel, Son & Co. facility is closing; currently receiving 10% monthly retention bonus during wind-down"
-          },
-          {
             "type": "pull",
-            "headline": "Aerospace operations leadership with stability",
-            "detail": "Seeking long-term aerospace operations role; no other active interview processes; location and compensation aligned"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "CNC and machining experience depth falls significantly short of requirement — core expertise in large-scale aerospace assembly/structures rather than precision machining"
+          "CNC and machining experience depth falls significantly short of the 50% career requirement, with core expertise in large-scale aerospace assembly/structures rather than precision machining."
         ],
         "our_take": {
-          "text": "We believe Kohnen presents a compelling operational leadership profile with strong aerospace credentials and proven turnaround capability, though the depth of his precision CNC and machining experience requires careful consideration. His Boeing background sits primarily in large-scale fighter jet assembly and structures rather than the precision machining environment Kemco operates in, and while he has gained machining exposure at Samuel over the past year, this represents a relatively recent development."
+          "text": "We believe Kohnen presents a compelling operational leadership profile with strong aerospace credentials and proven turnaround capability, though the depth of his precision CNC machining experience requires careful consideration. His Boeing background sits primarily in large-scale fighter jet assembly and structures rather than the precision machining environment Kemco operates in, and while he has gained machining exposure at Samuel over the past year, this represents a relatively recent develo"
         },
-        "our_take_fragments": [
-          "Strong aerospace credentials — 18+ years Boeing Defense, F-15 program",
-          "Proven turnaround capability at Samuel, Son & Co.",
-          "CNC depth gap — core expertise is assembly/structures, not precision machining",
-          "Recent machining exposure at Samuel is only ~1 year"
-        ],
-        "motivation_hook": "Current facility closing, seeking aerospace stability",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -392,10 +344,10 @@
       "current_company": "Seyer Industries, Inc.",
       "location": "Greater St. Louis, Missouri",
       "photo_url": null,
-      "headline": "Hands-on CNC machining foundation with 20 years operations leadership and standout continuous improvement credentials at aerospace scale.",
+      "headline": "Operations Manager with Aerospace manufacturing - low-vol...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "CNC Machinist (Ranken/Haas) → Plant Manager → Ops Manager (Seyer)",
-      "industry_shorthand": "Aerospace CNC Machining",
+      "career_trajectory": "Aerospace manufacturing - low-volume high-mix CNC ",
+      "industry_shorthand": "Aerospace manufacturing - low-",
       "status": "new",
       "edc_data": {
         "candidate_name": "Chad Imboden",
@@ -405,26 +357,20 @@
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Aerospace low-volume high-mix CNC machining at Seyer",
+            "candidate_actual": "Aerospace manufacturing - low-volume high-mix CNC machining,",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "~300 employees across 4 shifts at Seyer Industries",
+            "candidate_actual": "Approximately 300 employees across 4 shifts",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Hands-on CNC foundation (Ranken Technical, Haas); 20 years ops",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
-            "alignment": "not_assessed"
-          },
-          {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "20 years building CI capability from scratch across organisations",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
             "alignment": "not_assessed"
           },
           {
@@ -438,46 +384,46 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>Operations Manager at Seyer Industries for 18 months</strong> in aerospace low-volume high-mix CNC machining environment; 18 months aerospace-specific tenure",
-            "context_anchor": "at Seyer Industries"
+            "evidence": "<strong>Exceptional combination of hands-on CNC machining technical </strong> Assessment available — review in edit mode",
+            "context_anchor": "at Seyer Industries, Inc."
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>20 years operations leadership overseeing ~300 employees across 4 shifts</strong> with hands-on CNC machining foundation providing genuine technical credibility",
-            "context_anchor": "at Seyer Industries"
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Exceptional combination of hands-on CNC machining technical </strong> The candidate's aerospace experience is limited to his current role at Seyer Industries, where he has been Operations Manager for 18 months ",
+            "context_anchor": "at Seyer Industries, Inc."
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Exceptional CNC machining technical credibility from hands-on foundation</strong> at Ranken Technical College and Haas combined with 20 years of operations leadership in machining environments",
-            "context_anchor": "at Seyer Industries"
+            "name": "CNC machining experience",
+            "evidence": "<strong>Exceptional combination of hands-on CNC machining technical </strong> The candidate possesses exceptional technical credibility rooted in hands-on CNC machining foundation combined with 20 years of operations l",
+            "context_anchor": "at Seyer Industries, Inc."
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Strongest CI credentials on the shortlist with 20 years building lean capability from scratch</strong> across multiple organisations — spent several years as a dedicated lean practitioner, travelling globally to teach and implement lean processes and tools",
-            "context_anchor": "at Seyer Industries"
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Exceptional combination of hands-on CNC machining technical </strong> Assessment available — review in edit mode",
+            "context_anchor": "at Seyer Industries, Inc."
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Professional, measured, and technically articulate</strong> with a 'hockey coach' leadership style; more reserved and process-oriented than outgoing, but builds credibility through deep technical knowledge",
-            "context_anchor": "at Seyer Industries"
+            "evidence": "<strong>Exceptional combination of hands-on CNC machining technical </strong> Assessment available — review in edit mode",
+            "context_anchor": "at Seyer Industries, Inc."
           }
         ],
         "compensation": {
-          "current_base": "Not disclosed",
-          "current_bonus": "2025 bonus already paid out",
-          "current_total": "Not disclosed",
-          "expected_base": "Flexible — role fit over compensation",
+          "current_base": "Not disclosed. Candidate confirmed 2025 bonus has already paid out.",
+          "current_bonus": "",
+          "current_total": "Not disclosed. Candidate confirmed 2025 bonus has already paid out.",
+          "expected_base": "Candidate stated compensation is not the primary driver, emphasising \"at this point in my career, the goal for me is to ",
           "expected_bonus": "",
-          "expected_total": "Flexible — prioritising role fit over financial maximisation",
-          "flexibility": "Has had 'bigger roles and certainly bigger dollars' but prioritising role fit at this career stage. Not compensation-driven.",
+          "expected_total": "Candidate stated compensation is not the primary driver, emphasising \"at this point in my career, the goal for me is to ",
+          "flexibility": "Candidate demonstrated significant flexibility on compensation, explicitly stating he has had \"bigger roles and certainly bigger dollars\" but is now prioritising role fit over financial maximisation. ",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "2 weeks",
+        "notice_period": "Two weeks",
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Right-fit opportunity matching CNC and lean expertise",
-            "detail": "Focused on finding the right cultural and operational fit at this career stage — 'the goal for me is to really be focused on the right role that's a good fit'"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
@@ -486,13 +432,8 @@
         "our_take": {
           "text": "We believe this is the standout candidate for Kemco — he clears the CNC credibility filter definitively with genuine hands-on machining foundation from Ranken Technical College and Haas, and his continuous improvement credentials are the strongest of the shortlist, with 20 years building CI capability from scratch across multiple organisations. The only gap worth exploring is depth of military platform and defence programme experience given Kemco's 90% military work."
         },
-        "our_take_fragments": [
-          "Standout CNC credibility — hands-on machining from Ranken Technical and Haas",
-          "Strongest CI credentials on the shortlist — 20 years building CI from scratch",
-          "300 employees across 4 shifts at Seyer — scale match",
-          "Military platform depth is the one gap — Kemco is 90% military work"
-        ],
-        "motivation_hook": "Seeking right cultural and operational fit",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -504,43 +445,37 @@
       "candidate_id": "david-barber",
       "initials": "DB",
       "candidate_name": "David Barber",
-      "current_title": "Senior Operations Leader",
-      "current_company": "Boeing (recently departed)",
+      "current_title": "Most recent position at Boeing (specific title not stated in transcript)",
+      "current_company": "Boeing (departed 3 weeks prior to interview)",
       "location": "O'Fallon, Missouri",
       "photo_url": null,
-      "headline": "18+ years Boeing operations with $64M cost accountability and exceptional CI results; local to St. Louis and immediately available.",
+      "headline": "Most recent position at Boeing (specific title not stated...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "Boeing Operations (18+ years) → Recently departed",
-      "industry_shorthand": "Aerospace Manufacturing (Boeing)",
+      "career_trajectory": "Aerospace manufacturing - large-scale OEM assembly",
+      "industry_shorthand": "Aerospace manufacturing - larg",
       "status": "new",
       "edc_data": {
         "candidate_name": "David Barber",
-        "current_title": "Senior Operations Leader",
-        "current_company": "Boeing (recently departed)",
+        "current_title": "Most recent position at Boeing (specific title not stated in transcript)",
+        "current_company": "Boeing (departed 3 weeks prior to interview)",
         "location": "O'Fallon, Missouri",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Aerospace manufacturing (Boeing, 18+ years); commercial + military",
+            "candidate_actual": "Aerospace manufacturing - large-scale OEM assembly operation",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "200+ employees, $64M cost accountability at Boeing",
+            "candidate_actual": "200+ employees under direct oversight",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Large-scale assembly; supplier consulting exposure to machining",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
-            "alignment": "not_assessed"
-          },
-          {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "Exceptional CI — reduced 787 production cycle time significantly",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
             "alignment": "not_assessed"
           },
           {
@@ -554,66 +489,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>18+ years of 100% aerospace-focused experience at Boeing</strong> spanning both commercial and military platforms at one of the world's leading OEMs",
+            "evidence": "<strong>Exceptional continuous improvement track record with quantif</strong> Barber presents 18+ years of 100% aerospace-focused experience at Boeing, one of the world's leading aerospace OEMs. His exposure spans both",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>Business unit-level leadership of 200+ employees with $64M cost accountability</strong> across Boeing commercial and military operations",
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Exceptional continuous improvement track record with quantif</strong> Barber clearly comes from an operations background with business unit-level leadership of 200+ employees and $64 million cost accountability",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Entire career in large-scale assembly operations</strong> with only supplier consulting exposure to machining — no direct CNC operational management experience",
+            "name": "CNC machining experience",
+            "evidence": "<strong>Exceptional continuous improvement track record with quantif</strong> Barber clearly comes from an operations background with business unit-level leadership of 200+ employees and $64 million cost accountability",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Exceptional CI track record — reduced 787 production cycle time</strong> with quantified improvement outcomes across Boeing commercial programmes",
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Exceptional continuous improvement track record with quantif</strong> This was already identified as an alternate criterion in the Job Summary, but Barber's track record is exceptional. He reduced 787 productio",
             "context_anchor": "at Boeing"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Strong communication skills and personable demeanor</strong> with proactive engagement throughout the interview process",
+            "evidence": "<strong>Exceptional continuous improvement track record with quantif</strong> Barber demonstrated strong communication skills and personable demeanor throughout the interview. He proactively engaged with questions abou",
             "context_anchor": "at Boeing"
           }
         ],
         "compensation": {
-          "current_base": "$151,000 + bonus",
-          "current_bonus": "Bonus (amount not specified)",
-          "current_total": "$151,000 + bonus",
-          "expected_base": "Mid-$150,000s–$165,000",
+          "current_base": "$151,000 base + bonuses (bonus amount not specified)",
+          "current_bonus": "",
+          "current_total": "$151,000 base + bonuses (bonus amount not specified)",
+          "expected_base": "Mid-$100s base salary; candidate stated willingness to accept slight reduction from current $151k \"with the right job gr",
           "expected_bonus": "",
-          "expected_total": "Mid-$150,000s–$165,000 + bonus (TBD)",
-          "flexibility": "Open to slight reduction from $151k for the right growth opportunity. Comfortable with Kemco's $160–$165k range.",
+          "expected_total": "Mid-$100s base salary; candidate stated willingness to accept slight reduction from current $151k \"with the right job gr",
+          "flexibility": "Open to going down slightly from current $151k base for the right growth opportunity. Expressed comfort with Chemco's $160-165k range, indicating flexibility and alignment with opportunity value over ",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "Immediately available",
+        "notice_period": "No notice period required - immediately available",
         "why_interested": [
           {
-            "type": "push",
-            "headline": "Recently departed Boeing",
-            "detail": "Departed Boeing via mutual agreement 3 weeks prior to interview; immediately available"
-          },
-          {
             "type": "pull",
-            "headline": "Growth opportunity at right-sized operation",
-            "detail": "Open to slight reduction from current $151k for the right growth opportunity; comfortable with Kemco's compensation range"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "Lacks direct CNC and precision machining operational management experience — entire career in large-scale assembly operations with only supplier consulting exposure to machining"
+          "Lacks direct CNC and precision machining operational management experience—entire career in large-scale assembly operations with only supplier consulting exposure to machining"
         ],
         "our_take": {
-          "text": "We believe Barber is worth a conversation, but the CNC machining filter is the pivotal question. While he brings strong aerospace credentials, impressive continuous improvement outcomes, and is local to St. Louis with immediate availability, his entire career has been in large-scale Boeing assembly operations rather than precision CNC machining — the hard requirement for this role. Compared to other candidates like Chad Imboden who clear the CNC filter definitively, Barber's technical depth in machining remains unproven."
+          "text": "We believe Barber is worth a conversation, but the CNC machining filter is the pivotal question. While he brings strong aerospace credentials, impressive continuous improvement outcomes, and is local to St. Louis with immediate availability, his entire career has been in large-scale Boeing assembly operations rather than precision CNC machining—the hard requirement for this role. Compared to other candidates like Chad Imboden who clear the CNC filter definitively, Barber's technical depth in mac"
         },
-        "our_take_fragments": [
-          "Strong aerospace credentials — 18+ years, 100% Boeing-focused",
-          "Exceptional CI track record — 787 production cycle time reduction",
-          "CNC filter is pivotal — entire career in assembly, not precision machining",
-          "Immediately available and local to St. Louis"
-        ],
-        "motivation_hook": "Recently departed Boeing, seeking growth opportunity",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -627,46 +552,40 @@
       "candidate_name": "Brandon Harris",
       "current_title": "Vice President of Business Development",
       "current_company": "LaGesse Products",
-      "location": "Greater St. Louis, Missouri",
+      "location": "Greater St. Louis, Missouri, United States",
       "photo_url": null,
-      "headline": "Most technically credible CNC candidate in the pool with genuine operational turnaround results at precision machining scale.",
+      "headline": "Vice President of Business Development with Precision mac...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "CNC Machinist → ORCO President → LaGesse VP Business Development",
-      "industry_shorthand": "Precision Machining & Fabrication",
+      "career_trajectory": "Precision machining and fabrication",
+      "industry_shorthand": "Precision machining and fabric",
       "status": "new",
       "edc_data": {
         "candidate_name": "Brandon Harris",
         "current_title": "Vice President of Business Development",
         "current_company": "LaGesse Products",
-        "location": "Greater St. Louis, Missouri",
+        "location": "Greater St. Louis, Missouri, United States",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Precision machining/fabrication; business aviation (ORCO, LaGesse)",
+            "candidate_actual": "Precision machining and fabrication",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "2 direct reports in current BD role; prior ops leadership at ORCO",
+            "candidate_actual": "2 direct reports (Business Development Representatives)",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Exceptional CNC machining and programming credibility",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
             "alignment": "not_assessed"
           },
           {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "Lean-heavy CI experience from Seyer Industries",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
-            "alignment": "not_assessed"
-          },
-          {
             "scope": "Geography",
-            "candidate_actual": "Greater St. Louis, Missouri",
+            "candidate_actual": "Greater St. Louis, Missouri, United States",
             "role_requirement": "Kirkwood, MO (on-site)",
             "alignment": "not_assessed"
           }
@@ -675,66 +594,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>Aerospace experience throughout career primarily in business aviation</strong> serving Gulfstream and similar customers at ORCO Precision Machine",
-            "context_anchor": "at ORCO Precision Machine"
+            "evidence": "<strong>Exceptional technical credibility in CNC machining and progr</strong> Harris has aerospace experience throughout his career, primarily in business aviation. At ORCO Precision Machine, his customers included Gul",
+            "context_anchor": "at LaGesse Products"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>President of ORCO Precision Machine with operational turnaround results</strong> at precision machining scale plus current VP role at LaGesse Products",
-            "context_anchor": "at ORCO Precision Machine"
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Exceptional technical credibility in CNC machining and progr</strong> Harris has aerospace experience throughout his career, primarily in business aviation. At ORCO Precision Machine, his customers included Gul",
+            "context_anchor": "at LaGesse Products"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Exceptional technical credibility in CNC machining and programming</strong> with hands-on precision machining experience across career at ORCO and LaGesse",
-            "context_anchor": "at ORCO / LaGesse Products"
+            "name": "CNC machining experience",
+            "evidence": "<strong>Exceptional technical credibility in CNC machining and progr</strong> Harris has aerospace experience throughout his career, primarily in business aviation. At ORCO Precision Machine, his customers included Gul",
+            "context_anchor": "at LaGesse Products"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Substantial CI experience from Seyer Industries</strong> which he described as 'very lean-heavy' with structured continuous improvement implementation",
-            "context_anchor": "at Seyer Industries"
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Exceptional technical credibility in CNC machining and progr</strong> Harris has substantial continuous improvement experience, particularly from his time at Seyer Industries, which he described as \"very lean h",
+            "context_anchor": "at LaGesse Products"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Strong interpersonal and customer-facing skills</strong> as President of ORCO handling client relationships directly with hands-on leadership style",
-            "context_anchor": "at ORCO Precision Machine"
+            "evidence": "<strong>Exceptional technical credibility in CNC machining and progr</strong> Harris demonstrates strong interpersonal and communication skills evidenced by his customer-facing roles. As President of ORCO, he stated he",
+            "context_anchor": "at LaGesse Products"
           }
         ],
         "compensation": {
           "current_base": "Not disclosed",
           "current_bonus": "",
           "current_total": "Not disclosed",
-          "expected_base": "$150,000–$180,000 + bonus",
+          "expected_base": "$150,000 - $180,000 base salary + bonus",
           "expected_bonus": "",
-          "expected_total": "$150,000–$180,000 + bonus",
-          "flexibility": "Has historically undercompensated himself; looking for fair market value. Open to negotiation on bonus structure.",
+          "expected_total": "$150,000 - $180,000 base salary + bonus",
+          "flexibility": "Candidate acknowledged he has historically undercompensated himself and is looking for fair market value. Expressed openness to negotiation on bonus structure and asked about compensation protection i",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "3–4 weeks",
+        "notice_period": "3-4 weeks preferred, though candidate stated this is not strictly necessary and could be flexible if",
         "why_interested": [
           {
-            "type": "push",
-            "headline": "Missing hands-on operations in current BD role",
-            "detail": "Currently in VP Business Development at LaGesse Products — misses operations and wants to get back to improving things on the floor"
-          },
-          {
             "type": "pull",
-            "headline": "Return to operations leadership with CNC focus",
-            "detail": "Knows the Kemco family and has worked with them before; drawn to precision machining operations role matching his career-long CNC background"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "Limited military platform and defence customer depth in a role where 90% of work is military, combined with short tenure at most recent operations role and unclear rationale for pivot to sales"
+          "Limited military platform and defence customer depth in a role where 90% of work is military, combined with short tenure at most recent operations role and unclear rationale for pivot to sales."
         ],
         "our_take": {
           "text": "We believe Harris is the most technically credible CNC and machining candidate in the pool, with genuine operational turnaround results at the right scale, though his military platform depth and the rationale behind his current sales role pivot require further exploration."
         },
-        "our_take_fragments": [
-          "Most technically credible CNC candidate in the pool",
-          "Genuine operational turnaround results at precision machining scale (ORCO)",
-          "Military platform depth is a gap — 90% of Kemco work is military",
-          "Current sales role pivot rationale needs exploration"
-        ],
-        "motivation_hook": "Misses operations, drawn back from business development",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -750,10 +659,10 @@
       "current_company": "Boeing",
       "location": "Clayton, Missouri",
       "photo_url": null,
-      "headline": "Entire career in aerospace manufacturing from Boeing mechanic to Manufacturing Manager on F-15 military platform; 38 direct reports.",
+      "headline": "Manufacturing Manager with Aerospace manufacturing (milit...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "Boeing Mechanic → Program Manager → Manufacturing Manager",
-      "industry_shorthand": "Aerospace Manufacturing (Boeing)",
+      "career_trajectory": "Aerospace manufacturing (military platforms - F-15",
+      "industry_shorthand": "Aerospace manufacturing (milit",
       "status": "new",
       "edc_data": {
         "candidate_name": "Anthony Cazenave",
@@ -763,26 +672,20 @@
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Aerospace manufacturing (Boeing, entire career); F-15 military",
+            "candidate_actual": "Aerospace manufacturing (military platforms - F-15 centre in",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "38 union shop floor workers at Boeing",
+            "candidate_actual": "38 shop floor union workers (direct reports)",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Hands-on shop floor; CNC/machining depth ~20% of career",
-            "role_requirement": "CNC machining + engineering credibility",
-            "alignment": "not_assessed"
-          },
-          {
-            "scope": "Improvement Methodology",
             "candidate_actual": "Review in edit mode",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
+            "role_requirement": "CNC machining + engineering credibility",
             "alignment": "not_assessed"
           },
           {
@@ -796,61 +699,56 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>Entire career in aerospace manufacturing at Boeing</strong> starting as mechanic in Seattle (2012), progressing to Manufacturing Manager on F-15 centre fuselage production",
+            "evidence": "<strong>Entire career in aerospace manufacturing with hands-on shop </strong> Cazenave's entire career has been in aerospace manufacturing. He started at Boeing in 2012 as a Mechanic in Seattle, progressed to Program M",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>Progressed from mechanic to Manufacturing Manager at Boeing</strong> with hands-on shop floor leadership and 38 direct union reports on military platform",
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Entire career in aerospace manufacturing with hands-on shop </strong> Cazenave's entire career has been in aerospace manufacturing. He started at Boeing in 2012 as a Mechanic in Seattle, progressed to Program M",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Hands-on shop floor background at Boeing</strong> but CNC and machining depth limited to approximately 20% of career experience vs required 50%+",
+            "name": "CNC machining experience",
+            "evidence": "<strong>Entire career in aerospace manufacturing with hands-on shop </strong> Cazenave's entire career has been in aerospace manufacturing. He started at Boeing in 2012 as a Mechanic in Seattle, progressed to Program M",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "Review in edit mode",
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Entire career in aerospace manufacturing with hands-on shop </strong> Cazenave's entire career has been in aerospace manufacturing. He started at Boeing in 2012 as a Mechanic in Seattle, progressed to Program M",
             "context_anchor": "at Boeing"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "<strong>Warm and open leadership style</strong> — 'I'm a firm believer you get your workers what they need, they're happy, they take care of you'",
+            "evidence": "<strong>Entire career in aerospace manufacturing with hands-on shop </strong> Cazenave presented as warm and open during the interview, stating 'I'm a firm believer you get your workers what they need, they're happy th",
             "context_anchor": "at Boeing"
           }
         ],
         "compensation": {
-          "current_base": "$140,000 + bonus",
-          "current_bonus": "Bonus (amount not specified)",
-          "current_total": "$140,000 + bonus",
-          "expected_base": "$160,000 + bonus",
+          "current_base": "$140,000 base + bonus (bonus amount not specified)",
+          "current_bonus": "",
+          "current_total": "$140,000 base + bonus (bonus amount not specified)",
+          "expected_base": "$160,000 base + bonus",
           "expected_bonus": "",
-          "expected_total": "$160,000 + bonus",
-          "flexibility": "No specific flexibility or deal-breakers expressed. Accepted $160k target without pushback.",
+          "expected_total": "$160,000 base + bonus",
+          "flexibility": "Cazenave did not express specific flexibility or deal-breakers on compensation. The $160,000 base target appears acceptable ('Okay' was his response when informed of the target). No discussion of bonu",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
         "notice_period": "2 weeks",
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Growth beyond Manufacturing Manager scope",
-            "detail": "Exploring step up from Boeing Manufacturing Manager to Operations Director level; strong local ties to St. Louis area due to family"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
-          "Limited CNC/machining depth (~20% vs required 50%+ of career) and less polished executive presence may undermine technical credibility and customer-facing effectiveness required for business unit-level Operations Director role"
+          "Limited CNC/machining depth (~20% vs. required 50%+ of career) and less polished executive presence may undermine technical credibility and customer-facing effectiveness required for business unit-level Operations Director role"
         ],
         "our_take": {
           "text": "We believe Cazenave is a solid shop floor operator with genuine aerospace credentials, but may lack the polish and strategic scope Kemco needs for a customer-facing, business unit-level operations director role. His presentation and communication style may not project the seniority required."
         },
-        "our_take_fragments": [
-          "Genuine aerospace credentials — entire career at Boeing on military platforms",
-          "Solid shop floor operator with hands-on, people-first approach",
-          "May lack polish for customer-facing operations director role",
-          "CNC depth limited to ~20% of career"
-        ],
-        "motivation_hook": "Exploring growth beyond current Boeing scope",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
@@ -862,43 +760,37 @@
       "candidate_id": "nicholas-hummel",
       "initials": "NH",
       "candidate_name": "Nicholas Hummel",
-      "current_title": "Senior Operations Manager — Manufacturing and Safety",
+      "current_title": "Senior Operations Manager - Manufacturing and Safety",
       "current_company": "Boeing",
       "location": "Greater St. Louis",
       "photo_url": null,
-      "headline": "Strong lean credentials (VSM, 5S, Kaizen) at Boeing F/A-18 with formal IE education and 100+ headcount operations leadership.",
+      "headline": "Senior Operations Manager - Manufacturing and Safety with...",
       "compensation_alignment": "not_set",
-      "career_trajectory": "Industrial Engineer → Ops Manager → Sr Ops Manager (Boeing)",
-      "industry_shorthand": "Aerospace Manufacturing (Boeing)",
+      "career_trajectory": "Aerospace manufacturing - F/A-18 military aircraft",
+      "industry_shorthand": "Aerospace manufacturing - F/A-",
       "status": "new",
       "edc_data": {
         "candidate_name": "Nicholas Hummel",
-        "current_title": "Senior Operations Manager — Manufacturing and Safety",
+        "current_title": "Senior Operations Manager - Manufacturing and Safety",
         "current_company": "Boeing",
         "location": "Greater St. Louis",
         "scope_match": [
           {
             "scope": "Industry Context",
-            "candidate_actual": "Aerospace manufacturing (Boeing F/A-18, 6+ years)",
+            "candidate_actual": "Aerospace manufacturing - F/A-18 military aircraft productio",
             "role_requirement": "Aerospace manufacturing (Kemco/Crestview)",
             "alignment": "not_assessed"
           },
           {
             "scope": "Operations Scale",
-            "candidate_actual": "100+ employees across multiple shifts at Boeing",
+            "candidate_actual": "100+ employees across multiple shifts",
             "role_requirement": "Full site operations, 100+ headcount",
             "alignment": "not_assessed"
           },
           {
             "scope": "Technical Depth",
-            "candidate_actual": "Formal IE degree; lacks hands-on CNC machining depth",
+            "candidate_actual": "Review in edit mode",
             "role_requirement": "CNC machining + engineering credibility",
-            "alignment": "not_assessed"
-          },
-          {
-            "scope": "Improvement Methodology",
-            "candidate_actual": "VSM, 5S, Kaizen implementation; sponsored lean transformation",
-            "role_requirement": "CI/Lean/Six Sigma implementation",
             "alignment": "not_assessed"
           },
           {
@@ -912,46 +804,46 @@
         "key_criteria": [
           {
             "name": "Aerospace experience",
-            "evidence": "<strong>6+ years dedicated aerospace experience at Boeing on F/A-18 military platform</strong> progressing from Industrial Engineer to Senior Operations Manager",
+            "evidence": "<strong>Strong continuous improvement credentials with hands-on VSM,</strong> Hummel has 6+ years of dedicated aerospace experience at Boeing on the F/A-18 military aircraft platform. At Boeing, he progressed from Indu",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Operations background with technical credibility at the right scale",
-            "evidence": "<strong>Senior Operations Manager overseeing 100+ employees across multiple shifts</strong> on the F/A-18 platform with formal Industrial Engineering degree",
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "<strong>Strong continuous improvement credentials with hands-on VSM,</strong> Hummel has 6+ years of dedicated aerospace experience at Boeing on the F/A-18 military aircraft platform. At Boeing, he progressed from Indu",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "CNC and machining experience",
-            "evidence": "<strong>Formal Industrial Engineering background (B.E.)</strong> with strong technical foundations but lacks hands-on CNC machining depth for precision machining environment",
+            "name": "CNC machining experience",
+            "evidence": "<strong>Strong continuous improvement credentials with hands-on VSM,</strong> Hummel comes from a formal operations background with strong technical foundations. He holds a B.E. in Industrial and Manufacturing Systems ",
             "context_anchor": "at Boeing"
           },
           {
-            "name": "Continuous improvement mindset and background",
-            "evidence": "<strong>Extensive CI credentials with VSM, 5S, and Kaizen implementation</strong> at Boeing; sponsored and led lean transformation initiatives on F/A-18 programme",
+            "name": "Continuous improvement experience",
+            "evidence": "<strong>Strong continuous improvement credentials with hands-on VSM,</strong> Hummel brings extensive continuous improvement credentials that align well with Chemco's early-stage lean transformation. At Boeing, he spon",
             "context_anchor": "at Boeing"
           },
           {
             "name": "Personality and culture fit — outgoing and personable",
-            "evidence": "Limited direct evidence from transcript — described as engaged but interpersonal style and energy level require further assessment",
+            "evidence": "<strong>Strong continuous improvement credentials with hands-on VSM,</strong> The transcript provides limited direct evidence of Hummel's interpersonal style and customer-facing capabilities. The manual notes describe ",
             "context_anchor": "at Boeing"
           }
         ],
         "compensation": {
-          "current_base": "~$165,000 (implied — $170k is 'slight improvement')",
-          "current_bonus": "16% target",
-          "current_total": "~$190,000 (base + 16% bonus)",
-          "expected_base": "$170,000",
-          "expected_bonus": "Interested in negotiating bonus structure",
-          "expected_total": "$170,000 + bonus (TBD)",
-          "flexibility": "Open to $170k base. No deal-breakers articulated. Interested in understanding full bonus structure.",
+          "current_base": "Base salary not disclosed; would see $170k as \"a slight improvement.\" Bonus at 1",
+          "current_bonus": "",
+          "current_total": "Base salary not disclosed; would see $170k as \"a slight improvement.\" Bonus at 16% target, variable up or down based on ",
+          "expected_base": "$170k base salary discussed by recruiter; Hummel confirmed this would be \"a slight improvement\" and expressed interest i",
+          "expected_bonus": "",
+          "expected_total": "$170k base salary discussed by recruiter; Hummel confirmed this would be \"a slight improvement\" and expressed interest i",
+          "flexibility": "Hummel expressed openness to the $170k base salary figure and interest in negotiating bonus structure. No deal-breakers or constraints articulated. Demonstrated flexibility by asking questions to unde",
           "budget_range": "$160,000–$175,000 base + bonus (TBD)"
         },
-        "notice_period": "2 weeks",
+        "notice_period": "Two weeks is fine",
         "why_interested": [
           {
             "type": "pull",
-            "headline": "Smaller company culture and direct impact",
-            "detail": "Attracted to smaller company feel — 'you get more of a family feel at places like that, which can be a positive'; wants more direct ownership and impact"
+            "headline": "Opportunity details in assessment",
+            "detail": ""
           }
         ],
         "potential_concerns": [
@@ -960,13 +852,8 @@
         "our_take": {
           "text": "We believe Hummel's lean credentials and operations leadership experience are strong, but the CNC machining gap is fundamental and his energy level may not match the outgoing, customer-facing profile Kemco needs. Worth exploring further but significant concerns remain around technical credibility in precision machining and cultural fit."
         },
-        "our_take_fragments": [
-          "Strong lean credentials — VSM, 5S, Kaizen implementation at Boeing",
-          "100+ headcount on F/A-18 — scale match for Kemco",
-          "CNC machining gap is fundamental for precision environment",
-          "Energy level and cultural fit are concerns for customer-facing role"
-        ],
-        "motivation_hook": "Attracted to smaller company culture and direct impact",
+        "our_take_fragments": [],
+        "motivation_hook": "",
         "status": "new",
         "search_name": "Crestview Aerospace",
         "role_title": "Operations Director",
