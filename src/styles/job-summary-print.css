@@ -76,4 +76,11 @@
   .editable-wrap {
     border: none !important;
   }
+
+  /* Footer collab line: plain text in print, no link styling */
+  .js-brief-footer-collab a {
+    color: #c8c8c8 !important;
+    text-decoration: none !important;
+    pointer-events: none;
+  }
 }

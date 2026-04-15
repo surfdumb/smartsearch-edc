@@ -1035,22 +1035,15 @@ export default function JobSummaryBrief({
                 </p>
               )}
               <p
+                className="js-brief-footer-collab"
                 style={{
                   fontSize: "0.62rem",
                   color: "#b0b0b0",
-                  marginBottom: "3px",
-                }}
-              >
-                SmartSearch Executive Recruitment
-              </p>
-              <p
-                style={{
-                  fontSize: "0.58rem",
-                  color: "#c8c8c8",
                   margin: 0,
                 }}
               >
-                SmartSearch &times;{" "}
+                SmartSearch
+                <span style={{ color: "#c8c8c8" }}>{" "}x{" "}</span>
                 <a
                   href="https://sittinpretty.io"
                   target="_blank"
@@ -1058,11 +1051,10 @@ export default function JobSummaryBrief({
                   style={{
                     color: "#c8c8c8",
                     textDecoration: "none",
-                    borderBottom: "1px solid rgba(200,200,200,0.3)",
-                    transition: "border-color 0.15s",
+                    transition: "color 0.2s",
                   }}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderBottomColor = "rgba(200,200,200,0.7)"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.borderBottomColor = "rgba(200,200,200,0.3)"; }}
+                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#c5a572"; }}
+                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#c8c8c8"; }}
                 >
                   Sittin&rsquo; Pretty
                 </a>

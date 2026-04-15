@@ -1737,6 +1737,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   // ── EDC VIEW ────────────────────────────────────────────────────────────────
   const candidate = orderedCandidates[view.candidateIndex];
+  if (!candidate) return null;
   const prevCandidate = view.candidateIndex > 0
     ? orderedCandidates[view.candidateIndex - 1]
     : undefined;
