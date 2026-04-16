@@ -164,6 +164,7 @@ export default function EDCCard({
     (data.our_take?.text && data.our_take.text.trim().length > 0);
 
   // Our Take overlay: shows Our Take as a full-panel cover on first open
+  const PLACEHOLDER_TEXT = "Our take will be added following consultant review";
   const ourTakeText = data.our_take?.text?.trim() || "";
   const hasRealFragments = (data.our_take_fragments?.length ?? 0) > 0;
   const hasRealText = ourTakeText.length > 0 && !ourTakeText.includes(PLACEHOLDER_TEXT);
