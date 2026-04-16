@@ -164,12 +164,11 @@ export default function EDCCard({
     (data.our_take?.text && data.our_take.text.trim().length > 0);
 
   // Our Take overlay: shows Our Take as a full-panel cover on first open
-  const PLACEHOLDER_TEXT = "Our take will be added following consultant review";
   const ourTakeText = data.our_take?.text?.trim() || "";
-  const hasRealOurTake = hasOurTake
-    && ourTakeText.length > 0
-    && !ourTakeText.includes(PLACEHOLDER_TEXT)
-    && deckSettings?.our_take_display !== 'HIDE';
+  const hasRealFragments = (data.our_take_fragments?.length ?? 0) > 0;
+  const hasRealText = ourTakeText.length > 0 && !ourTakeText.includes(PLACEHOLDER_TEXT);
+  const hasRealOurTake = (hasRealFragments || hasRealText)
+  && deckSettings?.our_take_display !== 'HIDE';
 
   // Overlay only in client view (not edit mode) — edit mode uses the editable popover
   const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(
