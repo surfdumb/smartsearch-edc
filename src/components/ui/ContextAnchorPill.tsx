@@ -15,6 +15,8 @@ export default function ContextAnchorPill({ text }: ContextAnchorPillProps) {
         whiteSpace: "normal",
         overflowWrap: "break-word",
         wordBreak: "break-word",
+        maxWidth: "220px",
+        flexShrink: 0,
       }}
     >
       {text}

@@ -359,15 +359,25 @@ export default function Compensation({ compensation, notice_period, candidateId 
     letterSpacing: "1.5px",
     textTransform: "uppercase",
     color: "#8a8a8a",
+    wordBreak: "break-word",
+    overflowWrap: "break-word",
+    alignSelf: "start",
   };
 
   const valStyle: React.CSSProperties = {
     fontSize: "0.95rem",
     fontWeight: 500,
     color: "var(--ss-dark)",
+    wordBreak: "break-word",
+    overflowWrap: "break-word",
+    alignSelf: "start",
   };
 
-  const cols = hasBudget ? "120px 1fr 1fr 1fr" : "120px 1fr 1fr";
+  // minmax(0, 1fr) forces children to respect column width so long values wrap
+  // rather than push the row wider than the card.
+  const cols = hasBudget
+    ? "120px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)"
+    : "120px minmax(0, 1fr) minmax(0, 1fr)";
   const hasStructuredRows = isEditable || hasBase || hasBonus || hasLTI || hasBenefits;
 
   const hasCompEdits = JSON.stringify(comp) !== JSON.stringify(originalComp.current) || notice !== originalNotice.current;

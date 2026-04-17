@@ -141,6 +141,13 @@ export interface SearchContext {
   search_lead: string;
   job_summary_url?: string;
   job_summary_pdf_url?: string;
+  /** External URL to a Job Summary PDF (e.g., SharePoint). Read fallback
+   *  used by DeckClient's Job Summary viewer when no Blob uploads exist. */
+  js_source_url?: string;
+  /** Canonical per-search scope dimensions. When present, ScopeMatch reads
+   *  role_requirement from here instead of the candidate snapshot — so editing
+   *  the role requirement in Role Brief updates all candidate cards at once. */
+  scope_match_dimensions?: { name: string; role_requirement: string }[];
   candidates: IntroCardData[];
   /** Map of candidate_id → status for controlling visibility/labels */
   candidate_statuses?: Record<string, string>;

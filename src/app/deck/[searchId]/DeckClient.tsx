@@ -187,7 +187,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     });
   };
 
-  const hasJobSummary = jobSummaryFiles.length > 0;
+  // External URL on searches.js_source_url (e.g. SharePoint) is a read fallback
+  // when no Blob uploads exist. Blob uploads take precedence when both present.
+  const hasJobSummary = jobSummaryFiles.length > 0 || !!data.js_source_url;
 
   // ── Card reorder (edit mode only) ─────────────────────────────────────────
   const orderKey = `card_order_${searchId}`;
@@ -1717,7 +1719,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
               {/* PDF iframe */}
               <div style={{ flex: 1, overflow: "hidden" }}>
                 <iframe
-                  src={jobSummaryFiles[currentPdfIdx]?.url ?? ""}
+                  src={jobSummaryFiles[currentPdfIdx]?.url ?? data.js_source_url ?? ""}
                   title={jobSummaryFiles[currentPdfIdx]?.name ?? "Job Summary"}
                   style={{ width: "100%", height: "100%", border: "none", background: "#fff" }}
                 />
@@ -1766,6 +1768,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       initialOurTakeOpen={initialOurTakeOpen}
       onPanelChange={handlePanelChange}
       onOurTakeChange={handleOurTakeChange}
+      searchDimensions={data.scope_match_dimensions}
     />
   );
 }

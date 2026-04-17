@@ -28,6 +28,9 @@ const ALLOWED_FIELDS = new Set([
   'revenue',
   'team_size',
   'line_manager',
+  'kam',
+  'js_source_url',
+  'scope_match_dimensions',
 ]);
 
 export async function POST(

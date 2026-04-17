@@ -47,6 +47,10 @@ interface EDCCardProps {
   onPanelChange?: (panel: 1 | 2 | 3) => void;
   /** Called when Our Take popover opens/closes — parent syncs to URL hash */
   onOurTakeChange?: (open: boolean) => void;
+  /** Canonical per-search scope dimensions from searches.scope_match_dimensions.
+   *  Threaded through to ScopeMatch so role_requirement is read from the search
+   *  config rather than the candidate snapshot. */
+  searchDimensions?: { name: string; role_requirement: string }[];
 }
 
 export default function EDCCard({
@@ -63,6 +67,7 @@ export default function EDCCard({
   initialOurTakeOpen,
   onPanelChange,
   onOurTakeChange,
+  searchDimensions,
 }: EDCCardProps) {
   const { isEditable } = useEditorContext();
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
@@ -407,6 +412,7 @@ export default function EDCCard({
                     scope_match={data.scope_match}
                     scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
                     candidateId={candidateId}
+                    searchDimensions={searchDimensions}
                   />
                 </div>
 

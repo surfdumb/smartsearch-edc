@@ -15,6 +15,8 @@ interface EditableFieldProps {
   onUpdate?: (newValue: string) => void;
   /** Called on reset instead of restoring originalValue locally (for parent-managed state). */
   onReset?: () => void;
+  /** Dimmed text shown when value is empty AND the field is editable. */
+  placeholder?: string;
 }
 
 export default function EditableField({
@@ -26,6 +28,7 @@ export default function EditableField({
   html = false,
   onUpdate,
   onReset,
+  placeholder,
 }: EditableFieldProps) {
   const { isEditable } = useEditorContext();
   const ref = useRef<HTMLElement>(null);
@@ -75,6 +78,7 @@ export default function EditableField({
         contentEditable: true as const,
         suppressContentEditableWarning: true,
         onBlur: handleBlur,
+        ...(placeholder ? { "data-placeholder": placeholder } : {}),
       }
     : {};
 

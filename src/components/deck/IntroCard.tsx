@@ -169,7 +169,7 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
   };
 
   const isRejected = v.status === 'rejected';
-  const alignmentColor = COMP_COLOR[v.compensation_alignment];
+  const alignmentColor = COMP_COLOR[v.compensation_alignment] ?? COMP_COLOR.not_set;
   // Photo priority: persisted upload > explicit URL > data URL > initials fallback
   const [storedPhoto] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;

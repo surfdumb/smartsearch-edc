@@ -25,7 +25,7 @@ const dotStyles: Record<string, { bg: string; shadow: string }> = {
 
 export default function AlignmentDot({ alignment, clientView = true }: AlignmentDotProps) {
   const effectiveAlignment = clientView && alignment === 'gap' ? 'partial' : alignment;
-  const style = dotStyles[effectiveAlignment];
+  const style = dotStyles[effectiveAlignment] ?? dotStyles.not_assessed;
   return (
     <span
       className="inline-block rounded-full shrink-0"

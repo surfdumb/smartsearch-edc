@@ -184,6 +184,7 @@ function CompRow({
           html={false}
           style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const, fontVariantNumeric: "tabular-nums" }}
           onUpdate={(v) => onSave(field, v)}
+          placeholder="Click to add"
         />
       ) : (
         <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", fontVariantNumeric: "tabular-nums" }}>
@@ -665,6 +666,26 @@ export default function JobSummaryBrief({
               )
             )}
 
+            {/* Search Lead row — editable in edit mode, writes to searches.kam */}
+            {(isEditMode || data.search_lead) && (
+              <div style={{ marginTop: "8px", display: "flex", alignItems: "baseline", gap: "6px" }}>
+                <span style={{ fontSize: "0.72rem", color: "#8a8a8a", fontWeight: 600, letterSpacing: "0.3px" }}>
+                  Search Lead:
+                </span>
+                {isEditMode ? (
+                  <EditableField
+                    value={getField(data.search_lead, "kam")}
+                    as="span"
+                    html={false}
+                    style={{ fontSize: "0.82rem", color: "#6b6b6b" }}
+                    onUpdate={(v) => handleFieldSave("kam", v)}
+                  />
+                ) : (
+                  <span style={{ fontSize: "0.82rem", color: "#6b6b6b" }}>{data.search_lead}</span>
+                )}
+              </div>
+            )}
+
             <GoldRule />
 
             {/* ── Role Profile table ─────────────────────────────── */}
@@ -957,7 +978,7 @@ export default function JobSummaryBrief({
             )}
 
             {/* ── Compensation Framework ──────────────────────────── */}
-            {hasCompData && (
+            {(hasCompData || isEditMode) && (
               <>
                 <Section label="Compensation">
                   <div>

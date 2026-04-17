@@ -43,6 +43,8 @@ interface DeckEDCViewProps {
   initialOurTakeOpen?: boolean;
   onPanelChange?: (panel: 1 | 2 | 3) => void;
   onOurTakeChange?: (open: boolean) => void;
+  /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
+  searchDimensions?: { name: string; role_requirement: string }[];
 }
 
 export default function DeckEDCView({
@@ -64,6 +66,7 @@ export default function DeckEDCView({
   initialOurTakeOpen,
   onPanelChange,
   onOurTakeChange,
+  searchDimensions,
 }: DeckEDCViewProps) {
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const [resetKey, setResetKey] = useState(0);
@@ -267,6 +270,7 @@ export default function DeckEDCView({
               initialOurTakeOpen={initialOurTakeOpen}
               onPanelChange={onPanelChange}
               onOurTakeChange={onOurTakeChange}
+              searchDimensions={searchDimensions}
             />
             {!split && (
               <CandidateNavigation

@@ -19,6 +19,11 @@ interface ScopeMatchProps {
   scope_match: ScopeRow[];
   scope_seasoning?: string;
   candidateId?: string;
+  /** Canonical per-search scope dimensions from searches.scope_match_dimensions.
+   *  When present, role_requirement is looked up here by scope name — so editing
+   *  the role requirement in Role Brief updates all candidate cards at once.
+   *  Falls back to candidate snapshot when absent (fixture decks, older searches). */
+  searchDimensions?: { name: string; role_requirement: string }[];
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
@@ -106,8 +111,13 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps) {
+export default function ScopeMatch({ scope_match, candidateId, searchDimensions }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
+  // Canonical role_requirement lookup by scope name. Missing entries fall
+  // through to the candidate snapshot.
+  const dimByName = new Map<string, { name: string; role_requirement: string }>(
+    (searchDimensions ?? []).map((d) => [d.name, d])
+  );
   const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
   const [rows, setRows] = useState<ScopeRow[]>(() => {
     if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, scope_match)) {
@@ -252,19 +262,32 @@ export default function ScopeMatch({ scope_match, candidateId }: ScopeMatchProps
                   </span>
                 )}
 
-                {/* Role requirement */}
-                {isEditable ? (
-                  <EditableCell
-                    value={item.role_requirement}
-                    originalValue={orig?.role_requirement ?? item.role_requirement}
-                    onUpdate={(v) => updateCell(i, "role_requirement", v)}
-                    style={{ fontSize: "0.9rem", color: "var(--ss-gray)" }}
-                  />
-                ) : (
-                  <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
-                    {item.role_requirement}
-                  </span>
-                )}
+                {/* Role requirement — canonical source (searches.scope_match_dimensions)
+                    wins over candidate snapshot when present. */}
+                {(() => {
+                  const canonical = dimByName.get(item.scope)?.role_requirement;
+                  const effective = canonical ?? item.role_requirement ?? "";
+                  if (isEditable) {
+                    // When the value is coming from the canonical source, editing
+                    // here would mismatch the search config. Keep the display in
+                    // sync with the canonical; edits still flow to the candidate
+                    // snapshot (which becomes a per-candidate override on reload
+                    // only if the canonical is cleared).
+                    return (
+                      <EditableCell
+                        value={effective}
+                        originalValue={orig?.role_requirement ?? effective}
+                        onUpdate={(v) => updateCell(i, "role_requirement", v)}
+                        style={{ fontSize: "0.9rem", color: "var(--ss-gray)" }}
+                      />
+                    );
+                  }
+                  return (
+                    <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
+                      {effective}
+                    </span>
+                  );
+                })()}
 
                 {/* Alignment dot — clickable in edit mode */}
                 <span className="flex items-center justify-center pt-0.5">

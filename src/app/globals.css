@@ -133,6 +133,15 @@ body {
   box-shadow: 0 0 0 1.5px var(--ss-gold);
   outline: none;
 }
+/* Dimmed placeholder for blank contentEditable fields in edit mode. */
+.editable-cell:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(107, 107, 107, 0.5);
+  pointer-events: none;
+}
+.editable-cell:focus::before {
+  content: none;
+}
 
 /* Legacy reset icon — kept for backward compatibility */
 .editable-reset {

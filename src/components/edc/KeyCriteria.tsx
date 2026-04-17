@@ -360,15 +360,15 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                         fontSize: "0.95rem",
                         lineHeight: 1.5,
                         color: "var(--ss-gray)",
-                        flex: 1,
-                        minWidth: 0,
+                        flex: "1 1 auto",
+                        minWidth: "280px",
                       }}
                       dangerouslySetInnerHTML={{ __html: item.evidence }}
                     />
                   )}
 
                   {/* Context anchor pill */}
-                  <div style={{ flexShrink: 1, minWidth: 0, maxWidth: "100%", marginTop: "1px" }}>
+                  <div style={{ flexShrink: 0, maxWidth: "100%", marginTop: "1px" }}>
                     {isEditable ? (
                       item.context_anchor ? (
                         <EditablePill
