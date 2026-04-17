@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
+import { stripArtifactsDeep } from '@/lib/sanitize';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,11 +45,12 @@ export async function POST(
       return NextResponse.json({ error: 'Search not found' }, { status: 404 });
     }
 
-    // Build update object from allowed fields only
+    // Build update object from allowed fields only.
+    // Strip browser-extension artifacts (e.g., "Say more") from every value.
     const updates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(body)) {
       if (ALLOWED_FIELDS.has(key)) {
-        updates[key] = value;
+        updates[key] = stripArtifactsDeep(value);
       }
     }
 

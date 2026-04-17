@@ -107,9 +107,9 @@ async function saveEdits(searchId: string, candidateId: string, baseEdc: EDCData
     const cardRaw = localStorage.getItem(`card_edits_${candidateId}`);
     if (cardRaw) {
       const card = JSON.parse(cardRaw);
-      if (card.status) merged.status = card.status;
-      if (card.compensation_alignment) (merged as unknown as Record<string, unknown>).compensation_alignment = card.compensation_alignment;
-      if (card.headline) (merged as unknown as Record<string, unknown>).headline = card.headline;
+      if (card.status !== undefined) merged.status = card.status;
+      if (card.compensation_alignment !== undefined) (merged as unknown as Record<string, unknown>).compensation_alignment = card.compensation_alignment;
+      if (card.headline !== undefined) (merged as unknown as Record<string, unknown>).headline = card.headline;
       // Card-level header edits override if not already set by EDC header edits
       if (card.candidate_name && !headerRaw) merged.candidate_name = card.candidate_name;
       if (card.current_title && !headerRaw) merged.current_title = card.current_title;

@@ -6,6 +6,7 @@ import AlignmentDot from "@/components/ui/AlignmentDot";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
+import { stripArtifacts } from "@/lib/sanitize";
 
 interface ScopeRow {
   scope: string;
@@ -73,7 +74,11 @@ function EditableCell({
         onInput={(e) => { onUpdate(e.currentTarget.textContent || ""); }}
         onBlur={(e) => {
           focusedRef.current = false;
-          onUpdate(e.currentTarget.textContent || "");
+          const clean = stripArtifacts(e.currentTarget.textContent || "");
+          if (clean !== e.currentTarget.textContent) {
+            e.currentTarget.textContent = clean;
+          }
+          onUpdate(clean);
         }}
         style={{
           display: "block",

@@ -2,6 +2,7 @@ import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase";
 import { mergeKeyCriteria } from "@/lib/merge-criteria";
+import { stripArtifactsDeep } from "@/lib/sanitize";
 import fs from "fs";
 import path from "path";
 
@@ -13,11 +14,16 @@ function fixtureExists(searchId: string): boolean {
 export async function POST(request: Request): Promise<NextResponse> {
   try {
     const body = await request.json();
-    const { searchId, candidateId, edcData } = body;
+    const { searchId, candidateId, edcData: rawEdcData } = body;
 
-    if (!searchId || !candidateId || !edcData) {
+    if (!searchId || !candidateId || !rawEdcData) {
       return NextResponse.json({ error: "searchId, candidateId, and edcData are required" }, { status: 400 });
     }
+
+    // Strip browser-extension artifacts (e.g., "Say more" from grammar assistants)
+    // from every string value before any processing. Belt-and-suspenders: components
+    // already strip on blur, but a stale in-memory state could still POST one.
+    const edcData = stripArtifactsDeep(rawEdcData);
 
     // Validate path segments (alphanumeric + hyphens only)
     if (!/^[a-z0-9-]+$/i.test(searchId) || !/^[a-z0-9-]+$/i.test(candidateId)) {
@@ -155,8 +161,19 @@ export async function POST(request: Request): Promise<NextResponse> {
             };
 
             // Sync deck_status when status is present in edcData
-            if (edcData.status) {
+            // Note: use !== undefined so 'none' (legitimate clear value) also syncs.
+            if (edcData.status !== undefined) {
               updatePayload.deck_status = edcData.status;
+            }
+
+            // Mirror compensation_alignment to top-level column — loader reads from
+            // the top-level `candidates.compensation_alignment`, not edc_data.
+            // Without this mirror, edits to the comp indicator write to jsonb
+            // and silently fail to surface on reload.
+            // No server-side enum gate: current tokens are color values
+            // ('green' | 'amber' | 'not_set'), not aligned/below/stretch.
+            if (edcData.compensation_alignment !== undefined) {
+              updatePayload.compensation_alignment = edcData.compensation_alignment;
             }
 
             const { error } = await supabase

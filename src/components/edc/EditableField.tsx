@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useEditorContext } from "@/contexts/EditorContext";
+import { stripArtifacts } from "@/lib/sanitize";
 
 interface EditableFieldProps {
   value: string;
@@ -36,7 +37,12 @@ export default function EditableField({
   const handleBlur = () => {
     const el = ref.current;
     if (!el) return;
-    const newVal = html ? el.innerHTML : el.textContent || "";
+    const rawVal = html ? el.innerHTML : el.textContent || "";
+    const newVal = stripArtifacts(rawVal);
+    if (newVal !== rawVal) {
+      if (html) el.innerHTML = newVal;
+      else el.textContent = newVal;
+    }
     const modified = newVal.trim() !== original.current.trim();
     setIsModified(modified);
     if (onUpdate) onUpdate(newVal);

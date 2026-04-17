@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { IntroCardData } from "@/lib/types";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
+import { stripArtifacts } from "@/lib/sanitize";
 
 interface IntroCardProps {
   card: IntroCardData;
@@ -97,7 +98,10 @@ function Editable({
       onFocus={() => setFocused(true)}
       onBlur={(e: React.FocusEvent<HTMLElement>) => {
         setFocused(false);
-        const val = (e.currentTarget.textContent ?? "").trim();
+        const val = stripArtifacts(e.currentTarget.textContent ?? "");
+        if (val !== (e.currentTarget.textContent ?? "").trim()) {
+          e.currentTarget.textContent = val;
+        }
         onSave(val);
       }}
       onMouseEnter={() => setHovered(true)}
