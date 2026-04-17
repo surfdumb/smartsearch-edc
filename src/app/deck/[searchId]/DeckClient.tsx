@@ -642,7 +642,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h3 className="font-cormorant" style={{ fontSize: "1.3rem", fontWeight: 600, color: "#1a1a1a", margin: 0 }}>
-                  Brief Locked
+                  Role Brief Locked
                 </h3>
                 <button
                   onClick={() => setShowBriefShareDialog(false)}
@@ -742,7 +742,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 transition: "all 0.2s",
               }}
             >
-              The Brief
+              Role Brief
             </button>
             <button
               onClick={() => setView({ mode: "grid" })}
@@ -1002,7 +1002,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 transition: "all 0.2s",
               }}
             >
-              The Brief
+              Role Brief
             </button>
             <button
               style={{

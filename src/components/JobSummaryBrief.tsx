@@ -815,11 +815,10 @@ export default function JobSummaryBrief({
                                   fontWeight: 700,
                                   fontSize: "0.88rem",
                                   color: "#1a1a1a",
-                                  display: "inline",
+                                  display: "block",
                                 }}
                                 onUpdate={(v) => updateCriterionName(i, v)}
                               />
-                              <span style={{ color: "#4a4a4a", fontSize: "0.85rem" }}> &mdash; </span>
                               <EditableField
                                 value={kc.detail || ""}
                                 as="span"
@@ -827,7 +826,8 @@ export default function JobSummaryBrief({
                                 style={{
                                   fontSize: "0.85rem",
                                   color: "#4a4a4a",
-                                  display: "inline",
+                                  display: "block",
+                                  marginTop: "4px",
                                 }}
                                 onUpdate={(v) => updateCriterionDetail(i, v)}
                               />
@@ -839,6 +839,7 @@ export default function JobSummaryBrief({
                                   fontWeight: 700,
                                   fontSize: "0.88rem",
                                   color: "#1a1a1a",
+                                  display: "block",
                                 }}
                               >
                                 {kc.name}
@@ -848,9 +849,11 @@ export default function JobSummaryBrief({
                                   style={{
                                     fontSize: "0.85rem",
                                     color: "#4a4a4a",
+                                    display: "block",
+                                    marginTop: "4px",
                                   }}
                                 >
-                                  {" "}&mdash; {kc.detail}
+                                  {kc.detail}
                                 </span>
                               )}
                             </>
