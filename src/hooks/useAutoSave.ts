@@ -173,7 +173,21 @@ export function useAutoSave(searchId: string, candidateId: string, baseEdc: EDCD
     return () => {
       window.removeEventListener(EDIT_EVENT, handler);
       window.removeEventListener('storage', handleStorage);
-      clearDirty(candidateId);
+      // Flush any pending debounced save synchronously. If the user typed in
+      // the Our Take popover (or anywhere else) then navigated to a different
+      // candidate within the 2s debounce window, the scheduled timer would
+      // previously fire AFTER cleanup, see !dirtySet.has(candidateId), and
+      // silently skip the save. We now fire saveEdits immediately on unmount
+      // and leave the dirty flag intact so the save runs to completion.
+      const key = `${searchId}/${candidateId}`;
+      const existing = timers.get(key);
+      if (existing) {
+        clearTimeout(existing);
+        timers.delete(key);
+        if (dirtySet.has(candidateId)) {
+          saveEdits(searchId, candidateId, baseEdcRef.current);
+        }
+      }
     };
   }, [searchId, candidateId]);
 }

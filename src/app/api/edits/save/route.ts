@@ -176,6 +176,22 @@ export async function POST(request: Request): Promise<NextResponse> {
               updatePayload.compensation_alignment = edcData.compensation_alignment;
             }
 
+            // Mirror our_take.text to top-level candidates.our_take column.
+            // Same class of bug as compensation_alignment: DB evidence showed 53
+            // candidates with top-level populated but edc_data.our_take null, and
+            // 11 with divergent top-level vs jsonb text — load paths that read the
+            // top-level column surface stale AI text instead of the consultant's
+            // edit. Accept both shapes defensively (some older paths may send
+            // our_take as a plain string).
+            if (edcData.our_take !== undefined) {
+              const ourTakeText = typeof edcData.our_take === 'string'
+                ? edcData.our_take
+                : (edcData.our_take?.text ?? null);
+              if (ourTakeText !== null) {
+                updatePayload.our_take = ourTakeText;
+              }
+            }
+
             const { error } = await supabase
               .from('candidates')
               .update(updatePayload)
