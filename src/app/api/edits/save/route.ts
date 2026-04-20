@@ -2,6 +2,7 @@ import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase";
 import { mergeKeyCriteria } from "@/lib/merge-criteria";
+import { canonicalText, keyCriteriaCanonicallyEqual } from "@/lib/criteria-canonical";
 import { stripArtifactsDeep } from "@/lib/sanitize";
 import fs from "fs";
 import path from "path";
@@ -88,22 +89,37 @@ export async function POST(request: Request): Promise<NextResponse> {
           if (aiEdc?.key_criteria?.length > 0) {
             const engineCriteria = aiEdc.key_criteria;
             const incomingCriteria = edcData?.key_criteria || [];
-            const engineName0 = engineCriteria[0]?.name || '';
-            const incomingName0 = incomingCriteria[0]?.name || '';
 
-            // Block if: different criteria count, or first criterion name doesn't match Engine
+            // Canonical comparison — stripArtifactsDeep has trimmed the
+            // incoming payload but aiEdc came raw from the Engine. Without
+            // canonicalText here, any whitespace/Unicode asymmetry in names
+            // flagged "stale" and fired the merge, which then lost consultant
+            // edits because edcMap keys/lookups were asymmetric too.
             const countMismatch = incomingCriteria.length !== engineCriteria.length;
-            const nameMismatch = engineName0 && incomingName0 && incomingName0 !== engineName0;
+
+            const nameMismatchIndices: number[] = [];
+            if (!countMismatch) {
+              for (let i = 0; i < engineCriteria.length; i++) {
+                const engN = canonicalText(engineCriteria[i]?.name);
+                const incN = canonicalText(incomingCriteria[i]?.name);
+                if (engN && incN && engN !== incN) nameMismatchIndices.push(i);
+              }
+            }
+            const nameMismatch = nameMismatchIndices.length > 0;
 
             if (countMismatch || nameMismatch) {
+              const reason = countMismatch ? 'count' : 'name-mismatch';
               console.log(
                 `[edits] Stale criteria structure for ${candidateId}: ` +
-                `Engine has ${engineCriteria.length} criteria "${engineName0.slice(0, 40)}" ` +
-                `vs incoming ${incomingCriteria.length} criteria "${incomingName0.slice(0, 40)}". ` +
+                `engine=${engineCriteria.length}, incoming=${incomingCriteria.length}, ` +
+                `name-mismatch-indices=[${nameMismatchIndices.join(',')}]. ` +
                 `Using Engine structure with merged consultant edits.`
               );
               // Use Engine structure but preserve consultant-edited evidence/anchors
-              edcData.key_criteria = mergeKeyCriteria(engineCriteria, incomingCriteria);
+              edcData.key_criteria = mergeKeyCriteria(engineCriteria, incomingCriteria, {
+                candidateId,
+                reason,
+              });
             }
           }
 
@@ -139,6 +155,20 @@ export async function POST(request: Request): Promise<NextResponse> {
                 // Always accept client-owned fields
                 cleanEdcData[field] = value;
                 if (JSON.stringify(value) !== JSON.stringify(aiEdc?.[field])) {
+                  realEditedFieldNames.push(field);
+                }
+                continue;
+              }
+
+              // key_criteria: canonical comparison. JSON.stringify diff would
+              // flag `&nbsp;` / doubled-space round-trip noise as "edited"
+              // (Bruno criterion 3 evidence) and both write it back AND push
+              // to manually_edited_fields. Canonical form treats whitespace
+              // noise as non-edit so it neither writes nor flags — raw
+              // consultant content still lands as typed when it's a real edit.
+              if (field === 'key_criteria' && Array.isArray(value) && Array.isArray(aiEdc?.[field])) {
+                if (!keyCriteriaCanonicallyEqual(value, aiEdc[field])) {
+                  cleanEdcData[field] = value;
                   realEditedFieldNames.push(field);
                 }
                 continue;
