@@ -13,6 +13,21 @@ interface CriterionItem {
   context_anchor?: string;
 }
 
+// Deep equality for CriterionItem[] — `===` is reference identity (always false
+// for fresh prop arrays) and JSON.stringify is key-order-sensitive and silently
+// mis-compares `context_anchor: undefined` against a missing key.
+function deepEqualCriteria(a: CriterionItem[], b: CriterionItem[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const x = a[i]; const y = b[i];
+    if (x.name !== y.name) return false;
+    if (x.evidence !== y.evidence) return false;
+    if ((x.context_anchor ?? '') !== (y.context_anchor ?? '')) return false;
+  }
+  return true;
+}
+
 interface KeyCriteriaProps {
   key_criteria: CriterionItem[];
   candidateId?: string;
@@ -107,44 +122,6 @@ function EditablePill({
   );
 }
 
-/* ── Criterion name editable with onInput + reset confirm ── */
-function CriterionNameEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const focusedRef = useRef(false);
-  const isModified = value !== originalValue;
-  const [confirmingReset, setConfirmingReset] = useState(false);
-
-  useEffect(() => {
-    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
-      ref.current.textContent = value;
-    }
-  }, [value]);
-
-  return (
-    <span className={`editable-wrap ${isModified ? "edc-field--edited" : ""}`} style={{ position: "relative", display: "block" }}>
-      <h4
-        ref={(el) => { (ref as React.MutableRefObject<HTMLHeadingElement | null>).current = el; if (el && !el.textContent) el.textContent = value; }}
-        contentEditable suppressContentEditableWarning className="editable-cell"
-        onFocus={() => { focusedRef.current = true; }}
-        onInput={(e) => onUpdate(e.currentTarget.textContent || "")}
-        onBlur={(e) => { focusedRef.current = false; onUpdate(e.currentTarget.textContent || ""); }}
-        style={{ fontSize: "0.95rem", fontWeight: 600, color: "var(--ss-dark)", marginBottom: "3px", padding: "1px 6px", margin: "-1px -6px 3px" }}
-      />
-      {isModified && !confirmingReset && (
-        <button className="edc-field__reset-dot" onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(true); }} title="Reset to original" />
-      )}
-      {confirmingReset && (
-        <span style={{ position: "absolute", top: "-4px", right: "-4px", display: "flex", gap: "2px", zIndex: 10 }}>
-          <button onMouseDown={(e) => { e.preventDefault(); onUpdate(originalValue); if (ref.current) ref.current.textContent = originalValue; setConfirmingReset(false); }}
-            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "rgba(197,165,114,0.15)", border: "1px solid rgba(197,165,114,0.3)", color: "#8a7a60", cursor: "pointer" }}>Reset</button>
-          <button onMouseDown={(e) => { e.preventDefault(); setConfirmingReset(false); }}
-            style={{ fontSize: "10px", padding: "2px 6px", borderRadius: "4px", background: "transparent", border: "1px solid #d4d2ce", color: "#6b6b6b", cursor: "pointer" }}>Keep</button>
-        </span>
-      )}
-    </span>
-  );
-}
-
 /* ── Criterion evidence editable with onInput + reset confirm (HTML content) ── */
 function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: string; originalValue: string; onUpdate: (v: string) => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -226,53 +203,51 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
 
   useEffect(() => {
     const stored = readStoredCriteria();
-    if (stored) {
-      setItems(stored);
-      originalItems.current = key_criteria;
-      return;
-    }
-    setItems(key_criteria);
+    const targetItems = stored ?? key_criteria;
+    setItems(prev => deepEqualCriteria(prev, targetItems) ? prev : targetItems);
     originalItems.current = key_criteria;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key_criteria, storageKey, propHasEvidence]);
 
-  // Persist edits to localStorage
-  useEffect(() => {
-    if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify(items)); writeBaseHash(storageKey, key_criteria); } catch { /* ignore */ }
+  // Write-on-edit: persist to localStorage and signal autosave synchronously
+  // inside the setState updater. Mirrors the EDCCard header pattern so the
+  // autosave signal can't race isEditable toggles or effect ordering.
+  function commitItems(nextFn: (prev: CriterionItem[]) => CriterionItem[]) {
+    if (candidateId) markDirty(candidateId);
+    setItems(prev => {
+      const next = nextFn(prev);
+      if (storageKey) {
+        try { localStorage.setItem(storageKey, JSON.stringify(next)); writeBaseHash(storageKey, key_criteria); } catch { /* ignore */ }
+      }
       if (candidateId) signalEdit(candidateId);
-    }
-  }, [items, storageKey, isEditable, candidateId]);
+      return next;
+    });
+  }
 
   const updateField = (index: number, field: keyof CriterionItem, value: string) => {
-    if (candidateId) markDirty(candidateId);
-    setItems(prev => prev.map((item, i) =>
+    commitItems(prev => prev.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     ));
   };
 
   const removePill = (index: number) => {
-    if (candidateId) markDirty(candidateId);
-    setItems(prev => prev.map((item, i) =>
+    commitItems(prev => prev.map((item, i) =>
       i === index ? { ...item, context_anchor: undefined } : item
     ));
   };
 
   const addPill = (index: number) => {
-    if (candidateId) markDirty(candidateId);
-    setItems(prev => prev.map((item, i) =>
+    commitItems(prev => prev.map((item, i) =>
       i === index ? { ...item, context_anchor: "at Company" } : item
     ));
   };
 
   const removeRow = (index: number) => {
-    if (candidateId) markDirty(candidateId);
-    setItems(prev => prev.filter((_, i) => i !== index));
+    commitItems(prev => prev.filter((_, i) => i !== index));
   };
 
   const addRow = () => {
-    if (candidateId) markDirty(candidateId);
-    setItems(prev => [...prev, {
+    commitItems(prev => [...prev, {
       name: "New criterion",
       evidence: "",
       context_anchor: undefined,
@@ -326,25 +301,18 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
 
               {/* Content */}
               <div>
-                {/* Criterion name */}
-                {isEditable ? (
-                  <CriterionNameEditable
-                    value={item.name}
-                    originalValue={orig?.name ?? item.name}
-                    onUpdate={(v) => updateField(i, "name", v)}
-                  />
-                ) : (
-                  <h4
-                    style={{
-                      fontSize: "0.95rem",
-                      fontWeight: 600,
-                      color: "var(--ss-dark)",
-                      marginBottom: "3px",
-                    }}
-                  >
-                    {item.name}
-                  </h4>
-                )}
+                {/* Criterion name — read-only, sourced from Role Brief (SSOT).
+                    Keep in items state so autosave payload still carries it. */}
+                <h4
+                  style={{
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                    color: "var(--ss-dark)",
+                    marginBottom: "3px",
+                  }}
+                >
+                  {item.name}
+                </h4>
 
                 {/* Evidence + pill row */}
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
