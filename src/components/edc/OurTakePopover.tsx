@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
+
+// Shallow array equality for fragment lists — `===` is reference identity (new
+// array each prop push) and JSON.stringify is overkill. Mirrors the role of
+// deepEqualCriteria in KeyCriteria: lets the hydration useEffect no-op when
+// target content matches current state, avoiding a render that would race the
+// autosave signal.
+function shallowEqualFragments(a: string[], b: string[]): boolean {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+  return true;
+}
 
 interface OurTakePopoverProps {
   fragments?: string[];
@@ -33,7 +45,10 @@ export default function OurTakePopover({
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   // Load persisted edits or fall back to props
-  const ourTakePropHash = { text: initialText, fragments: initialFragments, name: initialName };
+  const ourTakePropHash = useMemo(
+    () => ({ text: initialText, fragments: initialFragments, name: initialName }),
+    [initialText, initialFragments, initialName]
+  );
   const loadStored = () => {
     if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, ourTakePropHash)) {
       try {
@@ -58,26 +73,63 @@ export default function OurTakePopover({
   const origText = useRef(initialText ?? "");
   const origName = useRef(initialName ?? "");
 
-  // Sync when props change (candidate navigation) — prefer localStorage
+  // Hydrate on prop change (candidate navigation / parent re-render). Mirrors the
+  // KeyCriteria post-fix guard: gate each setState with an equality check so a
+  // fresh prop reference with identical content doesn't re-trigger renders and
+  // race the autosave signal into overwriting fresh localStorage edits.
   useEffect(() => {
     const s = loadStored();
-    setFragments(s?.fragments ?? initialFragments ?? []);
-    setText(s?.text ?? initialText ?? "");
-    setName(s?.name ?? initialName ?? "");
-    setShowName(s?.showName ?? !!initialName);
+    const targetFragments = s?.fragments ?? initialFragments ?? [];
+    const targetText = s?.text ?? initialText ?? "";
+    const targetName = s?.name ?? initialName ?? "";
+    const targetShowName = s?.showName ?? !!initialName;
+    setFragments(prev => shallowEqualFragments(prev, targetFragments) ? prev : targetFragments);
+    setText(prev => prev === targetText ? prev : targetText);
+    setName(prev => prev === targetName ? prev : targetName);
+    setShowName(prev => prev === targetShowName ? prev : targetShowName);
     origFragments.current = initialFragments ?? [];
     origText.current = initialText ?? "";
     origName.current = initialName ?? "";
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFragments, initialText, initialName]);
 
-  // Persist edits to localStorage
-  useEffect(() => {
-    if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify({ fragments, text, name, showName })); writeBaseHash(storageKey, ourTakePropHash); } catch { /* ignore */ }
-      if (candidateId) signalEdit(candidateId);
+  // Write-on-edit: persist to localStorage and signal autosave synchronously in
+  // one atomic step. Mirrors KeyCriteria's commitItems. Callers pass a partial
+  // update; we compute the consolidated next state, write ONE JSON to
+  // localStorage, call writeBaseHash + signalEdit, then update React state.
+  // Thin wrappers provide KeyCriteria-style call sites for single-field
+  // mutations; callers that change multiple fields in one handler must use
+  // commitOurTake directly to avoid back-to-back writes clobbering each
+  // other's closure values.
+  const commitOurTake = useCallback((updates: {
+    fragments?: string[];
+    text?: string;
+    name?: string;
+    showName?: boolean;
+  }) => {
+    if (candidateId) markDirty(candidateId);
+    const nextFragments = updates.fragments ?? fragments;
+    const nextText = updates.text ?? text;
+    const nextName = updates.name ?? name;
+    const nextShowName = updates.showName ?? showName;
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          fragments: nextFragments, text: nextText, name: nextName, showName: nextShowName,
+        }));
+        writeBaseHash(storageKey, ourTakePropHash);
+      } catch { /* ignore */ }
     }
-  }, [fragments, text, name, showName, storageKey, isEditable, candidateId]);
+    if (candidateId) signalEdit(candidateId);
+    if (updates.fragments !== undefined) setFragments(nextFragments);
+    if (updates.text !== undefined) setText(nextText);
+    if (updates.name !== undefined) setName(nextName);
+    if (updates.showName !== undefined) setShowName(nextShowName);
+  }, [candidateId, storageKey, fragments, text, name, showName, ourTakePropHash]);
+
+  const commitFragments = useCallback((next: string[]) => commitOurTake({ fragments: next }), [commitOurTake]);
+  const commitText = useCallback((next: string) => commitOurTake({ text: next }), [commitOurTake]);
+  const commitName = useCallback((next: string) => commitOurTake({ name: next }), [commitOurTake]);
 
   // Write to localStorage directly (no React state update, no re-render, no cursor jump).
   // Used by onInput handlers so handleLock always reads fresh data.
@@ -136,25 +188,21 @@ export default function OurTakePopover({
   const hasText = text.trim().length > 0;
 
   const updateFragment = (index: number, value: string) => {
-    if (candidateId) markDirty(candidateId);
-    setFragments(prev => prev.map((f, i) => i === index ? value : f));
+    commitFragments(fragments.map((f, i) => i === index ? value : f));
   };
 
   const removeFragment = (index: number) => {
-    if (candidateId) markDirty(candidateId);
-    setFragments(prev => prev.filter((_, i) => i !== index));
+    commitFragments(fragments.filter((_, i) => i !== index));
   };
 
   const addFragment = () => {
-    if (candidateId) markDirty(candidateId);
-    setFragments(prev => [...prev, ""]);
+    commitFragments([...fragments, ""]);
   };
 
   const resetFragment = (index: number) => {
-    if (candidateId) markDirty(candidateId);
     const orig = origFragments.current[index];
     if (orig !== undefined) {
-      setFragments(prev => prev.map((f, i) => i === index ? orig : f));
+      commitFragments(fragments.map((f, i) => i === index ? orig : f));
     }
   };
 
@@ -170,16 +218,14 @@ export default function OurTakePopover({
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const result = await res.json();
       if (result.text) {
-        if (candidateId) markDirty(candidateId);
-        setText(result.text);
-        setFragments([]);
+        commitOurTake({ text: result.text, fragments: [] });
       }
     } catch (err) {
       console.error('Regenerate Our Take failed:', err);
     } finally {
       setIsRegenerating(false);
     }
-  }, [candidateContext, manualNotes, isRegenerating, candidateId]);
+  }, [candidateContext, manualNotes, isRegenerating, commitOurTake]);
 
   if (!pos) return null;
 
@@ -244,7 +290,7 @@ export default function OurTakePopover({
                 suppressContentEditableWarning
                 className="editable-cell"
                 onInput={(e) => flushToStorage({ name: e.currentTarget.textContent || "" })}
-                onBlur={(e) => setName(e.currentTarget.textContent || "")}
+                onBlur={(e) => commitName(e.currentTarget.textContent || "")}
                 style={{
                   fontSize: "0.72rem",
                   color: "var(--ss-gray-light)",
@@ -258,7 +304,7 @@ export default function OurTakePopover({
               </span>
               {/* Remove name */}
               <button
-                onClick={() => { if (candidateId) markDirty(candidateId); setShowName(false); setName(""); }}
+                onClick={() => commitOurTake({ showName: false, name: "" })}
                 style={{
                   position: "absolute",
                   right: "0",
@@ -284,14 +330,14 @@ export default function OurTakePopover({
                 <button
                   className="edc-field__reset-dot"
                   style={{ top: "-4px", right: "-4px" }}
-                  onMouseDown={(e) => { e.preventDefault(); if (candidateId) markDirty(candidateId); setName(origName.current); }}
+                  onMouseDown={(e) => { e.preventDefault(); commitName(origName.current); }}
                   title="Reset to original"
                 />
               )}
             </span>
           ) : (
             <button
-              onClick={() => { if (candidateId) markDirty(candidateId); setShowName(true); setName(origName.current || "Consultant"); }}
+              onClick={() => commitOurTake({ showName: true, name: origName.current || "Consultant" })}
               style={{
                 background: "none",
                 border: "1px dashed rgba(160,160,160,0.3)",
@@ -472,7 +518,7 @@ export default function OurTakePopover({
               suppressContentEditableWarning
               className="editable-cell"
               onInput={(e) => flushToStorage({ text: e.currentTarget.textContent || "" })}
-              onBlur={(e) => setText(e.currentTarget.textContent || "")}
+              onBlur={(e) => commitText(e.currentTarget.textContent || "")}
               style={{
                 fontSize: "0.85rem",
                 color: hasText ? "var(--ss-dark)" : "var(--ss-gray-light)",
@@ -488,7 +534,7 @@ export default function OurTakePopover({
             {hasText && text !== origText.current && (
               <button
                 className="edc-field__reset-dot"
-                onMouseDown={(e) => { e.preventDefault(); if (candidateId) markDirty(candidateId); setText(origText.current); }}
+                onMouseDown={(e) => { e.preventDefault(); commitText(origText.current); }}
                 title="Reset to original"
               />
             )}
@@ -496,15 +542,8 @@ export default function OurTakePopover({
           {/* Switch to fragments mode */}
           <button
             onClick={() => {
-              if (candidateId) markDirty(candidateId);
               const lines = text.split("\n").filter(l => l.trim());
-              if (lines.length > 0) {
-                setFragments(lines);
-                setText("");
-              } else {
-                setFragments([""]);
-                setText("");
-              }
+              commitOurTake({ fragments: lines.length > 0 ? lines : [""], text: "" });
             }}
             style={{
               background: "none",
