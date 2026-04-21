@@ -982,6 +982,242 @@
         "our_take_fragments": [],
         "status": "new"
       }
+    },
+    {
+      "candidate_id": "rob-payne",
+      "initials": "RP",
+      "candidate_name": "Rob Payne",
+      "current_title": "General Manager",
+      "current_company": "Deutsche Precision, LLC",
+      "location": "Greater St. Louis, Missouri",
+      "photo_url": "",
+      "headline": "Ranken-trained machinist running a 100-person, $27M precision CNC site after six years on the same shop floor.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Precision CNC operations — automotive and prior aerospace shop-floor exposure",
+      "industry_shorthand": "Precision CNC manufacturing",
+      "status": "new",
+      "edc_data": {
+        "candidate_name": "Rob Payne",
+        "current_title": "General Manager",
+        "current_company": "Deutsche Precision, LLC",
+        "location": "Greater St. Louis, Missouri",
+        "motivation_hook": "Open to a lateral move; prioritises fit and team quality over compensation.",
+        "scope_match": [
+          {
+            "scope": "Headcount",
+            "candidate_actual": "100 people at Deutsche Precision with five direct reports (controller, HR manager, plant manager, operations manager, production manager); previously six years as Plant Manager at the same site",
+            "role_requirement": "Engineering team, programming team direct; production supervisor and supply chain dotted line across 75-person site",
+            "alignment": "strong"
+          },
+          {
+            "scope": "P&L",
+            "candidate_actual": "Full P&L ownership as GM at Deutsche Precision ($27M revenue) and at Liberty Tire Recycling for nearly six years",
+            "role_requirement": "$30M site revenue with VP/GM retaining P&L ownership; Director provides operational execution",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports to COO of a five-location, Ohio-headquartered organisation at Deutsche Precision",
+            "role_requirement": "Reports to VP/General Manager who oversees entire St. Louis site",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "Single-site operations at Deutsche Precision in Greater St. Louis; Rob noted Kemco's Kirkwood site is 'not far from my house at all'",
+            "role_requirement": "St. Louis site with two buildings 3 blocks apart; serves as liaison to Florida site",
+            "alignment": "strong"
+          }
+        ],
+        "scope_seasoning": "Rob brings full GM-level scope from a $27M, 100-person precision CNC site to Kemco's $30M, 75-person operation — comparable headcount, comparable revenue. He has held full P&L accountability for six consecutive years (Liberty Tire then Deutsche Precision), which is broader than the Kemco role's operational-execution remit under a VP/GM. His current reporting line is to a remote multi-site COO rather than an on-site VP/GM. Local geography is a clear positive: he lives close to the Kirkwood site and previously worked there.",
+        "key_criteria": [
+          {
+            "name": "Aerospace experience",
+            "evidence": "Rob's only direct aerospace exposure was 13 months as Production Supervisor at Kemco (May 2009–June 2010) — roughly <strong>6% of his 17-year career</strong>. The balance has been precision CNC for automotive (Deutsche Precision) and manufacturing for big-box retail (Liberty Tire Recycling). No stated experience with OEMs or other tier-1/tier-2 aerospace suppliers.",
+            "context_anchor": "at Kemco, Deutsche Precision, Liberty Tire Recycling"
+          },
+          {
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "Rob holds a <strong>Journeyman Machinist certification from Ranken Technical College</strong>, the credential Tara has previously called 'the most credible machining qualification in the St. Louis market' (also held by Imboden and Kottemann). His career progressed machining → engineering → project management, then 6 years 9 months as Plant Manager at Deutsche Precision before returning as GM in February 2026.",
+            "context_anchor": "at Ranken Technical College, Deutsche Precision"
+          },
+          {
+            "name": "CNC machining experience",
+            "evidence": "Approximately <strong>11–12 years of Rob's 17-year career has been in CNC machining</strong>: Ranken certification (1998–2000), Project Engineer at Hydromat (4+ years across two tenures), Production Supervisor at Kemco, and 6 years 9 months as Plant Manager at Deutsche Precision. Current operation runs Hydromat rotary transfer machines, which Rob noted are 'different' from milling centres or conventional lathes.",
+            "context_anchor": "at Hydromat, Kemco, Deutsche Precision"
+          },
+          {
+            "name": "Continuous improvement experience",
+            "evidence": "Rob describes CI as 'a big part of my career' and is currently automating data-entry tasks at Deutsche Precision using AI tools, but holds <strong>no formal lean or Six Sigma certification</strong>. Approach is practical and problem-solving rather than methodology-driven — a gap against Kemco's early-lean-journey, value-add profile.",
+            "context_anchor": "at Deutsche Precision"
+          },
+          {
+            "name": "Personality and culture fit — outgoing and personable",
+            "evidence": "Rob is currently customer-facing at Deutsche Precision and was <strong>'very involved with the customer'</strong> during his prior tenure there. Communication during interview was clear, professional, and people-oriented, with openness about compensation, notice complexity, and motivation. Interview format limits full assessment of outgoing energy.",
+            "context_anchor": "at Deutsche Precision"
+          }
+        ],
+        "compensation": {
+          "current_base": "$212,500",
+          "current_bonus": "15% annual bonus target (~$31,875 if fully achieved); Rob described the goal as 'very difficult to get to' and 'very aggressive' this year as he was not part of the budgeting process",
+          "current_total": "$212,500 base, total cash range approximately $212,500–$244,375 with bonus; no equity or long-term incentive",
+          "expected_base": "Open to $180,000–$212,500",
+          "expected_bonus": "Not explicitly stated",
+          "expected_total": "Open to lateral move at $180,000 base for right opportunity",
+          "flexibility": "Notable flexibility. Rob stated 'I'm at a point in my career...I'm not at a point where I'm taking jobs just for money anymore' and confirmed he would consider $180k base if 'the job itself and the team I'm working with all make sense.' He asked about Kemco's salary band early in the conversation and did not push back when given the $180k starting point.",
+          "budget_range": null
+        },
+        "notice_period": "Approximately 2 months (driven by customer-facing handoff at Deutsche Precision); Rob said he would 'try to work with them a little bit' for a shorter timeline depending on Kemco's urgency",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Return to CNC machining and aerospace after detours into automotive and tire",
+            "detail": "Rob is a Ranken-trained machinist whose technical depth lies in precision CNC and aerospace. After nearly six years at Liberty Tire (recycled tire products for Lowe's, Home Depot, Menards) and three months back at Deutsche Precision (single-customer automotive), Kemco represents a return to the kind of work his certification and early career align with."
+          },
+          {
+            "type": "pull",
+            "headline": "Local familiarity with the Kemco site",
+            "detail": "Rob worked Kemco's shop floor for 13 months as Production Supervisor (2009–2010) and described his departure as being 'for growth' rather than conflict. He noted the Kirkwood site is 'not far from my house at all.' He appeared unaware of the Crestview ownership change, suggesting no maintained ties — but his familiarity with the site and potentially long-tenure employees could accelerate onboarding."
+          },
+          {
+            "type": "push",
+            "headline": "Single-customer commercial exposure at Deutsche Precision",
+            "detail": "Deutsche Precision's $27M operation serves a single automotive customer. Narrow commercial exposure relative to the multi-customer aerospace environment Kemco operates in."
+          }
+        ],
+        "potential_concerns": [
+          "Limited aerospace experience — only 13 months at Kemco 16 years ago, roughly 6% of career. The balance is automotive precision CNC and big-box retail manufacturing. This is a notable gap against the 'aerospace-dominant throughout' profile.",
+          "Very recent start at Deutsche Precision (3 months, since February 2026). Leaving after 3 months creates tenure optics with future references and complicates notice negotiation given his customer-facing handoff requirements.",
+          "Prior Kemco tenure (2009–2010) requires a quiet check with the client before progressing, including whether VP/GM Delana (10+ years tenure) remembers him and how his 2010 departure was perceived at the time.",
+          "No formal lean or Six Sigma certification. CI approach is practical and informal rather than methodology-driven, which is a gap against the 'significant value-add' CI profile Kemco is seeking as it builds out continuous improvement capability."
+        ],
+        "our_take": {
+          "text": "We believe Rob is a credible operations leader with the right technical foundation and local machining credibility, though his limited aerospace exposure and very recent start at Deutsche Precision require careful handling with the client, particularly given his prior Kemco tenure."
+        },
+        "search_name": "Kemco",
+        "role_title": "Director of Operations",
+        "generated_date": "21 Apr 2026",
+        "consultant_name": "Tara Nugent",
+        "our_take_fragments": [],
+        "status": "new"
+      }
+    },
+    {
+      "candidate_id": "michael-noah",
+      "initials": "MN",
+      "candidate_name": "Michael Noah",
+      "current_title": "Director of Engineering & Assembly",
+      "current_company": "MAX Aerostructures",
+      "location": "Wichita, Kansas",
+      "photo_url": "",
+      "headline": "30-year aerospace engineering and CI leader at $50M MAX site; built CI from scratch and removed 3,800 constrained hours.",
+      "compensation_alignment": "green",
+      "career_trajectory": "Aerospace manufacturing engineering and operations leadership",
+      "industry_shorthand": "Aerospace manufacturing",
+      "status": "new",
+      "edc_data": {
+        "candidate_name": "Michael Noah",
+        "current_title": "Director of Engineering & Assembly",
+        "current_company": "MAX Aerostructures",
+        "location": "Wichita, Kansas",
+        "motivation_hook": "Exploring progression to operations number-two role with customer-facing scope beyond his current engineering remit.",
+        "scope_match": [
+          {
+            "scope": "Headcount",
+            "candidate_actual": "Approximately 55 direct and indirect reports at MAX Aerostructures across engineering, NC programming, planning, supply chain, and assembly; previously 190+ at Danfoss as Operations Site Leader",
+            "role_requirement": "Engineering team, programming team direct; production supervisor and supply chain dotted line across 75-person site",
+            "alignment": "strong"
+          },
+          {
+            "scope": "P&L",
+            "candidate_actual": "No direct P&L ownership in current role — separate director leads day-to-day operations. Held operations leadership scope at Danfoss across machining, processing, assembly, and maintenance",
+            "role_requirement": "$30M site revenue with VP/GM retaining P&L ownership; Director provides operational execution",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports to COO at MAX Aerostructures (3 years 8 months tenure)",
+            "role_requirement": "Reports to VP/General Manager who oversees entire St. Louis site",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "Single-site operation in Wichita, Kansas; would require relocation to St. Louis. Discussed with wife — proximity to grandchildren is a consideration, though he noted 'sometimes they move away too'",
+            "role_requirement": "St. Louis site with two buildings 3 blocks apart; serves as liaison to Florida site",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Michael's headcount scope at MAX (~55) and previously at Danfoss (190+) brackets the Kemco role comfortably. The structural gap is functional rather than scale-related: his current MAX seat is engineering-led with a separate director owning machining and maintenance day-to-day, whereas Kemco wants the Director of Operations to own that floor accountability directly. His Danfoss tenure (May 2021 – September 2022) is the closest precedent for that kind of integrated operations role.",
+        "key_criteria": [
+          {
+            "name": "Aerospace experience",
+            "evidence": "Michael presents <strong>30 years of aerospace experience</strong> across Cessna (13 years 9 months), Bell Helicopter, Boeing (5 years 1 month as contractor), Triumph Aerostructures, OMADA International (military machined components), Danfoss, and MAX Aerostructures. Coverage spans manufacturing engineering, tooling, subassembly, final assembly, systems installation, functional testing, and flight test.",
+            "context_anchor": "at Cessna, Bell, Boeing, Triumph, MAX Aerostructures"
+          },
+          {
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "At Danfoss Power Solutions (2021–2022), Michael was <strong>Operations Site Leader for 190+ personnel</strong> across machining, processing, assembly, maintenance, and CI. His current MAX role is engineering-led with a separate director owning day-to-day machining and maintenance — a moderate functional gap against the Kemco operations-leader requirement, though his technical credibility on the floor is well established.",
+            "context_anchor": "at Danfoss, MAX Aerostructures"
+          },
+          {
+            "name": "CNC machining experience",
+            "evidence": "Michael oversees NC programming directly at MAX's <strong>low-volume high-mix CNC environment</strong> with high-speed machining and hard-metal assembly. At OMADA International he oversaw machine operations for a military machined components facility; at Danfoss he led operations for a high-volume machining, assembly, and processing site. Comfortable with both low-vol high-mix and high-volume contexts.",
+            "context_anchor": "at MAX Aerostructures, OMADA, Danfoss"
+          },
+          {
+            "name": "Continuous improvement experience",
+            "evidence": "Michael <strong>established the CI programme from scratch at MAX Aerostructures</strong> on joining in 2022; holds two Green Belts. In the past year he removed 3,800 constrained hours from the MAG3 machine, avoiding capital expenditure on additional capacity. Prior Six Sigma project leadership and Kaizen events at Bell Helicopter and Cessna.",
+            "context_anchor": "at MAX Aerostructures, Bell Helicopter, Cessna"
+          },
+          {
+            "name": "Personality and culture fit — outgoing and personable",
+            "evidence": "Michael's interview delivery was <strong>measured, thoughtful, and softly spoken</strong> rather than energetic or outgoing. He engaged substantively on role structure and asked insightful questions about COO progression and the separation of P&L from day-to-day operations. Collaborative and technically credible, but did not project the dynamic customer-facing presence Kemco has emphasised.",
+            "context_anchor": "interview observation"
+          }
+        ],
+        "compensation": {
+          "current_base": "Approximately $160,000 (within a few thousand)",
+          "current_bonus": "Approximately $6,000 quarterly bonus (~$1,500/quarter) plus up to $4,800 monthly morale bonus ($100–$400/month based on attendance, quality/scrap, productivity, and consumable spend, paid in cash)",
+          "current_total": "Approximately $170,000–$171,000 total cash compensation",
+          "expected_base": "Not specifically stated — Michael indicated he would 'like to see what they kind of had in mind'",
+          "expected_bonus": "Would want a meaningful bonus structure equivalent to his current quarterly bonus",
+          "expected_total": "$160,000–$170,000 base range confirmed workable; likely needs the high end plus meaningful bonus to justify the move from his current ~$170k total cash",
+          "flexibility": "Michael acknowledged smaller companies often cannot match OEM salaries and is open to discussion. He confirmed the $160–170k base range is 'right at the bottom number' and 'within a few thousand of where I'm at right now,' suggesting he would likely need to be at the higher end. He is not concerned about replicating the monthly morale bonus but does want quarterly bonus equivalent.",
+          "budget_range": null
+        },
+        "notice_period": "Minimum two weeks (his historical standard); first-quarter bonus payout (~$1,500) ideally received before starting; relocation logistics and discussion with wife may extend timeline",
+        "why_interested": [
+          {
+            "type": "pull",
+            "headline": "Progression to a customer-facing operations number-two role",
+            "detail": "Michael asked directly about whether the role could evolve toward a COO position and noted the value of separating P&L decision-making (held by VP/GM) from day-to-day operations (this role). He sees Kemco as an opportunity to step from engineering-led leadership into integrated operations accountability."
+          },
+          {
+            "type": "pull",
+            "headline": "Leverage CI expertise at a site building out continuous improvement capability",
+            "detail": "Michael holds two Green Belts and built MAX's CI programme from scratch. Kemco is early in its lean journey with consultant support and no dedicated CI department, which directly maps to where he has previously delivered measurable impact (3,800 hours removed at MAG3, multiple Six Sigma projects at Bell)."
+          },
+          {
+            "type": "push",
+            "headline": "Engineering-led seat at MAX with separate operations director",
+            "detail": "Michael is currently Director of Engineering & Assembly with a separate director owning machining and maintenance day-to-day. He is not in a line-operations role and is exploring positions where he would have direct operations accountability."
+          }
+        ],
+        "potential_concerns": [
+          "Presentation style is measured and softly spoken rather than outgoing. Does not project the dynamic, customer-facing personality Kemco has emphasised as critical for the 'face of St. Louis' role and Florida-site liaison.",
+          "Current role at MAX is engineering-led, not operations-led — a separate director owns day-to-day machining and maintenance. Moderate functional gap against the Kemco operations-leader requirement; his Danfoss tenure (16 months) is the closest direct precedent.",
+          "Relocation from Wichita to St. Louis requires spouse discussion given proximity to grandchildren. Michael acknowledged some flexibility but timeline and personal commitment need validation before progressing.",
+          "Compensation fit may require the high end of $160–170k band plus a meaningful bonus structure to justify a move from his current ~$170k total cash."
+        ],
+        "our_take": {
+          "text": "We believe Michael presents strong technical credibility and continuous improvement capability, but his current engineering-focused role and measured, softly spoken presentation style may not fully align with Kemco's need for an outgoing, operations-led leader to serve as the customer-facing 'face of St. Louis.' Worth exploring further, particularly given his Danfoss operations leadership experience and his ability to establish CI infrastructure from scratch, but personality fit and compensation expectations warrant careful handling."
+        },
+        "search_name": "Kemco",
+        "role_title": "Director of Operations",
+        "generated_date": "21 Apr 2026",
+        "consultant_name": "Tara Nugent",
+        "our_take_fragments": [],
+        "status": "new"
+      }
     }
   ]
 }
