@@ -9,9 +9,13 @@ interface EDCStatusBarProps {
   searchId: string;
   candidateName: string;
   roleTitle: string;
+  /** Server-hydrated flag: is this candidate currently in searches.hidden_candidates? */
+  isHiddenFromClient: boolean;
   onLock: () => void | Promise<void>;
   onUnlock: () => void;
   onReset?: () => void;
+  /** Side-effect for Lock & Share: remove candidate from hidden_candidates. Awaited before share dialog opens. */
+  onClientVisible?: () => Promise<void>;
 }
 
 export default function EDCStatusBar({
@@ -20,9 +24,11 @@ export default function EDCStatusBar({
   searchId,
   candidateName,
   roleTitle,
+  isHiddenFromClient,
   onLock,
   onUnlock,
   onReset,
+  onClientVisible,
 }: EDCStatusBarProps) {
   const [showLockModal, setShowLockModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -36,6 +42,15 @@ export default function EDCStatusBar({
 
   const handleLockConfirm = async () => {
     await onLock();
+    if (onClientVisible) {
+      try {
+        await onClientVisible();
+      } catch (err) {
+        console.error('[lock-share] Failed to reveal candidate to client:', err);
+        alert('Failed to reveal candidate to client. Please try again.');
+        return;
+      }
+    }
     setShowLockModal(false);
     setShowShareDialog(true);
   };
@@ -72,46 +87,98 @@ export default function EDCStatusBar({
           gap: "12px",
         }}
       >
-        {/* Left: state badge */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {state === "draft" ? (
+        {/* Left: state badge + visibility pill + (optional) clarifier line */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {state === "draft" ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.68rem",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: "var(--ss-yellow)",
+                  background: "rgba(201,149,58,0.1)",
+                  border: "1px solid rgba(201,149,58,0.25)",
+                  borderRadius: "6px",
+                  padding: "4px 10px",
+                }}
+              >
+                <span style={{ fontSize: "0.6rem" }}>●</span>
+                Draft — Awaiting Review
+              </span>
+            ) : (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.68rem",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: "var(--ss-green)",
+                  background: "rgba(74,124,89,0.1)",
+                  border: "1px solid rgba(74,124,89,0.25)",
+                  borderRadius: "6px",
+                  padding: "4px 10px",
+                }}
+              >
+                🔒 Locked
+              </span>
+            )}
+            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.7rem" }}>·</span>
+            {isHiddenFromClient ? (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: "rgba(255,255,255,0.5)",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: "5px",
+                  padding: "3px 9px",
+                }}
+              >
+                Hidden from client
+              </span>
+            ) : (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: "var(--ss-green)",
+                  background: "rgba(74,124,89,0.1)",
+                  border: "1px solid rgba(74,124,89,0.25)",
+                  borderRadius: "5px",
+                  padding: "3px 9px",
+                }}
+              >
+                Visible to client
+              </span>
+            )}
+          </div>
+          {!isHiddenFromClient && state === "draft" && (
             <span
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.68rem",
-                fontWeight: 700,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                color: "var(--ss-yellow)",
-                background: "rgba(201,149,58,0.1)",
-                border: "1px solid rgba(201,149,58,0.25)",
-                borderRadius: "6px",
-                padding: "4px 10px",
+                fontSize: "0.7rem",
+                color: "rgba(255,255,255,0.4)",
+                fontStyle: "italic",
+                marginTop: "4px",
               }}
             >
-              <span style={{ fontSize: "0.6rem" }}>●</span>
-              Draft — Awaiting Review
-            </span>
-          ) : (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.68rem",
-                fontWeight: 700,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                color: "var(--ss-green)",
-                background: "rgba(74,124,89,0.1)",
-                border: "1px solid rgba(74,124,89,0.25)",
-                borderRadius: "6px",
-                padding: "4px 10px",
-              }}
-            >
-              🔒 Locked
+              Editable — still visible to client · Hide from client to retract
             </span>
           )}
         </div>
@@ -287,8 +354,9 @@ export default function EDCStatusBar({
                 marginBottom: "28px",
               }}
             >
-              Locking marks the entire deck as ready for client review.
-              The link provided is for this candidate&apos;s EDC only. You can unlock and edit again at any time.
+              This candidate will be visible to the client on the shared deck link.
+              Any pending edits are saved first. Unlock &amp; Edit lets you keep editing later
+              without retracting — to remove from client view, use Hide from client.
             </p>
             <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
               <button

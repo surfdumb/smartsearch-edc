@@ -46,6 +46,10 @@ interface DeckEDCViewProps {
   onOurTakeChange?: (open: boolean) => void;
   /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** Server-hydrated flag: candidate is in searches.hidden_candidates (deck-level gate). */
+  isHiddenFromClient?: boolean;
+  /** Lock & Share side-effect: remove candidate from hidden_candidates (server-persisted). */
+  onClientVisible?: () => Promise<void>;
 }
 
 export default function DeckEDCView({
@@ -68,11 +72,13 @@ export default function DeckEDCView({
   onPanelChange,
   onOurTakeChange,
   searchDimensions,
+  isHiddenFromClient = false,
+  onClientVisible,
 }: DeckEDCViewProps) {
   const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const [resetKey, setResetKey] = useState(0);
   const edc = candidate.edc_data;
-  const isEditable = isEditRoute && state === "draft";
+  const isEditable = isEditRoute;
 
   // Our Take result — persisted in localStorage so generated text survives page nav
   const [ourTakeOverride, setOurTakeOverride] = useState<OurTakeOverride | null>(null);
@@ -228,7 +234,9 @@ export default function DeckEDCView({
             searchId={searchId}
             candidateName={edc.candidate_name}
             roleTitle={edc.role_title}
+            isHiddenFromClient={isHiddenFromClient}
             onLock={handleLock}
+            onClientVisible={onClientVisible}
             onUnlock={unlock}
             onReset={() => {
               const cid = candidate.candidate_id;

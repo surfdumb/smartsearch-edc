@@ -269,6 +269,25 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     persistHidden(next);
   }, [hiddenCandidates, persistHidden]);
 
+  // Awaitable variant for Lock & Share side-effect — consultant should not see
+  // a share dialog until the server has confirmed the candidate is no longer hidden.
+  const revealCandidateToClient = useCallback(async (id: string) => {
+    if (!hiddenCandidates.has(id)) return;
+    const next = new Set(hiddenCandidates);
+    next.delete(id);
+    const arr = Array.from(next);
+    setHiddenCandidates(next);
+    try { localStorage.setItem(hiddenKey, JSON.stringify(arr)); } catch { /* ignore */ }
+    const res = await fetch(`/api/deck/${searchId}/hidden`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hidden: arr }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to persist hidden_candidates (status ${res.status})`);
+    }
+  }, [hiddenCandidates, hiddenKey, searchId]);
+
   // Filter candidates by status when candidate_statuses is defined
   // Only show candidates that have a status entry (e.g., "to_send")
   const [showAllCandidates, setShowAllCandidates] = useState(false);
@@ -1435,7 +1454,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   }}>
                     {hiddenCandidatesList.length}
                   </span>
-                  {hiddenCandidatesList.length === 1 ? "candidate" : "candidates"} not in deck
+                  {hiddenCandidatesList.length === 1 ? "candidate" : "candidates"} hidden from client
                   <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>{showHiddenTray ? "▲" : "▼"}</span>
                 </button>
 
@@ -1492,7 +1511,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                         </div>
                         <button
                           onClick={() => reinstateCandidate(c.candidate_id)}
-                          title="Add back to deck"
+                          title="Lock & Share (reveal to client)"
                           style={{
                             width: "28px",
                             height: "28px",
@@ -1769,6 +1788,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onPanelChange={handlePanelChange}
       onOurTakeChange={handleOurTakeChange}
       searchDimensions={data.scope_match_dimensions}
+      isHiddenFromClient={hiddenCandidates.has(candidate.candidate_id)}
+      onClientVisible={() => revealCandidateToClient(candidate.candidate_id)}
     />
   );
 }

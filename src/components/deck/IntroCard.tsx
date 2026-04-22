@@ -268,7 +268,7 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
       {editMode && onRemove && (
         <button
           onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          title="Remove from deck"
+          title="Hide from client"
           style={{
             position: "absolute",
             top: "12px",
