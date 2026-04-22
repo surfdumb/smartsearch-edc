@@ -457,6 +457,8 @@ export default function EDCCard({
           text={data.our_take?.text}
           consultantName={data.consultant_name}
           candidateId={candidateId}
+          candidateName={data.candidate_name}
+          searchId={searchId}
           triggerRef={ourTakeTriggerRef}
           onClose={() => handleOurTakeToggle(false)}
           candidateContext={buildCandidateContext(data)}

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import DeckNavigation from "@/components/deck/DeckNavigation";
 import EDCStatusBar from "@/components/deck/EDCStatusBar";
 import EDCCard from "@/components/edc/EDCCard";
+import OurTakeSavedToast from "@/components/edc/OurTakeSavedToast";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
 import { useEDCState } from "@/hooks/useEDCState";
@@ -207,6 +208,7 @@ export default function DeckEDCView({
 
   return (
     <EditorContext.Provider value={{ isEditable }}>
+      <OurTakeSavedToast />
       <main data-deck-theme={deckTheme} style={{ minHeight: "100vh", background: "var(--deck-bg)" }}>
         <DeckNavigation
           onBack={onBack}

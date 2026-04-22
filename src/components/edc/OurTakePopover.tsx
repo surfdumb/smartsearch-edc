@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
-import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
+import { isEditFresh, writeBaseHash, hashData } from "@/lib/edit-hash";
 
 // Shallow array equality for fragment lists — `===` is reference identity (new
 // array each prop push) and JSON.stringify is overkill. Mirrors the role of
@@ -23,6 +23,8 @@ interface OurTakePopoverProps {
   text?: string;
   consultantName?: string;
   candidateId?: string;
+  candidateName?: string;
+  searchId?: string;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
   onClose: () => void;
   candidateContext?: string;
@@ -34,6 +36,8 @@ export default function OurTakePopover({
   text: initialText,
   consultantName: initialName,
   candidateId,
+  candidateName,
+  searchId,
   triggerRef,
   onClose,
   candidateContext,
@@ -73,6 +77,20 @@ export default function OurTakePopover({
   const origText = useRef(initialText ?? "");
   const origName = useRef(initialName ?? "");
 
+  // --- Save-button dirty tracking -----------------------------------------
+  // Snapshot hash reflects what's currently persisted (hydrated state = what's
+  // in localStorage after the equality-gated hydration effect). Button starts
+  // clean on every open and every candidate switch.
+  type SaveStatus = 'idle' | 'saving' | 'just-saved' | 'error';
+  const [savedSnapshotHash, setSavedSnapshotHash] = useState<string>(
+    () => hashData({ text: stored?.text ?? initialText ?? "", fragments: stored?.fragments ?? initialFragments ?? [] })
+  );
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const currentSnapshotHash = useMemo(() => hashData({ text, fragments }), [text, fragments]);
+  const isDirty = currentSnapshotHash !== savedSnapshotHash;
+
   // Hydrate on prop change (candidate navigation / parent re-render). Mirrors the
   // KeyCriteria post-fix guard: gate each setState with an equality check so a
   // fresh prop reference with identical content doesn't re-trigger renders and
@@ -90,8 +108,18 @@ export default function OurTakePopover({
     origFragments.current = initialFragments ?? [];
     origText.current = initialText ?? "";
     origName.current = initialName ?? "";
+    // Reset save-button baseline on candidate switch so the button reads clean.
+    setSavedSnapshotHash(hashData({ text: targetText, fragments: targetFragments }));
+    setSaveStatus('idle');
+    setLastError(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialFragments, initialText, initialName]);
+
+  // When the user resumes typing after a saved/error state, revert the button
+  // label to idle so it stops reading "✓ Saved" mid-edit.
+  useEffect(() => {
+    setSaveStatus(prev => (prev === 'just-saved' || prev === 'error') ? 'idle' : prev);
+  }, [currentSnapshotHash]);
 
   // Write-on-edit: persist to localStorage and signal autosave synchronously in
   // one atomic step. Mirrors KeyCriteria's commitItems. Callers pass a partial
@@ -147,6 +175,216 @@ export default function OurTakePopover({
     } catch { /* ignore */ }
     if (candidateId) signalEdit(candidateId);
   }, [storageKey, isEditable, fragments, text, name, showName, candidateId, initialText, initialFragments, initialName]);
+
+  // --- Explicit Save path --------------------------------------------------
+  // localStorage is the source of truth: onInput handlers write to it
+  // synchronously via flushToStorage, but don't setState. So when the user
+  // types and clicks Save without blurring first, React state is stale but
+  // localStorage is fresh. Helper reads the latest persisted values with
+  // per-render fallback.
+  const readLatestFromStorage = useCallback((): { text: string; fragments: string[]; name: string } => {
+    const fallback = { text, fragments, name };
+    if (!storageKey || typeof window === 'undefined') return fallback;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return fallback;
+      const parsed = JSON.parse(raw);
+      return {
+        text: typeof parsed.text === 'string' ? parsed.text : fallback.text,
+        fragments: Array.isArray(parsed.fragments) ? parsed.fragments : fallback.fragments,
+        name: typeof parsed.name === 'string' ? parsed.name : fallback.name,
+      };
+    } catch {
+      return fallback;
+    }
+  }, [storageKey, text, fragments, name]);
+
+  // A snapshot ref mirrored on every render so unmount + beforeunload see the
+  // latest values without stale closure capture. Includes savedSnapshotHash so
+  // the unmount cleanup can dirty-check against the last persisted baseline.
+  const flushRef = useRef({
+    storageKey,
+    candidateId,
+    candidateName,
+    searchId,
+    text,
+    fragments,
+    name,
+    savedSnapshotHash,
+    initialText,
+    initialFragments,
+    initialName,
+  });
+  useEffect(() => {
+    flushRef.current = {
+      storageKey,
+      candidateId,
+      candidateName,
+      searchId,
+      text,
+      fragments,
+      name,
+      savedSnapshotHash,
+      initialText,
+      initialFragments,
+      initialName,
+    };
+  });
+
+  const handleSave = useCallback(async () => {
+    if (saveStatus === 'saving') return;
+    if (!candidateId || !searchId) return;
+    // Force any focused contentEditable to blur so pending onBlur handlers
+    // flush (belt-and-suspenders — localStorage is already up-to-date via
+    // onInput, but blur triggers commitText/commitFragments which syncs React
+    // state for post-save UI consistency).
+    if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    const latest = readLatestFromStorage();
+    const latestHash = hashData({ text: latest.text, fragments: latest.fragments });
+    if (latestHash === savedSnapshotHash) return; // nothing to save
+    setSaveStatus('saving');
+    setLastError(null);
+    // Sync React state + localStorage + signalEdit via commitOurTake so the
+    // manual save and the debounced autosave stay consistent.
+    commitOurTake({ text: latest.text, fragments: latest.fragments });
+    try {
+      const res = await fetch('/api/edits/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          searchId,
+          candidateId,
+          edcData: {
+            our_take: { text: latest.text },
+            our_take_fragments: latest.fragments,
+            consultant_name: latest.name,
+          },
+        }),
+      });
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+      setSavedSnapshotHash(latestHash);
+      setSaveStatus('just-saved');
+      setLastSavedAt(new Date());
+      setTimeout(() => setSaveStatus(prev => prev === 'just-saved' ? 'idle' : prev), 5000);
+    } catch (err) {
+      setSaveStatus('error');
+      setLastError((err as Error)?.message ?? 'Save failed');
+    }
+  }, [saveStatus, candidateId, searchId, savedSnapshotHash, readLatestFromStorage, commitOurTake]);
+
+  // Unmount flush — the bug fix that makes field-blur-then-navigate reliable.
+  // Runs exactly once at unmount (empty deps). Reads latest from localStorage
+  // (covers unblurred-typing case) and dirty-checks against savedSnapshotHash.
+  useEffect(() => {
+    return () => {
+      const snap = flushRef.current;
+      if (!snap.candidateId) return;
+      // Read the latest persisted values. onInput handlers write here, so this
+      // captures text/fragments even if React state hasn't caught up via blur.
+      let latestText = snap.text;
+      let latestFragments = snap.fragments;
+      let latestName = snap.name;
+      if (snap.storageKey) {
+        try {
+          const raw = localStorage.getItem(snap.storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (typeof parsed.text === 'string') latestText = parsed.text;
+            if (Array.isArray(parsed.fragments)) latestFragments = parsed.fragments;
+            if (typeof parsed.name === 'string') latestName = parsed.name;
+          }
+        } catch { /* ignore */ }
+      }
+      const latestHash = hashData({ text: latestText, fragments: latestFragments });
+      if (latestHash === snap.savedSnapshotHash) return; // nothing to flush
+      // Ensure localStorage + autosave signal are consistent (in case the ref
+      // lags behind by a tick).
+      if (snap.storageKey) {
+        try {
+          localStorage.setItem(snap.storageKey, JSON.stringify({
+            fragments: latestFragments,
+            text: latestText,
+            name: latestName,
+            showName: !!latestName,
+          }));
+          writeBaseHash(snap.storageKey, { text: snap.initialText, fragments: snap.initialFragments, name: snap.initialName });
+        } catch { /* ignore */ }
+      }
+      markDirty(snap.candidateId);
+      signalEdit(snap.candidateId);
+      // Fire-and-forget POST with keepalive so the request survives unmount.
+      if (snap.searchId) {
+        try {
+          fetch('/api/edits/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              searchId: snap.searchId,
+              candidateId: snap.candidateId,
+              edcData: {
+                our_take: { text: latestText },
+                our_take_fragments: latestFragments,
+                consultant_name: latestName,
+              },
+            }),
+            keepalive: true,
+          }).catch(() => { /* component is gone */ });
+        } catch { /* ignore */ }
+      }
+      // Dispatch toast — listener lives outside the unmounting tree.
+      try {
+        window.dispatchEvent(new CustomEvent('our-take-auto-saved', {
+          detail: {
+            candidateId: snap.candidateId,
+            candidateName: snap.candidateName,
+            savedAt: new Date().toISOString(),
+          },
+        }));
+      } catch { /* ignore */ }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Browser-close safety net. sendBeacon with Blob so the payload survives unload.
+  useEffect(() => {
+    const handler = () => {
+      const snap = flushRef.current;
+      if (!snap.candidateId || !snap.searchId) return;
+      // Read fresh from localStorage (same rationale as unmount flush).
+      let latestText = snap.text;
+      let latestFragments = snap.fragments;
+      let latestName = snap.name;
+      if (snap.storageKey) {
+        try {
+          const raw = localStorage.getItem(snap.storageKey);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (typeof parsed.text === 'string') latestText = parsed.text;
+            if (Array.isArray(parsed.fragments)) latestFragments = parsed.fragments;
+            if (typeof parsed.name === 'string') latestName = parsed.name;
+          }
+        } catch { /* ignore */ }
+      }
+      const latestHash = hashData({ text: latestText, fragments: latestFragments });
+      if (latestHash === snap.savedSnapshotHash) return;
+      try {
+        const payload = JSON.stringify({
+          searchId: snap.searchId,
+          candidateId: snap.candidateId,
+          edcData: {
+            our_take: { text: latestText },
+            our_take_fragments: latestFragments,
+            consultant_name: latestName,
+          },
+        });
+        navigator.sendBeacon('/api/edits/save', new Blob([payload], { type: 'application/json' }));
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [searchId, candidateId]);
 
   // Position popover BELOW the trigger button (drops down)
   useEffect(() => {
@@ -485,29 +723,6 @@ export default function OurTakePopover({
               </div>
             );
           })}
-
-          {/* Add fragment — edit mode */}
-          {isEditable && (
-            <button
-              onClick={addFragment}
-              style={{
-                background: "none",
-                border: "none",
-                borderTop: "1px dashed rgba(197,165,114,0.15)",
-                padding: "6px 0 0",
-                fontSize: "0.75rem",
-                color: "var(--ss-gray-light)",
-                cursor: "pointer",
-                textAlign: "left",
-                transition: "color 0.15s",
-                marginTop: "4px",
-              }}
-              onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
-              onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
-            >
-              + Add observation
-            </button>
-          )}
         </div>
       ) : isEditable ? (
         /* Editable text block or empty prompt */
@@ -539,26 +754,6 @@ export default function OurTakePopover({
               />
             )}
           </span>
-          {/* Switch to fragments mode */}
-          <button
-            onClick={() => {
-              const lines = text.split("\n").filter(l => l.trim());
-              commitOurTake({ fragments: lines.length > 0 ? lines : [""], text: "" });
-            }}
-            style={{
-              background: "none",
-              border: "none",
-              fontSize: "0.68rem",
-              color: "var(--ss-gray-light)",
-              cursor: "pointer",
-              padding: "6px 0 0",
-              transition: "color 0.15s",
-            }}
-            onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
-            onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
-          >
-            Switch to bullet points
-          </button>
         </div>
       ) : (
         /* Read-only text fallback */
@@ -573,6 +768,150 @@ export default function OurTakePopover({
         >
           {text}
         </div>
+      )}
+
+      {/* Footer: mode-switch link (left) + Save button (right). Edit mode only. */}
+      {isEditable && (
+        <>
+          {saveStatus === 'error' && lastError && (
+            <div
+              style={{
+                marginTop: "10px",
+                fontSize: "0.72rem",
+                color: "#b85a5a",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <span aria-hidden="true">⚠</span>
+              <span>{lastError}</span>
+            </div>
+          )}
+          <div
+            style={{
+              marginTop: saveStatus === 'error' ? "6px" : "12px",
+              paddingTop: "8px",
+              borderTop: "1px dashed rgba(197,165,114,0.15)",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            {/* Left: mode switch — contextual */}
+            {hasFragments ? (
+              <button
+                onClick={addFragment}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "0",
+                  fontSize: "0.72rem",
+                  color: "var(--ss-gray-light)",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "color 0.15s",
+                }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
+              >
+                + Add observation
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const lines = text.split("\n").filter(l => l.trim());
+                  commitOurTake({ fragments: lines.length > 0 ? lines : [""], text: "" });
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: "0",
+                  fontSize: "0.72rem",
+                  color: "var(--ss-gray-light)",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  transition: "color 0.15s",
+                }}
+                onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold)"; }}
+                onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gray-light)"; }}
+              >
+                Switch to bullet points
+              </button>
+            )}
+
+            {/* Right: Save changes — only when we can actually POST. Always
+                clickable in idle/error states because the real dirty-check
+                happens inside handleSave via a fresh localStorage read (covers
+                the type-then-click-Save-without-blur case). Visual muting
+                still reflects React-state isDirty. */}
+            {candidateId && searchId && (() => {
+              const isError = saveStatus === 'error';
+              const isSaved = saveStatus === 'just-saved';
+              const isSaving = saveStatus === 'saving';
+              const disabled = isSaving || isSaved;
+
+              let border: string;
+              let color: string;
+              if (isError) { border = "rgba(184,90,90,0.7)"; color = "#b85a5a"; }
+              else if (isSaved) { border = "rgba(74,124,89,0.6)"; color = "#4a7c4a"; }
+              else if (isDirty || isSaving) { border = "#c5a572"; color = "var(--ss-gold-deep)"; }
+              else { border = "rgba(197,165,114,0.35)"; color = "rgba(45,40,36,0.45)"; }
+
+              let label: React.ReactNode;
+              if (isSaving) {
+                label = (
+                  <>
+                    <span style={{ display: "inline-block", animation: "regenerateSpin 1s linear infinite" }}>↻</span>
+                    <span>Saving…</span>
+                  </>
+                );
+              } else if (isSaved && lastSavedAt) {
+                const hh = String(lastSavedAt.getHours()).padStart(2, '0');
+                const mm = String(lastSavedAt.getMinutes()).padStart(2, '0');
+                label = <>✓ Saved {hh}:{mm}</>;
+              } else if (isError) {
+                label = 'Retry save';
+              } else {
+                label = 'Save changes';
+              }
+
+              return (
+                <button
+                  onClick={handleSave}
+                  disabled={disabled}
+                  style={{
+                    background: "#faf7f2",
+                    border: `1px solid ${border}`,
+                    borderRadius: "6px",
+                    padding: "6px 14px",
+                    fontSize: "0.78rem",
+                    fontWeight: 500,
+                    color,
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    transition: "box-shadow 0.15s, transform 0.15s",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontFamily: "inherit",
+                    lineHeight: 1.2,
+                  }}
+                  onMouseOver={(e) => {
+                    if (isDirty && !isSaving && !isError && !isSaved) {
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 6px rgba(197,165,114,0.2)";
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = "none";
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            })()}
+          </div>
+        </>
       )}
       </div>
       <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
