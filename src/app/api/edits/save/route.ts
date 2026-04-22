@@ -27,7 +27,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     const edcData = stripArtifactsDeep(rawEdcData);
 
     // Validate path segments (alphanumeric + hyphens only)
-    if (!/^[a-z0-9-]+$/i.test(searchId) || !/^[a-z0-9-]+$/i.test(candidateId)) {
+    if (!/^[a-z0-9-]+$/i.test(searchId) || !/^[a-z0-9'-]+$/i.test(candidateId)) {
       return NextResponse.json({ error: "Invalid searchId or candidateId" }, { status: 400 });
     }
 
