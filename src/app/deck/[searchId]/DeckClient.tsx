@@ -288,6 +288,26 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     }
   }, [hiddenCandidates, hiddenKey, searchId]);
 
+  // Awaitable mirror — used by the EDC status bar's Hide from Client button so the
+  // pill flip doesn't race the server write. The deck-grid X button keeps using the
+  // fire-and-forget hideCandidate above (different surface, different latency budget).
+  const hideCandidateFromClient = useCallback(async (id: string) => {
+    if (hiddenCandidates.has(id)) return;
+    const next = new Set(hiddenCandidates);
+    next.add(id);
+    const arr = Array.from(next);
+    setHiddenCandidates(next);
+    try { localStorage.setItem(hiddenKey, JSON.stringify(arr)); } catch { /* ignore */ }
+    const res = await fetch(`/api/deck/${searchId}/hidden`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hidden: arr }),
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to persist hidden_candidates (status ${res.status})`);
+    }
+  }, [hiddenCandidates, hiddenKey, searchId]);
+
   // Filter candidates by status when candidate_statuses is defined
   // Only show candidates that have a status entry (e.g., "to_send")
   const [showAllCandidates, setShowAllCandidates] = useState(false);
@@ -1790,6 +1810,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       searchDimensions={data.scope_match_dimensions}
       isHiddenFromClient={hiddenCandidates.has(candidate.candidate_id)}
       onClientVisible={() => revealCandidateToClient(candidate.candidate_id)}
+      onHideFromClient={() => hideCandidateFromClient(candidate.candidate_id)}
     />
   );
 }

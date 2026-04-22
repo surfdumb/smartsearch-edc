@@ -7,7 +7,6 @@ import EDCCard from "@/components/edc/EDCCard";
 import OurTakeSavedToast from "@/components/edc/OurTakeSavedToast";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
-import { useEDCState } from "@/hooks/useEDCState";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
 import type { IntroCardData, EDCData } from "@/lib/types";
 import { useAutoSave, clearDirty } from "@/hooks/useAutoSave";
@@ -50,6 +49,8 @@ interface DeckEDCViewProps {
   isHiddenFromClient?: boolean;
   /** Lock & Share side-effect: remove candidate from hidden_candidates (server-persisted). */
   onClientVisible?: () => Promise<void>;
+  /** Hide from Client side-effect: add candidate to hidden_candidates (server-persisted). */
+  onHideFromClient?: () => Promise<void>;
 }
 
 export default function DeckEDCView({
@@ -74,8 +75,8 @@ export default function DeckEDCView({
   searchDimensions,
   isHiddenFromClient = false,
   onClientVisible,
+  onHideFromClient,
 }: DeckEDCViewProps) {
-  const { state, lock, unlock } = useEDCState(candidate.candidate_id);
   const [resetKey, setResetKey] = useState(0);
   const edc = candidate.edc_data;
   const isEditable = isEditRoute;
@@ -137,8 +138,9 @@ export default function DeckEDCView({
   // Auto-save edits to Vercel Blob on every change (debounced)
   useAutoSave(searchId, candidate.candidate_id, edcWithOurTake);
 
-  // Collect all localStorage edits, merge into full EDCData, and POST to server
-  const handleLock = useCallback(async () => {
+  // Collect all localStorage edits, merge into full EDCData, and POST to server.
+  // Called as the flush pre-flight before Lock & Share's visibility flip.
+  const handleFlushEdits = useCallback(async () => {
     const cid = candidate.candidate_id;
     const merged: EDCData = { ...edcWithOurTake };
 
@@ -187,7 +189,7 @@ export default function DeckEDCView({
       const photoUrl = localStorage.getItem(`edc_photo_${cid}`);
       if (photoUrl) merged.photo_url = photoUrl;
     } catch (err) {
-      console.warn('[lock] Failed to collect localStorage edits:', err);
+      console.warn('[flush] Failed to collect localStorage edits:', err);
     }
 
     // POST to server
@@ -199,18 +201,16 @@ export default function DeckEDCView({
       });
       if (!res.ok) {
         const err = await res.json();
-        console.error('[lock] Save failed:', err);
+        console.error('[flush] Save failed:', err);
         alert('Failed to save edits. Please try again.');
         return;
       }
     } catch (err) {
-      console.error('[lock] Save request failed:', err);
+      console.error('[flush] Save request failed:', err);
       alert('Failed to save edits. Please check your connection and try again.');
       return;
     }
-
-    lock();
-  }, [candidate.candidate_id, edcWithOurTake, searchId, lock]);
+  }, [candidate.candidate_id, edcWithOurTake, searchId]);
 
   return (
     <EditorContext.Provider value={{ isEditable }}>
@@ -229,15 +229,14 @@ export default function DeckEDCView({
 
         {isEditRoute && (
           <EDCStatusBar
-            state={state}
             candidateId={candidate.candidate_id}
             searchId={searchId}
             candidateName={edc.candidate_name}
             roleTitle={edc.role_title}
             isHiddenFromClient={isHiddenFromClient}
-            onLock={handleLock}
+            onFlushEdits={handleFlushEdits}
             onClientVisible={onClientVisible}
-            onUnlock={unlock}
+            onHideFromClient={onHideFromClient}
             onReset={() => {
               const cid = candidate.candidate_id;
               clearDirty(cid);

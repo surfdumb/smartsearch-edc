@@ -1,34 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import type { EDCState } from "@/hooks/useEDCState";
 
 interface EDCStatusBarProps {
-  state: EDCState;
   candidateId: string;
   searchId: string;
   candidateName: string;
   roleTitle: string;
   /** Server-hydrated flag: is this candidate currently in searches.hidden_candidates? */
   isHiddenFromClient: boolean;
-  onLock: () => void | Promise<void>;
-  onUnlock: () => void;
+  /** Flush pending localStorage edits to the server. Awaited as a pre-flight before Lock & Share reveals to client. */
+  onFlushEdits: () => void | Promise<void>;
   onReset?: () => void;
   /** Side-effect for Lock & Share: remove candidate from hidden_candidates. Awaited before share dialog opens. */
   onClientVisible?: () => Promise<void>;
+  /** Side-effect for Hide from Client: add candidate to hidden_candidates. Awaited before UI transitions. */
+  onHideFromClient?: () => Promise<void>;
 }
 
 export default function EDCStatusBar({
-  state,
   candidateId,
   searchId,
   candidateName,
   roleTitle,
   isHiddenFromClient,
-  onLock,
-  onUnlock,
+  onFlushEdits,
   onReset,
   onClientVisible,
+  onHideFromClient,
 }: EDCStatusBarProps) {
   const [showLockModal, setShowLockModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -41,7 +40,7 @@ export default function EDCStatusBar({
       : "";
 
   const handleLockConfirm = async () => {
-    await onLock();
+    await onFlushEdits();
     if (onClientVisible) {
       try {
         await onClientVisible();
@@ -53,6 +52,16 @@ export default function EDCStatusBar({
     }
     setShowLockModal(false);
     setShowShareDialog(true);
+  };
+
+  const handleHideClick = async () => {
+    if (!onHideFromClient) return;
+    try {
+      await onHideFromClient();
+    } catch (err) {
+      console.error('[hide-from-client] Failed to hide candidate:', err);
+      alert('Failed to hide candidate from client. Please try again.');
+    }
   };
 
   const handleCopyLink = async () => {
@@ -87,105 +96,50 @@ export default function EDCStatusBar({
           gap: "12px",
         }}
       >
-        {/* Left: state badge + visibility pill + (optional) clarifier line */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {state === "draft" ? (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: "var(--ss-yellow)",
-                  background: "rgba(201,149,58,0.1)",
-                  border: "1px solid rgba(201,149,58,0.25)",
-                  borderRadius: "6px",
-                  padding: "4px 10px",
-                }}
-              >
-                <span style={{ fontSize: "0.6rem" }}>●</span>
-                Draft — Awaiting Review
-              </span>
-            ) : (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: "var(--ss-green)",
-                  background: "rgba(74,124,89,0.1)",
-                  border: "1px solid rgba(74,124,89,0.25)",
-                  borderRadius: "6px",
-                  padding: "4px 10px",
-                }}
-              >
-                🔒 Locked
-              </span>
-            )}
-            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "0.7rem" }}>·</span>
-            {isHiddenFromClient ? (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  fontSize: "0.65rem",
-                  fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.5)",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "5px",
-                  padding: "3px 9px",
-                }}
-              >
-                Hidden from client
-              </span>
-            ) : (
-              <span
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  fontSize: "0.65rem",
-                  fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  textTransform: "uppercase",
-                  color: "var(--ss-green)",
-                  background: "rgba(74,124,89,0.1)",
-                  border: "1px solid rgba(74,124,89,0.25)",
-                  borderRadius: "5px",
-                  padding: "3px 9px",
-                }}
-              >
-                Visible to client
-              </span>
-            )}
-          </div>
-          {!isHiddenFromClient && state === "draft" && (
+        {/* Left: visibility pill (single source of truth for candidate state) */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {isHiddenFromClient ? (
             <span
               style={{
-                fontSize: "0.7rem",
-                color: "rgba(255,255,255,0.4)",
-                fontStyle: "italic",
-                marginTop: "4px",
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+                color: "rgba(255,255,255,0.5)",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: "5px",
+                padding: "3px 9px",
               }}
             >
-              Editable — still visible to client · Hide from client to retract
+              Hidden from client
+            </span>
+          ) : (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                fontSize: "0.65rem",
+                fontWeight: 700,
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+                color: "var(--ss-green)",
+                background: "rgba(74,124,89,0.1)",
+                border: "1px solid rgba(74,124,89,0.25)",
+                borderRadius: "5px",
+                padding: "3px 9px",
+              }}
+            >
+              Visible to client
             </span>
           )}
         </div>
 
-        {/* Right: actions */}
+        {/* Right: actions — contextual on visibility only */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {state === "draft" && onReset && (
+          {onReset && (
             <button
               onClick={() => setShowResetConfirm(true)}
               style={{
@@ -212,7 +166,7 @@ export default function EDCStatusBar({
               ↺ Reset Edits
             </button>
           )}
-          {state === "draft" ? (
+          {isHiddenFromClient ? (
             <button
               onClick={() => setShowLockModal(true)}
               style={{
@@ -262,7 +216,7 @@ export default function EDCStatusBar({
                 Copy Link
               </button>
               <button
-                onClick={onUnlock}
+                onClick={handleHideClick}
                 style={{
                   background: "transparent",
                   border: "1px solid rgba(255,255,255,0.1)",
@@ -284,7 +238,7 @@ export default function EDCStatusBar({
                   (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
                 }}
               >
-                Unlock &amp; Edit
+                Hide from Client
               </button>
             </>
           )}
