@@ -345,7 +345,7 @@ export default function EDCCard({
                   >
                     {/* Fragments */}
                     {data.our_take_fragments && data.our_take_fragments.length > 0 && (
-                      <div style={{ marginBottom: data.our_take?.text ? "16px" : 0 }}>
+                      <div style={{ marginBottom: 0 }}>
                         {data.our_take_fragments.map((frag, i) => (
                           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", marginBottom: "8px" }}>
                             <span style={{ color: "var(--ss-gold)", fontSize: "0.7rem", marginTop: "3px", flexShrink: 0 }}>●</span>
@@ -354,8 +354,10 @@ export default function EDCCard({
                         ))}
                       </div>
                     )}
-                    {/* Full text */}
-                    {data.our_take?.text && (
+                    {/* Render text only when no consultant fragments exist — prevents AI paragraph
+                        stacking behind bullets (Tara cvw-ops-dir, Apr 22). Bullet-only migration
+                        handles deeper data cleanup separately. */}
+                    {(!data.our_take_fragments || data.our_take_fragments.length === 0) && data.our_take?.text && (
                       <p style={{ fontSize: "0.85rem", lineHeight: 1.7, color: "var(--ss-dark)", margin: 0, whiteSpace: "pre-line" }}>
                         {data.our_take.text}
                       </p>
