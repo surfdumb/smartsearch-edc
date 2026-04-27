@@ -147,6 +147,122 @@
       "compensation_alignment_note": "Current total €282K; budget €175K base + 30% STI + 30% LTI ≈ €280K total package. Recruiter confirmed 'sweet spot.'"
     },
     {
+      "candidate_name": "Kay Wyrwich",
+      "candidate_id": "kay-wyrwich",
+      "current_title": "General Manager",
+      "current_company": "Smart (heat exchanger division)",
+      "location": "Germany (currently commuting weekly to Stuttgart)",
+      "status": "New",
+      "generated_date": "27 Apr 2026",
+      "consultant_name": "Kalum Gillett",
+      "headline": "Four years at Smart scaling a German heat-exchanger division €20M → €47M with 30% YoY growth × 3 years.",
+      "motivation_hook": "Drawn to repeat the same German-to-EMEA transformation at larger scale and longer runway",
+      "scope_match": [
+        {
+          "dimension": "P&L",
+          "candidate_actual": "€47M at Smart (target 45% growth this year); previously ran €40M UK & Ireland P&L at Kelvion",
+          "role_requirement": "€60M revenue",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Headcount",
+          "candidate_actual": "70 at Smart with full cross-functional remit",
+          "role_requirement": "170 FTEs globally",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Geography",
+          "candidate_actual": "EMEA commercial across six markets via agents at Smart, Chinese supply-chain integration; earlier VP Sales across Europe, NA, and Asia at Kelvion",
+          "role_requirement": "Wiehl, Germany (3+ days/week on-site) plus multi-site footprint Germany / Czech / China / India / US",
+          "alignment": "partial"
+        },
+        {
+          "dimension": "Revenue Target",
+          "candidate_actual": "Three consecutive years of 30% YoY growth at Smart (€20M → €47M); 2026 target is 45%",
+          "role_requirement": "€60M",
+          "alignment": "strong"
+        },
+        {
+          "dimension": "Industry Segment",
+          "candidate_actual": "Heat-exchanger manufacturing for data centres, HVAC, industrial — career-long capital equipment across Smart and Kelvion",
+          "role_requirement": "Industrial technology / foundry / casting",
+          "alignment": "partial"
+        }
+      ],
+      "scope_seasoning": "Kay's growth density at Smart maps almost one-to-one onto the StrikoWestofen mandate, and his German fluency with relocation flexibility removes practical friction. The honest tradeoffs are team-size step-up (2.5×) and the absence of multi-site P&L experience across StrikoWestofen's full geographic footprint.",
+      "key_criteria": [
+        {
+          "name": "Hands-on Leadership with strategic and cultural transformation capability",
+          "evidence": "At <strong>Smart</strong>, transformed a German-only heat-exchanger division into a pan-European business over four years — €20M to €47M with three consecutive years of 30% YoY growth, EMEA agent networks across six markets, and a new EMEA application engineering centre.",
+          "context_anchor": "at Smart"
+        },
+        {
+          "name": "Global mindset and international experience",
+          "evidence": "Reports to a CEO based in China at <strong>Smart</strong>, integrating parent <strong>Tica's</strong> €1.5B Chinese manufacturing into the supply chain. Earlier at <strong>Kelvion</strong>, served as VP Sales across Europe, North America, and Asia while running UK & Ireland as Managing Director.",
+          "context_anchor": "at Smart and Kelvion"
+        },
+        {
+          "name": "Similar business size experience",
+          "evidence": "Full P&L for <strong>Smart's</strong> €47M, 70-employee heat-exchanger business; previously ran <strong>Kelvion's</strong> €40M UK & Ireland operation as Managing Director.",
+          "context_anchor": "at Smart and Kelvion"
+        },
+        {
+          "name": "Industrial background",
+          "evidence": "Career-long capital-equipment specialism — heat exchangers for data centres, HVAC, and industrial applications across <strong>Smart</strong> and <strong>Kelvion</strong> (PE-backed under Triton, then Apollo). Works daily with engineering teams developing proprietary chiller-controller software.",
+          "context_anchor": "at Smart and Kelvion"
+        },
+        {
+          "name": "Fluent German speaker with ability to be on-site in Wiehl regularly",
+          "evidence": "Native German speaker currently commuting weekly Mon–Fri to Stuttgart. Confirmed openness to relocate closer to Wiehl — family is renting rather than owning, US American wife, prior UK→Germany move.",
+          "context_anchor": "at Smart"
+        }
+      ],
+      "compensation": {
+        "current_base": "€200,000",
+        "current_bonus": "30% of base (€60,000 target)",
+        "current_lti": "None currently — Smart is considering LTI ahead of stock-exchange listing",
+        "current_total": "≈€260,000 cash",
+        "expected_total": "Not explicitly stated; confirmed 30% STI structure 'is matching' and raised no concerns about 30% LTI",
+        "flexibility": "No deal-breakers raised. Sits at top of base range, so any uplift will run through LTI rather than base.",
+        "notice_period": "6 months from end of month. Realistic earliest start ≈ late October 2026.",
+        "budget_base": "€175,000 – €200,000",
+        "budget_bonus": "30% STI",
+        "budget_lti": "30% LTI"
+      },
+      "why_interested": [
+        {
+          "type": "pull",
+          "headline": "Same transformation playbook, larger scale",
+          "detail": "Recognised the Norican brief as 'really like what I'm doing here at Smart' — the same German-to-EMEA thesis with greater scope and longer PE-backed runway."
+        },
+        {
+          "type": "push",
+          "headline": "Smart's IPO trajectory shifts the role",
+          "detail": "Smart is preparing for stock-exchange listing, surfaced unprompted — listed-company governance constrains the founder-led, fast-action mode of the last four years."
+        }
+      ],
+      "potential_concerns": [
+        {
+          "concern": "Unprompted caution about automotive exposure given the German EV-driven market downturn — StrikoWestofen's existing customer base is automotive tier-one, warrants direct discussion before final stage.",
+          "severity": "significant"
+        },
+        {
+          "concern": "Smart's transformation was into a vacuum (the absence of internationalisation), not against entrenched institutional resistance — the Job Summary's specific 'sustained resistance' warning was not directly probed.",
+          "severity": "significant"
+        },
+        {
+          "concern": "Has not held P&L for a multi-site international footprint of StrikoWestofen's complexity (Germany / Czech / China / India / US); prior multi-region exposure was VP Sales scope at Kelvion.",
+          "severity": "development"
+        }
+      ],
+      "our_take": {
+        "text": "We believe Kay is a high-relevance candidate whose four years at Smart are an almost one-to-one rehearsal of the StrikoWestofen mandate — scaling a German-only heat-exchanger division to €47M with three consecutive years of 30% YoY growth, integrating Chinese parent-company manufacturing, and standing up an EMEA application engineering centre. His hands-on leadership, comfort reporting to a Chinese CEO, and personal mobility (renting, US American wife, prior UK→Germany relocation) map cleanly onto the role. The automotive caution and resistance-management gap warrant discussion but do not disqualify."
+      },
+      "flash_summary": "GM at Smart heat-exchanger division for four years; scaled €20M → €47M with three consecutive years of 30% YoY growth. Earlier VP Sales (Europe / NA / Asia) and UK & Ireland MD at Kelvion. Native German with US American wife and high relocation flexibility.",
+      "compensation_alignment": "aligned",
+      "compensation_alignment_note": "Current ≈€260K cash; budget competitive at top of base range, with uplift running through LTI weighting rather than base"
+    },
+    {
       "candidate_name": "Sebastian Eickens",
       "candidate_id": "sebastian-eickens",
       "current_title": "General Manager",
