@@ -32,7 +32,10 @@ const COMP_COLOR: Record<string, string> = {
   not_set: "#a0a0a0",
 };
 
-const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold' | 'none'> = ['none', 'new', 'active', 'rejected', 'hold'];
+// Click-cycle order. 'none' is intentionally excluded — cycling through it
+// makes it too easy to accidentally land on no-status (which gates client
+// visibility). To unset a status, use Reset all edits.
+const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold'> = ['new', 'active', 'rejected', 'hold'];
 const STATUS_STYLES: Record<string, { color: string; bg: string; border: string }> = {
   new: { color: "#4a6a8c", bg: "rgba(74,106,140,0.08)", border: "rgba(74,106,140,0.2)" },
   active: { color: "#4a7c59", bg: "rgba(74,124,89,0.08)", border: "rgba(74,124,89,0.2)" },
@@ -189,8 +192,8 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
   };
 
   const cycleStatus = () => {
-    const curr = v.status || 'none';
-    const idx = STATUS_CYCLE.indexOf(curr);
+    // 'none' / undefined → first click lands on 'new' (indexOf returns -1; (-1+1)%4 = 0)
+    const idx = v.status ? STATUS_CYCLE.indexOf(v.status as typeof STATUS_CYCLE[number]) : -1;
     save({ status: STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length] });
   };
 
