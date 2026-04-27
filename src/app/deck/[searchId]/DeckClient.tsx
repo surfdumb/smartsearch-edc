@@ -308,16 +308,22 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     }
   }, [hiddenCandidates, hiddenKey, searchId]);
 
-  // Filter candidates by status when candidate_statuses is defined
-  // Only show candidates that have a status entry (e.g., "to_send")
+  // Visibility gate: a candidate is "in shortlist" once they have a per-candidate
+  // status (New / Active / Rejected / Hold). No status = not yet ready for client.
+  // Client view is filtered to shortlist only — there is no toggle. Edit mode keeps
+  // the toggle so consultants can see no-status candidates and assign one.
+  const hasShortlistStatus = (s: unknown): boolean => {
+    if (typeof s !== 'string') return false;
+    const norm = s.toLowerCase();
+    return norm === 'new' || norm === 'active' || norm === 'rejected' || norm === 'hold';
+  };
   const [showAllCandidates, setShowAllCandidates] = useState(false);
-  const shortlistCount = data.candidate_statuses
-    ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {})).length
-    : data.candidates.length;
-  const hasFilter = data.candidate_statuses && shortlistCount < data.candidates.length;
-  const statusFiltered = (hasFilter && !showAllCandidates)
-    ? data.candidates.filter((c) => c.candidate_id in (data.candidate_statuses || {}))
-    : data.candidates;
+  const shortlist = data.candidates.filter((c) => hasShortlistStatus(c.edc_data?.status));
+  const shortlistCount = shortlist.length;
+  const hasFilter = shortlistCount < data.candidates.length;
+  const statusFiltered = !isEditRoute
+    ? shortlist
+    : (hasFilter && !showAllCandidates) ? shortlist : data.candidates;
 
   // Apply hidden candidates filter
   const visibleCandidates = statusFiltered.filter((c) => !hiddenCandidates.has(c.candidate_id));
