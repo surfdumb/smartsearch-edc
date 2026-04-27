@@ -32,10 +32,11 @@ const COMP_COLOR: Record<string, string> = {
   not_set: "#a0a0a0",
 };
 
-// Click-cycle order. 'none' is intentionally excluded — cycling through it
-// makes it too easy to accidentally land on no-status (which gates client
-// visibility). To unset a status, use Reset all edits.
-const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold'> = ['new', 'active', 'rejected', 'hold'];
+// Click-cycle order. 'none' is at the END so first click on a fresh badge
+// lands on 'new' (the consultant's likely intent), and cycling past 'hold'
+// goes to 'none' — the deliberate way to take a candidate off client view
+// without resetting unrelated edits.
+const STATUS_CYCLE: Array<'new' | 'active' | 'rejected' | 'hold' | 'none'> = ['new', 'active', 'rejected', 'hold', 'none'];
 const STATUS_STYLES: Record<string, { color: string; bg: string; border: string }> = {
   new: { color: "#4a6a8c", bg: "rgba(74,106,140,0.08)", border: "rgba(74,106,140,0.2)" },
   active: { color: "#4a7c59", bg: "rgba(74,124,89,0.08)", border: "rgba(74,124,89,0.2)" },
