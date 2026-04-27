@@ -1,4 +1,4 @@
-import { put } from "@vercel/blob";
+import { put, list, del } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { SUPABASE_ENABLED } from "@/lib/supabase";
 import { mergeKeyCriteria } from "@/lib/merge-criteria";
@@ -256,6 +256,53 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ saved: "supabase", searchId, candidateId });
   } catch (error) {
     console.error("[edits] Save failed:", error);
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request): Promise<NextResponse> {
+  try {
+    const { searchParams } = new URL(request.url);
+    const searchId = searchParams.get("searchId");
+    const candidateId = searchParams.get("candidateId");
+
+    if (!searchId || !candidateId) {
+      return NextResponse.json(
+        { error: "searchId and candidateId are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!/^[a-z0-9-]+$/i.test(searchId) || !/^[a-z0-9'-]+$/i.test(candidateId)) {
+      return NextResponse.json({ error: "Invalid searchId or candidateId" }, { status: 400 });
+    }
+
+    const hasFixture = fixtureExists(searchId);
+
+    if (!hasFixture && SUPABASE_ENABLED) {
+      console.log("[edits] DELETE skipped for Supabase-native search:", searchId, candidateId);
+      return NextResponse.json({ skipped: "supabase-native", searchId, candidateId });
+    }
+
+    const prefix = `edits/${searchId}/${candidateId}.json`;
+    const { blobs } = await list({ prefix });
+
+    if (blobs.length === 0) {
+      console.log("[edits] No overlay to delete:", prefix);
+      return NextResponse.json({ deleted: 0, prefix });
+    }
+
+    let deleted = 0;
+    for (const blob of blobs) {
+      console.log("[edits] Deleting overlay:", blob.pathname, blob.url);
+      await del(blob.url);
+      console.log("[edits] Deleted overlay:", blob.pathname);
+      deleted++;
+    }
+
+    return NextResponse.json({ deleted, prefix });
+  } catch (error) {
+    console.error("[edits] Delete failed:", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

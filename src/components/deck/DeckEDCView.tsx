@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import DeckNavigation from "@/components/deck/DeckNavigation";
 import EDCStatusBar from "@/components/deck/EDCStatusBar";
 import EDCCard from "@/components/edc/EDCCard";
@@ -77,6 +78,7 @@ export default function DeckEDCView({
   onClientVisible,
   onHideFromClient,
 }: DeckEDCViewProps) {
+  const router = useRouter();
   const [resetKey, setResetKey] = useState(0);
   const edc = candidate.edc_data;
   const isEditable = isEditRoute;
@@ -237,8 +239,10 @@ export default function DeckEDCView({
             onFlushEdits={handleFlushEdits}
             onClientVisible={onClientVisible}
             onHideFromClient={onHideFromClient}
-            onReset={() => {
+            onReset={async () => {
               const cid = candidate.candidate_id;
+              // clearDirty also aborts any in-flight POST and cancels pending debounced saves,
+              // so the DELETE below is the last word on what's in the Blob.
               clearDirty(cid);
               try {
                 clearEditWithHash(`edc_edit_${cid}_scope`);
@@ -247,10 +251,27 @@ export default function DeckEDCView({
                 clearEditWithHash(`edc_edit_${cid}_header`);
                 clearEditWithHash(`edc_edit_${cid}_ourtake`);
                 clearEditWithHash(`edc_edit_${cid}_motivation`);
+                localStorage.removeItem(`card_edits_${cid}`);
+                localStorage.removeItem(`edc_ourtake_result_${cid}`);
               } catch { /* ignore */ }
               setOurTakeOverride(null);
               setOurTakeLocalEdits(null);
               setResetKey(k => k + 1);
+
+              // Clear server-side overlay so the next page render uses fixture data.
+              // Without this, the Blob overlay would re-overwrite the fixture on reload.
+              try {
+                const res = await fetch(
+                  `/api/edits/save?searchId=${encodeURIComponent(searchId)}&candidateId=${encodeURIComponent(cid)}`,
+                  { method: 'DELETE' }
+                );
+                if (!res.ok) {
+                  console.warn('[reset] DELETE overlay failed:', res.status);
+                }
+              } catch (err) {
+                console.warn('[reset] DELETE overlay request failed:', err);
+              }
+              router.refresh();
             }}
           />
         )}

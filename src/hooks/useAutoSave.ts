@@ -17,14 +17,33 @@ const EDIT_EVENT = 'edc-edit';
 // ─── Dirty flag: auto-save only fires after a real user edit ──────────────
 const dirtySet = new Set<string>();
 
+// ─── In-flight aborts: keyed by candidateId so Reset can cancel a pending POST.
+// Without this, a POST that left the browser before clearDirty would land on the
+// server after the DELETE and re-create the overlay we just removed.
+const controllers = new Map<string, AbortController>();
+
 /** Mark a candidate as having user edits so auto-save will proceed. */
 export function markDirty(candidateId: string) {
   dirtySet.add(candidateId);
 }
 
-/** Clear dirty flag (e.g., on navigation or reset). */
+/** Clear dirty flag (e.g., on navigation or reset). Also aborts any in-flight save. */
 export function clearDirty(candidateId: string) {
   dirtySet.delete(candidateId);
+  const c = controllers.get(candidateId);
+  if (c) {
+    c.abort();
+    controllers.delete(candidateId);
+  }
+  // Cancel pending debounced save too — timers are keyed by `${searchId}/${candidateId}`,
+  // so match by suffix to avoid threading searchId through callers.
+  const suffix = `/${candidateId}`;
+  timers.forEach((timer, key) => {
+    if (key.endsWith(suffix)) {
+      clearTimeout(timer);
+      timers.delete(key);
+    }
+  });
 }
 
 /** Call this after writing to localStorage to trigger auto-save. */
@@ -117,18 +136,32 @@ async function saveEdits(searchId: string, candidateId: string, baseEdc: EDCData
       if (card.location && !headerRaw) merged.location = card.location;
     }
 
-    const res = await fetch('/api/edits/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ searchId, candidateId, edcData: merged }),
-    });
-    if (res.ok) {
-      console.log(`[auto-save] Saved edits for ${candidateId}`);
-    } else {
-      console.warn(`[auto-save] Save failed for ${candidateId}:`, res.status);
+    const controller = new AbortController();
+    controllers.set(candidateId, controller);
+    try {
+      const res = await fetch('/api/edits/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ searchId, candidateId, edcData: merged }),
+        signal: controller.signal,
+      });
+      if (res.ok) {
+        console.log(`[auto-save] Saved edits for ${candidateId}`);
+      } else {
+        console.warn(`[auto-save] Save failed for ${candidateId}:`, res.status);
+      }
+    } finally {
+      // Only clear if it's still ours — clearDirty may have replaced it on a quick re-edit.
+      if (controllers.get(candidateId) === controller) {
+        controllers.delete(candidateId);
+      }
     }
   } catch (err) {
-    console.warn('[auto-save] Failed:', err);
+    if ((err as Error).name === 'AbortError') {
+      console.log(`[auto-save] Aborted for ${candidateId} (Reset)`);
+    } else {
+      console.warn('[auto-save] Failed:', err);
+    }
   } finally {
     pendingSaves.delete(key);
   }
