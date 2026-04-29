@@ -1218,6 +1218,145 @@
         "our_take_fragments": [],
         "status": "new"
       }
+    },
+    {
+      "candidate_id": "justin-frickey",
+      "initials": "JF",
+      "candidate_name": "Justin Frickey",
+      "current_title": "Director of Machine Fabrication",
+      "current_company": "Boeing",
+      "location": "Wichita, Kansas",
+      "photo_url": "",
+      "headline": "Oversees 565-person aerospace machining operation with $91M budget across 264 production assets for Boeing's second-largest entity.",
+      "compensation_alignment": "not_set",
+      "career_trajectory": "Aerospace manufacturing — large-scale CNC and machining operations leadership",
+      "industry_shorthand": "Aerospace manufacturing",
+      "status": "new",
+      "edc_data": {
+        "candidate_name": "Justin Frickey",
+        "current_title": "Director of Machine Fabrication",
+        "current_company": "Boeing",
+        "location": "Wichita, Kansas",
+        "headline": "Oversees 565-person aerospace machining operation with $91M budget across 264 production assets for Boeing's second-largest entity.",
+        "motivation_hook": "Seeks smaller entrepreneurial environment with better work-life balance after brutal Boeing schedule.",
+        "scope_match": [
+          {
+            "scope": "P&L",
+            "candidate_actual": "$91M fiscal budget with $1.6M positive variance",
+            "role_requirement": "Not specified",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Headcount",
+            "candidate_actual": "565 total (3 direct reports, 22 second-tier managers)",
+            "role_requirement": "Not specified",
+            "alignment": "strong"
+          },
+          {
+            "scope": "Geography",
+            "candidate_actual": "Single site - Wichita facility (almost 1 million sq ft production space)",
+            "role_requirement": "Not specified",
+            "alignment": "partial"
+          },
+          {
+            "scope": "Reporting Line",
+            "candidate_actual": "Reports four levels down from Site Leader in 15,000-person organization",
+            "role_requirement": "Not specified",
+            "alignment": "partial"
+          }
+        ],
+        "scope_seasoning": "Justin currently manages significantly larger scope than Kemco's operation - his 565-person team with $91M budget and 264 production assets represents enterprise-scale leadership. He explicitly seeks a smaller environment and views Kemco's scale as 'more appealing,' stating downsizing isn't a concern. His progression from First Level Manager to Executive Director demonstrates adaptability across organizational scales.",
+        "key_criteria": [
+          {
+            "name": "Aerospace experience",
+            "evidence": "Justin has spent 100% of his post-military career in aerospace manufacturing since 2016. Currently manages <strong>15,000 part numbers and 175,000 monthly demand</strong> serving military and commercial platforms across tier 1 supplier and OEM operations.",
+            "context_anchor": "at Boeing and Spirit AeroSystems"
+          },
+          {
+            "name": "Operations/production experience with engineering/technical exposure/credibility",
+            "evidence": "Justin progressed from Production Shift Supervisor through pure operations roles to Director level. Despite no engineering degree, he developed technical depth managing <strong>3-4-5 axis machining, NADCAP areas, and challenging programmers</strong> after self-teaching from 'couldn’t tell you a machine from a drill.'",
+            "context_anchor": "at Spirit AeroSystems"
+          },
+          {
+            "name": "CNC machining experience",
+            "evidence": "Justin has managed CNC and machining for his entire eight-year aerospace career. Currently oversees <strong>264 major production assets including 3-4-5 axis machines</strong> across hard and soft metal machining with 10,000 part numbers in low-volume high-mix environment.",
+            "context_anchor": "at Boeing"
+          },
+          {
+            "name": "Continuous improvement experience",
+            "evidence": "Justin's CI experience is <strong>strategic rather than hands-on</strong> — he oversees continuous improvement as part of his Executive Director scope at Boeing but hasn't 'physically touched and self managed a lean type physical project' in four years. He views Kemco's early-stage CI journey as an opportunity to learn alongside the team rather than independently drive transformation.",
+            "context_anchor": "at Boeing"
+          },
+          {
+            "name": "Personality and culture fit — outgoing and personable",
+            "evidence": "Consultant described Justin as 'real pleasant,' 'HILARIOUS,' and 'self aware' with strong interpersonal warmth. He demonstrates <strong>open communication style and relationship-building capability</strong>, maintaining close personal friendship with current boss and progressing through union environments requiring stakeholder management.",
+            "context_anchor": "at Boeing"
+          }
+        ],
+        "compensation": {
+          "current_base": "$185,000",
+          "current_bonus": "25% cash bonus ($46,250) + 25% stock bonus ($46,250)",
+          "current_lti": "$125,000 unvested stock over three years (approximately $45,000 per year vesting)",
+          "current_total": "Approximately $322,500 annually",
+          "expected_base": "$200,000",
+          "expected_bonus": "20-25% ($40,000-$50,000)",
+          "expected_lti": "Not specified",
+          "expected_total": "Approximately $240,000-$250,000",
+          "flexibility": "Justin needs base salary 'up to $200K' as minimum threshold given $125K unvested stock he'd forfeit and dual household expenses during 3-6 month solo relocation. He's 'fine to negotiate a compelling bonus' in 20-25% range and open to performance-driven structures rather than rigid on any single component. Described himself as 'a realist' who understands most companies won't match Boeing's double-tiered bonus structure.",
+          "budget_range": null,
+          "budget_base": null,
+          "budget_bonus": null,
+          "budget_lti": null
+        },
+        "notice_period": "Two weeks preferred (no contractual obligation). Executive agreement did not include transition clause when Spirit became Boeing. Successor already identified who 'could take my chair tomorrow.'",
+        "earliest_start_date": "Mid-to-late May 2026. Justin wants to wait until mid-May for $20,000 stock vesting before resigning. With two weeks notice, earliest realistic start is late May or early June 2026. Would relocate solo for 3-6 months while family finishes son's baseball season.",
+        "why_interested": [
+          {
+            "type": "push",
+            "headline": "Unsustainable work schedule and high-pressure environment",
+            "detail": "Justin works brutal 4:30 AM-4:30 PM schedule plus Saturdays, managing 1,500 overtime hours. He's 'tired of getting kicked in the teeth every day' in large corporate Boeing environment and seeks better work-life balance."
+          },
+          {
+            "type": "pull",
+            "headline": "Desire for smaller entrepreneurial environment with greater impact",
+            "detail": "Justin explicitly seeks 'a smaller environment' and finds Kemco's scale 'more appealing' than his current $15B corporate entity. He wants 'a little more freedom and opportunity' to make direct impact in close-knit culture."
+          },
+          {
+            "type": "pull",
+            "headline": "Family ties to St. Louis provide built-in community",
+            "detail": "Justin's wife has family connections to St. Louis, creating natural support network and community ties that ease relocation concerns beyond just the professional opportunity."
+          }
+        ],
+        "potential_concerns": [
+          {
+            "concern": "Significant scope reduction from 565-person, $91M enterprise operation to smaller Kemco scale may prove insufficiently challenging long-term, despite Justin's stated desire for downsizing.",
+            "severity": "development"
+          },
+          {
+            "concern": "$125K unvested stock walkaway creates substantial financial gap that could complicate offer negotiations or create retention risk if Justin later regrets leaving significant compensation on table.",
+            "severity": "significant"
+          },
+          {
+            "concern": "Continuous improvement experience is more strategic than tactical - Justin hasn't 'physically touched and self managed a lean type physical project' in four years and would be learning alongside Kemco rather than independently driving CI transformation.",
+            "severity": "development"
+          },
+          {
+            "concern": "Competing second-round interview with Daher in Florida where wife is 'excited for the beach' creates family preference tension and timeline pressure, though Florida cost of living is twice current location.",
+            "severity": "development"
+          }
+        ],
+        "our_take": {
+          "text": "We believe Justin is an exceptionally strong cultural and technical fit who brings the right blend of hands-on operations credibility, leadership scale, and interpersonal warmth. His self-awareness, humor, and genuine desire for a smaller environment with better work-life balance suggest he'd thrive in Kemco's close-knit culture and bring infectious energy to the team."
+        },
+        "search_name": "Kemco",
+        "role_title": "Director of Operations",
+        "generated_date": "29 Apr 2026",
+        "consultant_name": "Tara Nugent",
+        "match_score_percentage": null,
+        "match_score_display": "HIDE",
+        "status": "new",
+        "our_take_fragments": []
+      }
     }
   ]
 }
