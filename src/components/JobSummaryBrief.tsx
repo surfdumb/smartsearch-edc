@@ -677,7 +677,10 @@ export default function JobSummaryBrief({
 
             {/* Search Lead row — editable in edit mode, writes to searches.kam */}
             {(isEditMode || data.search_lead) && (
-              <div style={{ marginTop: "8px", display: "flex", alignItems: "baseline", gap: "6px" }}>
+              <div
+                className="js-brief-search-lead-row"
+                style={{ marginTop: "8px", display: "flex", alignItems: "baseline", gap: "6px" }}
+              >
                 <span style={{ fontSize: "0.72rem", color: "#8a8a8a", fontWeight: 600, letterSpacing: "0.3px" }}>
                   Search Lead:
                 </span>

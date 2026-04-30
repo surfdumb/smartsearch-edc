@@ -77,6 +77,24 @@
     border: none !important;
   }
 
+  /* Flash bio line-break fix: the editable-wrap defaults to display: inline-block,
+   * which is atomic in line layout — long content can't wrap mid-text, forcing the
+   * entire block to a new line and stranding adjacent separators. Override to inline
+   * in print so text content participates in normal text flow and wraps cleanly at
+   * regular word boundaries. The NBSP-bound separators stay glued to neighbours
+   * so | is never orphaned at the start or end of a wrapped line. */
+  .editable-wrap {
+    display: inline !important;
+  }
+
+  /* Hide the Search Lead row in PDF when no value is present.
+   * In editing mode, the row always renders (so users can add a value), which
+   * leaves an orphan "Search Lead:" label in PDFs exported from edit mode. */
+  .js-brief-search-lead-row:has(.editable-cell:empty),
+  .js-brief-search-lead-row:has(span:empty:last-child) {
+    display: none !important;
+  }
+
   /* Footer collab line: plain text in print, no link styling */
   .js-brief-footer-collab a {
     color: #c8c8c8 !important;
