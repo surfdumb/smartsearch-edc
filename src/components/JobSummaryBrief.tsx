@@ -582,10 +582,11 @@ export default function JobSummaryBrief({
                 style={{
                   fontFamily:
                     "var(--font-libre-franklin), 'Libre Franklin', sans-serif",
-                  fontSize: "2.4rem",
-                  fontWeight: 600,
+                  fontSize: searchId === "cgn-bdd" ? "1.44rem" : "2.4rem",
+                  fontWeight: searchId === "cgn-bdd" ? 400 : 600,
                   color: "var(--ss-gold, #c5a572)",
-                  letterSpacing: "-0.5px",
+                  letterSpacing:
+                    searchId === "cgn-bdd" ? "-0.3px" : "-0.5px",
                   lineHeight: 1,
                 }}
               >
@@ -595,7 +596,11 @@ export default function JobSummaryBrief({
               <img
                 src="/logos/Logos_SmartSearch_Primary_FullColour.png"
                 alt="SmartSearch"
-                style={{ height: "48px", width: "auto", opacity: 0.95 }}
+                style={{
+                  height: searchId === "cgn-bdd" ? "29px" : "48px",
+                  width: "auto",
+                  opacity: 0.95,
+                }}
               />
             </div>
 
