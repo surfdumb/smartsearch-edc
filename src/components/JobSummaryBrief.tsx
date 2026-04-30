@@ -25,7 +25,7 @@ function GoldRule() {
         height: "1px",
         background: "var(--ss-gold, #c5a572)",
         opacity: 0.35,
-        margin: "36px 0",
+        margin: "22px 0",
       }}
     />
   );
@@ -50,7 +50,7 @@ function Section({
           letterSpacing: "2.5px",
           textTransform: "uppercase",
           color: "var(--ss-gold, #c5a572)",
-          marginBottom: "14px",
+          marginBottom: "10px",
         }}
       >
         {label}
@@ -210,13 +210,13 @@ function IntelField({
 }) {
   if (!value) return null;
   return (
-    <div style={{ marginBottom: "20px" }}>
+    <div style={{ marginBottom: "14px" }}>
       <p
         style={{
           fontSize: "0.68rem",
           fontWeight: 700,
           color: "rgba(201,149,58,0.8)",
-          marginBottom: "6px",
+          marginBottom: "4px",
           letterSpacing: "0.5px",
         }}
       >
@@ -279,8 +279,8 @@ function ResponsibilitiesList({ text }: { text: string }) {
           style={{
             display: "flex",
             gap: "10px",
-            marginBottom: "8px",
-            lineHeight: 1.6,
+            marginBottom: "5px",
+            lineHeight: 1.5,
             alignItems: "flex-start",
           }}
         >
@@ -561,7 +561,7 @@ export default function JobSummaryBrief({
               width: "100%",
               background: "#faf8f5",
               borderRadius: "12px",
-              padding: "48px 56px",
+              padding: "36px 56px",
               boxShadow:
                 "0 4px 24px rgba(0,0,0,0.15), inset 0 0 80px rgba(197,165,114,0.03)",
               position: "relative",
@@ -573,25 +573,29 @@ export default function JobSummaryBrief({
               style={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "flex-start",
+                alignItems: "center",
                 marginBottom: "8px",
+                gap: "24px",
               }}
             >
               <span
                 style={{
-                  fontSize: "0.88rem",
+                  fontFamily:
+                    "var(--font-libre-franklin), 'Libre Franklin', sans-serif",
+                  fontSize: "2.4rem",
                   fontWeight: 600,
                   color: "var(--ss-gold, #c5a572)",
-                  letterSpacing: "0.5px",
+                  letterSpacing: "-0.5px",
+                  lineHeight: 1,
                 }}
               >
                 Job Summary
               </span>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/logos/Logos_SmartSearch_SecondarySymbol_Gold.png"
+                src="/logos/Logos_SmartSearch_Primary_FullColour.png"
                 alt="SmartSearch"
-                style={{ height: "36px", opacity: 0.7 }}
+                style={{ height: "48px", width: "auto", opacity: 0.95 }}
               />
             </div>
 
@@ -767,7 +771,7 @@ export default function JobSummaryBrief({
                         style={{
                           display: "flex",
                           gap: "12px",
-                          marginBottom: "14px",
+                          marginBottom: "9px",
                           lineHeight: 1.55,
                           alignItems: "flex-start",
                           padding: "6px 8px",
@@ -1024,8 +1028,8 @@ export default function JobSummaryBrief({
             {/* ── Footer ─────────────────────────────────────────── */}
             <div
               style={{
-                marginTop: "32px",
-                paddingTop: "20px",
+                marginTop: "22px",
+                paddingTop: "16px",
                 borderTop: "1px solid rgba(197,165,114,0.2)",
                 textAlign: "center",
               }}
