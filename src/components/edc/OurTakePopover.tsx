@@ -199,6 +199,19 @@ export default function OurTakePopover({
     }
   }, [storageKey, text, fragments, name]);
 
+  // True when the popover mounts (or candidate switches) with no Our Take
+  // content. Read on save to mark provenance — see the our_take_source mirror
+  // in /api/edits/save. Re-evaluated when initial props change so navigating to
+  // a populated candidate without closing the popover doesn't accidentally
+  // re-assert "Consultant-Direct" over an existing source value.
+  const wasInitiallyEmpty = useRef<boolean>(
+    !initialText?.trim() && !(initialFragments && initialFragments.length > 0)
+  );
+  useEffect(() => {
+    wasInitiallyEmpty.current =
+      !initialText?.trim() && !(initialFragments && initialFragments.length > 0);
+  }, [initialText, initialFragments]);
+
   // A snapshot ref mirrored on every render so unmount + beforeunload see the
   // latest values without stale closure capture. Includes savedSnapshotHash so
   // the unmount cleanup can dirty-check against the last persisted baseline.
@@ -249,6 +262,14 @@ export default function OurTakePopover({
     // Sync React state + localStorage + signalEdit via commitOurTake so the
     // manual save and the debounced autosave stay consistent.
     commitOurTake({ text: latest.text, fragments: latest.fragments });
+    const edcDataPayload: Record<string, unknown> = {
+      our_take: { text: latest.text },
+      our_take_fragments: latest.fragments,
+      consultant_name: latest.name,
+    };
+    if (wasInitiallyEmpty.current && latest.text?.trim().length > 0) {
+      edcDataPayload.our_take_source = "Consultant-Direct";
+    }
     try {
       const res = await fetch('/api/edits/save', {
         method: 'POST',
@@ -256,11 +277,7 @@ export default function OurTakePopover({
         body: JSON.stringify({
           searchId,
           candidateId,
-          edcData: {
-            our_take: { text: latest.text },
-            our_take_fragments: latest.fragments,
-            consultant_name: latest.name,
-          },
+          edcData: edcDataPayload,
         }),
       });
       if (!res.ok) throw new Error(`Save failed (${res.status})`);
@@ -316,6 +333,14 @@ export default function OurTakePopover({
       signalEdit(snap.candidateId);
       // Fire-and-forget POST with keepalive so the request survives unmount.
       if (snap.searchId) {
+        const unmountPayload: Record<string, unknown> = {
+          our_take: { text: latestText },
+          our_take_fragments: latestFragments,
+          consultant_name: latestName,
+        };
+        if (wasInitiallyEmpty.current && latestText?.trim().length > 0) {
+          unmountPayload.our_take_source = "Consultant-Direct";
+        }
         try {
           fetch('/api/edits/save', {
             method: 'POST',
@@ -323,11 +348,7 @@ export default function OurTakePopover({
             body: JSON.stringify({
               searchId: snap.searchId,
               candidateId: snap.candidateId,
-              edcData: {
-                our_take: { text: latestText },
-                our_take_fragments: latestFragments,
-                consultant_name: latestName,
-              },
+              edcData: unmountPayload,
             }),
             keepalive: true,
           }).catch(() => { /* component is gone */ });
@@ -369,15 +390,19 @@ export default function OurTakePopover({
       }
       const latestHash = hashData({ text: latestText, fragments: latestFragments });
       if (latestHash === snap.savedSnapshotHash) return;
+      const beaconPayload: Record<string, unknown> = {
+        our_take: { text: latestText },
+        our_take_fragments: latestFragments,
+        consultant_name: latestName,
+      };
+      if (wasInitiallyEmpty.current && latestText?.trim().length > 0) {
+        beaconPayload.our_take_source = "Consultant-Direct";
+      }
       try {
         const payload = JSON.stringify({
           searchId: snap.searchId,
           candidateId: snap.candidateId,
-          edcData: {
-            our_take: { text: latestText },
-            our_take_fragments: latestFragments,
-            consultant_name: latestName,
-          },
+          edcData: beaconPayload,
         });
         navigator.sendBeacon('/api/edits/save', new Blob([payload], { type: 'application/json' }));
       } catch { /* ignore */ }

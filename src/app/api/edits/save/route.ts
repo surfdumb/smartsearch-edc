@@ -147,6 +147,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
             for (const field of Object.keys(edcData)) {
               if (field === '_fromFallback') continue;
+              // our_take_source is a column-only mirror (matches Engine prod
+              // shape: populated column, no JSONB twin). Handled explicitly
+              // below the loop. Skipping here keeps it out of edc_data JSONB
+              // and out of manually_edited_fields (provenance metadata is not
+              // a tracked edit field).
+              if (field === 'our_take_source') continue;
 
               const value = edcData[field];
               if (value === undefined) continue;
@@ -220,6 +226,16 @@ export async function POST(request: Request): Promise<NextResponse> {
               if (ourTakeText !== null) {
                 updatePayload.our_take = ourTakeText;
               }
+            }
+
+            // Mirror our_take_source to top-level candidates.our_take_source
+            // column. Provenance label only ("Manual Notes" from Engine,
+            // "Consultant-Direct" from in-portal compose-from-empty). No JSONB
+            // twin — column is canonical store, matching the Engine prod shape
+            // on Greg/Robert. The popover sends this only on first save when
+            // our_take was previously null/empty.
+            if (edcData.our_take_source !== undefined && typeof edcData.our_take_source === 'string') {
+              updatePayload.our_take_source = edcData.our_take_source;
             }
 
             const { error } = await supabase
