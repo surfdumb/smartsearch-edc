@@ -11,7 +11,6 @@ import EDCFooter from "@/components/edc/EDCFooter";
 import TabNavigation from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
 import OurTakePopover from "@/components/edc/OurTakePopover";
-import OurTakeEmptyState from "@/components/edc/OurTakeEmptyState";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
@@ -306,29 +305,6 @@ export default function EDCCard({
               </div>
             )}
 
-            {/* Empty-state CTA — only when no Our Take content, edit mode, deck setting allows */}
-            {!hasOurTake
-              && deckSettings?.our_take_display !== 'HIDE'
-              && isEditable
-              && !ourTakeOverlayOpen && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: "12px",
-                  right: fluid ? "16px" : "32px",
-                  display: "flex",
-                  gap: "8px",
-                  zIndex: 10,
-                }}
-              >
-                <OurTakeEmptyState
-                  ref={ourTakeTriggerRef}
-                  fluid={fluid}
-                  onClick={() => handleOurTakeToggle(true)}
-                />
-              </div>
-            )}
-
             {/* Our Take overlay — fills content area on first open */}
             {ourTakeOverlayOpen && hasRealOurTake ? (
               <div
@@ -476,10 +452,8 @@ export default function EDCCard({
         roleTitle={data.role_title}
       />
 
-      {/* Our Take Popover — portal rendered (only when overlay is NOT showing).
-          Allow opening from empty state in edit mode so consultant can compose
-          Our Take from scratch when our_take is null in Supabase. */}
-      {ourTakeOpen && (hasOurTake || isEditable) && !ourTakeOverlayOpen && (
+      {/* Our Take Popover — portal rendered (only when overlay is NOT showing) */}
+      {ourTakeOpen && hasOurTake && !ourTakeOverlayOpen && (
         <OurTakePopover
           fragments={data.our_take_fragments}
           text={data.our_take?.text}
