@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import SectionLabel from "@/components/ui/SectionLabel";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
@@ -28,9 +29,13 @@ interface CompensationProps {
   compensation: CompensationData;
   notice_period: string;
   candidateId?: string;
+  /** search_key (slug) for the brief API endpoint — required to persist
+   *  Target Range edits server-side. */
+  searchId?: string;
   /** Canonical per-search target compensation from searches.budget_*.
-   *  When present, the Target column reads from here instead of the
-   *  candidate snapshot. Editing happens via the Role Brief editor. */
+   *  Target column reads from here instead of the candidate snapshot.
+   *  Edits write back to searches.budget_* via /api/deck/[searchId]/brief
+   *  so every EDC in the deck reflects the new value. */
   searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
 }
 
@@ -131,6 +136,8 @@ function CompRow({
   originalExpected,
   budget,
   hasBudget,
+  budgetEditable,
+  onUpdateBudget,
   cols,
   labelStyle,
   valStyle,
@@ -146,6 +153,9 @@ function CompRow({
   originalExpected?: string;
   budget?: string;
   hasBudget: boolean;
+  /** When true, render the Target cell as a contentEditable that calls onUpdateBudget. */
+  budgetEditable?: boolean;
+  onUpdateBudget?: (v: string) => void;
   cols: string;
   labelStyle: React.CSSProperties;
   valStyle: React.CSSProperties;
@@ -184,7 +194,15 @@ function CompRow({
     >
       <span style={usedLabelStyle}>{label}</span>
       {hasBudget && (
-        <span style={usedValStyle}>{budget && budget.trim() ? budget : "—"}</span>
+        budgetEditable ? (
+          <BudgetEditable
+            value={budget || ""}
+            style={usedValStyle}
+            onUpdate={onUpdateBudget || (() => {})}
+          />
+        ) : (
+          <span style={usedValStyle}>{budget && budget.trim() ? budget : "—"}</span>
+        )
       )}
       <EditableCell
         value={curVal}
@@ -201,6 +219,52 @@ function CompRow({
         onUpdate={onUpdateExpected || (() => {})}
       />
     </div>
+  );
+}
+
+/* ── Editable Target cell — saves to searches.budget_* server-side, no reset
+ *     button (server is the source of truth, so "original" rebases on every save). */
+function BudgetEditable({
+  value,
+  style,
+  onUpdate,
+}: {
+  value: string;
+  style: React.CSSProperties;
+  onUpdate: (v: string) => void;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <span
+      ref={(el) => {
+        (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el;
+        if (el && !el.textContent) el.textContent = value;
+      }}
+      contentEditable
+      suppressContentEditableWarning
+      className="editable-cell"
+      onFocus={() => { focusedRef.current = true; }}
+      onInput={(e) => { onUpdate(e.currentTarget.textContent || ""); }}
+      onBlur={(e) => {
+        focusedRef.current = false;
+        onUpdate(e.currentTarget.textContent || "");
+      }}
+      style={{
+        ...style,
+        padding: "2px 6px",
+        margin: "-2px -6px",
+        display: "block",
+        outline: "none",
+      }}
+    />
   );
 }
 
@@ -280,8 +344,44 @@ function NoticeEditable({ value, originalValue, onUpdate }: { value: string; ori
   );
 }
 
-export default function Compensation({ compensation, notice_period, candidateId, searchBudget }: CompensationProps) {
+export default function Compensation({ compensation, notice_period, candidateId, searchId, searchBudget }: CompensationProps) {
   const { isEditable } = useEditorContext();
+  const router = useRouter();
+
+  // Local state for the search-canonical Target column. Optimistically updates
+  // on edit, then debounce-saves to /api/deck/[searchId]/brief which writes
+  // searches.budget_*. router.refresh() after save propagates the new value
+  // to every other candidate's EDC in the deck.
+  const [liveBudget, setLiveBudget] = useState<{ base?: string; bonus?: string; lti?: string; di?: string }>(searchBudget || {});
+  useEffect(() => { setLiveBudget(searchBudget || {}); }, [searchBudget]);
+  const budgetSaveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
+  const saveBudgetField = useCallback((field: 'budget_base' | 'budget_bonus' | 'budget_lti' | 'budget_di', value: string) => {
+    if (!searchId) return;
+    const timers = budgetSaveTimers.current;
+    const existing = timers.get(field);
+    if (existing) clearTimeout(existing);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/deck/${searchId}/brief`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [field]: value }),
+        });
+        if (res.ok) router.refresh();
+        else console.error('[comp] budget save failed', res.status);
+      } catch (err) {
+        console.error('[comp] budget save error', err);
+      }
+      timers.delete(field);
+    }, 1500);
+    timers.set(field, timer);
+  }, [searchId, router]);
+  const updateBudget = useCallback((key: 'base' | 'bonus' | 'lti', value: string) => {
+    setLiveBudget((prev) => ({ ...prev, [key]: value }));
+    const fieldMap = { base: 'budget_base', bonus: 'budget_bonus', lti: 'budget_lti' } as const;
+    saveBudgetField(fieldMap[key], value);
+  }, [saveBudgetField]);
+  const budgetEditable = isEditable && !!searchId;
   const storageKey = candidateId ? `edc_edit_${candidateId}_comp` : null;
   const compPropHash = { compensation, notice_period };
   const [comp, setComp] = useState<CompensationData>(() => {
@@ -345,7 +445,7 @@ export default function Compensation({ compensation, notice_period, candidateId,
   const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
   const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
   const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
-  const hasBudget = isEditable || !isEmpty(searchBudget?.base) || !isEmpty(searchBudget?.bonus) || !isEmpty(searchBudget?.lti);
+  const hasBudget = isEditable || !isEmpty(liveBudget.base) || !isEmpty(liveBudget.bonus) || !isEmpty(liveBudget.lti);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -407,7 +507,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
           <>
             <CompRow label="Base" current={comp.current_base} expected={comp.expected_base}
               originalCurrent={originalComp.current.current_base} originalExpected={originalComp.current.expected_base}
-              budget={searchBudget?.base}
+              budget={liveBudget.base} budgetEditable={budgetEditable}
+              onUpdateBudget={(v) => updateBudget("base", v)}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
@@ -415,7 +516,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
               onUpdateExpected={(v) => update("expected_base", v)} />
             <CompRow label="Bonus" current={comp.current_bonus} expected={comp.expected_bonus}
               originalCurrent={originalComp.current.current_bonus} originalExpected={originalComp.current.expected_bonus}
-              budget={searchBudget?.bonus}
+              budget={liveBudget.bonus} budgetEditable={budgetEditable}
+              onUpdateBudget={(v) => updateBudget("bonus", v)}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
@@ -423,7 +525,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
               onUpdateExpected={(v) => update("expected_bonus", v)} />
             <CompRow label="LTI" current={comp.current_lti} expected={comp.expected_lti}
               originalCurrent={originalComp.current.current_lti} originalExpected={originalComp.current.expected_lti}
-              budget={searchBudget?.lti}
+              budget={liveBudget.lti} budgetEditable={budgetEditable}
+              onUpdateBudget={(v) => updateBudget("lti", v)}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}

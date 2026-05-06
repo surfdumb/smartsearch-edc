@@ -464,6 +464,7 @@ export default function EDCCard({
                     compensation={data.compensation}
                     notice_period={data.notice_period}
                     candidateId={candidateId}
+                    searchId={searchId}
                     searchBudget={searchBudget}
                   />
                   {/* WhyInterested removed — motivation lives in MotivationStrip */}
