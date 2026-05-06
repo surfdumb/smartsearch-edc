@@ -47,7 +47,7 @@ interface DeckEDCViewProps {
   /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
   searchDimensions?: { name: string; role_requirement: string }[];
   /** Canonical per-search target compensation; threaded to EDCCard → Compensation. */
-  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
   /** When true (deck_settings.js_in_portal), the Role Brief is the SSOT for Key
    *  Criteria structure; threaded to EDCCard → KeyCriteria to gate add/remove UI. */
   roleBriefMode?: boolean;

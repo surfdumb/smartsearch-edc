@@ -55,7 +55,7 @@ interface EDCCardProps {
   /** Canonical per-search target compensation from searches.budget_*.
    *  Threaded to Compensation so Target Range is read from the search config
    *  rather than the candidate snapshot. */
-  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
   /** When true, the Role Brief is the SSOT for Key Criteria structure;
    *  KeyCriteria hides add/remove UI and shows a hint pointing to the brief. */
   roleBriefMode?: boolean;

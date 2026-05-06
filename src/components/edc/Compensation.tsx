@@ -36,7 +36,7 @@ interface CompensationProps {
    *  Target column reads from here instead of the candidate snapshot.
    *  Edits write back to searches.budget_* via /api/deck/[searchId]/brief
    *  so every EDC in the deck reflects the new value. */
-  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
 }
 
 const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Assessment pending", ""];
@@ -352,10 +352,10 @@ export default function Compensation({ compensation, notice_period, candidateId,
   // on edit, then debounce-saves to /api/deck/[searchId]/brief which writes
   // searches.budget_*. router.refresh() after save propagates the new value
   // to every other candidate's EDC in the deck.
-  const [liveBudget, setLiveBudget] = useState<{ base?: string; bonus?: string; lti?: string; di?: string }>(searchBudget || {});
+  const [liveBudget, setLiveBudget] = useState<{ base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string }>(searchBudget || {});
   useEffect(() => { setLiveBudget(searchBudget || {}); }, [searchBudget]);
   const budgetSaveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
-  const saveBudgetField = useCallback((field: 'budget_base' | 'budget_bonus' | 'budget_lti' | 'budget_di', value: string) => {
+  const saveBudgetField = useCallback((field: 'budget_base' | 'budget_bonus' | 'budget_lti' | 'budget_di' | 'budget_benefits' | 'budget_total', value: string) => {
     if (!searchId) return;
     const timers = budgetSaveTimers.current;
     const existing = timers.get(field);
@@ -376,9 +376,15 @@ export default function Compensation({ compensation, notice_period, candidateId,
     }, 1500);
     timers.set(field, timer);
   }, [searchId, router]);
-  const updateBudget = useCallback((key: 'base' | 'bonus' | 'lti', value: string) => {
+  const updateBudget = useCallback((key: 'base' | 'bonus' | 'lti' | 'benefits' | 'total', value: string) => {
     setLiveBudget((prev) => ({ ...prev, [key]: value }));
-    const fieldMap = { base: 'budget_base', bonus: 'budget_bonus', lti: 'budget_lti' } as const;
+    const fieldMap = {
+      base: 'budget_base',
+      bonus: 'budget_bonus',
+      lti: 'budget_lti',
+      benefits: 'budget_benefits',
+      total: 'budget_total',
+    } as const;
     saveBudgetField(fieldMap[key], value);
   }, [saveBudgetField]);
   const budgetEditable = isEditable && !!searchId;
@@ -445,7 +451,12 @@ export default function Compensation({ compensation, notice_period, candidateId,
   const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
   const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
   const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
-  const hasBudget = isEditable || !isEmpty(liveBudget.base) || !isEmpty(liveBudget.bonus) || !isEmpty(liveBudget.lti);
+  const hasBudget = isEditable
+    || !isEmpty(liveBudget.base)
+    || !isEmpty(liveBudget.bonus)
+    || !isEmpty(liveBudget.lti)
+    || !isEmpty(liveBudget.benefits)
+    || !isEmpty(liveBudget.total);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -534,6 +545,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
               onUpdateExpected={(v) => update("expected_lti", v)} />
             <CompRow label="Benefits" current={comp.current_benefits} expected={comp.expected_benefits}
               originalCurrent={originalComp.current.current_benefits} originalExpected={originalComp.current.expected_benefits}
+              budget={liveBudget.benefits} budgetEditable={budgetEditable}
+              onUpdateBudget={(v) => updateBudget("benefits", v)}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
@@ -542,6 +555,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
             {hasTotal && (
               <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
                 originalCurrent={originalComp.current.current_total} originalExpected={originalComp.current.expected_total}
+                budget={liveBudget.total} budgetEditable={budgetEditable}
+                onUpdateBudget={(v) => updateBudget("total", v)}
                 hasBudget={hasBudget} cols={cols}
                 labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
                 isEditable={isEditable}
@@ -553,6 +568,8 @@ export default function Compensation({ compensation, notice_period, candidateId,
           hasTotal && (
             <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
               originalCurrent={originalComp.current.current_total} originalExpected={originalComp.current.expected_total}
+              budget={liveBudget.total} budgetEditable={budgetEditable}
+              onUpdateBudget={(v) => updateBudget("total", v)}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
               isEditable={isEditable}

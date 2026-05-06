@@ -19,6 +19,8 @@ const ALLOWED_FIELDS = new Set([
   'budget_bonus',
   'budget_lti',
   'budget_di',
+  'budget_benefits',
+  'budget_total',
   'red_flag_title',
   'red_flag_detail',
   'predecessor_context',

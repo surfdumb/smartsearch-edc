@@ -151,8 +151,11 @@ export interface SearchContext {
   /** Canonical per-search target compensation. When present, the Compensation
    *  panel reads Target Range from here instead of the candidate snapshot — so
    *  editing budget in Role Brief updates every EDC in the deck immediately. */
-  search_budget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  search_budget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
   candidates: IntroCardData[];
+  /** Server-side `searches.updated_at`. Read by JobSummaryBrief to compare
+   *  against a localStorage draft's `created_at` for stale-write protection. */
+  updated_at?: string;
   /** Map of candidate_id → status for controlling visibility/labels */
   candidate_statuses?: Record<string, string>;
   /** Server-persisted card order (candidate IDs). Loaded from Vercel Blob. */

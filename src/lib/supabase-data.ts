@@ -165,6 +165,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     key_criteria_names: keyCriteria?.map((k) => k.name) || [],
     search_lead: search.kam || '',
     candidates: introCards,
+    updated_at: (search.updated_at as string) || undefined,
     candidate_statuses: Object.fromEntries(
       candidates.map((c) => [c.candidate_slug, c.deck_status || 'active'])
     ),
@@ -178,6 +179,8 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       bonus: (search.budget_bonus as string) || undefined,
       lti: (search.budget_lti as string) || undefined,
       di: (search.budget_di as string) || undefined,
+      benefits: (search.budget_benefits as string) || undefined,
+      total: (search.budget_total as string) || undefined,
     },
   };
 
