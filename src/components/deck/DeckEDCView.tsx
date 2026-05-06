@@ -46,6 +46,11 @@ interface DeckEDCViewProps {
   onOurTakeChange?: (open: boolean) => void;
   /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** Canonical per-search target compensation; threaded to EDCCard → Compensation. */
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  /** When true (deck_settings.js_in_portal), the Role Brief is the SSOT for Key
+   *  Criteria structure; threaded to EDCCard → KeyCriteria to gate add/remove UI. */
+  roleBriefMode?: boolean;
   /** Server-hydrated flag: candidate is in searches.hidden_candidates (deck-level gate). */
   isHiddenFromClient?: boolean;
   /** Lock & Share side-effect: remove candidate from hidden_candidates (server-persisted). */
@@ -74,6 +79,8 @@ export default function DeckEDCView({
   onPanelChange,
   onOurTakeChange,
   searchDimensions,
+  searchBudget,
+  roleBriefMode = false,
   isHiddenFromClient = false,
   onClientVisible,
   onHideFromClient,
@@ -301,6 +308,8 @@ export default function DeckEDCView({
               onPanelChange={onPanelChange}
               onOurTakeChange={onOurTakeChange}
               searchDimensions={searchDimensions}
+              searchBudget={searchBudget}
+              roleBriefMode={roleBriefMode}
             />
             {!split && (
               <CandidateNavigation

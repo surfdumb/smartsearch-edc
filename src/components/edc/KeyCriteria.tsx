@@ -31,6 +31,7 @@ function deepEqualCriteria(a: CriterionItem[], b: CriterionItem[]): boolean {
 interface KeyCriteriaProps {
   key_criteria: CriterionItem[];
   candidateId?: string;
+  roleBriefMode?: boolean;
 }
 
 /* ── Editable pill with remove button ── */
@@ -160,7 +161,7 @@ function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: 
   );
 }
 
-export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaProps) {
+export default function KeyCriteria({ key_criteria, candidateId, roleBriefMode = false }: KeyCriteriaProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_criteria` : null;
 
@@ -264,6 +265,18 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
     <section className="px-8 py-5 border-b border-ss-border">
       <SectionLabel label="Key Criteria" lineInsetRight="130px" isEditable={isEditable} hasEdits={hasEdits} onResetSection={resetSection} />
 
+      {isEditable && roleBriefMode && (
+        <p style={{
+          fontSize: "0.7rem",
+          color: "var(--ss-gray-light)",
+          marginTop: "-4px",
+          marginBottom: "8px",
+          fontStyle: "italic",
+        }}>
+          Criteria structure is managed in the Role Brief — edit evidence and context anchors here.
+        </p>
+      )}
+
       <div className="flex flex-col gap-0">
         {items.map((item, i) => {
           const orig = originalItems.current[i];
@@ -273,7 +286,7 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
               key={i}
               style={{
                 display: "grid",
-                gridTemplateColumns: isEditable ? "24px 1fr 20px" : "24px 1fr",
+                gridTemplateColumns: (isEditable && !roleBriefMode) ? "24px 1fr 20px" : "24px 1fr",
                 gap: "10px",
                 alignItems: "flex-start",
                 padding: "7px 0",
@@ -304,11 +317,13 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                 {/* Criterion name — read-only, sourced from Role Brief (SSOT).
                     Keep in items state so autosave payload still carries it. */}
                 <h4
+                  title={isEditable && roleBriefMode ? "Criteria are managed in the Role Brief" : undefined}
                   style={{
                     fontSize: "0.95rem",
                     fontWeight: 600,
                     color: "var(--ss-dark)",
                     marginBottom: "3px",
+                    cursor: isEditable && roleBriefMode ? "help" : undefined,
                   }}
                 >
                   {item.name}
@@ -379,8 +394,8 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
                 </div>
               </div>
 
-              {/* Row remove — edit mode */}
-              {isEditable && (
+              {/* Row remove — edit mode (hidden when Role Brief is the SSOT) */}
+              {isEditable && !roleBriefMode && (
                 <button
                   onClick={() => removeRow(i)}
                   style={{
@@ -405,8 +420,8 @@ export default function KeyCriteria({ key_criteria, candidateId }: KeyCriteriaPr
           );
         })}
 
-        {/* Ghost add-row */}
-        {isEditable && (
+        {/* Ghost add-row (hidden when Role Brief is the SSOT) */}
+        {isEditable && !roleBriefMode && (
           <button
             onClick={addRow}
             style={{

@@ -1814,6 +1814,8 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onPanelChange={handlePanelChange}
       onOurTakeChange={handleOurTakeChange}
       searchDimensions={data.scope_match_dimensions}
+      searchBudget={data.search_budget}
+      roleBriefMode={jsInPortal}
       isHiddenFromClient={hiddenCandidates.has(candidate.candidate_id)}
       onClientVisible={() => revealCandidateToClient(candidate.candidate_id)}
       onHideFromClient={() => hideCandidateFromClient(candidate.candidate_id)}

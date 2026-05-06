@@ -173,6 +173,12 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     deck_settings: (search.deck_settings as SearchContext['deck_settings']) || undefined,
     js_source_url: (search.js_source_url as string) || undefined,
     scope_match_dimensions: (search.scope_match_dimensions as { name: string; role_requirement: string }[] | null) || undefined,
+    search_budget: {
+      base: (search.budget_base as string) || undefined,
+      bonus: (search.budget_bonus as string) || undefined,
+      lti: (search.budget_lti as string) || undefined,
+      di: (search.budget_di as string) || undefined,
+    },
   };
 
   // Thread raw Job Summary fields when js_in_portal is enabled

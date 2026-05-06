@@ -52,6 +52,13 @@ interface EDCCardProps {
    *  Threaded through to ScopeMatch so role_requirement is read from the search
    *  config rather than the candidate snapshot. */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** Canonical per-search target compensation from searches.budget_*.
+   *  Threaded to Compensation so Target Range is read from the search config
+   *  rather than the candidate snapshot. */
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
+  /** When true, the Role Brief is the SSOT for Key Criteria structure;
+   *  KeyCriteria hides add/remove UI and shows a hint pointing to the brief. */
+  roleBriefMode?: boolean;
 }
 
 export default function EDCCard({
@@ -69,6 +76,8 @@ export default function EDCCard({
   onPanelChange,
   onOurTakeChange,
   searchDimensions,
+  searchBudget,
+  roleBriefMode = false,
 }: EDCCardProps) {
   const { isEditable } = useEditorContext();
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
@@ -443,7 +452,11 @@ export default function EDCCard({
                 </div>
 
                 <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
-                  <KeyCriteria key_criteria={data.key_criteria} candidateId={candidateId} />
+                  <KeyCriteria
+                    key_criteria={data.key_criteria}
+                    candidateId={candidateId}
+                    roleBriefMode={roleBriefMode}
+                  />
                 </div>
 
                 <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
@@ -451,6 +464,7 @@ export default function EDCCard({
                     compensation={data.compensation}
                     notice_period={data.notice_period}
                     candidateId={candidateId}
+                    searchBudget={searchBudget}
                   />
                   {/* WhyInterested removed — motivation lives in MotivationStrip */}
                   {data.miscellaneous && (

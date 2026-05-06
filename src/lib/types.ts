@@ -148,6 +148,10 @@ export interface SearchContext {
    *  role_requirement from here instead of the candidate snapshot — so editing
    *  the role requirement in Role Brief updates all candidate cards at once. */
   scope_match_dimensions?: { name: string; role_requirement: string }[];
+  /** Canonical per-search target compensation. When present, the Compensation
+   *  panel reads Target Range from here instead of the candidate snapshot — so
+   *  editing budget in Role Brief updates every EDC in the deck immediately. */
+  search_budget?: { base?: string; bonus?: string; lti?: string; di?: string };
   candidates: IntroCardData[];
   /** Map of candidate_id → status for controlling visibility/labels */
   candidate_statuses?: Record<string, string>;

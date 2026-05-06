@@ -28,6 +28,10 @@ interface CompensationProps {
   compensation: CompensationData;
   notice_period: string;
   candidateId?: string;
+  /** Canonical per-search target compensation from searches.budget_*.
+   *  When present, the Target column reads from here instead of the
+   *  candidate snapshot. Editing happens via the Role Brief editor. */
+  searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string };
 }
 
 const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Assessment pending", ""];
@@ -126,7 +130,6 @@ function CompRow({
   originalCurrent,
   originalExpected,
   budget,
-  originalBudget,
   hasBudget,
   cols,
   labelStyle,
@@ -135,7 +138,6 @@ function CompRow({
   isEditable,
   onUpdateCurrent,
   onUpdateExpected,
-  onUpdateBudget,
 }: {
   label: string;
   current?: string;
@@ -143,7 +145,6 @@ function CompRow({
   originalCurrent?: string;
   originalExpected?: string;
   budget?: string;
-  originalBudget?: string;
   hasBudget: boolean;
   cols: string;
   labelStyle: React.CSSProperties;
@@ -152,7 +153,6 @@ function CompRow({
   isEditable: boolean;
   onUpdateCurrent?: (v: string) => void;
   onUpdateExpected?: (v: string) => void;
-  onUpdateBudget?: (v: string) => void;
 }) {
   // In edit mode, always show actual values — never replace with "—"
   // In read-only mode, use isEmpty to show "—" for placeholder values
@@ -184,13 +184,7 @@ function CompRow({
     >
       <span style={usedLabelStyle}>{label}</span>
       {hasBudget && (
-        <EditableCell
-          value={budget || "—"}
-          originalValue={originalBudget ?? budget ?? "—"}
-          isEditable={isEditable}
-          style={usedValStyle}
-          onUpdate={onUpdateBudget || (() => {})}
-        />
+        <span style={usedValStyle}>{budget && budget.trim() ? budget : "—"}</span>
       )}
       <EditableCell
         value={curVal}
@@ -286,7 +280,7 @@ function NoticeEditable({ value, originalValue, onUpdate }: { value: string; ori
   );
 }
 
-export default function Compensation({ compensation, notice_period, candidateId }: CompensationProps) {
+export default function Compensation({ compensation, notice_period, candidateId, searchBudget }: CompensationProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_comp` : null;
   const compPropHash = { compensation, notice_period };
@@ -351,7 +345,7 @@ export default function Compensation({ compensation, notice_period, candidateId 
   const hasLTI = !isEmpty(comp.current_lti) || !isEmpty(comp.expected_lti);
   const hasBenefits = !isEmpty(comp.current_benefits) || !isEmpty(comp.expected_benefits);
   const hasTotal = !isEmpty(comp.current_total) || !isEmpty(comp.expected_total);
-  const hasBudget = isEditable || !isEmpty(comp.budget_range) || !isEmpty(comp.budget_base) || !isEmpty(comp.budget_bonus) || !isEmpty(comp.budget_lti);
+  const hasBudget = isEditable || !isEmpty(searchBudget?.base) || !isEmpty(searchBudget?.bonus) || !isEmpty(searchBudget?.lti);
 
   const colStyle: React.CSSProperties = {
     fontSize: "0.75rem",
@@ -413,31 +407,28 @@ export default function Compensation({ compensation, notice_period, candidateId 
           <>
             <CompRow label="Base" current={comp.current_base} expected={comp.expected_base}
               originalCurrent={originalComp.current.current_base} originalExpected={originalComp.current.expected_base}
-              budget={comp.budget_base} originalBudget={originalComp.current.budget_base}
+              budget={searchBudget?.base}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_base", v)}
-              onUpdateExpected={(v) => update("expected_base", v)}
-              onUpdateBudget={(v) => update("budget_base", v)} />
+              onUpdateExpected={(v) => update("expected_base", v)} />
             <CompRow label="Bonus" current={comp.current_bonus} expected={comp.expected_bonus}
               originalCurrent={originalComp.current.current_bonus} originalExpected={originalComp.current.expected_bonus}
-              budget={comp.budget_bonus} originalBudget={originalComp.current.budget_bonus}
+              budget={searchBudget?.bonus}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_bonus", v)}
-              onUpdateExpected={(v) => update("expected_bonus", v)}
-              onUpdateBudget={(v) => update("budget_bonus", v)} />
+              onUpdateExpected={(v) => update("expected_bonus", v)} />
             <CompRow label="LTI" current={comp.current_lti} expected={comp.expected_lti}
               originalCurrent={originalComp.current.current_lti} originalExpected={originalComp.current.expected_lti}
-              budget={comp.budget_lti} originalBudget={originalComp.current.budget_lti}
+              budget={searchBudget?.lti}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-gray)" }} valStyle={valStyle}
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_lti", v)}
-              onUpdateExpected={(v) => update("expected_lti", v)}
-              onUpdateBudget={(v) => update("budget_lti", v)} />
+              onUpdateExpected={(v) => update("expected_lti", v)} />
             <CompRow label="Benefits" current={comp.current_benefits} expected={comp.expected_benefits}
               originalCurrent={originalComp.current.current_benefits} originalExpected={originalComp.current.expected_benefits}
               hasBudget={hasBudget} cols={cols}
@@ -448,26 +439,22 @@ export default function Compensation({ compensation, notice_period, candidateId 
             {hasTotal && (
               <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
                 originalCurrent={originalComp.current.current_total} originalExpected={originalComp.current.expected_total}
-                budget={comp.budget_range} originalBudget={originalComp.current.budget_range}
                 hasBudget={hasBudget} cols={cols}
                 labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
                 isEditable={isEditable}
                 onUpdateCurrent={(v) => update("current_total", v)}
-                onUpdateExpected={(v) => update("expected_total", v)}
-                onUpdateBudget={(v) => update("budget_range", v)} />
+                onUpdateExpected={(v) => update("expected_total", v)} />
             )}
           </>
         ) : (
           hasTotal && (
             <CompRow label="Total" current={comp.current_total} expected={comp.expected_total}
               originalCurrent={originalComp.current.current_total} originalExpected={originalComp.current.expected_total}
-              budget={comp.budget_range} originalBudget={originalComp.current.budget_range}
               hasBudget={hasBudget} cols={cols}
               labelStyle={{ ...colStyle, color: "var(--ss-dark)", fontWeight: 700 }} valStyle={valStyle} emphasized
               isEditable={isEditable}
               onUpdateCurrent={(v) => update("current_total", v)}
-              onUpdateExpected={(v) => update("expected_total", v)}
-              onUpdateBudget={(v) => update("budget_range", v)} />
+              onUpdateExpected={(v) => update("expected_total", v)} />
           )
         )}
       </div>
