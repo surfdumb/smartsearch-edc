@@ -162,6 +162,10 @@ export interface SearchContext {
   card_order?: string[];
   /** Server-persisted hidden candidate IDs. Loaded from Vercel Blob. */
   hidden_candidates?: string[];
+  /** Per-candidate Key Criteria visibility overrides. Map of
+   *  candidate_slug → array of canonicalText(criterion.name). Editorial
+   *  overlay; cleared per-candidate by Reset Edits. */
+  hidden_criteria_per_candidate?: Record<string, string[]>;
   deck_settings?: {
     match_score_display: 'SHOW' | 'HIDE';
     our_take_display: 'SHOW' | 'HIDE';

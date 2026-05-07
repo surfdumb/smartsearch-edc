@@ -6,6 +6,7 @@ import ContextAnchorPill from "@/components/ui/ContextAnchorPill";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
+import { canonicalText } from "@/lib/criteria-canonical";
 
 interface CriterionItem {
   name: string;
@@ -31,7 +32,60 @@ function deepEqualCriteria(a: CriterionItem[], b: CriterionItem[]): boolean {
 interface KeyCriteriaProps {
   key_criteria: CriterionItem[];
   candidateId?: string;
+  searchId?: string;
+  hiddenCriterionNames?: string[];
   roleBriefMode?: boolean;
+}
+
+function CriterionVisibilityToggle({
+  isHidden,
+  onToggle,
+}: {
+  isHidden: boolean;
+  onToggle: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const opacity = isHidden ? 1 : (hovered ? 0.7 : 0.25);
+
+  return (
+    <button
+      onClick={onToggle}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      title={isHidden ? "Show to client" : "Hide from client"}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "20px",
+        height: "20px",
+        background: "transparent",
+        border: "none",
+        padding: 0,
+        cursor: "pointer",
+        opacity,
+        transition: "opacity 0.15s",
+      }}
+    >
+      {isHidden ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="var(--ss-gold)" strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+          <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+          <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+          <line x1="2" y1="2" x2="22" y2="22" />
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="var(--ss-dark)" strokeWidth="1.6"
+          strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      )}
+    </button>
+  );
 }
 
 /* ── Editable pill with remove button ── */
@@ -161,9 +215,44 @@ function CriterionEvidenceEditable({ value, originalValue, onUpdate }: { value: 
   );
 }
 
-export default function KeyCriteria({ key_criteria, candidateId, roleBriefMode = false }: KeyCriteriaProps) {
+export default function KeyCriteria({ key_criteria, candidateId, searchId, hiddenCriterionNames, roleBriefMode = false }: KeyCriteriaProps) {
   const { isEditable } = useEditorContext();
   const storageKey = candidateId ? `edc_edit_${candidateId}_criteria` : null;
+
+  const [hiddenNames, setHiddenNames] = useState<Set<string>>(
+    () => new Set((hiddenCriterionNames || []).map(canonicalText))
+  );
+  useEffect(() => {
+    setHiddenNames(new Set((hiddenCriterionNames || []).map(canonicalText)));
+  }, [hiddenCriterionNames]);
+
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+  }, []);
+
+  function toggleVisibility(canonicalName: string) {
+    setHiddenNames(prev => {
+      const next = new Set(prev);
+      if (next.has(canonicalName)) next.delete(canonicalName);
+      else next.add(canonicalName);
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      if (searchId && candidateId) {
+        const payloadNames = Array.from(next);
+        saveTimerRef.current = setTimeout(() => {
+          fetch(
+            `/api/deck/${encodeURIComponent(searchId)}/criteria-visibility`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ candidate_id: candidateId, hidden_names: payloadNames }),
+            }
+          ).catch(err => console.warn('[criteria-visibility] save failed:', err));
+        }, 400);
+      }
+      return next;
+    });
+  }
 
   // Engine-generated criteria have non-empty evidence — prefer the prop over
   // stale localStorage which may contain old fallback/EDS data.
@@ -280,16 +369,22 @@ export default function KeyCriteria({ key_criteria, candidateId, roleBriefMode =
       <div className="flex flex-col gap-0">
         {items.map((item, i) => {
           const orig = originalItems.current[i];
+          const canonicalName = canonicalText(item.name);
+          const isHidden = hiddenNames.has(canonicalName);
+
+          if (!isEditable && isHidden) return null;
 
           return (
             <div
               key={i}
               style={{
                 display: "grid",
-                gridTemplateColumns: (isEditable && !roleBriefMode) ? "24px 1fr 20px" : "24px 1fr",
+                gridTemplateColumns: (isEditable && candidateId) ? "24px 1fr 24px" : "24px 1fr",
                 gap: "10px",
                 alignItems: "flex-start",
                 padding: "7px 0",
+                opacity: isHidden ? 0.45 : 1,
+                transition: "opacity 0.15s",
                 borderBottom:
                   i < items.length - 1
                     ? "1px solid var(--ss-border-light)"
@@ -327,6 +422,22 @@ export default function KeyCriteria({ key_criteria, candidateId, roleBriefMode =
                   }}
                 >
                   {item.name}
+                  {isHidden && isEditable && (
+                    <span style={{
+                      display: "inline-block",
+                      marginLeft: "8px",
+                      fontSize: "0.6rem",
+                      fontWeight: 600,
+                      letterSpacing: "1.2px",
+                      textTransform: "uppercase",
+                      padding: "2px 7px",
+                      borderRadius: "10px",
+                      border: "1px dashed rgba(197,165,114,0.45)",
+                      color: "rgba(197,165,114,0.85)",
+                      background: "rgba(197,165,114,0.06)",
+                      verticalAlign: "middle",
+                    }}>Hidden</span>
+                  )}
                 </h4>
 
                 {/* Evidence + pill row */}
@@ -394,27 +505,40 @@ export default function KeyCriteria({ key_criteria, candidateId, roleBriefMode =
                 </div>
               </div>
 
-              {/* Row remove — edit mode (hidden when Role Brief is the SSOT) */}
-              {isEditable && !roleBriefMode && (
-                <button
-                  onClick={() => removeRow(i)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "0.82rem",
-                    color: "transparent",
-                    transition: "color 0.15s",
-                    padding: "2px",
-                    lineHeight: 1,
-                    marginTop: "4px",
-                  }}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "transparent"; }}
-                  title="Remove criterion"
-                >
-                  ×
-                </button>
+              {/* Gutter: eye toggle (per-candidate visibility) + row-remove × (non-role-brief only) */}
+              {isEditable && candidateId && (
+                <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "4px",
+                  marginTop: "2px",
+                }}>
+                  <CriterionVisibilityToggle
+                    isHidden={isHidden}
+                    onToggle={() => toggleVisibility(canonicalName)}
+                  />
+                  {!roleBriefMode && (
+                    <button
+                      onClick={() => removeRow(i)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "0.82rem",
+                        color: "transparent",
+                        transition: "color 0.15s",
+                        padding: "2px",
+                        lineHeight: 1,
+                      }}
+                      onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-red)"; }}
+                      onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "transparent"; }}
+                      title="Remove criterion"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           );

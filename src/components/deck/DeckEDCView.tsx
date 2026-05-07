@@ -57,6 +57,8 @@ interface DeckEDCViewProps {
   onClientVisible?: () => Promise<void>;
   /** Hide from Client side-effect: add candidate to hidden_candidates (server-persisted). */
   onHideFromClient?: () => Promise<void>;
+  /** Per-candidate Key Criteria visibility map; threaded to EDCCard → KeyCriteria. */
+  hiddenCriteriaPerCandidate?: Record<string, string[]>;
 }
 
 export default function DeckEDCView({
@@ -84,6 +86,7 @@ export default function DeckEDCView({
   isHiddenFromClient = false,
   onClientVisible,
   onHideFromClient,
+  hiddenCriteriaPerCandidate,
 }: DeckEDCViewProps) {
   const router = useRouter();
   const [resetKey, setResetKey] = useState(0);
@@ -278,6 +281,16 @@ export default function DeckEDCView({
               } catch (err) {
                 console.warn('[reset] DELETE overlay request failed:', err);
               }
+
+              try {
+                await fetch(
+                  `/api/deck/${encodeURIComponent(searchId)}/criteria-visibility?candidateId=${encodeURIComponent(cid)}`,
+                  { method: 'DELETE' }
+                );
+              } catch (err) {
+                console.warn('[reset] criteria-visibility DELETE failed:', err);
+              }
+
               router.refresh();
             }}
           />
@@ -310,6 +323,7 @@ export default function DeckEDCView({
               searchDimensions={searchDimensions}
               searchBudget={searchBudget}
               roleBriefMode={roleBriefMode}
+              hiddenCriterionNames={hiddenCriteriaPerCandidate?.[candidate.candidate_id] || []}
             />
             {!split && (
               <CandidateNavigation

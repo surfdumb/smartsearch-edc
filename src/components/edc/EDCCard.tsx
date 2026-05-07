@@ -59,6 +59,9 @@ interface EDCCardProps {
   /** When true, the Role Brief is the SSOT for Key Criteria structure;
    *  KeyCriteria hides add/remove UI and shows a hint pointing to the brief. */
   roleBriefMode?: boolean;
+  /** Per-candidate Key Criteria visibility — array of canonical criterion
+   *  names hidden from the client view for this specific candidate. */
+  hiddenCriterionNames?: string[];
 }
 
 export default function EDCCard({
@@ -78,6 +81,7 @@ export default function EDCCard({
   searchDimensions,
   searchBudget,
   roleBriefMode = false,
+  hiddenCriterionNames,
 }: EDCCardProps) {
   const { isEditable } = useEditorContext();
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
@@ -455,6 +459,8 @@ export default function EDCCard({
                   <KeyCriteria
                     key_criteria={data.key_criteria}
                     candidateId={candidateId}
+                    searchId={searchId}
+                    hiddenCriterionNames={hiddenCriterionNames}
                     roleBriefMode={roleBriefMode}
                   />
                 </div>

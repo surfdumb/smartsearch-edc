@@ -171,6 +171,8 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     ),
     card_order: search.card_order || undefined,
     hidden_candidates: search.hidden_candidates || undefined,
+    hidden_criteria_per_candidate:
+      (search.hidden_criteria_per_candidate as Record<string, string[]> | null) || undefined,
     deck_settings: (search.deck_settings as SearchContext['deck_settings']) || undefined,
     js_source_url: (search.js_source_url as string) || undefined,
     scope_match_dimensions: (search.scope_match_dimensions as { name: string; role_requirement: string }[] | null) || undefined,
