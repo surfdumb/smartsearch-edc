@@ -44,6 +44,34 @@ const STATUS_STYLES: Record<string, { color: string; bg: string; border: string 
   hold: { color: "#c9953a", bg: "rgba(201,149,58,0.08)", border: "rgba(201,149,58,0.2)" },
 };
 
+// Valid lowercase status set. Matches STATUS_CYCLE, plus 'none' = no-status sentinel.
+const VALID_STATUSES = ['new', 'active', 'rejected', 'hold', 'none'] as const;
+type ValidStatus = typeof VALID_STATUSES[number];
+
+/**
+ * Normalize a status value from any source into the lowercase canonical set
+ * the render and STATUS_CYCLE expect.
+ *
+ * Status persists in two server-side surfaces by design (dual-write in
+ * /api/edits/save):
+ *   - `candidates.deck_status` (column, canonical)
+ *   - `candidates.edc_data.status` (JSONB twin, what the visibility filter reads)
+ *
+ * Historically the data-assembly layer (supabase-data, fixture flat-load) only
+ * forwarded one of these onto IntroCardData — so `card.status` (top-level) was
+ * frequently undefined even when the candidate's status was correctly set
+ * server-side. That manifested as: candidate visible in client view, no pill.
+ * We resolve from both surfaces here, lowercase to defend against fixture-era
+ * capitalized values ("New" / "Active"), and gate against the valid set.
+ */
+function normalizeStatus(raw: unknown): ValidStatus | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const lower = raw.toLowerCase();
+  return (VALID_STATUSES as readonly string[]).includes(lower)
+    ? (lower as ValidStatus)
+    : undefined;
+}
+
 function editsKey(id: string) {
   return `card_edits_${id}`;
 }
@@ -168,7 +196,16 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
     current_company: edits.current_company ?? card.current_company,
     location: edits.location ?? card.location,
     headline: edits.headline ?? card.headline ?? card.flash_summary ?? "",
-    status: edits.status ?? (card as IntroCardData & { status?: string }).status as CardEdits['status'] | undefined,
+    // Status priority: in-flight localStorage edit → top-level card.status (set
+    // by overlay path on fixture decks) → card.edc_data.status (canonical JSONB
+    // surface, populated by every save and the filter reads from it). All paths
+    // funnel through normalizeStatus so render and cycle logic always see the
+    // lowercase canonical value, regardless of fixture-era capitalization.
+    status: normalizeStatus(
+      edits.status
+      ?? (card as IntroCardData & { status?: string }).status
+      ?? card.edc_data?.status
+    ),
     compensation_alignment: edits.compensation_alignment ?? card.compensation_alignment ?? "not_set",
   };
 
