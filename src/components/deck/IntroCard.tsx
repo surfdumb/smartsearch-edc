@@ -85,6 +85,7 @@ function Editable({
   singleLine = false,
   className,
   style,
+  placeholder,
 }: {
   value: string;
   onSave: (v: string) => void;
@@ -93,6 +94,7 @@ function Editable({
   singleLine?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  placeholder?: string;
 }) {
   const ref = useRef<HTMLElement>(null);
   const [focused, setFocused] = useState(false);
@@ -101,6 +103,11 @@ function Editable({
   if (!editMode) {
     return <Tag className={className} style={style}>{value}</Tag>;
   }
+
+  // Empty contenteditable spans collapse to zero width, leaving no click target
+  // once the user deletes all their text. Showing a placeholder via ::before
+  // restores both the visual hint and the hit area.
+  const showPlaceholder = !value && !focused && !!placeholder;
 
   const baseStyle: React.CSSProperties = {
     ...style,
@@ -121,34 +128,45 @@ function Editable({
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   return (
-    <Tag
-      ref={ref as any}
-      className={className}
-      style={baseStyle}
-      contentEditable
-      suppressContentEditableWarning
-      onFocus={() => setFocused(true)}
-      onBlur={(e: React.FocusEvent<HTMLElement>) => {
-        setFocused(false);
-        const val = stripArtifacts(e.currentTarget.textContent ?? "");
-        if (val !== (e.currentTarget.textContent ?? "").trim()) {
-          e.currentTarget.textContent = val;
+    <>
+      <Tag
+        ref={ref as any}
+        className={className}
+        style={baseStyle}
+        contentEditable
+        suppressContentEditableWarning
+        data-placeholder={showPlaceholder ? placeholder : undefined}
+        onFocus={() => setFocused(true)}
+        onBlur={(e: React.FocusEvent<HTMLElement>) => {
+          setFocused(false);
+          const val = stripArtifacts(e.currentTarget.textContent ?? "");
+          if (val !== (e.currentTarget.textContent ?? "").trim()) {
+            e.currentTarget.textContent = val;
+          }
+          onSave(val);
+        }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+        onKeyDown={(e: React.KeyboardEvent) => {
+          if (singleLine && e.key === "Enter") {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).blur();
+          }
+        }}
+      >
+        {value}
+      </Tag>
+      <style jsx>{`
+        [data-placeholder]::before {
+          content: attr(data-placeholder);
+          color: rgba(90, 85, 80, 0.4);
+          font-style: italic;
+          pointer-events: none;
         }
-        onSave(val);
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
-      onKeyDown={(e: React.KeyboardEvent) => {
-        if (singleLine && e.key === "Enter") {
-          e.preventDefault();
-          (e.currentTarget as HTMLElement).blur();
-        }
-      }}
-    >
-      {value}
-    </Tag>
+      `}</style>
+    </>
   );
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
@@ -438,6 +456,7 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
               value={snippet}
               onSave={(val) => save({ headline: val })}
               editMode={editMode}
+              placeholder="Add a description…"
               style={{
                 fontSize: "0.94rem",
                 color: "#5a5550",
