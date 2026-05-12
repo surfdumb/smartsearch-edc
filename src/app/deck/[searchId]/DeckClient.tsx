@@ -620,9 +620,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 >
                   {briefLocking ? "Saving..." : "Lock & Share →"}
                 </button>
-                <button
+                <a
                   className="js-brief-export-btn"
-                  onClick={() => window.print()}
+                  href={`/api/deck/${searchId}/pdf`}
                   style={{
                     background: "transparent",
                     border: "1px solid rgba(197, 165, 114, 0.25)",
@@ -634,10 +634,11 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
+                    textDecoration: "none",
                   }}
                 >
-                  Export PDF
-                </button>
+                  Download PDF
+                </a>
                 <a
                   href={`/deck/${searchId}`}
                   style={{
