@@ -21,6 +21,7 @@ import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/type
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
+  our_take_landing?: 'overlay' | 'bubble';
 }
 
 interface EDCCardProps {
@@ -190,9 +191,12 @@ export default function EDCCard({
   const hasRealOurTake = (hasRealFragments || hasRealText)
   && deckSettings?.our_take_display !== 'HIDE';
 
-  // Overlay only in client view (not edit mode) — edit mode uses the editable popover
+  // Overlay only in client view (not edit mode) — edit mode uses the editable popover.
+  // our_take_landing controls mount-time auto-open: 'overlay' (default) opens it; 'bubble' keeps it closed.
+  // Deep-link via #/ourtake (initialOurTakeOpen) bypasses the landing gate — URL intent wins.
+  const autoOpenAllowed = (deckSettings?.our_take_landing ?? 'overlay') !== 'bubble';
   const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(
-    !isEditable && hasRealOurTake && (initialOurTakeOpen || !initialPanel)
+    !isEditable && hasRealOurTake && (initialOurTakeOpen || (autoOpenAllowed && !initialPanel))
   );
 
   // Reset overlay state when candidate changes
@@ -201,8 +205,9 @@ export default function EDCCard({
     const text = data.our_take?.text?.trim() || "";
     const frags = data.our_take_fragments && data.our_take_fragments.length > 0;
     const real = (frags || (text.length > 0 && !text.includes(PLACEHOLDER_TEXT))) && deckSettings?.our_take_display !== 'HIDE';
-    // Show overlay on new candidate if they have real Our Take (unless restoring a specific panel from hash)
-    setOurTakeOverlayOpen(real && !initialPanel);
+    // autoOpenAllowed captured from outer scope — deck_settings is immutable at runtime in this PR.
+    // When a runtime Settings toggle lands, add deckSettings?.our_take_landing to deps or recompute here.
+    setOurTakeOverlayOpen(real && autoOpenAllowed && !initialPanel);
   }, [candidateId, isEditable]);
 
   return (

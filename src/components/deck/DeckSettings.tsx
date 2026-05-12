@@ -178,7 +178,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
             })}
           </div>
 
-          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px" }}>
             Applies to this deck in this browser.
           </p>
         </section>
@@ -241,7 +241,7 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
             <p style={{ color: "rgba(var(--deck-bg-text-rgb),0.5)", fontSize: "0.9rem", marginBottom: "6px" }}>
               {logoUrl ? "Click or drag to replace logo" : "Click or drag to upload client logo"}
             </p>
-            <p style={{ color: "rgba(var(--deck-bg-text-rgb),0.25)", fontSize: "0.75rem" }}>
+            <p style={{ color: "rgba(var(--deck-bg-text-rgb),0.65)", fontSize: "0.75rem" }}>
               PNG, JPG, SVG, WebP — displayed at 22px height in deck header
             </p>
           </div>
@@ -371,13 +371,13 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
             </button>
           </div>
 
-          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", marginTop: "14px" }}>
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px" }}>
             When enabled, a LinkedIn icon appears next to candidate names. URLs are set per-candidate in edit mode.
           </p>
         </section>
 
         {/* ── Storage note ── */}
-        <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.15)", lineHeight: 1.6 }}>
+        <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", lineHeight: 1.6 }}>
           Logo is stored locally in this browser. To make it visible to all users, add the file to{" "}
           <code style={{ color: "rgba(197,165,114,0.3)", fontSize: "0.7rem" }}>
             /public/logos/clients/{searchId}.png

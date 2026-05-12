@@ -173,6 +173,7 @@ export interface SearchContext {
     edit_mode: boolean;
     show_linkedin?: boolean;
     js_in_portal?: boolean;
+    our_take_landing?: 'overlay' | 'bubble';
   };
   /** Raw Job Summary data from the searches table. Only populated when deck_settings.js_in_portal is true. */
   job_summary_data?: JobSummaryData;

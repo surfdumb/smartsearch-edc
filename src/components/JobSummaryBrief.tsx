@@ -1183,22 +1183,7 @@ export default function JobSummaryBrief({
                   margin: 0,
                 }}
               >
-                SmartSearch
-                <span style={{ color: "#c8c8c8" }}>{" "}x{" "}</span>
-                <a
-                  href="https://sittinpretty.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: "#c8c8c8",
-                    textDecoration: "none",
-                    transition: "color 0.2s",
-                  }}
-                  onMouseOver={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#c5a572"; }}
-                  onMouseOut={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#c8c8c8"; }}
-                >
-                  Sittin&rsquo; Pretty
-                </a>
+                SmartSearch Executive Search
               </p>
             </div>
 
