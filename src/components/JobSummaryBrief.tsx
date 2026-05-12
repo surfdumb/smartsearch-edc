@@ -260,12 +260,12 @@ function CompRow({
           value={value || ""}
           as="span"
           html={false}
-          style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const, fontVariantNumeric: "tabular-nums" }}
+          style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const }}
           onUpdate={(v) => onSave(field, v)}
           placeholder="Click to add"
         />
       ) : (
-        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", fontVariantNumeric: "tabular-nums" }}>
+        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a" }}>
           {value}
         </span>
       )}

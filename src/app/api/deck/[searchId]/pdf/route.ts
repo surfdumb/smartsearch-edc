@@ -71,6 +71,13 @@ export async function GET(
       .waitForSelector('[data-pdf-ready="true"]', { timeout: 5000 })
       .catch(() => {});
 
+    // Wait for all web fonts to fully load before generating the PDF.
+    // Without this, Google Fonts can race past networkidle0 — Adobe then falls
+    // back to substitute fonts with different metrics, dropping characters
+    // mid-line (e.g. "SVPCSM" instead of "SVP CSM", "todesign" instead of
+    // "to design"). Preview is forgiving; Adobe is strict.
+    await page.evaluateHandle('document.fonts.ready');
+
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
