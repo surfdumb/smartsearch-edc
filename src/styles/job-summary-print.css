@@ -53,13 +53,20 @@
     print-color-adjust: exact;
   }
 
-  /* Page break control */
-  .js-brief-section {
-    break-inside: avoid;
+  /* Page break control
+   *
+   * Strategy: let long sections (Key Criteria, Key Responsibilities) flow
+   * across pages naturally to avoid orphaned whitespace, but keep individual
+   * list items atomic so a single criterion never splits mid-content. Section
+   * headers stay glued to their first piece of content.
+   */
+  .js-brief-header,
+  .js-brief-section h3 {
+    break-after: avoid;
   }
 
-  .js-brief-header {
-    break-after: avoid;
+  .js-brief-section li {
+    break-inside: avoid;
   }
 
   /* Hide editable field indicators */
