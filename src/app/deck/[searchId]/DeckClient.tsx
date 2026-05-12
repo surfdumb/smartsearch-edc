@@ -10,6 +10,7 @@ import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
 import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
 import type { SearchContext } from "@/lib/types";
 import { useAutoSaveGrid } from "@/hooks/useAutoSave";
+import { readDraft, removeDraft } from "@/lib/brief-draft";
 
 type DeckView =
   | { mode: "brief" }
@@ -533,21 +534,20 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   }, [view, handlePrev, handleNext, handleToggleSplit]);
 
   // ── Brief Lock & Share handler ──────────────────────────────────────────────
+  // NOTE: Task 5 will wrap this with a per-field staleness/conflict dialog.
+  // For now this only handles the shape change to the v2 draft envelope —
+  // we POST the inner `edits` object, never the envelope itself.
   const handleBriefLockAndShare = useCallback(async () => {
     setBriefLocking(true);
     try {
-      const key = `brief_edit_${searchId}`;
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        const edits = JSON.parse(raw);
-        if (edits && typeof edits === "object" && Object.keys(edits).length > 0) {
-          await fetch(`/api/deck/${searchId}/brief`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(edits),
-          });
-        }
-        localStorage.removeItem(key);
+      const draft = readDraft(searchId);
+      if (draft && Object.keys(draft.edits).length > 0) {
+        await fetch(`/api/deck/${searchId}/brief`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(draft.edits),
+        });
+        removeDraft(searchId);
       }
       setShowBriefShareDialog(true);
     } catch (err) {

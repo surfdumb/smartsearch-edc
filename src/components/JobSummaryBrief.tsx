@@ -4,6 +4,16 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
+import {
+  readDraft,
+  writeDraftField,
+  removeDraftField,
+  removeDraft,
+  computeStaleness,
+  isDraftStaleByAge,
+  relativeTime,
+  type Staleness,
+} from "@/lib/brief-draft";
 import "@/styles/job-summary-print.css";
 
 interface JobSummaryBriefProps {
@@ -14,6 +24,74 @@ interface JobSummaryBriefProps {
 }
 
 type Criterion = { name: string; detail?: string; priority?: string };
+
+// Human-readable labels for the API field names that can appear in a draft.
+// Keep aligned with ALLOWED_FIELDS in src/app/api/deck/[searchId]/brief/route.ts.
+const BRIEF_FIELD_LABELS: Record<string, string> = {
+  position: "Role title",
+  location: "Location",
+  client_display_name: "Client",
+  remit: "Remit",
+  core_mission: "Core mission",
+  why_open: "Why open",
+  key_responsibilities: "Key responsibilities",
+  key_criteria: "Key criteria",
+  budget_base: "Base budget",
+  budget_bonus: "Bonus budget",
+  budget_lti: "LTI budget",
+  budget_di: "Direct incentive budget",
+  red_flag_title: "Red flag — title",
+  red_flag_detail: "Red flag — detail",
+  predecessor_context: "Predecessor context",
+  candidate_messaging: "Candidate messaging",
+  additional_internal_notes: "Internal notes",
+  confidentiality: "Confidentiality",
+  revenue: "Revenue",
+  team_size: "Team size",
+  line_manager: "Line manager",
+  kam: "Search lead",
+  js_source_url: "JS source URL",
+  scope_match_dimensions: "Scope dimensions",
+};
+
+function fieldLabel(field: string): string {
+  return BRIEF_FIELD_LABELS[field] ?? field;
+}
+
+// Read the current server-side value for a brief field from the SearchContext
+// payload. Used by the Compare panel in the recovery dialog so users can see
+// "server says X, my draft says Y" before deciding.
+function getServerValueForBriefField(
+  data: SearchContext,
+  field: string,
+): unknown {
+  const js = data.job_summary_data;
+  switch (field) {
+    case "location":
+      return data.client_location;
+    case "client_display_name":
+      return data.client_display_name ?? data.client_company;
+    case "kam":
+      return data.search_lead;
+    case "js_source_url":
+      return data.js_source_url;
+    case "scope_match_dimensions":
+      return data.scope_match_dimensions;
+    case "key_criteria":
+      return js?.key_criteria_detailed;
+    default:
+      // Most allowed fields live on job_summary_data with the same key name.
+      return js ? (js as unknown as Record<string, unknown>)[field] : undefined;
+  }
+}
+
+function compactValuePreview(v: unknown, max = 80): string {
+  if (v === null || v === undefined || v === "") return "—";
+  if (Array.isArray(v)) return `${v.length} item${v.length === 1 ? "" : "s"}`;
+  if (typeof v === "object") return "(structured)";
+  const s = String(v);
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
 
 // ─── Section divider ────────────────────────────────────────────────────────
 
@@ -314,37 +392,61 @@ export default function JobSummaryBrief({
   const [savingFields, setSavingFields] = useState<Set<string>>(new Set());
   const [intelSaving, setIntelSaving] = useState(false);
   const [intelSaved, setIntelSaved] = useState(false);
+  const [pdfReady, setPdfReady] = useState(false);
+  useEffect(() => { setPdfReady(true); }, []);
 
   // ── localStorage edit persistence ────────────────────────────────────────
-  const BRIEF_EDIT_KEY = `brief_edit_${searchId}`;
+  // Draft model lives in src/lib/brief-draft.ts (v2 envelope with created_at
+  // timestamp for stale-write detection). Reads here normalise legacy v1 drafts.
   const [showRecoverModal, setShowRecoverModal] = useState(false);
+  const [showStaleDiscardModal, setShowStaleDiscardModal] = useState(false);
   const [localOverrides, setLocalOverrides] = useState<Record<string, unknown>>({});
+  const [staleness, setStaleness] = useState<Staleness>("no_draft");
+  const [draftCreatedAt, setDraftCreatedAt] = useState<string | null>(null);
+  const [serverUpdatedAtAtMount, setServerUpdatedAtAtMount] = useState<string | null>(null);
+  const [recoverPanelMode, setRecoverPanelMode] = useState<"none" | "compare" | "fields">("none");
 
   // Check for existing edits on mount (edit mode only)
   useEffect(() => {
     if (!isEditMode) return;
-    try {
-      const raw = localStorage.getItem(BRIEF_EDIT_KEY);
-      if (raw) {
-        const edits = JSON.parse(raw);
-        if (edits && typeof edits === "object" && Object.keys(edits).length > 0) {
-          setLocalOverrides(edits);
-          setShowRecoverModal(true);
-        }
-      }
-    } catch { /* ignore corrupt data */ }
+    const draft = readDraft(searchId);
+    if (!draft || Object.keys(draft.edits).length === 0) return;
+
+    setLocalOverrides(draft.edits);
+    setDraftCreatedAt(draft.created_at);
+    setServerUpdatedAtAtMount(data.updated_at ?? null);
+    setStaleness(computeStaleness(draft, data.updated_at));
+
+    // Drafts older than 24h get a separate discard prompt instead of the
+    // standard recovery dialog (defaults to discard, prevents abandoned tabs
+    // from silently expanding the clobber surface).
+    if (isDraftStaleByAge(draft)) {
+      setShowStaleDiscardModal(true);
+    } else {
+      setShowRecoverModal(true);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRecoverKeep = () => {
     // localOverrides already set — they'll be used by getField()
     setShowRecoverModal(false);
+    setRecoverPanelMode("none");
   };
 
   const handleRecoverReset = () => {
     setLocalOverrides({});
-    try { localStorage.removeItem(BRIEF_EDIT_KEY); } catch { /* */ }
+    removeDraft(searchId);
     setShowRecoverModal(false);
+    setShowStaleDiscardModal(false);
+    setRecoverPanelMode("none");
+  };
+
+  const handleStaleKeepAnyway = () => {
+    // User opted to keep a >24h draft despite the warning. Promote into
+    // the normal recovery dialog so they can still Compare / inspect / restore.
+    setShowStaleDiscardModal(false);
+    setShowRecoverModal(true);
   };
 
   // Helper to get field value with localStorage overrides
@@ -372,13 +474,8 @@ export default function JobSummaryBrief({
   const intelEditsRef = useRef<Record<string, string>>({});
 
   const handleFieldSave = useCallback((field: string, value: string | unknown) => {
-    // Write to localStorage immediately
-    try {
-      const raw = localStorage.getItem(BRIEF_EDIT_KEY);
-      const edits = raw ? JSON.parse(raw) : {};
-      edits[field] = value;
-      localStorage.setItem(BRIEF_EDIT_KEY, JSON.stringify(edits));
-    } catch { /* quota exceeded */ }
+    // Write to localStorage immediately (v2 envelope with created_at)
+    writeDraftField(searchId, field, value);
 
     // Track intel field edits in ref for Save Intelligence
     const INTEL_FIELDS = ["red_flag_title", "red_flag_detail", "predecessor_context", "candidate_messaging", "additional_internal_notes"];
@@ -397,15 +494,22 @@ export default function JobSummaryBrief({
     setSavingFields((prev) => new Set(prev).add(field));
 
     const timer = setTimeout(async () => {
+      let saveOk = false;
       try {
-        await fetch(`/api/deck/${searchId}/brief`, {
+        const res = await fetch(`/api/deck/${searchId}/brief`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ [field]: value }),
         });
+        saveOk = res.ok;
       } catch (err) {
         console.error("[brief-save] Failed:", err);
       } finally {
+        if (saveOk) {
+          // Persisted — drop this field from the local draft so the
+          // recovery dialog won't fire for it on next load.
+          removeDraftField(searchId, field);
+        }
         setSavingFields((prev) => {
           const next = new Set(prev);
           next.delete(field);
@@ -416,7 +520,7 @@ export default function JobSummaryBrief({
     }, 2000);
 
     saveTimers.set(field, timer);
-  }, [searchId, BRIEF_EDIT_KEY]);
+  }, [searchId]);
 
   const saveCriteria = useCallback((updated: Criterion[]) => {
     setCriteria(updated);
@@ -546,6 +650,7 @@ export default function JobSummaryBrief({
         {/* ── Main Brief document ──────────────────────────────────── */}
         <div
           className="js-brief-container"
+          data-pdf-ready={pdfReady ? "true" : undefined}
           style={{
             flex: 1,
             minHeight: 0,
@@ -1252,10 +1357,10 @@ export default function JobSummaryBrief({
         )}
       </div>
 
-      {/* ── Recovery modal (edit persistence) ─────────────────────────── */}
-      {showRecoverModal && (
+      {/* ── >24h discard prompt (separate from main recovery dialog) ─── */}
+      {showStaleDiscardModal && (
         <div
-          className="js-brief-recover-modal"
+          className="js-brief-stale-discard-modal"
           style={{
             position: "fixed",
             inset: 0,
@@ -1271,7 +1376,7 @@ export default function JobSummaryBrief({
             style={{
               background: "#faf8f5",
               borderRadius: "12px",
-              padding: "32px 36px",
+              padding: "28px 32px",
               maxWidth: "420px",
               width: "90%",
               boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
@@ -1281,29 +1386,29 @@ export default function JobSummaryBrief({
             <h3
               className="font-cormorant"
               style={{
-                fontSize: "1.35rem",
+                fontSize: "1.25rem",
                 fontWeight: 600,
                 color: "#1a1a1a",
-                marginBottom: "12px",
+                marginBottom: "10px",
               }}
             >
-              Unsaved Edits Found
+              Your draft is more than a day old
             </h3>
             <p
               style={{
                 fontSize: "0.85rem",
                 color: "#6b6b6b",
                 lineHeight: 1.6,
-                marginBottom: "24px",
+                marginBottom: "22px",
               }}
             >
-              You have edits from a previous session. Would you like to restore them or start fresh from the saved version?
+              You have unsaved edits from {relativeTime(draftCreatedAt)}. Drafts that old usually predate other consultants&rsquo; changes — discard is the safer choice.
             </p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
               <button
-                onClick={handleRecoverReset}
+                onClick={handleStaleKeepAnyway}
                 style={{
-                  padding: "10px 24px",
+                  padding: "10px 20px",
                   fontSize: "0.82rem",
                   fontWeight: 600,
                   border: "1px solid #d4d2ce",
@@ -1313,27 +1418,278 @@ export default function JobSummaryBrief({
                   cursor: "pointer",
                 }}
               >
-                Reset
+                Keep anyway
               </button>
               <button
-                onClick={handleRecoverKeep}
+                onClick={handleRecoverReset}
                 style={{
-                  padding: "10px 24px",
+                  padding: "10px 20px",
                   fontSize: "0.82rem",
                   fontWeight: 600,
                   border: "1px solid var(--ss-gold, #c5a572)",
                   borderRadius: "8px",
-                  background: "rgba(197,165,114,0.1)",
-                  color: "var(--ss-gold, #c5a572)",
+                  background: "var(--ss-gold, #c5a572)",
+                  color: "#faf8f5",
                   cursor: "pointer",
                 }}
               >
-                Restore Edits
+                Discard draft
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* ── Recovery modal (staleness-aware) ──────────────────────────── */}
+      {showRecoverModal && (() => {
+        const draftFields = Object.keys(localOverrides);
+        const restoreIsPrimary = staleness === "draft_ahead_or_equal";
+        const showAmberBand = staleness === "server_ahead";
+
+        const bodyCopy =
+          staleness === "server_ahead"
+            ? `Your browser has unsaved changes from ${relativeTime(draftCreatedAt)}.`
+            : staleness === "legacy_unknown"
+            ? "Your browser has unsaved changes from a previous session. We can\u2019t tell how old they are, so we recommend loading the latest saved version unless you know what\u2019s in your draft."
+            : `Your browser has unsaved changes from ${relativeTime(draftCreatedAt)}. The saved version on the server has not been updated since.`;
+
+        const primaryStyle: React.CSSProperties = {
+          padding: "10px 22px",
+          fontSize: "0.82rem",
+          fontWeight: 600,
+          border: "1px solid var(--ss-gold, #c5a572)",
+          borderRadius: "8px",
+          background: "var(--ss-gold, #c5a572)",
+          color: "#faf8f5",
+          cursor: "pointer",
+        };
+        const secondaryStyle: React.CSSProperties = {
+          padding: "10px 18px",
+          fontSize: "0.82rem",
+          fontWeight: 600,
+          border: "1px solid #d4d2ce",
+          borderRadius: "8px",
+          background: "transparent",
+          color: "#3a3a3a",
+          cursor: "pointer",
+        };
+        const linkStyle: React.CSSProperties = {
+          padding: "10px 8px",
+          fontSize: "0.78rem",
+          fontWeight: 500,
+          border: "none",
+          background: "transparent",
+          color: "#6b6b6b",
+          cursor: "pointer",
+          textDecoration: "underline",
+        };
+
+        return (
+          <div
+            className="js-brief-recover-modal"
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            <div
+              style={{
+                background: "#faf8f5",
+                borderRadius: "12px",
+                padding: "28px 32px",
+                maxWidth: recoverPanelMode === "compare" ? "720px" : "520px",
+                width: "92%",
+                maxHeight: "80vh",
+                overflowY: "auto",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+              }}
+            >
+              <h3
+                className="font-cormorant"
+                style={{
+                  fontSize: "1.35rem",
+                  fontWeight: 600,
+                  color: "#1a1a1a",
+                  marginBottom: "10px",
+                }}
+              >
+                You have a local draft of this brief
+              </h3>
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  color: "#3a3a3a",
+                  lineHeight: 1.6,
+                  marginBottom: showAmberBand ? "12px" : "20px",
+                }}
+              >
+                {bodyCopy}
+              </p>
+
+              {showAmberBand && (
+                <div
+                  style={{
+                    background: "#FAEEDA",
+                    borderLeft: "3px solid #BA7517",
+                    padding: "10px 14px",
+                    borderRadius: "4px",
+                    fontSize: "0.82rem",
+                    color: "#3a3a3a",
+                    lineHeight: 1.5,
+                    marginBottom: "20px",
+                  }}
+                >
+                  <strong>The saved version was updated {relativeTime(serverUpdatedAtAtMount)}.</strong>{" "}
+                  Restoring your draft is risky in three places — if you re-edit any field that&rsquo;s also in your draft, if you touch the criteria list (even just to reorder), and at Lock &amp; Share.
+                </div>
+              )}
+
+              {recoverPanelMode === "fields" && (
+                <div
+                  style={{
+                    background: "#fdfbf7",
+                    border: "1px solid #f0ede8",
+                    borderRadius: "8px",
+                    padding: "12px 16px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      letterSpacing: "1.5px",
+                      textTransform: "uppercase",
+                      color: "#6b6b6b",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    Fields in your draft ({draftFields.length})
+                  </div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: "none" }}>
+                    {draftFields.map((f) => (
+                      <li
+                        key={f}
+                        style={{
+                          fontSize: "0.82rem",
+                          color: "#3a3a3a",
+                          padding: "4px 0",
+                          borderBottom: "1px solid #f0ede8",
+                        }}
+                      >
+                        {fieldLabel(f)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {recoverPanelMode === "compare" && (
+                <div
+                  style={{
+                    background: "#fdfbf7",
+                    border: "1px solid #f0ede8",
+                    borderRadius: "8px",
+                    padding: "12px 16px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
+                      gap: "10px",
+                      fontSize: "0.7rem",
+                      fontWeight: 700,
+                      letterSpacing: "1.5px",
+                      textTransform: "uppercase",
+                      color: "#6b6b6b",
+                      paddingBottom: "8px",
+                      borderBottom: "1px solid #e5e1d9",
+                    }}
+                  >
+                    <div>Field</div>
+                    <div>Server</div>
+                    <div>Your draft</div>
+                  </div>
+                  {draftFields.map((f) => {
+                    const serverVal = getServerValueForBriefField(data, f);
+                    const draftVal = localOverrides[f];
+                    return (
+                      <div
+                        key={f}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "1fr 1fr 1fr",
+                          gap: "10px",
+                          fontSize: "0.8rem",
+                          color: "#3a3a3a",
+                          padding: "8px 0",
+                          borderBottom: "1px solid #f0ede8",
+                          alignItems: "start",
+                        }}
+                      >
+                        <div style={{ fontWeight: 600 }}>{fieldLabel(f)}</div>
+                        <div title={typeof serverVal === "string" ? serverVal : undefined} style={{ wordBreak: "break-word" }}>
+                          {compactValuePreview(serverVal)}
+                        </div>
+                        <div title={typeof draftVal === "string" ? draftVal : undefined} style={{ wordBreak: "break-word" }}>
+                          {compactValuePreview(draftVal)}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                <button
+                  onClick={() =>
+                    setRecoverPanelMode((m) => (m === "compare" ? "none" : "compare"))
+                  }
+                  style={secondaryStyle}
+                >
+                  {recoverPanelMode === "compare" ? "Hide compare" : "Compare"}
+                </button>
+                <button
+                  onClick={() =>
+                    setRecoverPanelMode((m) => (m === "fields" ? "none" : "fields"))
+                  }
+                  style={linkStyle}
+                >
+                  {recoverPanelMode === "fields" ? "Hide list" : "Show me what\u2019s in my draft"}
+                </button>
+                <button
+                  onClick={handleRecoverKeep}
+                  style={restoreIsPrimary ? primaryStyle : secondaryStyle}
+                >
+                  Restore my draft
+                </button>
+                <button
+                  onClick={handleRecoverReset}
+                  style={restoreIsPrimary ? secondaryStyle : primaryStyle}
+                >
+                  Load latest saved version
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </EditorContext.Provider>
   );
 }
