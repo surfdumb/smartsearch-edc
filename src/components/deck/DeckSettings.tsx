@@ -5,13 +5,21 @@ import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { SearchContext } from "@/lib/types";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
+import { generateAccessPassword } from "@/lib/passwordGen";
+
+export interface AccessSettings {
+  access_password: string | null;
+  is_complete: boolean;
+  completed_at: string | null;
+}
 
 interface DeckSettingsProps {
   data: SearchContext;
   searchId: string;
+  initialAccess: AccessSettings;
 }
 
-export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
+export default function DeckSettings({ data, searchId, initialAccess }: DeckSettingsProps) {
   const router = useRouter();
   const { theme, setTheme } = useDeckTheme(searchId);
   const storageKey = `search_logo_${searchId}`;
@@ -20,6 +28,136 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
   const [saved, setSaved] = useState(false);
   const linkedInKey = `deck_show_linkedin_${searchId}`;
   const [showLinkedin, setShowLinkedin] = useState(true);
+
+  // ─── Client Access state ───
+  const [accessPassword, setAccessPassword] = useState<string>(initialAccess.access_password ?? "");
+  const [accessEnabled, setAccessEnabled] = useState<boolean>(initialAccess.access_password !== null);
+  const [accessSaved, setAccessSaved] = useState(false);
+  const [accessSaving, setAccessSaving] = useState(false);
+  const [copyHint, setCopyHint] = useState<string | null>(null);
+
+  // ─── Search Status state ───
+  const [isComplete, setIsComplete] = useState<boolean>(initialAccess.is_complete);
+  const [completedAt, setCompletedAt] = useState<string | null>(initialAccess.completed_at);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false);
+
+  // ─── Regenerate confirmation state ───
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+
+  const persistAccessPassword = useCallback(
+    async (value: string | null) => {
+      setAccessSaving(true);
+      try {
+        const res = await fetch(`/api/deck/${searchId}/access-settings`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password: value }),
+        });
+        if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+        setAccessSaved(true);
+        setTimeout(() => setAccessSaved(false), 2000);
+      } catch (err) {
+        alert(`Could not save access settings: ${(err as Error).message}`);
+      } finally {
+        setAccessSaving(false);
+      }
+    },
+    [searchId]
+  );
+
+  const handleToggleAccess = useCallback(async () => {
+    if (accessEnabled) {
+      setAccessEnabled(false);
+      setAccessPassword("");
+      await persistAccessPassword(null);
+    } else {
+      const generated = generateAccessPassword();
+      setAccessEnabled(true);
+      setAccessPassword(generated);
+      await persistAccessPassword(generated);
+    }
+  }, [accessEnabled, persistAccessPassword]);
+
+  const handleGenerate = useCallback(async () => {
+    const generated = generateAccessPassword();
+    setAccessPassword(generated);
+    setShowRegenerateConfirm(false);
+    await persistAccessPassword(generated);
+  }, [persistAccessPassword]);
+
+  const handlePasswordBlur = useCallback(async () => {
+    if (!accessEnabled) return;
+    if (accessPassword === (initialAccess.access_password ?? "")) return;
+    if (accessPassword.length === 0) return;
+    await persistAccessPassword(accessPassword);
+  }, [accessEnabled, accessPassword, initialAccess.access_password, persistAccessPassword]);
+
+  const copyToClipboard = useCallback(async (text: string, hint: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyHint(hint);
+      setTimeout(() => setCopyHint(null), 2000);
+    } catch {
+      alert("Could not copy — your browser may have blocked clipboard access.");
+    }
+  }, []);
+
+  const handleCopyEmailTemplate = useCallback(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const deckUrl = `${origin}/deck/${searchId}`;
+    const template = `Hi {{Client Name}},
+
+Please find below the link to review candidates for ${data.search_name}:
+
+${deckUrl}
+
+Access code: ${accessPassword}
+
+This link is confidential and limited to your hiring team. Let me know if you have any questions.
+
+Best,
+{{Your Name}}`;
+    copyToClipboard(template, "Email template copied");
+  }, [searchId, data.search_name, accessPassword, copyToClipboard]);
+
+  const handleMarkComplete = useCallback(async () => {
+    setStatusSaving(true);
+    try {
+      const res = await fetch(`/api/deck/${searchId}/mark-complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ complete: true }),
+      });
+      if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      const json = await res.json();
+      setIsComplete(true);
+      setCompletedAt(json.completed_at);
+      setShowCompleteConfirm(false);
+    } catch (err) {
+      alert(`Could not mark complete: ${(err as Error).message}`);
+    } finally {
+      setStatusSaving(false);
+    }
+  }, [searchId]);
+
+  const handleReopen = useCallback(async () => {
+    setStatusSaving(true);
+    try {
+      const res = await fetch(`/api/deck/${searchId}/mark-complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ complete: false }),
+      });
+      if (!res.ok) throw new Error(`Save failed: ${res.status}`);
+      setIsComplete(false);
+      setCompletedAt(null);
+    } catch (err) {
+      alert(`Could not reopen: ${(err as Error).message}`);
+    } finally {
+      setStatusSaving(false);
+    }
+  }, [searchId]);
 
   useEffect(() => {
     try {
@@ -375,6 +513,394 @@ export default function DeckSettings({ data, searchId }: DeckSettingsProps) {
             When enabled, a LinkedIn icon appears next to candidate names. URLs are set per-candidate in edit mode.
           </p>
         </section>
+
+        {/* ── Client Access section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              Client Access
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: accessEnabled ? "16px" : "0" }}>
+            <span style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)" }}>
+              Require password to view
+            </span>
+            <button
+              onClick={handleToggleAccess}
+              disabled={accessSaving}
+              aria-label="Toggle client access password"
+              style={{
+                width: "44px",
+                height: "24px",
+                borderRadius: "12px",
+                border: "none",
+                background: accessEnabled ? "rgba(74,124,89,0.4)" : "rgba(var(--deck-bg-text-rgb),0.12)",
+                cursor: accessSaving ? "wait" : "pointer",
+                position: "relative",
+                transition: "background 0.2s",
+                opacity: accessSaving ? 0.6 : 1,
+              }}
+            >
+              <span
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  left: accessEnabled ? "22px" : "2px",
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  background: accessEnabled ? "var(--ss-green)" : "rgba(var(--deck-bg-text-rgb),0.3)",
+                  transition: "all 0.2s",
+                }}
+              />
+            </button>
+          </div>
+
+          {accessEnabled && (
+            <>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                <input
+                  type="text"
+                  value={accessPassword}
+                  onChange={(e) => setAccessPassword(e.target.value)}
+                  onBlur={handlePasswordBlur}
+                  spellCheck={false}
+                  style={{
+                    flex: 1,
+                    background: "rgba(var(--deck-bg-text-rgb),0.04)",
+                    border: "1px solid rgba(197,165,114,0.2)",
+                    borderRadius: "8px",
+                    padding: "10px 14px",
+                    fontSize: "0.9rem",
+                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                    color: "rgba(var(--deck-bg-text-rgb),0.85)",
+                    outline: "none",
+                    letterSpacing: "0.5px",
+                  }}
+                />
+                <button
+                  onClick={() => setShowRegenerateConfirm(true)}
+                  disabled={accessSaving}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197,165,114,0.3)",
+                    color: "var(--ss-gold)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "0 16px",
+                    borderRadius: "8px",
+                    cursor: accessSaving ? "wait" : "pointer",
+                    letterSpacing: "0.5px",
+                    opacity: accessSaving ? 0.6 : 1,
+                  }}
+                >
+                  Regenerate
+                </button>
+                <button
+                  onClick={() => copyToClipboard(accessPassword, "Password copied")}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197,165,114,0.15)",
+                    color: "rgba(var(--deck-bg-text-rgb),0.5)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "0 14px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Copy
+                </button>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
+                <button
+                  onClick={handleCopyEmailTemplate}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(197,165,114,0.3)",
+                    color: "var(--ss-gold)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "8px 16px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Copy email template
+                </button>
+                {accessSaved && (
+                  <span style={{ fontSize: "0.78rem", color: "var(--ss-green)", fontWeight: 500 }}>
+                    ✓ Saved
+                  </span>
+                )}
+                {copyHint && (
+                  <span style={{ fontSize: "0.78rem", color: "var(--ss-green)", fontWeight: 500 }}>
+                    ✓ {copyHint}
+                  </span>
+                )}
+              </div>
+
+              <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.55)", lineHeight: 1.6 }}>
+                Changing the password requires you to re-share it with the client. Active client sessions stay valid for up to 48 hours.
+              </p>
+            </>
+          )}
+
+          {!accessEnabled && (
+            <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.55)", marginTop: "14px", lineHeight: 1.6 }}>
+              When enabled, clients must enter a password before viewing this deck. Use for confidential searches.
+            </p>
+          )}
+        </section>
+
+        {/* ── Search Status section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              Search Status
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "0.92rem", color: "rgba(var(--deck-bg-text-rgb),0.7)", marginBottom: "4px", fontWeight: 500 }}>
+                {isComplete ? "Completed" : "Live"}
+              </p>
+              {isComplete && completedAt && (
+                <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.4)" }}>
+                  {new Date(completedAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
+                </p>
+              )}
+            </div>
+            {isComplete ? (
+              <button
+                onClick={handleReopen}
+                disabled={statusSaving}
+                style={{
+                  background: "transparent",
+                  border: "1px solid rgba(197,165,114,0.3)",
+                  color: "var(--ss-gold)",
+                  fontSize: "0.78rem",
+                  fontWeight: 600,
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  cursor: statusSaving ? "wait" : "pointer",
+                  letterSpacing: "0.5px",
+                  opacity: statusSaving ? 0.6 : 1,
+                }}
+              >
+                Reopen Search
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCompleteConfirm(true)}
+                disabled={statusSaving}
+                style={{
+                  background: "rgba(var(--deck-bg-text-rgb),0.04)",
+                  border: "1px solid rgba(var(--deck-bg-text-rgb),0.15)",
+                  color: "rgba(var(--deck-bg-text-rgb),0.7)",
+                  fontSize: "0.78rem",
+                  fontWeight: 600,
+                  padding: "8px 16px",
+                  borderRadius: "8px",
+                  cursor: statusSaving ? "wait" : "pointer",
+                  letterSpacing: "0.5px",
+                  opacity: statusSaving ? 0.6 : 1,
+                }}
+              >
+                Mark Search Complete
+              </button>
+            )}
+          </div>
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.55)", marginTop: "14px", lineHeight: 1.6 }}>
+            {isComplete
+              ? "Reopening restores client access — clients will need to re-enter the password."
+              : "Marking complete revokes client access immediately. The row in Live Searches must be moved manually for now."}
+          </p>
+        </section>
+
+        {showRegenerateConfirm && (
+          <div
+            onClick={() => setShowRegenerateConfirm(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 200,
+              padding: "20px",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "var(--deck-bg)",
+                border: "1px solid rgba(197,165,114,0.2)",
+                borderRadius: "12px",
+                padding: "28px",
+                maxWidth: "420px",
+                width: "100%",
+              }}
+            >
+              <h3
+                className="font-cormorant"
+                style={{
+                  fontSize: "1.2rem",
+                  color: "rgba(var(--deck-bg-text-rgb),0.85)",
+                  fontStyle: "italic",
+                  marginBottom: "12px",
+                }}
+              >
+                Replace the current password?
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: "rgba(var(--deck-bg-text-rgb),0.6)", lineHeight: 1.6, marginBottom: "24px" }}>
+                This invalidates the previously-shared one. Clients currently viewing the deck stay in for up to 48 hours; new visitors will need the new password.
+              </p>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => setShowRegenerateConfirm(false)}
+                  disabled={accessSaving}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(var(--deck-bg-text-rgb),0.15)",
+                    color: "rgba(var(--deck-bg-text-rgb),0.5)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleGenerate}
+                  disabled={accessSaving}
+                  style={{
+                    background: "var(--ss-gold)",
+                    border: "1px solid var(--ss-gold)",
+                    color: "#1a1a1a",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    cursor: accessSaving ? "wait" : "pointer",
+                    letterSpacing: "0.5px",
+                    opacity: accessSaving ? 0.6 : 1,
+                  }}
+                >
+                  {accessSaving ? "Saving..." : "Regenerate"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showCompleteConfirm && (
+          <div
+            onClick={() => setShowCompleteConfirm(false)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.6)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 200,
+              padding: "20px",
+            }}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "var(--deck-bg)",
+                border: "1px solid rgba(197,165,114,0.2)",
+                borderRadius: "12px",
+                padding: "28px",
+                maxWidth: "420px",
+                width: "100%",
+              }}
+            >
+              <h3
+                className="font-cormorant"
+                style={{
+                  fontSize: "1.2rem",
+                  color: "rgba(var(--deck-bg-text-rgb),0.85)",
+                  fontStyle: "italic",
+                  marginBottom: "12px",
+                }}
+              >
+                Mark this search as complete?
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: "rgba(var(--deck-bg-text-rgb),0.6)", lineHeight: 1.6, marginBottom: "24px" }}>
+                This will revoke client access to all candidates in this search. This can be undone by reopening the search.
+              </p>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button
+                  onClick={() => setShowCompleteConfirm(false)}
+                  disabled={statusSaving}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(var(--deck-bg-text-rgb),0.15)",
+                    color: "rgba(var(--deck-bg-text-rgb),0.5)",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleMarkComplete}
+                  disabled={statusSaving}
+                  style={{
+                    background: "var(--ss-gold)",
+                    border: "1px solid var(--ss-gold)",
+                    color: "#1a1a1a",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    padding: "8px 18px",
+                    borderRadius: "8px",
+                    cursor: statusSaving ? "wait" : "pointer",
+                    letterSpacing: "0.5px",
+                    opacity: statusSaving ? 0.6 : 1,
+                  }}
+                >
+                  {statusSaving ? "Saving..." : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Storage note ── */}
         <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", lineHeight: 1.6 }}>
