@@ -21,14 +21,38 @@ export async function middleware(req: NextRequest) {
   const slug = extractSlug(pathname);
   if (!slug) return NextResponse.next();
 
-  // Avoid redirect loops on the gate page and the closed page. Also exempt the
-  // consultant settings route + its two admin APIs so password management isn't
-  // blocked by the client gate (chicken-and-egg: consultant needs to manage the
-  // password before they've entered it). These have no real auth today
-  // (src/lib/auth.ts is a stub) — tracked as a v1.4 follow-up.
+  // ───────────────────────────────────────────────────────────────────────
+  // PATH EXEMPTIONS — never check the cookie/password for these routes.
+  //
+  // Two categories:
+  //
+  //   1. Infrastructure of the gate itself (must be reachable without a
+  //      cookie or the user can never get one):
+  //        /deck/[slug]/access      — the password entry page
+  //        /deck/[slug]/closed      — terminal page for completed searches
+  //
+  //   2. Consultant-only surfaces. These have no real auth today
+  //      (src/lib/auth.ts is a stub returning consultant=true). Path-
+  //      exempting them is the pragmatic Stage 1 stance — anyone who knows
+  //      the slug can reach these routes. v1.4 follow-up: introduce a real
+  //      consultant session, drop every exemption in this category, and
+  //      replace it with a session check at the top of this function.
+  //        /deck/[slug]/edit                  — edit-mode deck UI
+  //        /deck/[slug]/settings(/*)          — settings panel
+  //        /api/deck/[slug]/access-settings   — password toggle/save
+  //        /api/deck/[slug]/mark-complete     — search status flip
+  //
+  // Other consultant write APIs (/api/deck/[slug]/hidden, /order, /brief,
+  // /criteria-visibility, /sync-criteria, /pdf, /api/edits/save, etc.) are
+  // intentionally NOT exempted. Edit mode reaches them via the cookie the
+  // consultant gets after entering the password — so they stay protected
+  // from un-cookied clients while still working in normal consultant flows.
+  // ───────────────────────────────────────────────────────────────────────
   if (
     pathname === `/deck/${slug}/access` ||
     pathname === `/deck/${slug}/closed` ||
+    pathname === `/deck/${slug}/edit` ||
+    pathname.startsWith(`/deck/${slug}/edit/`) ||
     pathname === `/deck/${slug}/settings` ||
     pathname.startsWith(`/deck/${slug}/settings/`) ||
     pathname === `/api/deck/${slug}/access-settings` ||
