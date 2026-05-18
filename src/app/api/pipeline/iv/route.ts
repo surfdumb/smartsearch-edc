@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
   // ─── ENGINE-SAFE MERGE ──────────────────────────────────────────────────
   // Look up existing row first. If it exists, we must respect
   // manually_edited_fields and never reset generation_version.
-  const { data: existing, error: lookupError } = await supabase
+  const { data: existingRaw, error: lookupError } = await supabase
     .from('candidates')
     .select(
       'id, candidate_name, candidate_slug, edc_data, manually_edited_fields, generation_version, ' +
@@ -105,6 +105,27 @@ export async function POST(req: NextRequest) {
     console.error('[pipeline/iv] lookup error:', lookupError);
     return NextResponse.json({ error: lookupError.message }, { status: 500 });
   }
+
+  // Cast to a known shape — Supabase's generic inference returns a union
+  // including GenericStringError until generated types are wired in.
+  type ExistingCandidate = {
+    id: string;
+    candidate_name: string | null;
+    candidate_slug: string;
+    edc_data: Record<string, unknown> | null;
+    manually_edited_fields: string[] | null;
+    generation_version: number | null;
+    headline: string | null;
+    current_title: string | null;
+    current_company: string | null;
+    location: string | null;
+    flash_summary: string | null;
+    compensation_alignment: string | null;
+    deck_status: string | null;
+    our_take: unknown;
+    our_take_source: string | null;
+  };
+  const existing = existingRaw as ExistingCandidate | null;
 
   const isNewCandidate = !existing;
   const manuallyEdited: string[] = existing?.manually_edited_fields ?? [];
