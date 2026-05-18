@@ -34,9 +34,8 @@ function mergeEdcData(
   manuallyEdited: string[]
 ): Record<string, unknown> {
   if (!existing) return { ...incoming };
-  const editedSet = new Set(manuallyEdited);
   const out: Record<string, unknown> = { ...incoming };
-  for (const field of editedSet) {
+  for (const field of manuallyEdited) {
     if (field in existing) {
       out[field] = existing[field];
     }
