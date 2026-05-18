@@ -124,15 +124,18 @@ export async function POST(request: Request): Promise<NextResponse> {
           }
 
           if (!skipSupabaseEdcWrite) {
-            // Fetch current manually_edited_fields to merge
+            // Fetch current manually_edited_fields + generation_version to merge
+            // (version bump is the portal-side heartbeat that lets the Engine's
+            // pipeline/iv merge see "this row has been touched since last gen").
             const { data: existing } = await supabase
               .from('candidates')
-              .select('manually_edited_fields')
+              .select('manually_edited_fields, generation_version')
               .eq('search_id', searchUUID)
               .eq('candidate_slug', candidateId)
               .single();
 
             const existingFields: string[] = existing?.manually_edited_fields || [];
+            const nextVersion = ((existing?.generation_version as number | null) ?? 0) + 1;
 
             // Fields that are always client-owned (not from Engine)
             const CLIENT_OWNED = new Set([
@@ -193,6 +196,7 @@ export async function POST(request: Request): Promise<NextResponse> {
             const updatePayload: Record<string, unknown> = {
               edc_data: cleanEdcData,
               manually_edited_fields: mergedFields,
+              generation_version: nextVersion,
               updated_at: new Date().toISOString(),
             };
 
