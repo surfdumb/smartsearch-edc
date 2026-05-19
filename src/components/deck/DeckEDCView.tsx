@@ -9,7 +9,7 @@ import OurTakeSavedToast from "@/components/edc/OurTakeSavedToast";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
-import type { IntroCardData, EDCData } from "@/lib/types";
+import type { IntroCardData, EDCData, SearchContext } from "@/lib/types";
 import { useAutoSave, clearDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, clearEditWithHash } from "@/lib/edit-hash";
 
@@ -59,6 +59,8 @@ interface DeckEDCViewProps {
   onHideFromClient?: () => Promise<void>;
   /** Per-candidate Key Criteria visibility map; threaded to EDCCard → KeyCriteria. */
   hiddenCriteriaPerCandidate?: Record<string, string[]>;
+  /** Deck-level settings (Our Take mode, scope narrative, etc); threaded to EDCCard. */
+  deckSettings?: SearchContext['deck_settings'];
 }
 
 export default function DeckEDCView({
@@ -87,6 +89,7 @@ export default function DeckEDCView({
   onClientVisible,
   onHideFromClient,
   hiddenCriteriaPerCandidate,
+  deckSettings,
 }: DeckEDCViewProps) {
   const router = useRouter();
   const [resetKey, setResetKey] = useState(0);
@@ -324,6 +327,7 @@ export default function DeckEDCView({
               searchBudget={searchBudget}
               roleBriefMode={roleBriefMode}
               hiddenCriterionNames={hiddenCriteriaPerCandidate?.[candidate.candidate_id] || []}
+              deckSettings={deckSettings}
             />
             {!split && (
               <CandidateNavigation

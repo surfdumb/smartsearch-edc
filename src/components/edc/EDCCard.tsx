@@ -17,11 +17,13 @@ import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
 import { markDirty } from "@/hooks/useAutoSave";
 import { type EDCData, type EDCContext, buildCandidateContext } from "@/lib/types";
+import { resolveOurTakeMode } from "@/lib/our-take-mode";
 
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
   our_take_landing?: 'overlay' | 'bubble';
+  our_take_mode?: 'leading' | 'button' | 'hidden';
 }
 
 interface EDCCardProps {
@@ -183,32 +185,34 @@ export default function EDCCard({
   const hasOurTake = (data.our_take_fragments && data.our_take_fragments.length > 0) ||
     (data.our_take?.text && data.our_take.text.trim().length > 0);
 
+  const ourTakeMode = resolveOurTakeMode(deckSettings);
+
   // Our Take overlay: shows Our Take as a full-panel cover on first open
   const PLACEHOLDER_TEXT = "Our take will be added following consultant review";
   const ourTakeText = data.our_take?.text?.trim() || "";
   const hasRealFragments = (data.our_take_fragments?.length ?? 0) > 0;
   const hasRealText = ourTakeText.length > 0 && !ourTakeText.includes(PLACEHOLDER_TEXT);
-  const hasRealOurTake = (hasRealFragments || hasRealText)
-  && deckSettings?.our_take_display !== 'HIDE';
+  const hasRealOurTake = (hasRealFragments || hasRealText) && ourTakeMode !== 'hidden';
 
   // Overlay only in client view (not edit mode) — edit mode uses the editable popover.
-  // our_take_landing controls mount-time auto-open: 'overlay' (default) opens it; 'bubble' keeps it closed.
-  // Deep-link via #/ourtake (initialOurTakeOpen) bypasses the landing gate — URL intent wins.
-  const autoOpenAllowed = (deckSettings?.our_take_landing ?? 'overlay') !== 'bubble';
+  // 'leading' mode auto-opens the overlay on mount; 'button' keeps it closed until clicked.
+  // Deep-link via #/ourtake (initialOurTakeOpen) bypasses the mode gate — URL intent wins.
+  const autoOpenAllowed = ourTakeMode === 'leading';
   const [ourTakeOverlayOpen, setOurTakeOverlayOpen] = useState(
     !isEditable && hasRealOurTake && (initialOurTakeOpen || (autoOpenAllowed && !initialPanel))
   );
 
-  // Reset overlay state when candidate changes
+  // Reset overlay state when candidate or mode changes
   useEffect(() => {
     if (isEditable) { setOurTakeOverlayOpen(false); return; }
     const text = data.our_take?.text?.trim() || "";
     const frags = data.our_take_fragments && data.our_take_fragments.length > 0;
-    const real = (frags || (text.length > 0 && !text.includes(PLACEHOLDER_TEXT))) && deckSettings?.our_take_display !== 'HIDE';
-    // autoOpenAllowed captured from outer scope — deck_settings is immutable at runtime in this PR.
-    // When a runtime Settings toggle lands, add deckSettings?.our_take_landing to deps or recompute here.
+    const real = (frags || (text.length > 0 && !text.includes(PLACEHOLDER_TEXT))) && ourTakeMode !== 'hidden';
     setOurTakeOverlayOpen(real && autoOpenAllowed && !initialPanel);
-  }, [candidateId, isEditable]);
+    // data.our_take_* deliberately excluded — overlay should reset on
+    // candidate/mode change only, not on every autosave content tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidateId, isEditable, ourTakeMode, autoOpenAllowed, initialPanel]);
 
   return (
     <div
@@ -263,7 +267,7 @@ export default function EDCCard({
           {/* Content area */}
           <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
             {/* Our Take pill — persistent across all panels, top-right */}
-            {hasOurTake && !ourTakeOverlayOpen && (
+            {hasOurTake && !ourTakeOverlayOpen && ourTakeMode !== 'hidden' && (
               <div
                 style={{
                   position: "absolute",
@@ -326,7 +330,7 @@ export default function EDCCard({
 
             {/* Empty-state CTA — only when no Our Take content, edit mode, deck setting allows */}
             {!hasOurTake
-              && deckSettings?.our_take_display !== 'HIDE'
+              && ourTakeMode !== 'hidden'
               && isEditable
               && !ourTakeOverlayOpen && (
               <div

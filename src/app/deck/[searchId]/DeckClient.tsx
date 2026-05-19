@@ -1821,6 +1821,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onClientVisible={() => revealCandidateToClient(candidate.candidate_id)}
       onHideFromClient={() => hideCandidateFromClient(candidate.candidate_id)}
       hiddenCriteriaPerCandidate={data.hidden_criteria_per_candidate}
+      deckSettings={data.deck_settings}
     />
   );
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { SearchContext } from "@/lib/types";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
 import { generateAccessPassword } from "@/lib/passwordGen";
+import { resolveOurTakeMode, type OurTakeMode } from "@/lib/our-take-mode";
 
 export interface AccessSettings {
   access_password: string | null;
@@ -44,6 +45,40 @@ export default function DeckSettings({ data, searchId, initialAccess }: DeckSett
 
   // ─── Regenerate confirmation state ───
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+
+  // ─── Our Take mode state ───
+  const [ourTakeMode, setOurTakeMode] = useState<OurTakeMode>(
+    () => resolveOurTakeMode(data.deck_settings)
+  );
+  const [ourTakeSaving, setOurTakeSaving] = useState(false);
+  const [ourTakeSaved, setOurTakeSaved] = useState(false);
+
+  const persistOurTakeMode = useCallback(async (mode: OurTakeMode) => {
+    setOurTakeSaving(true);
+    try {
+      const res = await fetch(`/api/deck/${searchId}/deck-settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ our_take_mode: mode }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Save failed: ${res.status}`);
+      }
+      setOurTakeSaved(true);
+      setTimeout(() => setOurTakeSaved(false), 2000);
+    } catch (err) {
+      alert(`Could not save Our Take setting: ${(err as Error).message}`);
+      setOurTakeMode(resolveOurTakeMode(data.deck_settings));
+    } finally {
+      setOurTakeSaving(false);
+    }
+  }, [searchId, data.deck_settings]);
+
+  const handleOurTakeModeChange = useCallback((mode: OurTakeMode) => {
+    setOurTakeMode(mode);
+    void persistOurTakeMode(mode);
+  }, [persistOurTakeMode]);
 
   const persistAccessPassword = useCallback(
     async (value: string | null) => {
@@ -454,6 +489,81 @@ Best,
               </button>
             )}
           </div>
+        </section>
+
+        {/* ── Our Take section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              Our Take
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+            {ourTakeSaved && (
+              <span style={{ fontSize: "0.7rem", color: "var(--ss-green)" }}>Saved</span>
+            )}
+          </div>
+
+          <p style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)", marginBottom: "16px" }}>
+            Controls how the consultant assessment appears to clients.
+          </p>
+
+          <div
+            role="radiogroup"
+            aria-label="Our Take display mode"
+            style={{
+              display: "inline-flex",
+              borderRadius: "10px",
+              border: "1px solid rgba(197,165,114,0.25)",
+              background: "rgba(var(--deck-bg-text-rgb),0.04)",
+              padding: "4px",
+              gap: "2px",
+            }}
+          >
+            {([
+              { value: "leading", label: "Lead with Our Take", desc: "Opens first when client clicks a card" },
+              { value: "button",  label: "Behind button",      desc: "Client must click the Our Take pill to reveal" },
+              { value: "hidden",  label: "Hidden",             desc: "Suppressed entirely from the client view" },
+            ] as { value: OurTakeMode; label: string; desc: string }[]).map((opt) => {
+              const selected = ourTakeMode === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  role="radio"
+                  aria-checked={selected}
+                  disabled={ourTakeSaving}
+                  onClick={() => handleOurTakeModeChange(opt.value)}
+                  title={opt.desc}
+                  style={{
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    border: "none",
+                    cursor: ourTakeSaving ? "wait" : "pointer",
+                    fontSize: "0.78rem",
+                    fontWeight: selected ? 600 : 500,
+                    color: selected ? "var(--ss-dark)" : "rgba(var(--deck-bg-text-rgb),0.7)",
+                    background: selected ? "var(--ss-gold)" : "transparent",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px", lineHeight: 1.6 }}>
+            Default is <strong>Behind button</strong> — the client lands on the evidence (Scope, Criteria, Compensation) and chooses to read the consultant assessment via the Our Take pill.
+            Switch to <strong>Lead with Our Take</strong> when the client has explicitly asked for the assessment up front.
+            Switch to <strong>Hidden</strong> for decks where Our Take should be suppressed entirely (rare).
+          </p>
         </section>
 
         {/* ── LinkedIn toggle section ── */}
