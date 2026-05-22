@@ -12,6 +12,8 @@ import TabNavigation from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import OurTakeEmptyState from "@/components/edc/OurTakeEmptyState";
+import RegenerateButton, { type RegenerateApiSuccess } from "@/components/edc/RegenerateButton";
+import ReviewChangesModal, { type Conflict } from "@/components/edc/ReviewChangesModal";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash } from "@/lib/edit-hash";
@@ -65,6 +67,9 @@ interface EDCCardProps {
   /** Per-candidate Key Criteria visibility — array of canonical criterion
    *  names hidden from the client view for this specific candidate. */
   hiddenCriterionNames?: string[];
+  /** True when the candidate has raw_manual_notes in Supabase. Drives whether
+   *  the card-level Regenerate button renders in edit mode. */
+  hasRawNotes?: boolean;
 }
 
 export default function EDCCard({
@@ -85,6 +90,7 @@ export default function EDCCard({
   searchBudget,
   roleBriefMode = false,
   hiddenCriterionNames,
+  hasRawNotes = false,
 }: EDCCardProps) {
   const { isEditable } = useEditorContext();
   const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
@@ -202,6 +208,14 @@ export default function EDCCard({
     !isEditable && hasRealOurTake && (initialOurTakeOpen || (autoOpenAllowed && !initialPanel))
   );
 
+  // Regenerate flow state — opens ReviewChangesModal when the per-candidate
+  // regenerate returns conflicts. Cleared when modal closes.
+  const [regenConflicts, setRegenConflicts] = useState<{
+    conflicts: Conflict[];
+    candidateSlug: string;
+    candidateName: string;
+  } | null>(null);
+
   // Reset overlay state when candidate or mode changes
   useEffect(() => {
     if (isEditable) { setOurTakeOverlayOpen(false); return; }
@@ -266,8 +280,12 @@ export default function EDCCard({
 
           {/* Content area */}
           <div style={{ flex: 1, overflow: "hidden", position: "relative" }}>
-            {/* Our Take pill — persistent across all panels, top-right */}
-            {hasOurTake && !ourTakeOverlayOpen && ourTakeMode !== 'hidden' && (
+            {/* Top-right controls cluster — persists across panels. Renders when
+                EITHER edit-mode regenerate is available OR Our Take is present
+                (and not hidden by deck mode). Individual buttons gated inside. */}
+            {!ourTakeOverlayOpen &&
+              ((isEditable && hasRawNotes && searchId && candidateId) ||
+                (hasOurTake && ourTakeMode !== 'hidden')) && (
               <div
                 style={{
                   position: "absolute",
@@ -278,53 +296,73 @@ export default function EDCCard({
                   zIndex: 10,
                 }}
               >
-                <button
-                  ref={ourTakeTriggerRef}
-                  onClick={() => {
-                    if (!isEditable && hasRealOurTake) {
-                      // Client view: reopen the overlay
-                      setOurTakeOverlayOpen(true);
-                      onOurTakeChange?.(true);
-                    } else {
-                      // Edit mode: open the editable popover
-                      handleOurTakeToggle(!ourTakeOpen);
-                    }
-                  }}
-                  className={ourTakeOpen ? "" : "our-take-glow"}
-                  style={{
-                    fontSize: fluid ? "0.82rem" : "0.92rem",
-                    fontWeight: 500,
-                    color: "var(--ss-gold)",
-                    background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)",
-                    border: "1.5px solid rgba(197,165,114,0.4)",
-                    borderRadius: "22px",
-                    padding: fluid ? "6px 14px" : "8px 20px",
-                    height: fluid ? "32px" : "38px",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    transition: "all 0.2s",
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontStyle: "italic",
-                    letterSpacing: "0.3px",
-                  }}
-                  onMouseOver={(e) => {
-                    const btn = e.currentTarget as HTMLButtonElement;
-                    btn.style.background = "rgba(197,165,114,0.14)";
-                    btn.style.borderColor = "rgba(197,165,114,0.6)";
-                    btn.style.transform = "scale(1.03)";
-                  }}
-                  onMouseOut={(e) => {
-                    const btn = e.currentTarget as HTMLButtonElement;
-                    btn.style.background = ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)";
-                    btn.style.borderColor = "rgba(197,165,114,0.4)";
-                    btn.style.transform = "scale(1)";
-                  }}
-                >
-                  <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
-                  Our Take
-                </button>
+                {isEditable && hasRawNotes && searchId && candidateId && (
+                  <RegenerateButton
+                    searchId={searchId}
+                    candidateSlug={candidateId}
+                    candidateName={data.candidate_name}
+                    fluid={fluid}
+                    onSuccess={() => {
+                      // Fall through to deck refresh via event listeners.
+                    }}
+                    onConflict={(result: RegenerateApiSuccess) => {
+                      setRegenConflicts({
+                        conflicts: result.conflicts as Conflict[],
+                        candidateSlug: result.candidate_slug,
+                        candidateName: result.candidate_name,
+                      });
+                    }}
+                  />
+                )}
+                {hasOurTake && ourTakeMode !== 'hidden' && (
+                  <button
+                    ref={ourTakeTriggerRef}
+                    onClick={() => {
+                      if (!isEditable && hasRealOurTake) {
+                        // Client view: reopen the overlay
+                        setOurTakeOverlayOpen(true);
+                        onOurTakeChange?.(true);
+                      } else {
+                        // Edit mode: open the editable popover
+                        handleOurTakeToggle(!ourTakeOpen);
+                      }
+                    }}
+                    className={ourTakeOpen ? "" : "our-take-glow"}
+                    style={{
+                      fontSize: fluid ? "0.82rem" : "0.92rem",
+                      fontWeight: 500,
+                      color: "var(--ss-gold)",
+                      background: ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)",
+                      border: "1.5px solid rgba(197,165,114,0.4)",
+                      borderRadius: "22px",
+                      padding: fluid ? "6px 14px" : "8px 20px",
+                      height: fluid ? "32px" : "38px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      transition: "all 0.2s",
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontStyle: "italic",
+                      letterSpacing: "0.3px",
+                    }}
+                    onMouseOver={(e) => {
+                      const btn = e.currentTarget as HTMLButtonElement;
+                      btn.style.background = "rgba(197,165,114,0.14)";
+                      btn.style.borderColor = "rgba(197,165,114,0.6)";
+                      btn.style.transform = "scale(1.03)";
+                    }}
+                    onMouseOut={(e) => {
+                      const btn = e.currentTarget as HTMLButtonElement;
+                      btn.style.background = ourTakeOpen ? "rgba(197,165,114,0.14)" : "rgba(250,248,245,0.97)";
+                      btn.style.borderColor = "rgba(197,165,114,0.4)";
+                      btn.style.transform = "scale(1)";
+                    }}
+                  >
+                    <span style={{ animation: "ourTakeShimmer 2s ease-in-out infinite" }}>✦</span>
+                    Our Take
+                  </button>
+                )}
               </div>
             )}
 
@@ -521,6 +559,18 @@ export default function EDCCard({
           onClose={() => handleOurTakeToggle(false)}
           candidateContext={buildCandidateContext(data)}
           manualNotes={data.our_take?.original_note}
+        />
+      )}
+
+      {/* Review Changes modal — opens when card-level Regenerate returns conflicts */}
+      {regenConflicts && searchId && (
+        <ReviewChangesModal
+          searchId={searchId}
+          candidateSlug={regenConflicts.candidateSlug}
+          candidateName={regenConflicts.candidateName}
+          conflicts={regenConflicts.conflicts}
+          onApplied={() => setRegenConflicts(null)}
+          onClose={() => setRegenConflicts(null)}
         />
       )}
     </div>

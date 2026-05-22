@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import IntroCard from "@/components/deck/IntroCard";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import JobSummaryBrief from "@/components/JobSummaryBrief";
@@ -79,6 +80,24 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { theme } = useDeckTheme(searchId);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // ── Regenerate refresh ────────────────────────────────────────────────────
+  // After a card-level or bulk regenerate completes, refetch the server data
+  // so cards re-render with the new edc_data. router.refresh() invalidates the
+  // page's RSC cache; no full page reload needed.
+  const router = useRouter();
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = () => {
+      router.refresh();
+    };
+    window.addEventListener('candidate-regenerate-complete', handler);
+    window.addEventListener('deck-regenerate-complete', handler);
+    return () => {
+      window.removeEventListener('candidate-regenerate-complete', handler);
+      window.removeEventListener('deck-regenerate-complete', handler);
+    };
+  }, [router]);
 
   // ── Client logo from localStorage or data ──────────────────────────────────
   const [clientLogo, setClientLogo] = useState<string | null>(null);

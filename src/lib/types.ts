@@ -270,5 +270,9 @@ export interface IntroCardData {
   /** Short industry label e.g. "FMCG", "FinTech", "Life Sciences" */
   industry_shorthand?: string;
   candidate_id: string;
+  /** True when candidates.raw_manual_notes is populated. Drives the
+   *  card-level Regenerate button — only shown when the API has something
+   *  to re-run the AI against. */
+  has_raw_notes?: boolean;
   edc_data: EDCData;
 }

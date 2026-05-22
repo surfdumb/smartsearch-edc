@@ -149,6 +149,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
       photo_url: (raw?.photo_url as string) || undefined,
       motivation_hook: c.motivation_hook || (raw?.motivation_hook as string) || c.key_strength || undefined,
+      has_raw_notes: typeof c.raw_manual_notes === 'string' && c.raw_manual_notes.trim().length > 0,
       edc_data: edcPayload,
     } as IntroCardData;
   });

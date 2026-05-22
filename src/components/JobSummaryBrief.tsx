@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
+import ReviewChangesModal, { type Conflict } from "@/components/edc/ReviewChangesModal";
 import {
   readDraft,
   writeDraftField,
@@ -15,6 +16,12 @@ import {
   type Staleness,
 } from "@/lib/brief-draft";
 import "@/styles/job-summary-print.css";
+
+interface BulkConflictEntry {
+  candidateSlug: string;
+  candidateName: string;
+  conflicts: Conflict[];
+}
 
 interface JobSummaryBriefProps {
   data: SearchContext;
@@ -395,6 +402,105 @@ export default function JobSummaryBrief({
   const [pdfReady, setPdfReady] = useState(false);
   useEffect(() => { setPdfReady(true); }, []);
 
+  // ── Bulk regenerate state ────────────────────────────────────────────────
+  // Drives the "Regenerate all" button: idle → running → reveal conflicts
+  // sequentially via the ReviewChangesModal queue.
+  const [bulkRegenRunning, setBulkRegenRunning] = useState(false);
+  const [bulkRegenProgress, setBulkRegenProgress] = useState<{ done: number; total: number } | null>(null);
+  const [bulkConflictQueue, setBulkConflictQueue] = useState<BulkConflictEntry[]>([]);
+  const [bulkSummary, setBulkSummary] = useState<{ processed: number; conflicts: number; failed: number } | null>(null);
+
+  const handleRegenerateAll = useCallback(async () => {
+    const candidateCount = data.candidates?.length ?? 0;
+    if (candidateCount === 0) return;
+    if (bulkRegenRunning) return;
+
+    const confirmed = typeof window !== 'undefined' && window.confirm(
+      `Regenerate AI content for all ${candidateCount} candidates? Manual edits will be preserved.`,
+    );
+    if (!confirmed) return;
+
+    setBulkRegenRunning(true);
+    setBulkRegenProgress({ done: 0, total: candidateCount });
+    setBulkSummary(null);
+
+    try {
+      const res = await fetch(`/api/deck/${searchId}/regenerate-all`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg = errBody?.error || `HTTP ${res.status}`;
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('regenerate-toast', {
+            detail: { kind: 'error', message: `Bulk regenerate failed: ${msg}` },
+          }));
+        }
+        return;
+      }
+
+      const body = await res.json() as {
+        candidates_processed: number;
+        candidates_with_conflicts: number;
+        results: {
+          candidate_slug: string;
+          candidate_name?: string;
+          conflicts?: { field: string; field_label: string; consultant_value: unknown; ai_value: unknown }[];
+        }[];
+        failed: { candidate_slug: string; error: string }[];
+      };
+
+      const queue: BulkConflictEntry[] = [];
+      for (const r of body.results) {
+        if (r.conflicts && r.conflicts.length > 0) {
+          queue.push({
+            candidateSlug: r.candidate_slug,
+            candidateName: r.candidate_name || r.candidate_slug,
+            conflicts: r.conflicts as Conflict[],
+          });
+        }
+      }
+
+      setBulkConflictQueue(queue);
+      setBulkSummary({
+        processed: body.candidates_processed,
+        conflicts: body.candidates_with_conflicts,
+        failed: body.failed?.length ?? 0,
+      });
+
+      if (typeof window !== 'undefined') {
+        const failedCount = body.failed?.length ?? 0;
+        const msg = failedCount > 0
+          ? `Regenerated ${body.candidates_processed} · ${failedCount} failed · ${body.candidates_with_conflicts} with conflicts`
+          : `Regenerated ${body.candidates_processed} candidate${body.candidates_processed === 1 ? '' : 's'}${body.candidates_with_conflicts > 0 ? ` · ${body.candidates_with_conflicts} with conflicts` : ''}`;
+        window.dispatchEvent(new CustomEvent('regenerate-toast', {
+          detail: { kind: failedCount > 0 ? 'warning' : 'success', message: msg },
+        }));
+        window.dispatchEvent(new CustomEvent('deck-regenerate-complete', {
+          detail: { results: body.results, failed: body.failed },
+        }));
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('[regenerate-all] failed:', msg);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('regenerate-toast', {
+          detail: { kind: 'error', message: `Bulk regenerate failed: ${msg}` },
+        }));
+      }
+    } finally {
+      setBulkRegenRunning(false);
+      setBulkRegenProgress(null);
+    }
+  }, [bulkRegenRunning, data.candidates, searchId]);
+
+  const dismissCurrentConflict = useCallback(() => {
+    setBulkConflictQueue((prev) => prev.slice(1));
+  }, []);
+
   // ── localStorage edit persistence ────────────────────────────────────────
   // Draft model lives in src/lib/brief-draft.ts (v2 envelope with created_at
   // timestamp for stale-write detection). Reads here normalise legacy v1 drafts.
@@ -697,6 +803,58 @@ export default function JobSummaryBrief({
               >
                 Job Summary
               </span>
+
+              {/* Regenerate-all button (edit mode only). Fires the bulk
+                  regenerate flow against every candidate with raw_manual_notes. */}
+              {isEditMode && (data.candidates?.length ?? 0) > 0 && (
+                <button
+                  type="button"
+                  onClick={handleRegenerateAll}
+                  disabled={bulkRegenRunning}
+                  title="Regenerate AI content for all candidates"
+                  style={{
+                    marginLeft: 'auto',
+                    marginRight: '16px',
+                    fontSize: '0.82rem',
+                    fontWeight: 600,
+                    color: bulkRegenRunning ? 'var(--ss-gray-light)' : 'var(--ss-gold)',
+                    background: 'transparent',
+                    border: '1.5px solid rgba(197,165,114,0.5)',
+                    borderRadius: '20px',
+                    padding: '7px 16px',
+                    cursor: bulkRegenRunning ? 'default' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s',
+                    letterSpacing: '0.3px',
+                  }}
+                  onMouseOver={(e) => {
+                    if (bulkRegenRunning) return;
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = 'rgba(197,165,114,0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    if (bulkRegenRunning) return;
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = 'transparent';
+                  }}
+                >
+                  <span
+                    style={
+                      bulkRegenRunning
+                        ? { animation: 'regenerateSpin 1s linear infinite', display: 'inline-block' }
+                        : { display: 'inline-block' }
+                    }
+                  >
+                    ↻
+                  </span>
+                  {bulkRegenRunning && bulkRegenProgress
+                    ? `Regenerating…`
+                    : 'Regenerate all cards'}
+                </button>
+              )}
+
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logos/Logos_SmartSearch_Primary_FullColour.png"
@@ -708,6 +866,60 @@ export default function JobSummaryBrief({
                 }}
               />
             </div>
+
+            {/* Local keyframe for the spinning ↻ — RegenerateButton defines its
+                own copy; this is for the Brief header's button. */}
+            <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
+
+            {/* Bulk conflict modal queue — opens for each candidate with
+                conflicts in sequence. Closes when the queue empties. */}
+            {bulkConflictQueue.length > 0 && (
+              <ReviewChangesModal
+                key={bulkConflictQueue[0].candidateSlug}
+                searchId={searchId}
+                candidateSlug={bulkConflictQueue[0].candidateSlug}
+                candidateName={bulkConflictQueue[0].candidateName}
+                conflicts={bulkConflictQueue[0].conflicts}
+                onApplied={dismissCurrentConflict}
+                onClose={dismissCurrentConflict}
+              />
+            )}
+
+            {/* Bulk summary banner — visible briefly after a bulk run completes */}
+            {bulkSummary && !bulkRegenRunning && bulkConflictQueue.length === 0 && (
+              <div
+                style={{
+                  fontSize: '0.78rem',
+                  color: 'rgba(45,40,36,0.65)',
+                  margin: '4px 0 12px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 12,
+                }}
+              >
+                <span>
+                  Regenerated {bulkSummary.processed} candidate{bulkSummary.processed === 1 ? '' : 's'}
+                  {bulkSummary.conflicts > 0 ? ` · ${bulkSummary.conflicts} reviewed` : ''}
+                  {bulkSummary.failed > 0 ? ` · ${bulkSummary.failed} failed` : ''}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setBulkSummary(null)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'rgba(45,40,36,0.45)',
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    padding: '0 4px',
+                  }}
+                  aria-label="Dismiss summary"
+                >
+                  ×
+                </button>
+              </div>
+            )}
 
             <GoldRule />
 

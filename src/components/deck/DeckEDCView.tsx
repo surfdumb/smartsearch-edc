@@ -6,6 +6,7 @@ import DeckNavigation from "@/components/deck/DeckNavigation";
 import EDCStatusBar from "@/components/deck/EDCStatusBar";
 import EDCCard from "@/components/edc/EDCCard";
 import OurTakeSavedToast from "@/components/edc/OurTakeSavedToast";
+import RegenerateToast from "@/components/edc/RegenerateToast";
 import SplitViewContainer from "@/components/split/SplitViewContainer";
 import { EditorContext } from "@/contexts/EditorContext";
 import CandidateNavigation from "@/components/deck/CandidateNavigation";
@@ -230,6 +231,7 @@ export default function DeckEDCView({
   return (
     <EditorContext.Provider value={{ isEditable }}>
       <OurTakeSavedToast />
+      <RegenerateToast />
       <main data-deck-theme={deckTheme} style={{ minHeight: "100vh", background: "var(--deck-bg)" }}>
         <DeckNavigation
           onBack={onBack}
@@ -328,6 +330,7 @@ export default function DeckEDCView({
               roleBriefMode={roleBriefMode}
               hiddenCriterionNames={hiddenCriteriaPerCandidate?.[candidate.candidate_id] || []}
               deckSettings={deckSettings}
+              hasRawNotes={candidate.has_raw_notes ?? false}
             />
             {!split && (
               <CandidateNavigation
