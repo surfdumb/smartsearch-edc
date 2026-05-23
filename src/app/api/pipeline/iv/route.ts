@@ -43,12 +43,98 @@ function mergeEdcData(
   return out;
 }
 
+/**
+ * V2 IV envelope shape — produced by the unified `SS · EDC Engine V2 · IV
+ * Webhook → Unified EDC` Make scenario. The Claude call emits a single JSON
+ * object with three top-level keys (resolution, candidate, edc_data); the
+ * scenario forwards it under `llm_output` alongside the raw Granola sources.
+ *
+ * V1 payload shape (flat: search_id, candidate_name, edc_data at the root)
+ * remains supported untouched — used by V1 EDC Engine via Sheets→Supabase
+ * promotion and by any direct callers.
+ */
+type V2Envelope = {
+  resolution?: {
+    search_id?: string | null;
+    search_key?: string | null;
+    resolution_confidence?: 'high' | 'ambiguous' | 'no_match' | null;
+    resolution_note?: string | null;
+    resolution_alternatives?: unknown[];
+  };
+  candidate?: {
+    candidate_name?: string;
+    candidate_slug?: string;
+  };
+  edc_data?: Record<string, unknown>;
+};
+
 export async function POST(req: NextRequest) {
   if (!validatePipelineAuth(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const payload = await req.json();
+  const rawPayload = await req.json();
+
+  // ─── V2 ENVELOPE NORMALIZATION ──────────────────────────────────────────
+  // If `llm_output` is present, this came from the V2 IV Engine. Unpack the
+  // envelope to the flat shape the rest of this handler operates on, and
+  // short-circuit on non-high confidence so the Make scenario can branch its
+  // email step to "needs disambiguation" without polluting the candidate table.
+  let payload = rawPayload;
+  let v2ResolutionConfidence: string | null = null;
+  let v2ResolutionNote: string | null = null;
+  let v2SearchName: string | null = null;
+  const isV2 = rawPayload && typeof rawPayload.llm_output === 'object' && rawPayload.llm_output !== null;
+
+  if (isV2) {
+    const env = rawPayload.llm_output as V2Envelope;
+    v2ResolutionConfidence = env.resolution?.resolution_confidence ?? null;
+    v2ResolutionNote = env.resolution?.resolution_note ?? null;
+    v2SearchName = (env.edc_data?.search_name as string | undefined) ?? null;
+
+    // Disambiguation gate — refuse the write if the Engine couldn't confidently
+    // pick a search. Return a 200 with disambiguation_needed=true so Make can
+    // branch the consultant email rather than treating this as a 4xx failure.
+    if (v2ResolutionConfidence !== 'high') {
+      console.warn(
+        `[pipeline/iv] V2 disambiguation: confidence=${v2ResolutionConfidence}, ` +
+          `candidate=${env.candidate?.candidate_name}, granola=${rawPayload.granola_title}`
+      );
+      return NextResponse.json({
+        success: false,
+        disambiguation_needed: true,
+        candidate_name: env.candidate?.candidate_name ?? null,
+        search_key: env.resolution?.search_key ?? null,
+        search_name: v2SearchName,
+        resolution_confidence: v2ResolutionConfidence,
+        resolution_note: v2ResolutionNote,
+        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      });
+    }
+
+    // High confidence — flatten the envelope onto the V1-shape contract so the
+    // rest of the handler (merge logic, raw passthrough, derived columns) runs
+    // unmodified.
+    payload = {
+      search_id: env.resolution?.search_id,
+      search_key: env.resolution?.search_key,
+      candidate_name: env.candidate?.candidate_name,
+      edc_data: env.edc_data,
+      consultant: rawPayload.consultant,
+      granola_title: rawPayload.granola_title,
+      eds_date: rawPayload.eds_date,
+      raw_transcript: rawPayload.raw_transcript,
+      raw_enhanced_notes: rawPayload.raw_enhanced_notes,
+      raw_manual_notes: rawPayload.raw_manual_notes,
+      sharepoint_url: rawPayload.sharepoint_url,
+      invenias_note_id: rawPayload.invenias_note_id,
+      flash_summary:
+        rawPayload.flash_summary ??
+        (env.edc_data?.flash_summary as string | undefined) ??
+        null,
+    };
+  }
+
   const {
     search_id,
     search_key,
@@ -245,23 +331,50 @@ export async function POST(req: NextRequest) {
   console.log(
     `[pipeline/iv] ${isNewCandidate ? 'created' : 'merged'} ${slug}: ` +
       `version ${existing?.generation_version ?? 0}→${nextVersion}, ` +
-      `preserved=[${manuallyEdited.join(',') || 'none'}]`
+      `preserved=[${manuallyEdited.join(',') || 'none'}], ` +
+      `path=${isV2 ? 'v2' : 'v1'}`
   );
 
-  // Update pipeline_log
+  // Update pipeline_log. V1 path: a prior /api/pipeline/match call left a
+  // 'matched' row, so flip it to 'complete'. V2 path: no match step ran, so
+  // insert a fresh 'complete' row directly. Idempotent either way — if the
+  // update affects zero rows, we insert.
   if (granola_title) {
-    await supabase
+    const { data: updated, error: logUpdateErr } = await supabase
       .from('pipeline_log')
       .update({ pipeline_status: 'complete' })
       .eq('granola_title', granola_title)
-      .eq('pipeline_status', 'matched');
+      .eq('pipeline_status', 'matched')
+      .select('id');
+
+    if (logUpdateErr) {
+      console.warn('[pipeline/iv] pipeline_log update warn:', logUpdateErr.message);
+    }
+
+    if (!updated || updated.length === 0) {
+      const { error: logInsertErr } = await supabase.from('pipeline_log').insert({
+        note_type: 'iv',
+        granola_title,
+        matched_search_id: search_id,
+        matched_search_key: search_key ?? null,
+        candidate_name_extracted: candidate_name,
+        pipeline_status: 'complete',
+      });
+      if (logInsertErr) {
+        console.warn('[pipeline/iv] pipeline_log insert warn:', logInsertErr.message);
+      }
+    }
   }
 
   return NextResponse.json({
     success: true,
     candidate_id: data.id,
     candidate_slug: data.candidate_slug,
+    candidate_name,
     search_key: search_key || null,
+    search_name:
+      v2SearchName ?? ((edc_data?.search_name as string | undefined) ?? null),
+    disambiguation_needed: false,
     merged: !isNewCandidate,
     generation_version: nextVersion,
     preserved_fields: manuallyEdited,
