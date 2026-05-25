@@ -213,7 +213,7 @@ export function NarrativeTab(props: NarrativeTabProps) {
       <div className="narrative-tab">
         <header className="narrative-header">
           <div className="narrative-header-left">
-            <span className="narrative-eyebrow">Internal Spiel</span>
+            <span className="narrative-eyebrow">Executive Decision Spiel (EDS)</span>
             <h2>{props.candidateName}</h2>
           </div>
         </header>
@@ -233,7 +233,7 @@ export function NarrativeTab(props: NarrativeTabProps) {
     <div className="narrative-tab" data-candidate-id={props.candidateId}>
       <header className="narrative-header">
         <div className="narrative-header-left">
-          <span className="narrative-eyebrow">Internal Spiel</span>
+          <span className="narrative-eyebrow">Executive Decision Spiel (EDS)</span>
           <h2>{props.candidateName}</h2>
         </div>
       </header>
