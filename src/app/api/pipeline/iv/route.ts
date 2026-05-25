@@ -328,6 +328,94 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // ─── NARRATIVE SPLIT (transitional dual-write) ─────────────────────────
+  // V2 IV envelope carries edc_data.narrative — a structured long-form
+  // assessment that lives in its own table (candidate_narratives) so
+  // consultant edits can persist independently of card-side edits and the
+  // narrative_generation_version stays separate from candidates.generation_version.
+  //
+  // DUAL-WRITE for safe transition: we DO NOT strip narrative from edc_data
+  // until Phase 5 cleanup commit ships (a few days after this lands). That
+  // way, the read fallback in NarrativeTab via edc_data.narrative continues
+  // to work for any candidate whose write happens before NarrativeTab's
+  // READ_FROM_NARRATIVE_TABLE flag flip propagates.
+  const incomingNarrativeFull = (edc_data as { narrative?: Record<string, unknown> | null })
+    .narrative ?? null;
+
+  if (incomingNarrativeFull) {
+    const { our_take_narrative, our_take_source, ...incomingNarrativeData } =
+      incomingNarrativeFull as {
+        our_take_narrative?: { text?: string } | null;
+        our_take_source?: string | null;
+        [k: string]: unknown;
+      };
+
+    const { data: existingNarrativeRaw } = await supabase
+      .from('candidate_narratives')
+      .select(
+        'narrative_data, narrative_manually_edited_fields, narrative_generation_version, our_take_narrative'
+      )
+      .eq('candidate_id', data.id)
+      .maybeSingle();
+    const existingNarrative = existingNarrativeRaw as {
+      narrative_data: Record<string, unknown> | null;
+      narrative_manually_edited_fields: string[] | null;
+      narrative_generation_version: number | null;
+      our_take_narrative: { text?: string } | null;
+    } | null;
+
+    const narrativeEdits = existingNarrative?.narrative_manually_edited_fields ?? [];
+    const narrativeEditsSet = new Set(narrativeEdits);
+
+    // Merge-aware: edited fields preserved, others overwritten by engine.
+    const existingNarrativeData = existingNarrative?.narrative_data ?? null;
+    const mergedNarrativeData: Record<string, unknown> = { ...incomingNarrativeData };
+    if (existingNarrativeData) {
+      for (const field of narrativeEdits) {
+        if (field in existingNarrativeData) {
+          mergedNarrativeData[field] = (existingNarrativeData as Record<string, unknown>)[field];
+        }
+      }
+    }
+
+    // Our Take: if consultant edited it, preserve their version; otherwise
+    // take the engine's. The pristine engine output is always written to
+    // ai_generated_narrative so reset can revive it.
+    const ourTakeEdited =
+      narrativeEditsSet.has('our_take_narrative') ||
+      narrativeEdits.some((f) => f.startsWith('our_take_narrative.'));
+    const finalOurTake = ourTakeEdited
+      ? existingNarrative?.our_take_narrative ?? null
+      : our_take_narrative ?? null;
+
+    const { error: narrativeErr } = await supabase
+      .from('candidate_narratives')
+      .upsert(
+        {
+          candidate_id: data.id,
+          search_id,
+          narrative_data: mergedNarrativeData,
+          // ai_generated_narrative is the pristine engine copy (including
+          // our_take_narrative). Reset on Our Take revives from here.
+          ai_generated_narrative: incomingNarrativeFull,
+          our_take_narrative: finalOurTake,
+          our_take_source: our_take_source ?? null,
+          narrative_generation_version:
+            (existingNarrative?.narrative_generation_version ?? 0) + 1,
+        },
+        { onConflict: 'candidate_id' }
+      );
+
+    if (narrativeErr) {
+      // Non-fatal — the candidate row is already written. Log and continue
+      // so the IV pipeline doesn't fail the whole envelope on narrative
+      // write trouble. The narrative read path still falls back through
+      // edc_data.narrative (dual-write).
+      console.warn('[pipeline/iv] candidate_narratives upsert warn:', narrativeErr.message);
+    }
+  }
+  // ─── /NARRATIVE SPLIT ──────────────────────────────────────────────────
+
   console.log(
     `[pipeline/iv] ${isNewCandidate ? 'created' : 'merged'} ${slug}: ` +
       `version ${existing?.generation_version ?? 0}→${nextVersion}, ` +
