@@ -1,19 +1,34 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+
+export type EDCPanel = 1 | 2 | 3 | 4;
 
 interface TabNavigationProps {
-  current: 1 | 2 | 3;
-  onChange: (panel: 1 | 2 | 3) => void;
+  current: EDCPanel;
+  onChange: (panel: EDCPanel) => void;
+  showNarrativeTab?: boolean;
 }
 
-const TABS: { id: 1 | 2 | 3; label: string }[] = [
+const BASE_TABS: { id: EDCPanel; label: string }[] = [
   { id: 1, label: "Scope" },
   { id: 2, label: "Criteria" },
   { id: 3, label: "Compensation" },
 ];
 
-export default function TabNavigation({ current, onChange }: TabNavigationProps) {
+const NARRATIVE_TAB: { id: EDCPanel; label: string } = { id: 4, label: "Narrative" };
+
+export default function TabNavigation({
+  current,
+  onChange,
+  showNarrativeTab = false,
+}: TabNavigationProps) {
+  const tabs = useMemo(
+    () => (showNarrativeTab ? [...BASE_TABS, NARRATIVE_TAB] : BASE_TABS),
+    [showNarrativeTab]
+  );
+  const maxId = tabs[tabs.length - 1].id;
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -22,16 +37,16 @@ export default function TabNavigation({ current, onChange }: TabNavigationProps)
 
       if (e.key === "ArrowLeft" && current > 1) {
         e.preventDefault();
-        onChange((current - 1) as 1 | 2 | 3);
+        onChange((current - 1) as EDCPanel);
       }
-      if (e.key === "ArrowRight" && current < 3) {
+      if (e.key === "ArrowRight" && current < maxId) {
         e.preventDefault();
-        onChange((current + 1) as 1 | 2 | 3);
+        onChange((current + 1) as EDCPanel);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [current, onChange]);
+  }, [current, onChange, maxId]);
 
   return (
     <div
@@ -46,7 +61,7 @@ export default function TabNavigation({ current, onChange }: TabNavigationProps)
         flexShrink: 0,
       }}
     >
-      {TABS.map((tab, i) => (
+      {tabs.map((tab, i) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
@@ -61,7 +76,7 @@ export default function TabNavigation({ current, onChange }: TabNavigationProps)
             borderBottom: tab.id === current
               ? "2px solid var(--ss-gold)"
               : "2px solid transparent",
-            borderRight: i < TABS.length - 1
+            borderRight: i < tabs.length - 1
               ? "1px solid rgba(0,0,0,0.06)"
               : "none",
             color: tab.id === current ? "var(--ss-gold-deep)" : "var(--ss-gray-light)",
