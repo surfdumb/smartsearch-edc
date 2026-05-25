@@ -539,15 +539,24 @@ export default function EDCCard({
                   )}
                 </div>
 
-                {/* Panel 4 — Narrative (consultant-only). NarrativeTab
-                    self-gates on isEditable, so this stays invisible in
-                    client view even if currentPanel ever lands on 4. */}
+                {/* Panel 4 — Spiel (Internal). NarrativeTab self-gates on
+                    isEditable so this stays invisible in client view even if
+                    currentPanel ever lands on 4. Quick Reference reads from
+                    `data` directly; primary_industry/years_in_current_role/
+                    total_team_size live on the candidates row (not in EDCData)
+                    so those three Quick Reference rows skip gracefully until
+                    a future commit plumbs them through DeckClient → DeckEDCView. */}
                 {candidateId && (
                   <div style={{ display: currentPanel === 4 ? 'block' : 'none', height: '100%', overflow: 'auto' }}>
                     <NarrativeTab
                       candidateId={candidateId}
                       candidateName={data.candidate_name}
-                      edcData={data as unknown as { narrative?: Record<string, unknown> }}
+                      edcData={data as unknown as Parameters<typeof NarrativeTab>[0]['edcData']}
+                      candidateRow={{
+                        current_title: data.current_title,
+                        current_company: data.current_company,
+                        location: data.location,
+                      }}
                     />
                   </div>
                 )}

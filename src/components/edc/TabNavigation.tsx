@@ -16,7 +16,7 @@ const BASE_TABS: { id: EDCPanel; label: string }[] = [
   { id: 3, label: "Compensation" },
 ];
 
-const NARRATIVE_TAB: { id: EDCPanel; label: string } = { id: 4, label: "Narrative" };
+const NARRATIVE_TAB: { id: EDCPanel; label: string } = { id: 4, label: "Spiel (Internal)" };
 
 export default function TabNavigation({
   current,
