@@ -39,7 +39,7 @@ interface CompensationProps {
   searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
 }
 
-const EMPTY = ["Not mentioned", "Not available", "N/A", "Not disclosed", "Assessment pending", ""];
+const EMPTY = ["", "N/A", "Assessment pending", "Not available"];
 
 function isEmpty(v: string | undefined): boolean {
   return !v || EMPTY.some((e) => v.trim().toLowerCase() === e.toLowerCase());
