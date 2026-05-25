@@ -28,11 +28,11 @@ interface DeckClientProps {
 // Parse URL hash synchronously to avoid grid flash on EDC refresh
 function parseHashState(candidates: { candidate_id: string }[], briefOnlyState?: boolean) {
   const defaultView = briefOnlyState ? { mode: "brief" } as DeckView : { mode: "grid" } as DeckView;
-  if (typeof window === 'undefined') return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  if (typeof window === 'undefined') return { view: defaultView, panel: undefined as 1 | 2 | 3 | 4 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
   const hash = window.location.hash.slice(1);
-  if (!hash) return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  if (!hash) return { view: defaultView, panel: undefined as 1 | 2 | 3 | 4 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
   // Recognise #brief as brief mode
-  if (hash === 'brief') return { view: { mode: "brief" } as DeckView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  if (hash === 'brief') return { view: { mode: "brief" } as DeckView, panel: undefined as 1 | 2 | 3 | 4 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
   const parts = hash.split('/');
   const candidateId = parts[0];
   const panel = parts[1] ? parseInt(parts[1], 10) : undefined;
@@ -41,12 +41,12 @@ function parseHashState(candidates: { candidate_id: string }[], briefOnlyState?:
   if (index !== -1) {
     return {
       view: { mode: "edc", candidateIndex: index, split: true } as DeckView,
-      panel: (panel && panel >= 1 && panel <= 3 ? panel : undefined) as 1 | 2 | 3 | undefined,
+      panel: (panel && panel >= 1 && panel <= 4 ? panel : undefined) as 1 | 2 | 3 | 4 | undefined,
       ourTakeOpen,
       candidateId,
     };
   }
-  return { view: defaultView, panel: undefined as 1 | 2 | 3 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
+  return { view: defaultView, panel: undefined as 1 | 2 | 3 | 4 | undefined, ourTakeOpen: false, candidateId: undefined as string | undefined };
 }
 
 export default function DeckClient({ data, searchId, isEditRoute = false }: DeckClientProps) {
@@ -71,9 +71,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   useAutoSaveGrid(searchId, data.candidates);
   const [candidateSlide, setCandidateSlide] = useState<'left' | 'right' | null>(null);
   // EDC sub-state restored from / synced to URL hash (e.g. #candidateId/2/ourtake)
-  const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | undefined>(hashInit.panel);
+  const [initialPanel, setInitialPanel] = useState<1 | 2 | 3 | 4 | undefined>(hashInit.panel);
   const [initialOurTakeOpen, setInitialOurTakeOpen] = useState(hashInit.ourTakeOpen);
-  const currentPanelRef = useRef<1 | 2 | 3>(hashInit.panel || 1);
+  const currentPanelRef = useRef<1 | 2 | 3 | 4>(hashInit.panel || 1);
   const currentOurTakeRef = useRef(hashInit.ourTakeOpen);
   // Store the candidate ID from hash for re-deriving index after cardOrder loads
   const hashCandidateIdRef = useRef(hashInit.candidateId);
@@ -443,7 +443,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // When view changes, update URL hash
   useEffect(() => { updateHash(); }, [updateHash]);
 
-  const handlePanelChange = useCallback((panel: 1 | 2 | 3) => {
+  const handlePanelChange = useCallback((panel: 1 | 2 | 3 | 4) => {
     currentPanelRef.current = panel;
     updateHash();
   }, [updateHash]);
@@ -468,7 +468,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
         const ourTake = parts[2] === 'ourtake';
         const index = orderedCandidates.findIndex((c) => c.candidate_id === candidateId);
         if (index !== -1) {
-          if (panel && panel >= 1 && panel <= 3) setInitialPanel(panel as 1 | 2 | 3);
+          if (panel && panel >= 1 && panel <= 4) setInitialPanel(panel as 1 | 2 | 3 | 4);
           setInitialOurTakeOpen(ourTake);
           setView({ mode: "edc", candidateIndex: index, split: true });
           return;

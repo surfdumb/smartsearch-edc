@@ -8,8 +8,9 @@ import Compensation from "@/components/edc/Compensation";
 // WhyInterested removed — motivation now lives in MotivationStrip scrambler
 import Miscellaneous from "@/components/edc/Miscellaneous";
 import EDCFooter from "@/components/edc/EDCFooter";
-import TabNavigation from "@/components/edc/TabNavigation";
+import TabNavigation, { type EDCPanel } from "@/components/edc/TabNavigation";
 import MotivationStrip from "@/components/edc/MotivationStrip";
+import { NarrativeTab } from "@/components/edc/NarrativeTab";
 import OurTakePopover from "@/components/edc/OurTakePopover";
 import OurTakeEmptyState from "@/components/edc/OurTakeEmptyState";
 import RegenerateButton, { type RegenerateApiSuccess } from "@/components/edc/RegenerateButton";
@@ -46,11 +47,11 @@ interface EDCCardProps {
   /** Direction the new candidate content should enter from */
   candidateSlideFrom?: 'left' | 'right' | null;
   /** Initial panel to show (restored from URL hash on refresh) */
-  initialPanel?: 1 | 2 | 3;
+  initialPanel?: EDCPanel;
   /** Initial Our Take open state (restored from URL hash on refresh) */
   initialOurTakeOpen?: boolean;
   /** Called when panel changes — parent syncs to URL hash */
-  onPanelChange?: (panel: 1 | 2 | 3) => void;
+  onPanelChange?: (panel: EDCPanel) => void;
   /** Called when Our Take popover opens/closes — parent syncs to URL hash */
   onOurTakeChange?: (open: boolean) => void;
   /** Canonical per-search scope dimensions from searches.scope_match_dimensions.
@@ -93,7 +94,7 @@ export default function EDCCard({
   hasRawNotes = false,
 }: EDCCardProps) {
   const { isEditable } = useEditorContext();
-  const [currentPanel, setCurrentPanel] = useState<1 | 2 | 3>(initialPanel || 1);
+  const [currentPanel, setCurrentPanel] = useState<EDCPanel>(initialPanel || 1);
   const [slideDirection, setSlideDirection] = useState<'right' | 'left'>('right');
   const [ourTakeOpen, setOurTakeOpen] = useState(initialOurTakeOpen || false);
   const ourTakeTriggerRef = useRef<HTMLButtonElement>(null);
@@ -161,12 +162,21 @@ export default function EDCCard({
     }
   }, [candidateId, photoKey, headerKey]);
 
-  const navigateToPanel = (target: 1 | 2 | 3) => {
+  const navigateToPanel = (target: EDCPanel) => {
     if (target === currentPanel) return;
     setSlideDirection(target > currentPanel ? 'right' : 'left');
     setCurrentPanel(target);
     onPanelChange?.(target);
   };
+
+  // Guard: panel 4 (Narrative) is consultant-only. If client view ever
+  // reaches state=4 (e.g. via stale URL hash), fall back to panel 1.
+  useEffect(() => {
+    if (!isEditable && currentPanel === 4) {
+      setCurrentPanel(1);
+      onPanelChange?.(1);
+    }
+  }, [isEditable, currentPanel, onPanelChange]);
 
   const handleOurTakeToggle = (open: boolean) => {
     setOurTakeOpen(open);
@@ -528,6 +538,19 @@ export default function EDCCard({
                     />
                   )}
                 </div>
+
+                {/* Panel 4 — Narrative (consultant-only). NarrativeTab
+                    self-gates on isEditable, so this stays invisible in
+                    client view even if currentPanel ever lands on 4. */}
+                {candidateId && (
+                  <div style={{ display: currentPanel === 4 ? 'block' : 'none', height: '100%', overflow: 'auto' }}>
+                    <NarrativeTab
+                      candidateId={candidateId}
+                      candidateName={data.candidate_name}
+                      edcData={data as unknown as { narrative?: Record<string, unknown> }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -536,7 +559,11 @@ export default function EDCCard({
 
       {/* ── Static zone: tab nav + footer (don't swipe) ──────────────── */}
       {!ourTakeOverlayOpen && (
-        <TabNavigation current={currentPanel} onChange={navigateToPanel} />
+        <TabNavigation
+          current={currentPanel}
+          onChange={navigateToPanel}
+          showNarrativeTab={isEditable}
+        />
       )}
 
       <EDCFooter

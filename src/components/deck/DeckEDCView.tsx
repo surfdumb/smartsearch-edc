@@ -41,9 +41,9 @@ interface DeckEDCViewProps {
   onPrev?: () => void;
   onNext?: () => void;
   onToggleSplit: () => void;
-  initialPanel?: 1 | 2 | 3;
+  initialPanel?: 1 | 2 | 3 | 4;
   initialOurTakeOpen?: boolean;
-  onPanelChange?: (panel: 1 | 2 | 3) => void;
+  onPanelChange?: (panel: 1 | 2 | 3 | 4) => void;
   onOurTakeChange?: (open: boolean) => void;
   /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
   searchDimensions?: { name: string; role_requirement: string }[];
