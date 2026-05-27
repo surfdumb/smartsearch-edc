@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
+import { resolveSearchId } from '@/lib/supabase-data';
 
 function validatePipelineAuth(req: NextRequest): boolean {
   const secret = req.headers.get('x-pipeline-secret');
@@ -112,12 +113,70 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // High confidence — flatten the envelope onto the V1-shape contract so the
-    // rest of the handler (merge logic, raw passthrough, derived columns) runs
-    // unmodified.
+    // High confidence — but the LLM's resolution still needs server-side
+    // verification. The V2 Engine returns both search_id and search_key; we
+    // trust only the latter because search_key is human-readable and far less
+    // hallucinable than a UUID. Look the canonical search_id up from the
+    // searches table by search_key and discard the LLM's UUID. (27 May bug:
+    // Sarah Rusin's envelope had search_key='cgn-hr-bp-dir' but search_id
+    // pointed at the demo-cfo row, so she landed in demo-cfo while Tara's
+    // email rendered a link to cgn-hr-bp-dir.)
+    const llmSearchId = env.resolution?.search_id ?? null;
+    const llmSearchKey = env.resolution?.search_key ?? null;
+
+    if (!llmSearchKey) {
+      console.warn(
+        `[pipeline/iv] V2 missing search_key: candidate=${env.candidate?.candidate_name}, ` +
+          `granola=${rawPayload.granola_title}`
+      );
+      return NextResponse.json({
+        success: false,
+        disambiguation_needed: true,
+        candidate_name: env.candidate?.candidate_name ?? null,
+        search_key: null,
+        search_name: v2SearchName,
+        resolution_confidence: 'no_match',
+        resolution_note:
+          'V2 envelope missing search_key — cannot resolve search server-side.',
+        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      });
+    }
+
+    const canonicalSearchId = await resolveSearchId(llmSearchKey);
+    if (!canonicalSearchId) {
+      console.warn(
+        `[pipeline/iv] V2 search_key not found: search_key=${llmSearchKey}, ` +
+          `candidate=${env.candidate?.candidate_name}, ` +
+          `granola=${rawPayload.granola_title}`
+      );
+      return NextResponse.json({
+        success: false,
+        disambiguation_needed: true,
+        candidate_name: env.candidate?.candidate_name ?? null,
+        search_key: llmSearchKey,
+        search_name: v2SearchName,
+        resolution_confidence: 'no_match',
+        resolution_note: `search_key '${llmSearchKey}' did not match any active search.`,
+        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      });
+    }
+
+    if (llmSearchId && llmSearchId !== canonicalSearchId) {
+      console.warn(
+        `[pipeline/iv] V2 search_id hallucination: llm_search_id=${llmSearchId} ` +
+          `disagrees with canonical=${canonicalSearchId} for search_key=${llmSearchKey}, ` +
+          `candidate=${env.candidate?.candidate_name}, ` +
+          `granola=${rawPayload.granola_title}. Using canonical.`
+      );
+    }
+
+    // High confidence + verified — flatten the envelope onto the V1-shape
+    // contract so the rest of the handler (merge logic, raw passthrough,
+    // derived columns) runs unmodified. The LLM's search_id is discarded;
+    // canonicalSearchId is the only id from here on.
     payload = {
-      search_id: env.resolution?.search_id,
-      search_key: env.resolution?.search_key,
+      search_id: canonicalSearchId,
+      search_key: llmSearchKey,
       candidate_name: env.candidate?.candidate_name,
       edc_data: env.edc_data,
       consultant: rawPayload.consultant,
