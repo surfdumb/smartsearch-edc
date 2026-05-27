@@ -114,7 +114,7 @@ export default function DeckNavigation({
               cursor: "pointer",
             }}
           >
-            CV Split View
+            CV Split
           </button>
         )}
 
@@ -132,7 +132,7 @@ export default function DeckNavigation({
                 cursor: "pointer",
               }}
             >
-              ← Prev
+              ←
             </button>
           )}
           <span style={{ color: "rgba(var(--deck-text-rgb),0.5)", fontSize: "0.85rem" }}>
@@ -151,7 +151,7 @@ export default function DeckNavigation({
                 cursor: "pointer",
               }}
             >
-              Next →
+              →
             </button>
           )}
         </div>

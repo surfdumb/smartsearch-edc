@@ -233,7 +233,7 @@ export default function CopyLinkButton({
           (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.15)";
         }}
       >
-        ⧉ Copy Link
+        ⧉ Copy
       </button>
       {mounted && showShareDialog && createPortal(dialog, document.body)}
     </>

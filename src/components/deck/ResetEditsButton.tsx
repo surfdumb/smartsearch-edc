@@ -134,7 +134,7 @@ export default function ResetEditsButton({ candidateName, onReset }: ResetEditsB
           (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.15)";
         }}
       >
-        ↺ Reset Edits
+        Reset EDC
       </button>
       {mounted && showConfirm && createPortal(modal, document.body)}
     </>
