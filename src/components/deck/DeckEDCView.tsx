@@ -3,7 +3,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import DeckNavigation from "@/components/deck/DeckNavigation";
-import EDCStatusBar from "@/components/deck/EDCStatusBar";
+import StatusPill from "@/components/deck/StatusPill";
+import ResetEditsButton from "@/components/deck/ResetEditsButton";
+import CopyLinkButton from "@/components/deck/CopyLinkButton";
 import EDCCard from "@/components/edc/EDCCard";
 import OurTakeSavedToast from "@/components/edc/OurTakeSavedToast";
 import RegenerateToast from "@/components/edc/RegenerateToast";
@@ -222,6 +224,51 @@ export default function DeckEDCView({
     }
   }, [candidate.candidate_id, edcWithOurTake, searchId]);
 
+  const handleReset = useCallback(async () => {
+    const cid = candidate.candidate_id;
+    // clearDirty also aborts any in-flight POST and cancels pending debounced saves,
+    // so the DELETE below is the last word on what's in the Blob.
+    clearDirty(cid);
+    try {
+      clearEditWithHash(`edc_edit_${cid}_scope`);
+      clearEditWithHash(`edc_edit_${cid}_criteria`);
+      clearEditWithHash(`edc_edit_${cid}_comp`);
+      clearEditWithHash(`edc_edit_${cid}_header`);
+      clearEditWithHash(`edc_edit_${cid}_ourtake`);
+      clearEditWithHash(`edc_edit_${cid}_motivation`);
+      localStorage.removeItem(`card_edits_${cid}`);
+      localStorage.removeItem(`edc_ourtake_result_${cid}`);
+    } catch { /* ignore */ }
+    setOurTakeOverride(null);
+    setOurTakeLocalEdits(null);
+    setResetKey(k => k + 1);
+
+    // Clear server-side overlay so the next page render uses fixture data.
+    // Without this, the Blob overlay would re-overwrite the fixture on reload.
+    try {
+      const res = await fetch(
+        `/api/edits/save?searchId=${encodeURIComponent(searchId)}&candidateId=${encodeURIComponent(cid)}`,
+        { method: 'DELETE' }
+      );
+      if (!res.ok) {
+        console.warn('[reset] DELETE overlay failed:', res.status);
+      }
+    } catch (err) {
+      console.warn('[reset] DELETE overlay request failed:', err);
+    }
+
+    try {
+      await fetch(
+        `/api/deck/${encodeURIComponent(searchId)}/criteria-visibility?candidateId=${encodeURIComponent(cid)}`,
+        { method: 'DELETE' }
+      );
+    } catch (err) {
+      console.warn('[reset] criteria-visibility DELETE failed:', err);
+    }
+
+    router.refresh();
+  }, [candidate.candidate_id, searchId, router]);
+
   return (
     <EditorContext.Provider value={{ isEditable }}>
       <OurTakeSavedToast />
@@ -236,6 +283,21 @@ export default function DeckEDCView({
           totalCount={totalCount}
           splitActive={split}
           roleTitle={edc.role_title}
+          leftExtras={isEditRoute ? (
+            <StatusPill candidateId={candidate.candidate_id} status={candidate.edc_data?.status} />
+          ) : null}
+          rightExtras={isEditRoute ? (
+            <>
+              <ResetEditsButton candidateName={edc.candidate_name} onReset={handleReset} />
+              <CopyLinkButton
+                candidateId={candidate.candidate_id}
+                searchId={searchId}
+                candidateName={edc.candidate_name}
+                roleTitle={edc.role_title}
+                onFlushEdits={handleFlushEdits}
+              />
+            </>
+          ) : null}
         />
 
         <SplitViewContainer
@@ -248,63 +310,6 @@ export default function DeckEDCView({
             className={split ? "" : "deck-edc-wrapper"}
             style={{ padding: split ? "0 0 40px" : "0 24px 24px" }}
           >
-            {/* Bar lives inside the wrapper so it shares the card's column and
-                width logic — when split flips the card fluid, the bar follows. */}
-            {isEditRoute && (
-              <EDCStatusBar
-                candidateId={candidate.candidate_id}
-                searchId={searchId}
-                candidateName={edc.candidate_name}
-                roleTitle={edc.role_title}
-                status={candidate.edc_data?.status}
-                fluid={split}
-                onFlushEdits={handleFlushEdits}
-                onReset={async () => {
-                  const cid = candidate.candidate_id;
-                  // clearDirty also aborts any in-flight POST and cancels pending debounced saves,
-                  // so the DELETE below is the last word on what's in the Blob.
-                  clearDirty(cid);
-                  try {
-                    clearEditWithHash(`edc_edit_${cid}_scope`);
-                    clearEditWithHash(`edc_edit_${cid}_criteria`);
-                    clearEditWithHash(`edc_edit_${cid}_comp`);
-                    clearEditWithHash(`edc_edit_${cid}_header`);
-                    clearEditWithHash(`edc_edit_${cid}_ourtake`);
-                    clearEditWithHash(`edc_edit_${cid}_motivation`);
-                    localStorage.removeItem(`card_edits_${cid}`);
-                    localStorage.removeItem(`edc_ourtake_result_${cid}`);
-                  } catch { /* ignore */ }
-                  setOurTakeOverride(null);
-                  setOurTakeLocalEdits(null);
-                  setResetKey(k => k + 1);
-
-                  // Clear server-side overlay so the next page render uses fixture data.
-                  // Without this, the Blob overlay would re-overwrite the fixture on reload.
-                  try {
-                    const res = await fetch(
-                      `/api/edits/save?searchId=${encodeURIComponent(searchId)}&candidateId=${encodeURIComponent(cid)}`,
-                      { method: 'DELETE' }
-                    );
-                    if (!res.ok) {
-                      console.warn('[reset] DELETE overlay failed:', res.status);
-                    }
-                  } catch (err) {
-                    console.warn('[reset] DELETE overlay request failed:', err);
-                  }
-
-                  try {
-                    await fetch(
-                      `/api/deck/${encodeURIComponent(searchId)}/criteria-visibility?candidateId=${encodeURIComponent(cid)}`,
-                      { method: 'DELETE' }
-                    );
-                  } catch (err) {
-                    console.warn('[reset] criteria-visibility DELETE failed:', err);
-                  }
-
-                  router.refresh();
-                }}
-              />
-            )}
             <EDCCard
               key={`${candidate.candidate_id}-${resetKey}`}
               data={edcWithOurTake}

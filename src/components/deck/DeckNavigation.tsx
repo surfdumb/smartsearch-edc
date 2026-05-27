@@ -1,5 +1,7 @@
 "use client";
 
+import { ReactNode } from "react";
+
 interface DeckNavigationProps {
   onBack: () => void;
   onPrev?: () => void;
@@ -9,7 +11,22 @@ interface DeckNavigationProps {
   totalCount: number;
   splitActive?: boolean;
   roleTitle?: string;
+  /** Slot appended to the left cluster after "Back to Deck", separated by a
+   *  thin vertical rule. Used by DeckEDCView in edit mode to host StatusPill. */
+  leftExtras?: ReactNode;
+  /** Slot prepended to the right cluster before "CV Split View", separated by
+   *  a thin vertical rule. Used by DeckEDCView in edit mode to host Reset Edits
+   *  and Copy Link. */
+  rightExtras?: ReactNode;
 }
+
+const ruleStyle: React.CSSProperties = {
+  display: "inline-block",
+  width: "1px",
+  height: "16px",
+  background: "rgba(197,165,114,0.20)",
+  flexShrink: 0,
+};
 
 export default function DeckNavigation({
   onBack,
@@ -20,6 +37,8 @@ export default function DeckNavigation({
   totalCount,
   splitActive,
   roleTitle: _roleTitle,
+  leftExtras,
+  rightExtras,
 }: DeckNavigationProps) {
   return (
     <div
@@ -34,21 +53,29 @@ export default function DeckNavigation({
         gap: "16px",
       }}
     >
-      {/* Left — back button */}
-      <button
-        onClick={onBack}
-        style={{
-          background: "transparent",
-          border: "none",
-          color: "var(--ss-gold)",
-          fontSize: "0.9rem",
-          cursor: "pointer",
-          padding: "8px 0",
-          textAlign: "left",
-        }}
-      >
-        ← Back to Deck
-      </button>
+      {/* Left — back button + optional extras */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <button
+          onClick={onBack}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "var(--ss-gold)",
+            fontSize: "0.9rem",
+            cursor: "pointer",
+            padding: "8px 0",
+            textAlign: "left",
+          }}
+        >
+          ← Back to Deck
+        </button>
+        {leftExtras && (
+          <>
+            <span aria-hidden="true" style={ruleStyle} />
+            {leftExtras}
+          </>
+        )}
+      </div>
 
       {/* Centre — Executive Decision Card wordmark */}
       <span
@@ -65,8 +92,14 @@ export default function DeckNavigation({
         <span style={{ fontWeight: 600, color: "var(--ss-gold)", marginLeft: "6px" }}>Card</span>
       </span>
 
-      {/* Right — controls */}
+      {/* Right — optional extras + controls */}
       <div className="deck-nav-right" style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: "flex-end" }}>
+        {rightExtras && (
+          <>
+            {rightExtras}
+            <span aria-hidden="true" style={ruleStyle} />
+          </>
+        )}
         {onToggleSplit && (
           <button
             className="deck-nav-split-btn"
