@@ -31,8 +31,16 @@ interface DeckSettings {
 
 interface EDCCardProps {
   data: EDCData;
-  /** When true, card stretches to 100% (for split view) */
+  /** When true, card stretches to 100% AND uses compact internal spacing (for
+   *  the narrow EDC panel in CV-split mode). */
   fluid?: boolean;
+  /** When true, card stretches to 100% but keeps the normal (non-compact)
+   *  internal spacing — used by DeckEDCView in non-split mode so the card
+   *  spans near the full viewport width while the comfortable padding/font
+   *  sizes stay intact. Independent of `fluid` to avoid surprising the
+   *  standalone /search/[searchId]/edc/[candidateId] and /transform consumers
+   *  which still want the centered 820px layout. */
+  wide?: boolean;
   /** Controls which header fields are rendered */
   context?: EDCContext;
   /** Used to namespace localStorage edits/toggles per candidate */
@@ -76,6 +84,7 @@ interface EDCCardProps {
 export default function EDCCard({
   data,
   fluid = false,
+  wide = false,
   context = 'standalone',
   candidateId,
   searchId,
@@ -243,7 +252,7 @@ export default function EDCCard({
       className="edc-card font-outfit"
       style={{
         position: "relative",
-        maxWidth: fluid ? "100%" : "820px",
+        maxWidth: (fluid || wide) ? "100%" : "820px",
         margin: "0 auto",
         borderRadius: "var(--edc-card-radius)",
         overflow: "hidden",

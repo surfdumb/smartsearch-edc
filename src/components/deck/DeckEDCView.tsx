@@ -308,12 +308,13 @@ export default function DeckEDCView({
         >
           <div
             className={split ? "" : "deck-edc-wrapper"}
-            style={{ padding: split ? "0 0 40px" : "0 24px 24px" }}
+            style={{ padding: split ? "0 0 40px" : "0 16px 24px" }}
           >
             <EDCCard
               key={`${candidate.candidate_id}-${resetKey}`}
               data={edcWithOurTake}
               fluid={split}
+              wide={!split}
               context="deck"
               candidateId={candidate.candidate_id}
               searchId={searchId}
