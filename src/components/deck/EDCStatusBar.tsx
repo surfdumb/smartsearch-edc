@@ -13,6 +13,10 @@ interface EDCStatusBarProps {
   onReset?: () => void;
   /** Resolved current status from candidate.edc_data.status (or undefined for no-status). */
   status?: string;
+  /** Mirrors EDCCard's `fluid` prop so the bar spans the same width as the card
+   *  below it — full-width when the card is fluid (split / CV-collapsed), 820px
+   *  centered otherwise. Without this the bar floats narrow above a wide card. */
+  fluid?: boolean;
 }
 
 // ── Status cycle (mirrors IntroCard.tsx:39–73; inlined here with a dark-theme
@@ -48,6 +52,7 @@ export default function EDCStatusBar({
   onFlushEdits,
   onReset,
   status,
+  fluid = false,
 }: EDCStatusBarProps) {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
@@ -142,12 +147,13 @@ export default function EDCStatusBar({
 
   return (
     <>
-      {/* Status bar */}
+      {/* Status bar — width mirrors the EDC card below (fluid in split / CV-
+          collapsed mode, 820px centered otherwise) so the pill sits at the
+          card's left edge and the action buttons at its right edge. */}
       <div
         style={{
-          maxWidth: "820px",
+          maxWidth: fluid ? "100%" : "820px",
           margin: "0 auto 8px",
-          padding: "0 4px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -215,7 +221,7 @@ export default function EDCStatusBar({
               (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.15)";
             }}
           >
-            Copy Link
+            ⧉ Copy Link
           </button>
         </div>
       </div>
