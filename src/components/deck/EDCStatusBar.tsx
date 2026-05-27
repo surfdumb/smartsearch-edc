@@ -1,67 +1,82 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { markDirty, signalEdit } from "@/hooks/useAutoSave";
 
 interface EDCStatusBarProps {
   candidateId: string;
   searchId: string;
   candidateName: string;
   roleTitle: string;
-  /** Server-hydrated flag: is this candidate currently in searches.hidden_candidates? */
-  isHiddenFromClient: boolean;
-  /** Flush pending localStorage edits to the server. Awaited as a pre-flight before Lock & Share reveals to client. */
+  /** Flush pending localStorage edits to the server. Awaited as a pre-flight before opening the share dialog (replaces the flush-before-share guarantee the old Lock & Share button provided). */
   onFlushEdits: () => void | Promise<void>;
   onReset?: () => void;
-  /** Side-effect for Lock & Share: remove candidate from hidden_candidates. Awaited before share dialog opens. */
-  onClientVisible?: () => Promise<void>;
-  /** Side-effect for Hide from Client: add candidate to hidden_candidates. Awaited before UI transitions. */
-  onHideFromClient?: () => Promise<void>;
+  /** Resolved current status from candidate.edc_data.status (or undefined for no-status). */
+  status?: string;
 }
+
+// ── Status cycle (mirrors IntroCard.tsx:39–73; inlined here with a dark-theme
+// palette tuned for the deck bar background. Extract to a shared
+// lib/candidate-status.ts the third time anything needs these.) ──
+const STATUS_CYCLE = ['new', 'active', 'rejected', 'hold', 'none'] as const;
+type CycleStatus = typeof STATUS_CYCLE[number];
+
+function normalizeStatus(raw: unknown): CycleStatus | undefined {
+  if (typeof raw !== 'string') return undefined;
+  const lower = raw.toLowerCase();
+  return (STATUS_CYCLE as readonly string[]).includes(lower)
+    ? (lower as CycleStatus)
+    : undefined;
+}
+
+const STATUS_STYLES: Record<Exclude<CycleStatus, 'none'>, { color: string; bg: string; border: string }> = {
+  new:      { color: '#8db4d8', bg: 'rgba(74,106,140,0.18)', border: 'rgba(74,106,140,0.40)' },
+  active:   { color: '#8fc09a', bg: 'rgba(74,124,89,0.18)',  border: 'rgba(74,124,89,0.40)' },
+  rejected: { color: 'rgba(255,255,255,0.55)', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.15)' },
+  hold:     { color: '#e0b87a', bg: 'rgba(201,149,58,0.18)', border: 'rgba(201,149,58,0.40)' },
+};
 
 export default function EDCStatusBar({
   candidateId,
   searchId,
   candidateName,
   roleTitle,
-  isHiddenFromClient,
   onFlushEdits,
   onReset,
-  onClientVisible,
-  onHideFromClient,
+  status,
 }: EDCStatusBarProps) {
-  const [showLockModal, setShowLockModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // Local optimistic copy of status so the pill responds instantly to clicks
+  // without waiting for the autosave roundtrip. Resets when the bar opens to a
+  // different candidate (navigation between EDCs) or when the upstream prop
+  // changes from a server refresh.
+  const [statusState, setStatusState] = useState<CycleStatus | undefined>(() => normalizeStatus(status));
+  useEffect(() => {
+    setStatusState(normalizeStatus(status));
+  }, [candidateId, status]);
 
   const shareUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/search/${searchId}/edc/${candidateId}`
       : "";
 
-  const handleLockConfirm = async () => {
-    await onFlushEdits();
-    if (onClientVisible) {
-      try {
-        await onClientVisible();
-      } catch (err) {
-        console.error('[lock-share] Failed to reveal candidate to client:', err);
-        alert('Failed to reveal candidate to client. Please try again.');
-        return;
-      }
-    }
-    setShowLockModal(false);
-    setShowShareDialog(true);
-  };
-
-  const handleHideClick = async () => {
-    if (!onHideFromClient) return;
+  const cycleStatus = () => {
+    // First click on a no-status pill lands on 'new' (indexOf returns -1, then (-1+1)%5 = 0).
+    const idx = statusState ? STATUS_CYCLE.indexOf(statusState) : -1;
+    const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+    const editsKey = `card_edits_${candidateId}`;
     try {
-      await onHideFromClient();
-    } catch (err) {
-      console.error('[hide-from-client] Failed to hide candidate:', err);
-      alert('Failed to hide candidate from client. Please try again.');
+      const prev = JSON.parse(localStorage.getItem(editsKey) || '{}');
+      localStorage.setItem(editsKey, JSON.stringify({ ...prev, status: next }));
+    } catch {
+      /* ignore — localStorage may be unavailable in private browsing */
     }
+    markDirty(candidateId);
+    signalEdit(candidateId);
+    setStatusState(next === 'none' ? undefined : next);
   };
 
   const handleCopyLink = async () => {
@@ -82,6 +97,45 @@ export default function EDCStatusBar({
     window.open(`mailto:?subject=${subject}&body=${body}`);
   };
 
+  const handleCopyLinkClick = async () => {
+    // Preserve the flush-before-share guarantee the old Lock & Share button
+    // provided. Best-effort — if the flush errors, still open the dialog so
+    // the consultant isn't blocked from sharing.
+    try {
+      await onFlushEdits();
+    } catch {
+      /* fall through */
+    }
+    setShowShareDialog(true);
+  };
+
+  // ── Status pill styling — picks a palette entry by current statusState, or a
+  // muted placeholder for no-status. ──
+  const pillStyle: React.CSSProperties = (() => {
+    const base: React.CSSProperties = {
+      display: "inline-flex",
+      alignItems: "center",
+      fontSize: "0.65rem",
+      fontWeight: 700,
+      letterSpacing: "1.5px",
+      textTransform: "uppercase",
+      borderRadius: "5px",
+      padding: "3px 9px",
+      cursor: "pointer",
+      transition: "all 0.15s",
+    };
+    if (!statusState || statusState === 'none') {
+      return {
+        ...base,
+        color: "rgba(255,255,255,0.4)",
+        background: "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(255,255,255,0.10)",
+      };
+    }
+    const s = STATUS_STYLES[statusState];
+    return { ...base, color: s.color, background: s.bg, border: `1px solid ${s.border}` };
+  })();
+
   return (
     <>
       {/* Status bar */}
@@ -96,48 +150,21 @@ export default function EDCStatusBar({
           gap: "12px",
         }}
       >
-        {/* Left: visibility pill (single source of truth for candidate state) */}
+        {/* Left: status cycle pill — single source of truth for client visibility */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {isHiddenFromClient ? (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                fontSize: "0.65rem",
-                fontWeight: 700,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                color: "rgba(255,255,255,0.5)",
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "5px",
-                padding: "3px 9px",
-              }}
-            >
-              Hidden from client
-            </span>
-          ) : (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                fontSize: "0.65rem",
-                fontWeight: 700,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-                color: "var(--ss-green)",
-                background: "rgba(74,124,89,0.1)",
-                border: "1px solid rgba(74,124,89,0.25)",
-                borderRadius: "5px",
-                padding: "3px 9px",
-              }}
-            >
-              Visible to client
-            </span>
-          )}
+          <button
+            type="button"
+            onClick={cycleStatus}
+            style={pillStyle}
+            title="Click to cycle status (controls client visibility): New → Active → Rejected → Hold → No status"
+          >
+            {!statusState || statusState === 'none'
+              ? 'Set status'
+              : statusState.charAt(0).toUpperCase() + statusState.slice(1)}
+          </button>
         </div>
 
-        {/* Right: actions — contextual on visibility only */}
+        {/* Right: actions */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {onReset && (
             <button
@@ -166,194 +193,31 @@ export default function EDCStatusBar({
               ↺ Reset Edits
             </button>
           )}
-          {isHiddenFromClient ? (
-            <button
-              onClick={() => setShowLockModal(true)}
-              style={{
-                background: "rgba(197,165,114,0.1)",
-                border: "1px solid rgba(197,165,114,0.35)",
-                color: "var(--ss-gold)",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                padding: "6px 16px",
-                borderRadius: "8px",
-                cursor: "pointer",
-                letterSpacing: "0.3px",
-                transition: "all 0.15s",
-              }}
-              onMouseOver={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.18)";
-              }}
-              onMouseOut={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.1)";
-              }}
-            >
-              Lock &amp; Share →
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => setShowShareDialog(true)}
-                style={{
-                  background: "rgba(74,124,89,0.1)",
-                  border: "1px solid rgba(74,124,89,0.3)",
-                  color: "var(--ss-green)",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  padding: "6px 16px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  letterSpacing: "0.3px",
-                  transition: "all 0.15s",
-                }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.18)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.1)";
-                }}
-              >
-                Copy Link
-              </button>
-              <button
-                onClick={handleHideClick}
-                style={{
-                  background: "transparent",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(255,255,255,0.35)",
-                  fontSize: "0.72rem",
-                  fontWeight: 500,
-                  padding: "6px 12px",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  letterSpacing: "0.3px",
-                  transition: "all 0.15s",
-                }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.25)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.35)";
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
-                }}
-              >
-                Hide from Client
-              </button>
-            </>
-          )}
+          <button
+            onClick={handleCopyLinkClick}
+            style={{
+              background: "rgba(74,124,89,0.1)",
+              border: "1px solid rgba(74,124,89,0.3)",
+              color: "var(--ss-green)",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              padding: "6px 16px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              letterSpacing: "0.3px",
+              transition: "all 0.15s",
+            }}
+            onMouseOver={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.18)";
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.1)";
+            }}
+          >
+            Copy Link
+          </button>
         </div>
       </div>
-
-      {/* ── Lock confirm modal ── */}
-      {showLockModal && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 3000,
-            background: "rgba(0,0,0,0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "24px",
-          }}
-          onClick={() => setShowLockModal(false)}
-        >
-          <div
-            style={{
-              background: "#1a1a1a",
-              border: "1px solid rgba(197,165,114,0.2)",
-              borderRadius: "16px",
-              padding: "32px",
-              maxWidth: "420px",
-              width: "100%",
-              textAlign: "center",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                width: "48px",
-                height: "48px",
-                borderRadius: "50%",
-                background: "rgba(197,165,114,0.1)",
-                border: "1px solid rgba(197,165,114,0.25)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 20px",
-                fontSize: "1.4rem",
-              }}
-            >
-              🔒
-            </div>
-            <h2
-              className="font-cormorant"
-              style={{
-                fontSize: "1.4rem",
-                fontWeight: 500,
-                color: "rgba(255,255,255,0.9)",
-                marginBottom: "10px",
-                fontStyle: "italic",
-              }}
-            >
-              Lock deck &amp; share {candidateName.split(' ')[0]}&rsquo;s EDC?
-            </h2>
-            <p
-              style={{
-                fontSize: "0.82rem",
-                color: "rgba(255,255,255,0.45)",
-                lineHeight: 1.6,
-                marginBottom: "28px",
-              }}
-            >
-              This candidate will be visible to the client on the shared deck link.
-              Any pending edits are saved first. Unlock &amp; Edit lets you keep editing later
-              without retracting — to remove from client view, use Hide from client.
-            </p>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-              <button
-                onClick={() => setShowLockModal(false)}
-                style={{
-                  background: "transparent",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  color: "rgba(255,255,255,0.4)",
-                  padding: "10px 24px",
-                  borderRadius: "10px",
-                  fontSize: "0.82rem",
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleLockConfirm}
-                style={{
-                  background: "rgba(197,165,114,0.12)",
-                  border: "1px solid rgba(197,165,114,0.4)",
-                  color: "var(--ss-gold)",
-                  padding: "10px 28px",
-                  borderRadius: "10px",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
-                onMouseOver={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.2)";
-                }}
-                onMouseOut={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(197,165,114,0.12)";
-                }}
-              >
-                Lock &amp; Share
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Share dialog ── */}
       {showShareDialog && (

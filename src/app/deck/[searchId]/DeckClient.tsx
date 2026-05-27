@@ -289,44 +289,12 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     persistHidden(next);
   }, [hiddenCandidates, persistHidden]);
 
-  // Awaitable variant for Lock & Share side-effect — consultant should not see
-  // a share dialog until the server has confirmed the candidate is no longer hidden.
-  const revealCandidateToClient = useCallback(async (id: string) => {
-    if (!hiddenCandidates.has(id)) return;
-    const next = new Set(hiddenCandidates);
-    next.delete(id);
-    const arr = Array.from(next);
-    setHiddenCandidates(next);
-    try { localStorage.setItem(hiddenKey, JSON.stringify(arr)); } catch { /* ignore */ }
-    const res = await fetch(`/api/deck/${searchId}/hidden`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hidden: arr }),
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to persist hidden_candidates (status ${res.status})`);
-    }
-  }, [hiddenCandidates, hiddenKey, searchId]);
-
-  // Awaitable mirror — used by the EDC status bar's Hide from Client button so the
-  // pill flip doesn't race the server write. The deck-grid X button keeps using the
-  // fire-and-forget hideCandidate above (different surface, different latency budget).
-  const hideCandidateFromClient = useCallback(async (id: string) => {
-    if (hiddenCandidates.has(id)) return;
-    const next = new Set(hiddenCandidates);
-    next.add(id);
-    const arr = Array.from(next);
-    setHiddenCandidates(next);
-    try { localStorage.setItem(hiddenKey, JSON.stringify(arr)); } catch { /* ignore */ }
-    const res = await fetch(`/api/deck/${searchId}/hidden`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hidden: arr }),
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to persist hidden_candidates (status ${res.status})`);
-    }
-  }, [hiddenCandidates, hiddenKey, searchId]);
+  // (The previous awaitable revealCandidateToClient / hideCandidateFromClient
+  // callbacks lived here. They were only used by the EDC status bar's Lock & Share
+  // and Hide from Client buttons, both of which are gone post the deck_status
+  // visibility flatten. The fire-and-forget hideCandidate above stays — it backs
+  // the IntroCard X (grid-level "remove from deck edit view"), which is the only
+  // entry point into hidden_candidates now.)
 
   // Visibility gate: a candidate is "in shortlist" once they have a per-candidate
   // status (New / Active / Rejected / Hold). No status = not yet ready for client.
@@ -1809,9 +1777,6 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       searchDimensions={data.scope_match_dimensions}
       searchBudget={data.search_budget}
       roleBriefMode={jsInPortal}
-      isHiddenFromClient={hiddenCandidates.has(candidate.candidate_id)}
-      onClientVisible={() => revealCandidateToClient(candidate.candidate_id)}
-      onHideFromClient={() => hideCandidateFromClient(candidate.candidate_id)}
       hiddenCriteriaPerCandidate={data.hidden_criteria_per_candidate}
       deckSettings={data.deck_settings}
     />

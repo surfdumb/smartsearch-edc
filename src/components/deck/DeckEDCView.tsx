@@ -52,12 +52,9 @@ interface DeckEDCViewProps {
   /** When true (deck_settings.js_in_portal), the Role Brief is the SSOT for Key
    *  Criteria structure; threaded to EDCCard → KeyCriteria to gate add/remove UI. */
   roleBriefMode?: boolean;
-  /** Server-hydrated flag: candidate is in searches.hidden_candidates (deck-level gate). */
-  isHiddenFromClient?: boolean;
-  /** Lock & Share side-effect: remove candidate from hidden_candidates (server-persisted). */
-  onClientVisible?: () => Promise<void>;
-  /** Hide from Client side-effect: add candidate to hidden_candidates (server-persisted). */
-  onHideFromClient?: () => Promise<void>;
+  // (status now read inline from candidate.edc_data.status by the bar — post the
+  // deck_status visibility flatten, hidden_candidates is an edit-grid concern only,
+  // so the bar no longer needs isHiddenFromClient / onClientVisible / onHideFromClient.)
   /** Per-candidate Key Criteria visibility map; threaded to EDCCard → KeyCriteria. */
   hiddenCriteriaPerCandidate?: Record<string, string[]>;
   /** Deck-level settings (Our Take mode, scope narrative, etc); threaded to EDCCard. */
@@ -86,9 +83,6 @@ export default function DeckEDCView({
   searchDimensions,
   searchBudget,
   roleBriefMode = false,
-  isHiddenFromClient = false,
-  onClientVisible,
-  onHideFromClient,
   hiddenCriteriaPerCandidate,
   deckSettings,
 }: DeckEDCViewProps) {
@@ -250,10 +244,8 @@ export default function DeckEDCView({
             searchId={searchId}
             candidateName={edc.candidate_name}
             roleTitle={edc.role_title}
-            isHiddenFromClient={isHiddenFromClient}
+            status={candidate.edc_data?.status}
             onFlushEdits={handleFlushEdits}
-            onClientVisible={onClientVisible}
-            onHideFromClient={onHideFromClient}
             onReset={async () => {
               const cid = candidate.candidate_id;
               // clearDirty also aborts any in-flight POST and cancels pending debounced saves,
