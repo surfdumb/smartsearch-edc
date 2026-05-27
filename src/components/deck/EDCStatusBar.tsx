@@ -29,11 +29,15 @@ function normalizeStatus(raw: unknown): CycleStatus | undefined {
     : undefined;
 }
 
-const STATUS_STYLES: Record<Exclude<CycleStatus, 'none'>, { color: string; bg: string; border: string }> = {
-  new:      { color: '#8db4d8', bg: 'rgba(74,106,140,0.18)', border: 'rgba(74,106,140,0.40)' },
-  active:   { color: '#8fc09a', bg: 'rgba(74,124,89,0.18)',  border: 'rgba(74,124,89,0.40)' },
+// Accent palette: each status has its own colour. Shortlist statuses are
+// blue/green/grey/gold; the no-status placeholder is gold-faded so the pill
+// reads as part of the toolbar's accent family rather than a separate ghost.
+const STATUS_STYLES: Record<CycleStatus, { color: string; bg: string; border: string }> = {
+  new:      { color: '#8db4d8',               bg: 'rgba(74,106,140,0.15)', border: 'rgba(74,106,140,0.30)' },
+  active:   { color: '#8fc09a',               bg: 'rgba(74,124,89,0.15)',  border: 'rgba(74,124,89,0.30)' },
   rejected: { color: 'rgba(255,255,255,0.55)', bg: 'rgba(255,255,255,0.04)', border: 'rgba(255,255,255,0.15)' },
-  hold:     { color: '#e0b87a', bg: 'rgba(201,149,58,0.18)', border: 'rgba(201,149,58,0.40)' },
+  hold:     { color: '#e0b87a',               bg: 'rgba(201,149,58,0.15)', border: 'rgba(201,149,58,0.30)' },
+  none:     { color: 'rgba(197,165,114,0.55)', bg: 'rgba(197,165,114,0.06)', border: 'rgba(197,165,114,0.20)' },
 };
 
 export default function EDCStatusBar({
@@ -109,32 +113,32 @@ export default function EDCStatusBar({
     setShowShareDialog(true);
   };
 
-  // ── Status pill styling — picks a palette entry by current statusState, or a
-  // muted placeholder for no-status. ──
-  const pillStyle: React.CSSProperties = (() => {
-    const base: React.CSSProperties = {
-      display: "inline-flex",
-      alignItems: "center",
-      fontSize: "0.65rem",
-      fontWeight: 700,
-      letterSpacing: "1.5px",
-      textTransform: "uppercase",
-      borderRadius: "5px",
-      padding: "3px 9px",
-      cursor: "pointer",
-      transition: "all 0.15s",
-    };
-    if (!statusState || statusState === 'none') {
-      return {
-        ...base,
-        color: "rgba(255,255,255,0.4)",
-        background: "rgba(255,255,255,0.03)",
-        border: "1px solid rgba(255,255,255,0.10)",
-      };
-    }
-    const s = STATUS_STYLES[statusState];
-    return { ...base, color: s.color, background: s.bg, border: `1px solid ${s.border}` };
-  })();
+  // ── Status pill styling — matches the SplitToggle / Copy Link / Reset Edits
+  // dimensions (0.8rem / 6×14px / 8px radius / 1px border) so the three buttons
+  // read as one toolbar. Only the accent colour varies by current state.
+  const activeStatusKey: CycleStatus = statusState ?? 'none';
+  const s = STATUS_STYLES[activeStatusKey];
+  const pillStyle: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    fontSize: "0.8rem",
+    padding: "6px 14px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    color: s.color,
+    background: s.bg,
+    border: `1px solid ${s.border}`,
+  };
+  const dotStyle: React.CSSProperties = {
+    display: "inline-block",
+    width: "7px",
+    height: "7px",
+    borderRadius: "50%",
+    background: s.color,
+    flexShrink: 0,
+  };
 
   return (
     <>
@@ -143,7 +147,7 @@ export default function EDCStatusBar({
         style={{
           maxWidth: "820px",
           margin: "0 auto 8px",
-          padding: "0 24px",
+          padding: "0 4px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -158,6 +162,7 @@ export default function EDCStatusBar({
             style={pillStyle}
             title="Click to cycle status (controls client visibility): New → Active → Rejected → Hold → No status"
           >
+            <span style={dotStyle} aria-hidden="true" />
             {!statusState || statusState === 'none'
               ? 'Set status'
               : statusState.charAt(0).toUpperCase() + statusState.slice(1)}
@@ -171,23 +176,21 @@ export default function EDCStatusBar({
               onClick={() => setShowResetConfirm(true)}
               style={{
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "rgba(255,255,255,0.3)",
-                fontSize: "0.72rem",
-                fontWeight: 500,
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "0.8rem",
                 padding: "6px 14px",
                 borderRadius: "8px",
                 cursor: "pointer",
-                letterSpacing: "0.3px",
-                transition: "all 0.15s",
+                transition: "all 0.2s",
               }}
               onMouseOver={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.6)";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.2)";
+                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.7)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.3)";
               }}
               onMouseOut={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.3)";
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.08)";
+                (e.currentTarget as HTMLButtonElement).style.color = "rgba(255,255,255,0.45)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.15)";
               }}
             >
               ↺ Reset Edits
@@ -196,22 +199,20 @@ export default function EDCStatusBar({
           <button
             onClick={handleCopyLinkClick}
             style={{
-              background: "rgba(74,124,89,0.1)",
+              background: "rgba(74,124,89,0.15)",
               border: "1px solid rgba(74,124,89,0.3)",
               color: "var(--ss-green)",
-              fontSize: "0.75rem",
-              fontWeight: 600,
-              padding: "6px 16px",
+              fontSize: "0.8rem",
+              padding: "6px 14px",
               borderRadius: "8px",
               cursor: "pointer",
-              letterSpacing: "0.3px",
-              transition: "all 0.15s",
+              transition: "all 0.2s",
             }}
             onMouseOver={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.18)";
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.22)";
             }}
             onMouseOut={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.1)";
+              (e.currentTarget as HTMLButtonElement).style.background = "rgba(74,124,89,0.15)";
             }}
           >
             Copy Link
