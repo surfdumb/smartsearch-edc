@@ -135,6 +135,16 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       } as EDCData;
     }
 
+    // Flatten deck_status (the authoritative top-level column) onto
+    // edc_data.status so DeckClient's visibility gate — which reads
+    // c.edc_data?.status — sees it for Supabase-native searches, where Blob
+    // edit overlays (which would otherwise propagate status via data.ts:90)
+    // are intentionally skipped. Without this, candidates written only via
+    // the IV pipeline register as NO STATUS and stay invisible in client view.
+    if (typeof c.deck_status === 'string' && c.deck_status.length > 0) {
+      edcPayload.status = c.deck_status as EDCData['status'];
+    }
+
     return {
       candidate_name: c.candidate_name,
       candidate_id: c.candidate_slug,
