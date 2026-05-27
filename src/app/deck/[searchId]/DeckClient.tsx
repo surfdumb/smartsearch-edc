@@ -1351,7 +1351,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 marginBottom: "24px",
               }}
             >
-              Click any candidate to view their full assessment
+              Click any candidate to view their Executive Decision Card (EDC)
             </p>
 
             {/* Card grid — flex wrap with fixed-width cards */}
@@ -1473,7 +1473,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                   }}>
                     {hiddenCandidatesList.length}
                   </span>
-                  {hiddenCandidatesList.length === 1 ? "candidate" : "candidates"} hidden from client
+                  {hiddenCandidatesList.length === 1 ? "candidate" : "candidates"} hidden from deck edit view
                   <span style={{ fontSize: "0.6rem", opacity: 0.6 }}>{showHiddenTray ? "▲" : "▼"}</span>
                 </button>
 
