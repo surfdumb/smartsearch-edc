@@ -330,20 +330,16 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
 
   // Visibility gate: a candidate is "in shortlist" once they have a per-candidate
   // status (New / Active / Rejected / Hold). No status = not yet ready for client.
-  // Client view is filtered to shortlist only — there is no toggle. Edit mode keeps
-  // the toggle so consultants can see no-status candidates and assign one.
+  // Client view shows shortlist only; edit mode shows every candidate so the
+  // consultant can see no-status candidates and assign one.
   const hasShortlistStatus = (s: unknown): boolean => {
     if (typeof s !== 'string') return false;
     const norm = s.toLowerCase();
     return norm === 'new' || norm === 'active' || norm === 'rejected' || norm === 'hold';
   };
-  const [showAllCandidates, setShowAllCandidates] = useState(false);
-  const shortlist = data.candidates.filter((c) => hasShortlistStatus(c.edc_data?.status));
-  const shortlistCount = shortlist.length;
-  const hasFilter = shortlistCount < data.candidates.length;
-  const statusFiltered = !isEditRoute
-    ? shortlist
-    : (hasFilter && !showAllCandidates) ? shortlist : data.candidates;
+  const statusFiltered = isEditRoute
+    ? data.candidates
+    : data.candidates.filter((c) => hasShortlistStatus(c.edc_data?.status));
 
   // Apply hidden candidates filter
   const visibleCandidates = statusFiltered.filter((c) => !hiddenCandidates.has(c.candidate_id));
@@ -1357,29 +1353,6 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
             >
               Click any candidate to view their full assessment
             </p>
-
-            {/* Show all / filtered toggle (edit mode only, when statuses exist) */}
-            {isEditRoute && hasFilter && (
-              <button
-                onClick={() => setShowAllCandidates(v => !v)}
-                style={{
-                  background: showAllCandidates ? "rgba(197,165,114,0.10)" : "transparent",
-                  border: `1px solid ${showAllCandidates ? "rgba(197,165,114,0.35)" : "rgba(197,165,114,0.12)"}`,
-                  borderRadius: "6px",
-                  padding: "5px 14px",
-                  fontSize: "0.72rem",
-                  fontWeight: 600,
-                  color: showAllCandidates ? "var(--ss-gold)" : "rgba(197,165,114,0.4)",
-                  cursor: "pointer",
-                  transition: "all 0.2s",
-                  marginBottom: "16px",
-                }}
-              >
-                {showAllCandidates
-                  ? `Showing all ${data.candidates.length} — Show shortlist (${shortlistCount})`
-                  : `Showing ${shortlistCount} of ${data.candidates.length} — Show all`}
-              </button>
-            )}
 
             {/* Card grid — flex wrap with fixed-width cards */}
             <div
