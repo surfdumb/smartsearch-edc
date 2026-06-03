@@ -1159,7 +1159,7 @@ export default function JobSummaryBrief({
                             <>
                               <EditableField
                                 value={kc.name}
-                                as="span"
+                                as="div"
                                 html={false}
                                 style={{
                                   fontWeight: 700,
@@ -1171,7 +1171,7 @@ export default function JobSummaryBrief({
                               />
                               <EditableField
                                 value={kc.detail || ""}
-                                as="span"
+                                as="div"
                                 html={false}
                                 style={{
                                   fontSize: "0.85rem",
