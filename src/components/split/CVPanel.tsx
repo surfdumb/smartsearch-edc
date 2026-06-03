@@ -10,6 +10,24 @@ const ACCEPTED_TYPES = [
   "application/msword",
 ];
 
+// Persist the CV blob URL into candidates.cv_url so the DB is the source of
+// truth for whether a candidate has a CV. Fire-and-forget — never block or
+// break the upload UX if the write fails. searchId = search_key, candidateId =
+// candidate_slug (the route resolves the search_id UUID).
+function persistCvUrl(searchId: string, candidateId: string, url: string) {
+  fetch(`/api/deck/${encodeURIComponent(searchId)}/candidates/${encodeURIComponent(candidateId)}/cv`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  }).catch((e) => console.warn("[cv] persist request failed", e));
+}
+
+function clearCvUrl(searchId: string, candidateId: string) {
+  fetch(`/api/deck/${encodeURIComponent(searchId)}/candidates/${encodeURIComponent(candidateId)}/cv`, {
+    method: "DELETE",
+  }).catch((e) => console.warn("[cv] clear request failed", e));
+}
+
 interface CVPanelProps {
   cvUrl?: string;
   candidateId?: string;
@@ -45,6 +63,7 @@ export default function CVPanel({ cvUrl, candidateId, searchId }: CVPanelProps) 
           const file = new File([blob], `${candidateId}_cv.pdf`, { type: blob.type || "application/pdf" });
           const result = await uploadFile(`cv/${searchId}/${candidateId}/${candidateId}_cv.pdf`, file);
           setBlobUrl(result.url);
+          persistCvUrl(searchId, candidateId, result.url);
           await fileStoreRemove(idbKey);
           return;
         }
@@ -72,6 +91,7 @@ export default function CVPanel({ cvUrl, candidateId, searchId }: CVPanelProps) 
       try {
         const result = await uploadFile(`cv/${searchId}/${candidateId}/${file.name}`, file);
         setBlobUrl(result.url);
+        persistCvUrl(searchId, candidateId, result.url);
       } catch (err) {
         console.error("CV upload failed:", err);
         alert("Upload failed. Please try again.");
@@ -97,8 +117,11 @@ export default function CVPanel({ cvUrl, candidateId, searchId }: CVPanelProps) 
         await deleteBlob(blobUrl);
       } catch { /* ignore deletion errors */ }
     }
+    // Clear the persisted cv_url so the DB reflects "no CV" until a replacement
+    // is uploaded (the subsequent upload re-sets it via persistCvUrl).
+    if (searchId && candidateId) clearCvUrl(searchId, candidateId);
     setBlobUrl(null);
-  }, [blobUrl]);
+  }, [blobUrl, searchId, candidateId]);
 
   // Check if the file is a Word doc
   const isWordDoc = displayUrl

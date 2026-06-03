@@ -145,6 +145,14 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       edcPayload.status = c.deck_status as EDCData['status'];
     }
 
+    // Persist-backed CV: surface the top-level candidates.cv_url column onto
+    // edc_data so the CV viewer has a DB-sourced URL — the source of truth for
+    // whether this candidate has a CV. NULL for rows not yet backfilled; the
+    // blob-by-slug fallback in data.ts (attachCvs) covers the transition.
+    if (typeof c.cv_url === 'string' && c.cv_url.length > 0) {
+      edcPayload.cv_url = c.cv_url;
+    }
+
     return {
       candidate_name: c.candidate_name,
       candidate_id: c.candidate_slug,

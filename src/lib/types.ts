@@ -175,6 +175,10 @@ export interface SearchContext {
     js_in_portal?: boolean;
     our_take_landing?: 'overlay' | 'bubble';
     our_take_mode?: 'leading' | 'button' | 'hidden';
+    /** When true, the CV split viewer opens by default for this deck.
+     *  Read from the deck_settings jsonb; used to gate the structured
+     *  "missing CV" warn in the data layer (see attachCvs in data.ts). */
+    cv_default_open?: boolean;
   };
   /** Raw Job Summary data from the searches table. Only populated when deck_settings.js_in_portal is true. */
   job_summary_data?: JobSummaryData;

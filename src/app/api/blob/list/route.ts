@@ -16,15 +16,20 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const { blobs } = await list({ prefix });
-    return NextResponse.json({
-      blobs: blobs.map((b) => ({
-        url: b.url,
-        pathname: b.pathname,
-        size: b.size,
-        uploadedAt: b.uploadedAt,
-      })),
-    });
+    // Paginate via cursor so a prefix with more entries than one page
+    // (1000) isn't silently truncated — a truncated list would make a CV
+    // appear to not exist (the silent-vanish bug class this guards against).
+    const all: { url: string; pathname: string; size: number; uploadedAt: Date }[] = [];
+    let cursor: string | undefined;
+    do {
+      const res = await list({ prefix, cursor });
+      for (const b of res.blobs) {
+        all.push({ url: b.url, pathname: b.pathname, size: b.size, uploadedAt: b.uploadedAt });
+      }
+      cursor = res.hasMore ? res.cursor : undefined;
+    } while (cursor);
+
+    return NextResponse.json({ blobs: all });
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },

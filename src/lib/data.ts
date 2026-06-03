@@ -49,6 +49,72 @@ function attachPhotos(candidates: IntroCardData[], photos: Record<string, string
   }
 }
 
+// ─── Blob CV lookup (transition fallback for unmigrated cv_url) ───────────────
+
+/**
+ * Resolve candidate CVs from Vercel Blob by slug. Returns map of
+ * candidate_slug → blob URL. The canonical CV record is candidates.cv_url
+ * (persisted on upload + backfilled); this list() is the transition fallback
+ * for candidates whose cv_url is still NULL.
+ *
+ * Blob layout: cv/{search_key}/{candidate_slug}/{filename} — segment [1] is the
+ * search_key (the same value getDeckData is called with), segment [2] is the
+ * candidate_slug, segment [3+] the original filename. Paginated via cursor so a
+ * large store cannot silently omit blobs.
+ */
+async function getCvUrls(searchKey: string): Promise<Record<string, string>> {
+  if (!BLOB_ENABLED) return {};
+  try {
+    const { list } = await import('@vercel/blob');
+    const map: Record<string, string> = {};
+    let cursor: string | undefined;
+    do {
+      const res = await list({ prefix: `cv/${searchKey}/`, cursor });
+      for (const blob of res.blobs) {
+        // pathname: cv/{search_key}/{candidate_slug}/{filename}
+        const parts = blob.pathname.split('/');
+        if (parts.length < 4) continue;
+        const candidateSlug = parts[2];
+        if (!candidateSlug) continue;
+        // Last write wins — mirrors CVPanel's "most recent blob" rule.
+        map[candidateSlug] = blob.url;
+      }
+      cursor = res.hasMore ? res.cursor : undefined;
+    } while (cursor);
+    return map;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Attach a CV URL to each candidate. Priority: existing edc_data.cv_url (the
+ * DB column, already mapped by supabase-data) wins; otherwise fall back to the
+ * blob-by-slug map. When neither resolves on a cv_default_open deck, emit a
+ * structured warn so future silent CV disappearances surface in the logs.
+ */
+function attachCvs(
+  candidates: IntroCardData[],
+  cvUrls: Record<string, string>,
+  deckSettings: SearchContext['deck_settings'] | undefined,
+  searchKey: string,
+) {
+  const warnOnMissing = deckSettings?.cv_default_open === true;
+  for (const c of candidates) {
+    if (!c.edc_data) continue;
+    if (c.edc_data.cv_url) continue; // DB value already present
+    const url = cvUrls[c.candidate_id];
+    if (url) {
+      c.edc_data.cv_url = url;
+    } else if (warnOnMissing) {
+      console.warn('[cv] missing CV for candidate on cv_default_open deck', {
+        search_key: searchKey,
+        candidate_slug: c.candidate_id,
+      });
+    }
+  }
+}
+
 // ─── Blob edit overlays ─────────────────────────────────────────────────────
 
 /** Fetch all persisted edit overlays for a search. Returns map of candidateId → EDCData. */
@@ -514,14 +580,18 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
       // which may contain stale pre-Engine data that would overwrite rich edc_data.
       // (The save handler already skips Blob writes for Supabase-native searches.)
       // Still load photos, card order, and hidden candidates from Blob.
-      const [photos, savedOrder, hiddenCandidates] = await Promise.all([
+      const [photos, savedOrder, hiddenCandidates, cvUrls] = await Promise.all([
         getPhotoUrls(searchId),
         getCardOrder(searchId),
         getHiddenCandidates(searchId),
+        getCvUrls(searchId),
       ]);
       if (Object.keys(photos).length > 0) attachPhotos(supabaseData.candidates, photos);
       if (savedOrder) supabaseData.card_order = savedOrder;
       if (hiddenCandidates) supabaseData.hidden_candidates = hiddenCandidates;
+      // DB cv_url (mapped in supabase-data) is canonical; fall back to blob-by-slug
+      // during the transition, and warn on genuinely-missing CVs (cv_default_open).
+      attachCvs(supabaseData.candidates, cvUrls, supabaseData.deck_settings, searchId);
 
       // Fetch pristine Engine criteria directly and inject into candidates.
       // ai_generated_edc is never modified by auto-save, so it's always correct.
