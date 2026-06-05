@@ -272,7 +272,7 @@ function CompRow({
           placeholder="Click to add"
         />
       ) : (
-        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a" }}>
+        <span style={{ fontSize: "0.88rem", fontWeight: 500, color: "#1a1a1a", textAlign: "right" as const }}>
           {value}
         </span>
       )}
