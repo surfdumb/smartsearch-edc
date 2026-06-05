@@ -351,9 +351,19 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   const handleDrop = (idx: number) => (e: React.DragEvent) => {
     e.preventDefault();
     if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setDragOverIdx(null); return; }
-    const newOrder = [...cardOrder];
-    const [moved] = newOrder.splice(dragIdx, 1);
-    newOrder.splice(idx, 0, moved);
+
+    // dragIdx / idx index into the VISIBLE grid (orderedCandidates), but cardOrder
+    // is the full persisted list incl. hidden candidates. Reorder the visible
+    // sequence with the same splice math, then fold it back into cardOrder,
+    // leaving hidden entries pinned in their original slots.
+    const visibleIds = orderedCandidates.map((c) => c.candidate_id);
+    const [movedId] = visibleIds.splice(dragIdx, 1);
+    visibleIds.splice(idx, 0, movedId);
+
+    const visibleSet = new Set(orderedCandidates.map((c) => c.candidate_id));
+    let vp = 0;
+    const newOrder = cardOrder.map((id) => (visibleSet.has(id) ? visibleIds[vp++] : id));
+
     persistOrder(newOrder);
     setDragIdx(null);
     setDragOverIdx(null);
