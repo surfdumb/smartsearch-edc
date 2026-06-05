@@ -170,6 +170,10 @@ export interface SearchContext {
     match_score_display: 'SHOW' | 'HIDE';
     our_take_display: 'SHOW' | 'HIDE';
     scope_narrative_display: 'SHOW' | 'HIDE';
+    /** When 'HIDE', the Compensation tab + data are removed from the client
+     *  view (and the Puppeteer PDF, which renders the client deck). Consultants
+     *  still see Compensation in edit mode. Absent/undefined defaults to SHOW. */
+    compensation_display?: 'SHOW' | 'HIDE';
     edit_mode: boolean;
     show_linkedin?: boolean;
     js_in_portal?: boolean;

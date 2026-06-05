@@ -53,6 +53,13 @@ export default function DeckSettings({ data, searchId, initialAccess }: DeckSett
   const [ourTakeSaving, setOurTakeSaving] = useState(false);
   const [ourTakeSaved, setOurTakeSaved] = useState(false);
 
+  // ─── Compensation visibility state ───
+  const [compDisplay, setCompDisplay] = useState<'SHOW' | 'HIDE'>(
+    () => data.deck_settings?.compensation_display ?? 'SHOW'
+  );
+  const [compSaving, setCompSaving] = useState(false);
+  const [compSaved, setCompSaved] = useState(false);
+
   const persistOurTakeMode = useCallback(async (mode: OurTakeMode) => {
     setOurTakeSaving(true);
     try {
@@ -79,6 +86,33 @@ export default function DeckSettings({ data, searchId, initialAccess }: DeckSett
     setOurTakeMode(mode);
     void persistOurTakeMode(mode);
   }, [persistOurTakeMode]);
+
+  const persistCompDisplay = useCallback(async (display: 'SHOW' | 'HIDE') => {
+    setCompSaving(true);
+    try {
+      const res = await fetch(`/api/deck/${searchId}/deck-settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ compensation_display: display }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Save failed: ${res.status}`);
+      }
+      setCompSaved(true);
+      setTimeout(() => setCompSaved(false), 2000);
+    } catch (err) {
+      alert(`Could not save Compensation setting: ${(err as Error).message}`);
+      setCompDisplay(data.deck_settings?.compensation_display ?? 'SHOW');
+    } finally {
+      setCompSaving(false);
+    }
+  }, [searchId, data.deck_settings]);
+
+  const handleCompDisplayChange = useCallback((display: 'SHOW' | 'HIDE') => {
+    setCompDisplay(display);
+    void persistCompDisplay(display);
+  }, [persistCompDisplay]);
 
   const persistAccessPassword = useCallback(
     async (value: string | null) => {
@@ -563,6 +597,77 @@ Best,
             Default is <strong>Behind button</strong> — the client lands on the evidence (Scope, Criteria, Compensation) and chooses to read the consultant assessment via the Our Take pill.
             Switch to <strong>Lead with Our Take</strong> when the client has explicitly asked for the assessment up front.
             Switch to <strong>Hidden</strong> for decks where Our Take should be suppressed entirely (rare).
+          </p>
+        </section>
+
+        {/* ── Compensation section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              Compensation
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+            {compSaved && (
+              <span style={{ fontSize: "0.7rem", color: "var(--ss-green)" }}>Saved</span>
+            )}
+          </div>
+
+          <p style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)", marginBottom: "16px" }}>
+            Controls whether the Compensation tab appears in the client view.
+          </p>
+
+          <div
+            role="radiogroup"
+            aria-label="Compensation display"
+            style={{
+              display: "inline-flex",
+              borderRadius: "10px",
+              border: "1px solid rgba(197,165,114,0.25)",
+              background: "rgba(var(--deck-bg-text-rgb),0.04)",
+              padding: "4px",
+              gap: "2px",
+            }}
+          >
+            {([
+              { value: "SHOW", label: "Show" },
+              { value: "HIDE", label: "Hide" },
+            ] as { value: 'SHOW' | 'HIDE'; label: string }[]).map((opt) => {
+              const selected = compDisplay === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  role="radio"
+                  aria-checked={selected}
+                  disabled={compSaving}
+                  onClick={() => handleCompDisplayChange(opt.value)}
+                  style={{
+                    padding: "8px 20px",
+                    borderRadius: "8px",
+                    border: "none",
+                    cursor: compSaving ? "wait" : "pointer",
+                    fontSize: "0.78rem",
+                    fontWeight: selected ? 600 : 500,
+                    color: selected ? "var(--ss-dark)" : "rgba(var(--deck-bg-text-rgb),0.7)",
+                    background: selected ? "var(--ss-gold)" : "transparent",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px", lineHeight: 1.6 }}>
+            When hidden, the Compensation tab is removed from the client view (and any PDF). Consultants still see and can edit Compensation in edit mode.
           </p>
         </section>
 

@@ -25,6 +25,7 @@ import { resolveOurTakeMode } from "@/lib/our-take-mode";
 interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
+  compensation_display?: 'SHOW' | 'HIDE';
   our_take_landing?: 'overlay' | 'bubble';
   our_take_mode?: 'leading' | 'button' | 'hidden';
 }
@@ -193,6 +194,21 @@ export default function EDCCard({
   };
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
+
+  // Compensation hide is client-only: consultants keep the Comp tab in edit
+  // mode (like the Spiel tab). When hidden for the client, the panel-3 div is
+  // not rendered at all, so comp figures never reach the client browser DOM.
+  const showCompensation = isEditable || deckSettings?.compensation_display !== 'HIDE';
+
+  // Guard: Compensation (panel 3) can be hidden from the client. If the client
+  // view lands on panel 3 (e.g. via a stale URL hash) while it's hidden, fall
+  // back to panel 1 — mirrors the panel-4 (Spiel) guard above.
+  useEffect(() => {
+    if (!showCompensation && currentPanel === 3) {
+      setCurrentPanel(1);
+      onPanelChange?.(1);
+    }
+  }, [showCompensation, currentPanel, onPanelChange]);
 
   // Swipe detection for candidate navigation
   const swipeRef = useSwipeNavigation({
@@ -531,22 +547,24 @@ export default function EDCCard({
                   />
                 </div>
 
-                <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
-                  <Compensation
-                    compensation={data.compensation}
-                    notice_period={data.notice_period}
-                    candidateId={candidateId}
-                    searchId={searchId}
-                    searchBudget={searchBudget}
-                  />
-                  {/* WhyInterested removed — motivation lives in MotivationStrip */}
-                  {data.miscellaneous && (
-                    <Miscellaneous
-                      text={data.miscellaneous.text}
-                      display={data.miscellaneous.display}
+                {showCompensation && (
+                  <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
+                    <Compensation
+                      compensation={data.compensation}
+                      notice_period={data.notice_period}
+                      candidateId={candidateId}
+                      searchId={searchId}
+                      searchBudget={searchBudget}
                     />
-                  )}
-                </div>
+                    {/* WhyInterested removed — motivation lives in MotivationStrip */}
+                    {data.miscellaneous && (
+                      <Miscellaneous
+                        text={data.miscellaneous.text}
+                        display={data.miscellaneous.display}
+                      />
+                    )}
+                  </div>
+                )}
 
                 {/* Panel 4 — Spiel (Internal). NarrativeTab self-gates on
                     isEditable so this stays invisible in client view even if
@@ -581,6 +599,7 @@ export default function EDCCard({
           current={currentPanel}
           onChange={navigateToPanel}
           showNarrativeTab={isEditable}
+          showCompensationTab={showCompensation}
         />
       )}
 
