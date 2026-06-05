@@ -17,7 +17,7 @@ export async function POST(
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }
 
-  let body: { our_take_mode?: unknown } = {};
+  let body: { our_take_mode?: unknown; compensation_display?: unknown } = {};
   try {
     body = await request.json();
   } catch {
@@ -31,6 +31,18 @@ export async function POST(
     ) {
       return NextResponse.json(
         { error: `our_take_mode must be one of: ${VALID_MODES.join(', ')}` },
+        { status: 400 }
+      );
+    }
+  }
+
+  if (body.compensation_display !== undefined) {
+    if (
+      body.compensation_display !== 'SHOW' &&
+      body.compensation_display !== 'HIDE'
+    ) {
+      return NextResponse.json(
+        { error: 'compensation_display must be either SHOW or HIDE' },
         { status: 400 }
       );
     }
@@ -57,6 +69,10 @@ export async function POST(
     const legacy = modeToLegacyFields(mode);
     next.our_take_display = legacy.our_take_display;
     next.our_take_landing = legacy.our_take_landing;
+  }
+
+  if (body.compensation_display !== undefined) {
+    next.compensation_display = body.compensation_display;
   }
 
   const { error: writeErr } = await supabase

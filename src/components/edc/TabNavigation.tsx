@@ -8,6 +8,9 @@ interface TabNavigationProps {
   current: EDCPanel;
   onChange: (panel: EDCPanel) => void;
   showNarrativeTab?: boolean;
+  /** When false, the Compensation tab (panel 3) is filtered out — used to
+   *  hide Compensation from the client view per deck_settings. */
+  showCompensationTab?: boolean;
 }
 
 const BASE_TABS: { id: EDCPanel; label: string }[] = [
@@ -22,11 +25,14 @@ export default function TabNavigation({
   current,
   onChange,
   showNarrativeTab = false,
+  showCompensationTab = true,
 }: TabNavigationProps) {
-  const tabs = useMemo(
-    () => (showNarrativeTab ? [...BASE_TABS, NARRATIVE_TAB] : BASE_TABS),
-    [showNarrativeTab]
-  );
+  const tabs = useMemo(() => {
+    const base = showCompensationTab
+      ? BASE_TABS
+      : BASE_TABS.filter((t) => t.id !== 3);
+    return showNarrativeTab ? [...base, NARRATIVE_TAB] : base;
+  }, [showNarrativeTab, showCompensationTab]);
   const maxId = tabs[tabs.length - 1].id;
 
   useEffect(() => {
