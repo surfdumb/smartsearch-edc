@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
@@ -19,6 +20,9 @@ interface ScopeMatchProps {
   scope_match: ScopeRow[];
   scope_seasoning?: string;
   candidateId?: string;
+  /** search_key (slug) for the brief API endpoint — required to persist
+   *  canonical Role Requirement edits server-side (deck-wide write-through). */
+  searchId?: string;
   /** Canonical per-search scope dimensions from searches.scope_match_dimensions.
    *  When present, role_requirement is looked up here by scope name — so editing
    *  the role requirement in Role Brief updates all candidate cards at once.
@@ -124,8 +128,60 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
+/* ── Canonical Role Requirement cell — saves to searches.scope_match_dimensions
+ *     server-side, no reset dot (server is the source of truth, so "original"
+ *     rebases on every save). Mirrors BudgetEditable in Compensation.tsx. */
+function ReqEditable({
+  value,
+  style,
+  onUpdate,
+}: {
+  value: string;
+  style?: React.CSSProperties;
+  onUpdate: (v: string) => void;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <span
+      ref={(el) => {
+        (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el;
+        if (el && !el.textContent) el.textContent = value;
+      }}
+      contentEditable
+      suppressContentEditableWarning
+      className="editable-cell"
+      onFocus={() => { focusedRef.current = true; }}
+      onInput={(e) => { onUpdate(e.currentTarget.textContent || ""); }}
+      onBlur={(e) => {
+        focusedRef.current = false;
+        const clean = stripArtifacts(e.currentTarget.textContent || "");
+        if (clean !== e.currentTarget.textContent) {
+          e.currentTarget.textContent = clean;
+        }
+        onUpdate(clean);
+      }}
+      style={{
+        display: "block",
+        padding: "1px 6px",
+        margin: "-1px -6px",
+        outline: "none",
+        ...style,
+      }}
+    />
+  );
+}
+
+export default function ScopeMatch({ scope_match, candidateId, searchId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
+  const router = useRouter();
 
   // Legacy exact-name role_requirement override. Only consulted in the
   // non-canonical render path (canonical-first reads role_requirement straight
@@ -162,9 +218,79 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scope_match, searchDimensions, canonical]);
 
+  // Optimistic canonical Role Requirement values, keyed by dimension name
+  // (in canonical mode item.scope === d.name). Mirrors liveBudget in
+  // Compensation: edits update this immediately so the cell doesn't revert
+  // before router.refresh() lands the server value. The ref lets the debounced
+  // save read the latest merged values without a stale closure.
+  const seedReqs = () =>
+    Object.fromEntries((searchDimensions ?? []).map((d) => [d.name, d.role_requirement ?? ""]));
+  const [liveReqs, setLiveReqs] = useState<Record<string, string>>(seedReqs);
+  const liveReqsRef = useRef(liveReqs);
+  useEffect(() => {
+    const s = seedReqs();
+    setLiveReqs(s);
+    liveReqsRef.current = s;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDimensions]);
+
+  // Subtle "saved" confirmation after a deck-wide requirement write lands.
+  const [showSaved, setShowSaved] = useState(false);
+  useEffect(() => {
+    if (!showSaved) return;
+    const t = setTimeout(() => setShowSaved(false), 1200);
+    return () => clearTimeout(t);
+  }, [showSaved]);
+
+  // Debounced deck-wide save of a canonical Role Requirement. Single timer
+  // batches rapid multi-row edits; the POST rebuilds the full dimensions array
+  // from searchDimensions overlaid with the latest optimistic values, swapping
+  // role_requirement by exact name and preserving order + every other field.
+  // router.refresh() then propagates the change to every candidate card.
+  const reqSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveRoleRequirement = useCallback((dimensionName: string, value: string) => {
+    if (!searchId) return;
+    setLiveReqs((prev) => {
+      const next = { ...prev, [dimensionName]: value };
+      liveReqsRef.current = next;
+      return next;
+    });
+    if (reqSaveTimer.current) clearTimeout(reqSaveTimer.current);
+    reqSaveTimer.current = setTimeout(async () => {
+      const updated = (searchDimensions ?? []).map((d) => ({
+        name: d.name,
+        role_requirement: liveReqsRef.current[d.name] ?? d.role_requirement ?? "",
+      }));
+      try {
+        const res = await fetch(`/api/deck/${searchId}/brief`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scope_match_dimensions: updated }),
+        });
+        if (res.ok) { router.refresh(); setShowSaved(true); }
+        else console.error("[scope] role-req save failed", res.status);
+      } catch (err) {
+        console.error("[scope] role-req save error", err);
+      }
+    }, 1500);
+  }, [searchId, searchDimensions, router]);
+
+  // Freshness base for the per-candidate localStorage edit (candidate_actual +
+  // alignment). In canonical mode the role_requirement is owned by the search
+  // and saved deck-wide, so it's excluded here — otherwise a requirement edit's
+  // router.refresh() would change baseRows, mismatch the hash, and silently
+  // clear an unsaved candidate_actual edit. Legacy mode keeps the full baseRows
+  // (role_requirement IS edited via localStorage there).
+  const freshnessBase = useMemo<unknown>(
+    () => (canonical
+      ? baseRows.map((r) => ({ scope: r.scope, candidate_actual: r.candidate_actual, alignment: r.alignment }))
+      : baseRows),
+    [baseRows, canonical]
+  );
+
   const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
   const [rows, setRows] = useState<ScopeRow[]>(() => {
-    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, baseRows)) {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, freshnessBase)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) return JSON.parse(stored);
@@ -180,7 +306,7 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
   // localStorage edit saved against the old shape auto-clears when the deck
   // flips to canonical-first.
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, baseRows)) {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, freshnessBase)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) { setRows(JSON.parse(stored)); originalRows.current = baseRows; return; }
@@ -188,15 +314,15 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
     }
     setRows(baseRows);
     originalRows.current = baseRows;
-  }, [baseRows, storageKey]);
+  }, [baseRows, freshnessBase, storageKey]);
 
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify(rows)); writeBaseHash(storageKey, baseRows); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify(rows)); writeBaseHash(storageKey, freshnessBase); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
-  }, [rows, storageKey, isEditable, candidateId, baseRows]);
+  }, [rows, storageKey, isEditable, candidateId, freshnessBase]);
 
   const updateCell = (index: number, field: keyof ScopeRow, value: string) => {
     if (candidateId) markDirty(candidateId);
@@ -259,6 +385,19 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
             </span>
             <span className="text-meta-label uppercase text-ss-gray-light" style={{ fontSize: "0.68rem" }}>
               Role Requirement
+              <span
+                aria-hidden={!showSaved}
+                style={{
+                  marginLeft: 8,
+                  fontSize: "0.6rem",
+                  letterSpacing: "0.5px",
+                  color: "var(--ss-gold-deep)",
+                  opacity: showSaved ? 1 : 0,
+                  transition: "opacity 0.35s",
+                }}
+              >
+                Saved ✓
+              </span>
             </span>
             <span />
             {isEditable && <span />}
@@ -314,6 +453,19 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                     exact-name dimByName override wins over the snapshot, editable. */}
                 {(() => {
                   if (canonical) {
+                    // Canonical role requirement is owned by the search. In edit
+                    // mode it writes deck-wide to searches.scope_match_dimensions
+                    // (NOT the per-candidate scope localStorage); read-only client
+                    // view renders it as static text.
+                    if (isEditable && searchId) {
+                      return (
+                        <ReqEditable
+                          value={liveReqs[item.scope] ?? item.role_requirement ?? ""}
+                          onUpdate={(v) => saveRoleRequirement(item.scope, v)}
+                          style={{ fontSize: "0.9rem", color: "var(--ss-gray)" }}
+                        />
+                      );
+                    }
                     return (
                       <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
                         {item.role_requirement ?? ""}

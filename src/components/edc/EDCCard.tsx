@@ -537,6 +537,7 @@ export default function EDCCard({
                     scope_match={data.scope_match}
                     scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
                     candidateId={candidateId}
+                    searchId={searchId}
                     searchDimensions={searchDimensions}
                     scopeCanonicalFirst={scopeCanonicalFirst}
                   />
