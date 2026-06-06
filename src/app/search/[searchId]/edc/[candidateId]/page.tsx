@@ -1,4 +1,4 @@
-import { getCandidateData } from "@/lib/data";
+import { getCandidateData, getDeckData } from "@/lib/data";
 import { notFound } from "next/navigation";
 import EDCClient from "./EDCClient";
 
@@ -15,5 +15,15 @@ export default async function CandidateEDCPage({
     notFound();
   }
 
-  return <EDCClient initialData={data} />;
+  // Pull the search context so the standalone card can render Scope Match
+  // canonical-first when the search opts in (deck_settings.scope_canonical_first).
+  const ctx = await getDeckData(params.searchId);
+
+  return (
+    <EDCClient
+      initialData={data}
+      searchDimensions={ctx?.scope_match_dimensions}
+      scopeCanonicalFirst={ctx?.deck_settings?.scope_canonical_first === true}
+    />
+  );
 }

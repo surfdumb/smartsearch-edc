@@ -67,6 +67,9 @@ interface EDCCardProps {
    *  Threaded through to ScopeMatch so role_requirement is read from the search
    *  config rather than the candidate snapshot. */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** When true (deck_settings.scope_canonical_first), ScopeMatch renders
+   *  canonical-first. Threaded straight through to ScopeMatch. */
+  scopeCanonicalFirst?: boolean;
   /** Canonical per-search target compensation from searches.budget_*.
    *  Threaded to Compensation so Target Range is read from the search config
    *  rather than the candidate snapshot. */
@@ -98,6 +101,7 @@ export default function EDCCard({
   onPanelChange,
   onOurTakeChange,
   searchDimensions,
+  scopeCanonicalFirst,
   searchBudget,
   roleBriefMode = false,
   hiddenCriterionNames,
@@ -534,6 +538,7 @@ export default function EDCCard({
                     scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
                     candidateId={candidateId}
                     searchDimensions={searchDimensions}
+                    scopeCanonicalFirst={scopeCanonicalFirst}
                   />
                 </div>
 

@@ -1785,6 +1785,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onPanelChange={handlePanelChange}
       onOurTakeChange={handleOurTakeChange}
       searchDimensions={data.scope_match_dimensions}
+      scopeCanonicalFirst={data.deck_settings?.scope_canonical_first === true}
       searchBudget={data.search_budget}
       roleBriefMode={jsInPortal}
       hiddenCriteriaPerCandidate={data.hidden_criteria_per_candidate}

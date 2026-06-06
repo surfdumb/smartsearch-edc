@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import SectionLabel from "@/components/ui/SectionLabel";
 import AlignmentDot from "@/components/ui/AlignmentDot";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
@@ -24,9 +24,22 @@ interface ScopeMatchProps {
    *  the role requirement in Role Brief updates all candidate cards at once.
    *  Falls back to candidate snapshot when absent (fixture decks, older searches). */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** When true (deck_settings.scope_canonical_first), render canonical-first:
+   *  searchDimensions drive the dimension names/order/role-requirements on every
+   *  card and each candidate's own actual + alignment carry across by a
+   *  normalised name match. Default off → the legacy per-candidate snapshot
+   *  render (with exact-name role_requirement override) is unchanged. */
+  scopeCanonicalFirst?: boolean;
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
+
+/* Normalised key for matching a candidate's snapshot dimension to a canonical
+ * dimension name. Strips everything from the first em/en-dash or colon (handles
+ * the "Revenue Target — Must consistently sell…" pollution where the role
+ * requirement was glued onto the name), lowercases, drops non-alphanumerics. */
+const canonKey = (s: string) =>
+  (s || "").split(/[—–:]/)[0].toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /* ── Per-cell editable span with reset ── */
 function EditableCell({
@@ -111,45 +124,79 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match, candidateId, searchDimensions }: ScopeMatchProps) {
+export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
-  // Canonical role_requirement lookup by scope name. Missing entries fall
-  // through to the candidate snapshot.
+
+  // Legacy exact-name role_requirement override. Only consulted in the
+  // non-canonical render path (canonical-first reads role_requirement straight
+  // from baseRows). Missing entries fall through to the candidate snapshot.
   const dimByName = new Map<string, { name: string; role_requirement: string }>(
     (searchDimensions ?? []).map((d) => [d.name, d])
   );
+
+  // Canonical-first mode: the search's dimensions own names/order/role-
+  // requirements on every card. Gated per-search AND guarded against malformed
+  // canonical (e.g. dims stored with a `scope` key instead of `name` → no usable
+  // name → ignored; if none survive we fall back to legacy rather than render
+  // nameless rows).
+  const validDims = (searchDimensions ?? []).filter((d) => (d?.name ?? "").trim().length > 0);
+  const canonical = scopeCanonicalFirst === true && validDims.length > 0;
+  const showRowControls = isEditable && !canonical;
+
+  const baseRows = useMemo<ScopeRow[]>(() => {
+    if (!canonical) return scope_match;
+    const snap = new Map<string, ScopeRow>();
+    for (const r of scope_match) {
+      const k = canonKey(r.scope);
+      if (k && !snap.has(k)) snap.set(k, r);
+    }
+    return validDims.map((d) => {
+      const m = snap.get(canonKey(d.name));
+      return {
+        scope: d.name,
+        role_requirement: d.role_requirement ?? "",
+        candidate_actual: m?.candidate_actual ?? "",
+        alignment: m?.alignment ?? "not_assessed",
+      } as ScopeRow;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope_match, searchDimensions, canonical]);
+
   const storageKey = candidateId ? `edc_edit_${candidateId}_scope` : null;
   const [rows, setRows] = useState<ScopeRow[]>(() => {
-    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, scope_match)) {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, baseRows)) {
       try {
         const stored = localStorage.getItem(storageKey);
         if (stored) return JSON.parse(stored);
       } catch { /* ignore */ }
     }
-    return scope_match;
+    return baseRows;
   });
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
-  const originalRows = useRef<ScopeRow[]>(scope_match);
+  const originalRows = useRef<ScopeRow[]>(baseRows);
 
-  // Sync rows when candidate changes (prop change means new candidate)
+  // Sync rows when the base changes (new candidate, or canonical dims update).
+  // Keying the freshness hash off baseRows (not the raw snapshot) means a stale
+  // localStorage edit saved against the old shape auto-clears when the deck
+  // flips to canonical-first.
   useEffect(() => {
-    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, scope_match)) {
+    if (storageKey && typeof window !== 'undefined' && isEditFresh(storageKey, baseRows)) {
       try {
         const stored = localStorage.getItem(storageKey);
-        if (stored) { setRows(JSON.parse(stored)); originalRows.current = scope_match; return; }
+        if (stored) { setRows(JSON.parse(stored)); originalRows.current = baseRows; return; }
       } catch { /* ignore */ }
     }
-    setRows(scope_match);
-    originalRows.current = scope_match;
-  }, [scope_match, storageKey]);
+    setRows(baseRows);
+    originalRows.current = baseRows;
+  }, [baseRows, storageKey]);
 
   // Persist edits to localStorage
   useEffect(() => {
     if (storageKey && isEditable) {
-      try { localStorage.setItem(storageKey, JSON.stringify(rows)); writeBaseHash(storageKey, scope_match); } catch { /* ignore */ }
+      try { localStorage.setItem(storageKey, JSON.stringify(rows)); writeBaseHash(storageKey, baseRows); } catch { /* ignore */ }
       if (candidateId) signalEdit(candidateId);
     }
-  }, [rows, storageKey, isEditable, candidateId]);
+  }, [rows, storageKey, isEditable, candidateId, baseRows]);
 
   const updateCell = (index: number, field: keyof ScopeRow, value: string) => {
     if (candidateId) markDirty(candidateId);
@@ -234,8 +281,8 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions 
                 onMouseEnter={() => isEditable && setHoveredRow(i)}
                 onMouseLeave={() => isEditable && setHoveredRow(null)}
               >
-                {/* Scope name */}
-                {isEditable ? (
+                {/* Scope name — read-only in canonical mode (owned by Role Brief) */}
+                {isEditable && !canonical ? (
                   <EditableCell
                     value={item.scope}
                     originalValue={orig?.scope ?? item.scope}
@@ -262,17 +309,20 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions 
                   </span>
                 )}
 
-                {/* Role requirement — canonical source (searches.scope_match_dimensions)
-                    wins over candidate snapshot when present. */}
+                {/* Role requirement. Canonical-first: value is the search's
+                    dimension (carried in baseRows) and read-only. Legacy: the
+                    exact-name dimByName override wins over the snapshot, editable. */}
                 {(() => {
-                  const canonical = dimByName.get(item.scope)?.role_requirement;
-                  const effective = canonical ?? item.role_requirement ?? "";
+                  if (canonical) {
+                    return (
+                      <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
+                        {item.role_requirement ?? ""}
+                      </span>
+                    );
+                  }
+                  const override = dimByName.get(item.scope)?.role_requirement;
+                  const effective = override ?? item.role_requirement ?? "";
                   if (isEditable) {
-                    // When the value is coming from the canonical source, editing
-                    // here would mismatch the search config. Keep the display in
-                    // sync with the canonical; edits still flow to the candidate
-                    // snapshot (which becomes a per-candidate override on reload
-                    // only if the canonical is cleared).
                     return (
                       <EditableCell
                         value={effective}
@@ -313,33 +363,36 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions 
                   )}
                 </span>
 
-                {/* Remove row button — visible on hover in edit mode */}
+                {/* Remove row — cell reserved in edit mode for grid alignment;
+                    button only in legacy mode (canonical rows are search-owned). */}
                 {isEditable && (
                   <span className="flex items-center justify-center">
-                    <button
-                      onClick={() => removeRow(i)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: "0.85rem",
-                        color: hoveredRow === i ? "var(--ss-red)" : "transparent",
-                        transition: "color 0.15s",
-                        padding: "2px 4px",
-                        lineHeight: 1,
-                      }}
-                      title="Remove row"
-                    >
-                      ×
-                    </button>
+                    {showRowControls && (
+                      <button
+                        onClick={() => removeRow(i)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          color: hoveredRow === i ? "var(--ss-red)" : "transparent",
+                          transition: "color 0.15s",
+                          padding: "2px 4px",
+                          lineHeight: 1,
+                        }}
+                        title="Remove row"
+                      >
+                        ×
+                      </button>
+                    )}
                   </span>
                 )}
               </div>
             );
           })}
 
-          {/* Ghost add-row — edit mode only */}
-          {isEditable && (
+          {/* Ghost add-row — legacy edit mode only (canonical dims are search-owned) */}
+          {showRowControls && (
             <button
               onClick={addRow}
               style={{
