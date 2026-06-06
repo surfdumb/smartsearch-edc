@@ -183,6 +183,12 @@ export interface SearchContext {
      *  Read from the deck_settings jsonb; used to gate the structured
      *  "missing CV" warn in the data layer (see attachCvs in data.ts). */
     cv_default_open?: boolean;
+    /** When true, Scope Match renders canonical-first: the search's
+     *  scope_match_dimensions drive dimension names/order/role-requirements on
+     *  every candidate card, and each candidate's own actual + alignment carry
+     *  across by a normalised name match. Opt-in per search (default off) —
+     *  decks whose canonical isn't data-ready would otherwise blank cells. */
+    scope_canonical_first?: boolean;
   };
   /** Raw Job Summary data from the searches table. Only populated when deck_settings.js_in_portal is true. */
   job_summary_data?: JobSummaryData;

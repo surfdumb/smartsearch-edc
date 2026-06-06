@@ -49,6 +49,9 @@ interface DeckEDCViewProps {
   onOurTakeChange?: (open: boolean) => void;
   /** Canonical per-search scope dimensions; threaded to EDCCard → ScopeMatch. */
   searchDimensions?: { name: string; role_requirement: string }[];
+  /** When true (deck_settings.scope_canonical_first); threaded to EDCCard →
+   *  ScopeMatch to render canonical-first. */
+  scopeCanonicalFirst?: boolean;
   /** Canonical per-search target compensation; threaded to EDCCard → Compensation. */
   searchBudget?: { base?: string; bonus?: string; lti?: string; di?: string; benefits?: string; total?: string };
   /** When true (deck_settings.js_in_portal), the Role Brief is the SSOT for Key
@@ -83,6 +86,7 @@ export default function DeckEDCView({
   onPanelChange,
   onOurTakeChange,
   searchDimensions,
+  scopeCanonicalFirst,
   searchBudget,
   roleBriefMode = false,
   hiddenCriteriaPerCandidate,
@@ -326,6 +330,7 @@ export default function DeckEDCView({
               onPanelChange={onPanelChange}
               onOurTakeChange={onOurTakeChange}
               searchDimensions={searchDimensions}
+              scopeCanonicalFirst={scopeCanonicalFirst}
               searchBudget={searchBudget}
               roleBriefMode={roleBriefMode}
               hiddenCriterionNames={hiddenCriteriaPerCandidate?.[candidate.candidate_id] || []}
