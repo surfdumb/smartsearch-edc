@@ -87,9 +87,9 @@ OUTPUT SHAPE (return ONLY valid JSON, no preamble, no markdown fences):
   ],
   "scope_match": [
     {
-      "scope": "<EXACT dimension name from Brief — use 'scope' not 'dimension'>",
+      "scope": "<EXACT dimension NAME only — the bold label from the Brief. Never append the role requirement. Use 'scope' not 'dimension'.>",
       "candidate_actual": "<short factual statement of the candidate's actual scope on this dimension>",
-      "role_requirement": "<what the role requires — pull from Brief>",
+      "role_requirement": "<the role's requirement for this dimension, role-side only. NEVER invent it and NEVER reference the candidate's current employer or specifics — the system sets this verbatim from the search.>",
       "alignment": "strong" | "partial" | "gap"
     }
     // one per scope_match_dimensions
@@ -128,6 +128,8 @@ DO NOT:
 - Use markdown fences or any text outside the JSON object.
 - Paraphrase or reorder Key Criteria names from the Brief.
 - Output \`scope_match\` rows using "dimension" — the field name MUST be "scope".
+- Glue the role requirement onto the \`scope\` value (e.g. "Related Experience — Demonstrated ability…"). The \`scope\` is the dimension NAME only.
+- Reference the candidate's employer or any candidate-specific detail in \`role_requirement\` — that field is role-side only.
 
 INPUT FORMAT:
 The user message that follows contains the SEARCH BRIEF, the CANDIDATE FACTS, and one or more of: RAW MANUAL NOTES, RAW TRANSCRIPT, RAW ENHANCED NOTES. Produce the EDC JSON respecting all 7 principles above.`;
@@ -136,8 +138,17 @@ function formatScopeDimensions(raw: RegenerationSearchRow['scope_match_dimension
   if (!raw) return '(not specified)';
   if (typeof raw === 'string') return raw;
   if (Array.isArray(raw)) {
+    // Present the dimension NAME (the value to use as `scope`) separately from
+    // its role requirement (context only) so the two never get glued together
+    // in the model's output. The server overwrites scope + role_requirement from
+    // the search regardless, but keeping the prompt clean reduces churn.
     return raw
-      .map((d) => (d.role_requirement ? `${d.name} — ${d.role_requirement}` : d.name))
+      .map((d, i) => {
+        const req = d.role_requirement
+          ? `\n   Role requirement (context only — do NOT copy into the "scope" field): ${d.role_requirement}`
+          : '';
+        return `${i + 1}. ${d.name}${req}`;
+      })
       .join('\n');
   }
   return '(not specified)';
@@ -194,7 +205,7 @@ Compensation range (target):
 KEY CRITERIA (use these exact names, in this exact order):
 ${formatKeyCriteria(search.key_criteria)}
 
-SCOPE MATCH DIMENSIONS (use these as the "scope" field values, in this order):
+SCOPE MATCH DIMENSIONS (produce one scope_match row per dimension below, in this order; the "scope" field is the dimension NAME only):
 ${formatScopeDimensions(search.scope_match_dimensions)}
 
 Red flag: ${nullish(search.red_flag_title, '(none)')}
