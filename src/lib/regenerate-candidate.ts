@@ -15,6 +15,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { getServiceClient } from '@/lib/supabase';
+import { canonScopeKey } from '@/lib/scope';
 import {
   REGENERATE_EDC_PROMPT,
   buildRegenerationUserMessage,
@@ -147,6 +148,48 @@ function extractJson(text: string): unknown {
 
 function deepEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/**
+ * Scope label + role_requirement are search-owned. Re-key the model's
+ * scope_match to the search's canonical dimensions so the model can never (a)
+ * glue the role requirement onto the scope label, or (b) invent a role_requirement
+ * that leaks the candidate's employer. The model's candidate_actual + alignment
+ * carry across, matched by normalised name. Returns null (caller leaves the
+ * model output untouched) when dimensions aren't structured with names — e.g.
+ * stored as a free-text string, or the malformed `don-*` shape.
+ */
+function normalizeScopeMatch(
+  aiScopeMatch: unknown,
+  dims: RegenerationSearchRow['scope_match_dimensions'],
+): Array<Record<string, unknown>> | null {
+  if (!Array.isArray(dims)) return null;
+  const validDims = dims.filter((d) => (d?.name ?? '').trim().length > 0);
+  if (validDims.length === 0) return null;
+
+  const snap = new Map<string, Record<string, unknown>>();
+  if (Array.isArray(aiScopeMatch)) {
+    for (const r of aiScopeMatch) {
+      if (!isPlainObject(r)) continue;
+      const k = canonScopeKey(typeof r.scope === 'string' ? r.scope : '');
+      if (k && !snap.has(k)) snap.set(k, r);
+    }
+  }
+
+  return validDims.map((d) => {
+    const m = snap.get(canonScopeKey(d.name));
+    const alignment = m && typeof m.alignment === 'string' ? m.alignment : 'not_assessed';
+    const candidateActual =
+      m && typeof m.candidate_actual === 'string' && m.candidate_actual.trim().length > 0
+        ? m.candidate_actual
+        : 'Not mentioned';
+    return {
+      scope: d.name,
+      candidate_actual: candidateActual,
+      role_requirement: d.role_requirement ?? '',
+      alignment,
+    };
+  });
 }
 
 interface ExistingCandidate {
@@ -313,6 +356,13 @@ export async function regenerateCandidate(
   // depend on the model reproducing them correctly.
   aiOutput.search_name = searchRow.client_display_name || searchRow.client || aiOutput.search_name || '';
   aiOutput.role_title = searchRow.role_title || searchRow.position || aiOutput.role_title || '';
+  // Scope label + role_requirement are search-owned: re-key scope_match to the
+  // search's canonical dimensions (clean name + verbatim role_requirement),
+  // carrying the model's candidate_actual + alignment by normalised-name match.
+  // Stops the "Name — role_requirement" pollution and the employer leak in
+  // role_requirement at the source. No-op when dims aren't structured with names.
+  const normalizedScope = normalizeScopeMatch(aiOutput.scope_match, searchRow.scope_match_dimensions);
+  if (normalizedScope) aiOutput.scope_match = normalizedScope;
 
   // 6. Compute conflicts + merged edc_data
   const existingEdc: Record<string, unknown> = candidate.edc_data ?? {};

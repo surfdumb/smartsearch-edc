@@ -7,6 +7,7 @@ import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { isEditFresh, writeBaseHash, clearEditWithHash } from "@/lib/edit-hash";
 import { stripArtifacts } from "@/lib/sanitize";
+import { canonScopeKey } from "@/lib/scope";
 
 interface ScopeRow {
   scope: string;
@@ -33,13 +34,6 @@ interface ScopeMatchProps {
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
-
-/* Normalised key for matching a candidate's snapshot dimension to a canonical
- * dimension name. Strips everything from the first em/en-dash or colon (handles
- * the "Revenue Target — Must consistently sell…" pollution where the role
- * requirement was glued onto the name), lowercases, drops non-alphanumerics. */
-const canonKey = (s: string) =>
-  (s || "").split(/[—–:]/)[0].toLowerCase().replace(/[^a-z0-9]/g, "");
 
 /* ── Per-cell editable span with reset ── */
 function EditableCell({
@@ -127,11 +121,20 @@ function EditableCell({
 export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
 
-  // Legacy exact-name role_requirement override. Only consulted in the
-  // non-canonical render path (canonical-first reads role_requirement straight
-  // from baseRows). Missing entries fall through to the candidate snapshot.
+  // Search dimensions usable for lookup — guard the malformed `don-*` case where
+  // dims were stored with a `scope` key instead of `name` (no usable name).
+  const lookupDims = (searchDimensions ?? []).filter((d) => (d?.name ?? "").trim().length > 0);
+
+  // Legacy role_requirement / label override. Only consulted in the non-canonical
+  // render path (canonical-first reads name + role_requirement straight from
+  // baseRows). `dimByName` is the exact-name lookup; `dimByCanonKey` is the
+  // normalised lookup that survives the "Name — role_requirement" pollution in a
+  // candidate's stored scope value. Missing entries fall through to the snapshot.
   const dimByName = new Map<string, { name: string; role_requirement: string }>(
-    (searchDimensions ?? []).map((d) => [d.name, d])
+    lookupDims.map((d) => [d.name, d])
+  );
+  const dimByCanonKey = new Map<string, { name: string; role_requirement: string }>(
+    lookupDims.map((d) => [canonScopeKey(d.name), d])
   );
 
   // Canonical-first mode: the search's dimensions own names/order/role-
@@ -147,11 +150,11 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
     if (!canonical) return scope_match;
     const snap = new Map<string, ScopeRow>();
     for (const r of scope_match) {
-      const k = canonKey(r.scope);
+      const k = canonScopeKey(r.scope);
       if (k && !snap.has(k)) snap.set(k, r);
     }
     return validDims.map((d) => {
-      const m = snap.get(canonKey(d.name));
+      const m = snap.get(canonScopeKey(d.name));
       return {
         scope: d.name,
         role_requirement: d.role_requirement ?? "",
@@ -267,6 +270,12 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
           {/* Table rows */}
           {rows.map((item, i) => {
             const orig = originalRows.current[i];
+            // Legacy path: match this row to a search dimension by exact name, then
+            // by normalised key (survives the "Name — role_requirement" pollution).
+            // When matched, the search owns the label + role_requirement (read-only).
+            const matchedDim = canonical
+              ? undefined
+              : dimByName.get(item.scope) ?? dimByCanonKey.get(canonScopeKey(item.scope));
             return (
               <div
                 key={i}
@@ -281,8 +290,10 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                 onMouseEnter={() => isEditable && setHoveredRow(i)}
                 onMouseLeave={() => isEditable && setHoveredRow(null)}
               >
-                {/* Scope name — read-only in canonical mode (owned by Role Brief) */}
-                {isEditable && !canonical ? (
+                {/* Scope name — read-only when search-owned (canonical mode, or a
+                    legacy row that matches a search dimension → show the clean
+                    canonical name, never the polluted snapshot value). */}
+                {isEditable && !canonical && !matchedDim ? (
                   <EditableCell
                     value={item.scope}
                     originalValue={orig?.scope ?? item.scope}
@@ -291,7 +302,7 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                   />
                 ) : (
                   <span style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}>
-                    {item.scope}
+                    {matchedDim?.name ?? item.scope}
                   </span>
                 )}
 
@@ -309,9 +320,11 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                   </span>
                 )}
 
-                {/* Role requirement. Canonical-first: value is the search's
-                    dimension (carried in baseRows) and read-only. Legacy: the
-                    exact-name dimByName override wins over the snapshot, editable. */}
+                {/* Role requirement. Search-owned when canonical-first OR a legacy
+                    row matches a search dimension → render the search's verbatim
+                    requirement, read-only (never the AI-generated snapshot value,
+                    which can leak the candidate's employer). Unmatched legacy rows
+                    fall back to the editable snapshot value. */}
                 {(() => {
                   if (canonical) {
                     return (
@@ -320,8 +333,14 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                       </span>
                     );
                   }
-                  const override = dimByName.get(item.scope)?.role_requirement;
-                  const effective = override ?? item.role_requirement ?? "";
+                  if (matchedDim) {
+                    return (
+                      <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
+                        {matchedDim.role_requirement ?? ""}
+                      </span>
+                    );
+                  }
+                  const effective = item.role_requirement ?? "";
                   if (isEditable) {
                     return (
                       <EditableCell
