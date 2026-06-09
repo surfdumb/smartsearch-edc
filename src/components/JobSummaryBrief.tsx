@@ -877,7 +877,7 @@ export default function JobSummaryBrief({
                   )}
                   <span style={{ position: "relative", display: "flex", alignItems: "center", gap: "6px" }}>
                     <SparkleIcon size={12} pulse={bulkRegenRunning} />
-                    {bulkRegenRunning ? `Regenerating ${bulkPct}%` : "Regenerate all"}
+                    {bulkRegenRunning ? `Regenerating ${bulkPct}%` : "Regenerate EDCs"}
                   </span>
                 </button>
               </div>
