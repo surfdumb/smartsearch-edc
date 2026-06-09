@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { jsonrepair } from 'jsonrepair';
 import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
 
 function validatePipelineAuth(req: NextRequest): boolean {
   const secret = req.headers.get('x-pipeline-secret');
   return secret === process.env.PIPELINE_SECRET;
+}
+
+/**
+ * Strip bytes that make otherwise-valid JSON unparseable: CR and the C0 control
+ * characters, EXCEPT TAB (9) and LF (10) which are legal JSON whitespace. Done
+ * by code point so we never embed raw control bytes in a regex literal.
+ */
+function stripJsonControlChars(s: string): string {
+  let out = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c === 9 || c === 10 || c >= 32) out += s[i];
+  }
+  return out;
 }
 
 /**
@@ -74,7 +89,75 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const rawPayload = await req.json();
+  let rawPayload;
+  try {
+    rawPayload = await req.json();
+  } catch (err) {
+    console.error(`[pipeline/iv] request body parse failed: ${(err as Error).message}`);
+    return NextResponse.json(
+      {
+        success: false,
+        parse_error: true,
+        error: `Request body is not valid JSON: ${(err as Error).message}`,
+      },
+      { status: 422 }
+    );
+  }
+
+  // ─── llm_output STRING → OBJECT ─────────────────────────────────────────
+  // The V2 IV Make scenario now escapes the Claude output and sends `llm_output`
+  // as a JSON *string* so the request body stays valid JSON even when the model
+  // output is malformed. Parse it back to an object here, defensively: strict
+  // parse first, then a jsonrepair pass (trailing commas, smart quotes, truncated
+  // braces), else return 422 (never 500) with the candidate name + an offset
+  // snippet. The Make scenario's `stopOnHttpError: false` then lets the email
+  // step send "needs attention" instead of the scenario dying. Skipped when
+  // llm_output is absent (V1 callers) or already an object (legacy callers).
+  if (rawPayload?.llm_output != null && typeof rawPayload.llm_output !== 'object') {
+    const rawLlm =
+      typeof rawPayload.llm_output === 'string'
+        ? rawPayload.llm_output
+        : JSON.stringify(rawPayload.llm_output);
+    const cleaned = stripJsonControlChars(rawLlm);
+
+    let parsedLlm: unknown = null;
+    try {
+      parsedLlm = JSON.parse(cleaned);
+    } catch (e1) {
+      try {
+        parsedLlm = JSON.parse(jsonrepair(cleaned));
+      } catch {
+        /* fall through to 422 below */
+      }
+      if (!parsedLlm || typeof parsedLlm !== 'object') {
+        const name =
+          cleaned.match(/"candidate_name"\s*:\s*"([^"]{1,80})"/)?.[1] ??
+          rawPayload.granola_title ??
+          null;
+        const pos = Number((e1 as Error).message.match(/position (\d+)/)?.[1] ?? -1);
+        const snippet =
+          pos >= 0
+            ? cleaned.slice(Math.max(0, pos - 80), pos + 80)
+            : cleaned.slice(0, 200);
+        console.error(
+          `[pipeline/iv] llm_output JSON parse failed: candidate=${name}, ${(e1 as Error).message}`
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            parse_error: true,
+            disambiguation_needed: true, // make the Make email render the "needs attention" header
+            candidate_name: name,
+            search_name: null,
+            error: `llm_output JSON parse failed: ${(e1 as Error).message}`,
+            offset_snippet: snippet,
+          },
+          { status: 422 }
+        );
+      }
+    }
+    rawPayload.llm_output = parsedLlm; // hand off to the existing V2 flow unchanged
+  }
 
   // ─── V2 ENVELOPE NORMALIZATION ──────────────────────────────────────────
   // If `llm_output` is present, this came from the V2 IV Engine. Unpack the
