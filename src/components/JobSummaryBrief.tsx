@@ -5,6 +5,9 @@ import type { SearchContext } from "@/lib/types";
 import { EditorContext } from "@/contexts/EditorContext";
 import EditableField from "@/components/edc/EditableField";
 import ReviewChangesModal, { type Conflict } from "@/components/edc/ReviewChangesModal";
+import SparkleIcon from "@/components/ui/SparkleIcon";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useEstimatedProgress } from "@/hooks/useEstimatedProgress";
 import {
   readDraft,
   writeDraftField,
@@ -406,22 +409,20 @@ export default function JobSummaryBrief({
   // Drives the "Regenerate all" button: idle → running → reveal conflicts
   // sequentially via the ReviewChangesModal queue.
   const [bulkRegenRunning, setBulkRegenRunning] = useState(false);
-  const [bulkRegenProgress, setBulkRegenProgress] = useState<{ done: number; total: number } | null>(null);
   const [bulkConflictQueue, setBulkConflictQueue] = useState<BulkConflictEntry[]>([]);
   const [bulkSummary, setBulkSummary] = useState<{ processed: number; conflicts: number; failed: number } | null>(null);
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  // regenerate-all runs candidates sequentially server-side (~10s each), so the
+  // estimated progress bar is sized to the candidate count.
+  const bulkCandidateCount = data.candidates?.length ?? 0;
+  const bulkPct = useEstimatedProgress(bulkRegenRunning, Math.max(12000, bulkCandidateCount * 10000));
 
   const handleRegenerateAll = useCallback(async () => {
     const candidateCount = data.candidates?.length ?? 0;
     if (candidateCount === 0) return;
     if (bulkRegenRunning) return;
 
-    const confirmed = typeof window !== 'undefined' && window.confirm(
-      `Regenerate AI content for all ${candidateCount} candidates? Manual edits will be preserved.`,
-    );
-    if (!confirmed) return;
-
     setBulkRegenRunning(true);
-    setBulkRegenProgress({ done: 0, total: candidateCount });
     setBulkSummary(null);
 
     try {
@@ -493,7 +494,6 @@ export default function JobSummaryBrief({
       }
     } finally {
       setBulkRegenRunning(false);
-      setBulkRegenProgress(null);
     }
   }, [bulkRegenRunning, data.candidates, searchId]);
 
@@ -804,57 +804,6 @@ export default function JobSummaryBrief({
                 Job Summary
               </span>
 
-              {/* Regenerate-all button (edit mode only). Fires the bulk
-                  regenerate flow against every candidate with raw_manual_notes. */}
-              {isEditMode && (data.candidates?.length ?? 0) > 0 && (
-                <button
-                  type="button"
-                  onClick={handleRegenerateAll}
-                  disabled={bulkRegenRunning}
-                  title="Regenerate AI content for all candidates"
-                  style={{
-                    marginLeft: 'auto',
-                    marginRight: '16px',
-                    fontSize: '0.82rem',
-                    fontWeight: 600,
-                    color: bulkRegenRunning ? 'var(--ss-gray-light)' : 'var(--ss-gold)',
-                    background: 'transparent',
-                    border: '1.5px solid rgba(197,165,114,0.5)',
-                    borderRadius: '20px',
-                    padding: '7px 16px',
-                    cursor: bulkRegenRunning ? 'default' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.2s',
-                    letterSpacing: '0.3px',
-                  }}
-                  onMouseOver={(e) => {
-                    if (bulkRegenRunning) return;
-                    const btn = e.currentTarget as HTMLButtonElement;
-                    btn.style.background = 'rgba(197,165,114,0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    if (bulkRegenRunning) return;
-                    const btn = e.currentTarget as HTMLButtonElement;
-                    btn.style.background = 'transparent';
-                  }}
-                >
-                  <span
-                    style={
-                      bulkRegenRunning
-                        ? { animation: 'regenerateSpin 1s linear infinite', display: 'inline-block' }
-                        : { display: 'inline-block' }
-                    }
-                  >
-                    ↻
-                  </span>
-                  {bulkRegenRunning && bulkRegenProgress
-                    ? `Regenerating…`
-                    : 'Regenerate all cards'}
-                </button>
-              )}
-
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logos/Logos_SmartSearch_Primary_FullColour.png"
@@ -867,9 +816,83 @@ export default function JobSummaryBrief({
               />
             </div>
 
-            {/* Local keyframe for the spinning ↻ — RegenerateButton defines its
-                own copy; this is for the Brief header's button. */}
-            <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
+            {/* Regenerate-all action — its own subtle, right-aligned utility row
+                beneath the header so it doesn't crowd the title/logo. Fires the
+                bulk regenerate flow against every candidate with raw_manual_notes.
+                Matches the per-card / Our Take treatment: sparkle glyph, in-pill
+                estimated progress + %, and a confirm gate. */}
+            {isEditMode && bulkCandidateCount > 0 && (
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
+                <button
+                  type="button"
+                  onClick={() => { if (!bulkRegenRunning) setBulkConfirmOpen(true); }}
+                  disabled={bulkRegenRunning}
+                  title="Regenerate AI content for all candidates"
+                  style={{
+                    position: "relative",
+                    overflow: "hidden",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    color: bulkRegenRunning ? "var(--ss-gold-deep)" : "#b08f5a",
+                    background: "rgba(250,248,245,0.6)",
+                    border: "1.5px solid rgba(197,165,114,0.45)",
+                    borderRadius: "20px",
+                    padding: "6px 14px",
+                    cursor: bulkRegenRunning ? "default" : "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    transition: "all 0.2s",
+                    letterSpacing: "0.2px",
+                    fontFamily: "var(--font-outfit), Inter, sans-serif",
+                  }}
+                  onMouseOver={(e) => {
+                    if (bulkRegenRunning) return;
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = "rgba(197,165,114,0.12)";
+                    btn.style.borderColor = "rgba(197,165,114,0.7)";
+                    btn.style.color = "var(--ss-gold-deep)";
+                  }}
+                  onMouseOut={(e) => {
+                    if (bulkRegenRunning) return;
+                    const btn = e.currentTarget as HTMLButtonElement;
+                    btn.style.background = "rgba(250,248,245,0.6)";
+                    btn.style.borderColor = "rgba(197,165,114,0.45)";
+                    btn.style.color = "#b08f5a";
+                  }}
+                >
+                  {bulkRegenRunning && (
+                    <span
+                      aria-hidden
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: `${bulkPct}%`,
+                        background: "rgba(197,165,114,0.2)",
+                        transition: "width 0.1s linear",
+                        pointerEvents: "none",
+                      }}
+                    />
+                  )}
+                  <span style={{ position: "relative", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <SparkleIcon size={13} pulse={bulkRegenRunning} />
+                    {bulkRegenRunning ? `Regenerating ${bulkPct}%` : "Regenerate all cards"}
+                  </span>
+                </button>
+              </div>
+            )}
+
+            <ConfirmDialog
+              open={bulkConfirmOpen}
+              title="Regenerate all cards?"
+              body={`This re-runs the AI for all ${bulkCandidateCount} candidate${bulkCandidateCount === 1 ? "" : "s"} from their raw notes. Manual edits are preserved — any differences are surfaced for you to review.`}
+              confirmLabel="Regenerate all"
+              tone="gold"
+              onConfirm={() => { setBulkConfirmOpen(false); handleRegenerateAll(); }}
+              onCancel={() => setBulkConfirmOpen(false)}
+            />
 
             {/* Bulk conflict modal queue — opens for each candidate with
                 conflicts in sequence. Closes when the queue empties. */}
