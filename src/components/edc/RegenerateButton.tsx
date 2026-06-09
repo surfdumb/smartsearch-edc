@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import SparkleIcon from "@/components/ui/SparkleIcon";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useEstimatedProgress } from "@/hooks/useEstimatedProgress";
 
 interface RegenerateButtonProps {
   searchId: string;
@@ -42,6 +45,8 @@ export default function RegenerateButton({
   onError,
 }: RegenerateButtonProps) {
   const [isRunning, setIsRunning] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const pct = useEstimatedProgress(isRunning, 12000);
 
   const handleClick = useCallback(async () => {
     if (isRunning) return;
@@ -103,27 +108,30 @@ export default function RegenerateButton({
 
   return (
     <>
-      <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => { if (!isRunning) setConfirmOpen(true); }}
       disabled={isRunning}
       title={isRunning ? 'Regenerating…' : 'Regenerate this candidate'}
       aria-label="Regenerate this candidate"
       style={{
-        fontSize: fluid ? '1rem' : '1.1rem',
-        color: isRunning ? 'var(--ss-gray-light)' : '#b0a080',
+        position: 'relative',
+        overflow: 'hidden',
+        fontSize: fluid ? '0.78rem' : '0.86rem',
+        fontWeight: 500,
+        color: isRunning ? 'var(--ss-gold)' : '#b0a080',
         background: 'rgba(250,248,245,0.97)',
         border: '1.5px solid rgba(197,165,114,0.4)',
         borderRadius: '22px',
-        padding: fluid ? '6px 10px' : '8px 12px',
+        padding: fluid ? '6px 12px' : '8px 16px',
         height: fluid ? '32px' : '38px',
         cursor: isRunning ? 'default' : 'pointer',
         display: 'flex',
         alignItems: 'center',
-        gap: '4px',
+        gap: '6px',
         transition: 'all 0.2s',
         lineHeight: 1,
+        fontFamily: 'var(--font-outfit), Inter, sans-serif',
       }}
       onMouseOver={(e) => {
         if (isRunning) return;
@@ -140,12 +148,35 @@ export default function RegenerateButton({
         btn.style.color = '#b0a080';
       }}
     >
-      <span
-        style={isRunning ? { animation: 'regenerateSpin 1s linear infinite', display: 'inline-block' } : { display: 'inline-block' }}
-      >
-        ↻
+      {isRunning && (
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: `${pct}%`,
+            background: 'rgba(197,165,114,0.18)',
+            transition: 'width 0.1s linear',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      <span style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <SparkleIcon size={fluid ? 13 : 14} pulse={isRunning} />
+        {isRunning ? `Regenerating ${pct}%` : 'Regenerate'}
       </span>
     </button>
+    <ConfirmDialog
+      open={confirmOpen}
+      title="Regenerate this candidate?"
+      body="Re-runs the AI from the raw notes. Your manual edits are preserved — any differences are surfaced for you to review."
+      confirmLabel="Regenerate"
+      tone="gold"
+      onConfirm={() => { setConfirmOpen(false); handleClick(); }}
+      onCancel={() => setConfirmOpen(false)}
+    />
     </>
   );
 }

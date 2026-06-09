@@ -5,6 +5,9 @@ import { createPortal } from "react-dom";
 import { useEditorContext } from "@/contexts/EditorContext";
 import { signalEdit, markDirty } from "@/hooks/useAutoSave";
 import { isEditFresh, writeBaseHash, hashData } from "@/lib/edit-hash";
+import SparkleIcon from "@/components/ui/SparkleIcon";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useEstimatedProgress } from "@/hooks/useEstimatedProgress";
 
 // Shallow array equality for fragment lists — `===` is reference identity (new
 // array each prop push) and JSON.stringify is overkill. Mirrors the role of
@@ -47,6 +50,8 @@ export default function OurTakePopover({
   const popoverRef = useRef<HTMLDivElement>(null);
   const storageKey = candidateId ? `edc_edit_${candidateId}_ourtake` : null;
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
+  const regenPct = useEstimatedProgress(isRegenerating, 4000);
 
   // Load persisted edits or fall back to props
   const ourTakePropHash = useMemo(
@@ -640,41 +645,58 @@ export default function OurTakePopover({
         {/* Regenerate button — edit mode only */}
         {isEditable && candidateContext && (
           <button
-            onClick={handleRegenerate}
+            onClick={() => { if (!isRegenerating) setRegenConfirmOpen(true); }}
             disabled={isRegenerating}
-            title={isRegenerating ? "Regenerating…" : "Regenerate"}
+            title={isRegenerating ? "Regenerating…" : "Regenerate Our Take"}
             style={{
               background: "transparent",
-              border: "none",
-              padding: "4px",
+              border: "1px solid rgba(197,165,114,0.4)",
+              padding: "3px 10px",
               color: isRegenerating ? "var(--ss-gray-light)" : "#b0a080",
-              fontSize: "16px",
+              fontSize: "0.72rem",
+              fontWeight: 500,
               lineHeight: 1,
               cursor: isRegenerating ? "default" : "pointer",
               transition: "all 0.2s ease",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              width: "28px",
-              height: "28px",
-              borderRadius: "50%",
+              gap: "5px",
+              borderRadius: "14px",
               flexShrink: 0,
+              fontFamily: "var(--font-outfit), Inter, sans-serif",
             }}
             onMouseOver={(e) => {
               if (!isRegenerating) {
-                (e.currentTarget as HTMLButtonElement).style.color = "#c5a572";
-                (e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(197,165,114,0.08)";
+                const b = e.currentTarget as HTMLButtonElement;
+                b.style.color = "#c5a572";
+                b.style.borderColor = "rgba(197,165,114,0.7)";
+                b.style.backgroundColor = "rgba(197,165,114,0.08)";
               }
             }}
             onMouseOut={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = isRegenerating ? "var(--ss-gray-light)" : "#b0a080";
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+              const b = e.currentTarget as HTMLButtonElement;
+              b.style.color = isRegenerating ? "var(--ss-gray-light)" : "#b0a080";
+              b.style.borderColor = "rgba(197,165,114,0.4)";
+              b.style.backgroundColor = "transparent";
             }}
           >
-            <span style={isRegenerating ? { display: "inline-block", animation: "regenerateSpin 1s linear infinite" } : undefined}>↻</span>
+            <SparkleIcon size={12} pulse={isRegenerating} />
+            {isRegenerating ? `${regenPct}%` : "Regenerate"}
           </button>
         )}
         </div>
+
+        {/* Estimated regeneration progress (no real backend signal) */}
+        {isRegenerating && (
+          <div style={{ marginTop: "10px" }}>
+            <div style={{ height: "3px", background: "rgba(197,165,114,0.15)", borderRadius: "2px", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${regenPct}%`, background: "var(--ss-gold)", transition: "width 0.1s linear" }} />
+            </div>
+            <span style={{ display: "block", marginTop: "4px", fontSize: "0.62rem", color: "var(--ss-gray-light)", letterSpacing: "0.3px" }}>
+              Regenerating {regenPct}%
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Fragment list */}
@@ -939,6 +961,15 @@ export default function OurTakePopover({
         </>
       )}
       </div>
+      <ConfirmDialog
+        open={regenConfirmOpen}
+        title="Regenerate Our Take?"
+        body="This replaces the current Our Take text with a fresh AI draft. Your existing wording will be lost."
+        confirmLabel="Regenerate"
+        tone="danger"
+        onConfirm={() => { setRegenConfirmOpen(false); handleRegenerate(); }}
+        onCancel={() => setRegenConfirmOpen(false)}
+      />
       <style>{`@keyframes regenerateSpin { to { transform: rotate(360deg); } }`}</style>
     </>
   );
