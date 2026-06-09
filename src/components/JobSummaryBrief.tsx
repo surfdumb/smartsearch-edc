@@ -793,11 +793,10 @@ export default function JobSummaryBrief({
                 style={{
                   fontFamily:
                     "var(--font-libre-franklin), 'Libre Franklin', sans-serif",
-                  fontSize: searchId === "cgn-bdd" ? "1.44rem" : "2.4rem",
-                  fontWeight: searchId === "cgn-bdd" ? 400 : 600,
+                  fontSize: "2.4rem",
+                  fontWeight: 600,
                   color: "var(--ss-gold, #c5a572)",
-                  letterSpacing:
-                    searchId === "cgn-bdd" ? "-0.3px" : "-0.5px",
+                  letterSpacing: "-0.5px",
                   lineHeight: 1,
                 }}
               >
@@ -809,20 +808,20 @@ export default function JobSummaryBrief({
                 src="/logos/Logos_SmartSearch_Primary_FullColour.png"
                 alt="SmartSearch"
                 style={{
-                  height: searchId === "cgn-bdd" ? "29px" : "48px",
+                  height: "48px",
                   width: "auto",
                   opacity: 0.95,
                 }}
               />
             </div>
 
-            {/* Regenerate-all action — its own subtle, right-aligned utility row
-                beneath the header so it doesn't crowd the title/logo. Fires the
-                bulk regenerate flow against every candidate with raw_manual_notes.
+            {/* Regenerate-all action — its own subtle, left-aligned utility row
+                beneath the title so it doesn't crowd the logo. Fires the bulk
+                regenerate flow against every candidate with raw_manual_notes.
                 Matches the per-card / Our Take treatment: sparkle glyph, in-pill
                 estimated progress + %, and a confirm gate. */}
             {isEditMode && bulkCandidateCount > 0 && (
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-start", marginTop: "2px", marginBottom: "16px" }}>
                 <button
                   type="button"
                   onClick={() => { if (!bulkRegenRunning) setBulkConfirmOpen(true); }}
@@ -831,13 +830,13 @@ export default function JobSummaryBrief({
                   style={{
                     position: "relative",
                     overflow: "hidden",
-                    fontSize: "0.78rem",
+                    fontSize: "0.76rem",
                     fontWeight: 600,
                     color: bulkRegenRunning ? "var(--ss-gold-deep)" : "#b08f5a",
                     background: "rgba(250,248,245,0.6)",
                     border: "1.5px solid rgba(197,165,114,0.45)",
-                    borderRadius: "20px",
-                    padding: "6px 14px",
+                    borderRadius: "18px",
+                    padding: "5px 12px",
                     cursor: bulkRegenRunning ? "default" : "pointer",
                     display: "flex",
                     alignItems: "center",
@@ -877,8 +876,8 @@ export default function JobSummaryBrief({
                     />
                   )}
                   <span style={{ position: "relative", display: "flex", alignItems: "center", gap: "6px" }}>
-                    <SparkleIcon size={13} pulse={bulkRegenRunning} />
-                    {bulkRegenRunning ? `Regenerating ${bulkPct}%` : "Regenerate all cards"}
+                    <SparkleIcon size={12} pulse={bulkRegenRunning} />
+                    {bulkRegenRunning ? `Regenerating ${bulkPct}%` : "Regenerate all"}
                   </span>
                 </button>
               </div>
