@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { jsonrepair } from 'jsonrepair';
 import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
+import { deterministicResolve } from '@/lib/pipeline-resolution';
 
 function validatePipelineAuth(req: NextRequest): boolean {
   const secret = req.headers.get('x-pipeline-secret');
@@ -20,6 +21,14 @@ function stripJsonControlChars(s: string): string {
     if (c === 9 || c === 10 || c >= 32) out += s[i];
   }
   return out;
+}
+
+/** Candidate name → URL slug (lowercase-hyphenated). */
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 /**
@@ -168,6 +177,8 @@ export async function POST(req: NextRequest) {
   let v2ResolutionConfidence: string | null = null;
   let v2ResolutionNote: string | null = null;
   let v2SearchName: string | null = null;
+  let v2DecidedBy: 'llm' | 'deterministic+llm' | null = null;
+  let v2Resolution: Record<string, unknown> | null = null;
   const isV2 = rawPayload && typeof rawPayload.llm_output === 'object' && rawPayload.llm_output !== null;
 
   if (isV2) {
@@ -175,6 +186,70 @@ export async function POST(req: NextRequest) {
     v2ResolutionConfidence = env.resolution?.resolution_confidence ?? null;
     v2ResolutionNote = env.resolution?.resolution_note ?? null;
     v2SearchName = (env.edc_data?.search_name as string | undefined) ?? null;
+
+    // Deterministic pre-resolution: for known crowded namespaces (sibling
+    // searches whose interview titles differ only by a qualifier), derive the
+    // expected search_key straight from the Granola title. Used only to
+    // confirm or block the LLM resolution — never to redirect it, because the
+    // envelope's edc_data was generated against the LLM-chosen search's config.
+    const detHit = deterministicResolve(rawPayload.granola_title);
+    const llmAlternatives = env.resolution?.resolution_alternatives ?? [];
+
+    // All no-write exits share this response so the Make m6 email contract
+    // stays uniform: disambiguation_needed drives the subject/header; the
+    // candidate/search fields drive the body links; alternatives + note let
+    // the email name the candidate searches. Also drops a pipeline_log
+    // 'disambiguation' row (best-effort) so refused envelopes are auditable.
+    const refuseWrite = async (opts: {
+      confidence: string | null;
+      note: string | null;
+      decidedBy: 'llm' | 'conflict';
+      searchKey: string | null;
+      alternatives?: unknown[];
+    }) => {
+      const candidateName = env.candidate?.candidate_name ?? null;
+      const alternatives = [...(opts.alternatives ?? llmAlternatives)];
+      let note = opts.note;
+      // When the title map has an opinion the LLM couldn't confidently form,
+      // surface it as a suggestion in the email (still no write).
+      if (detHit && opts.decidedBy === 'llm') {
+        const suggestion =
+          `Deterministic title map suggests '${detHit.search_key}' ` +
+          `(${detHit.client}: ${detHit.rule}).`;
+        note = note ? `${note} ${suggestion}` : suggestion;
+        if (!alternatives.includes(detHit.search_key)) {
+          alternatives.push(detHit.search_key);
+        }
+      }
+      try {
+        const { error: auditErr } = await getServiceClient()
+          .from('pipeline_log')
+          .insert({
+            note_type: 'iv',
+            granola_title: rawPayload.granola_title ?? null,
+            matched_search_key: opts.searchKey,
+            candidate_name_extracted: candidateName,
+            pipeline_status: 'disambiguation',
+          });
+        if (auditErr) {
+          console.warn('[pipeline/iv] pipeline_log disambiguation warn:', auditErr.message);
+        }
+      } catch (e) {
+        console.warn('[pipeline/iv] pipeline_log disambiguation warn:', (e as Error).message);
+      }
+      return NextResponse.json({
+        success: false,
+        disambiguation_needed: true,
+        candidate_name: candidateName,
+        candidate_slug: candidateName ? slugify(candidateName) : null,
+        search_key: opts.searchKey,
+        search_name: v2SearchName,
+        resolution_confidence: opts.confidence,
+        resolution_note: note,
+        resolution_alternatives: alternatives,
+        decided_by: opts.decidedBy,
+      });
+    };
 
     // Disambiguation gate — refuse the write if the Engine couldn't confidently
     // pick a search. Return a 200 with disambiguation_needed=true so Make can
@@ -184,15 +259,11 @@ export async function POST(req: NextRequest) {
         `[pipeline/iv] V2 disambiguation: confidence=${v2ResolutionConfidence}, ` +
           `candidate=${env.candidate?.candidate_name}, granola=${rawPayload.granola_title}`
       );
-      return NextResponse.json({
-        success: false,
-        disambiguation_needed: true,
-        candidate_name: env.candidate?.candidate_name ?? null,
-        search_key: env.resolution?.search_key ?? null,
-        search_name: v2SearchName,
-        resolution_confidence: v2ResolutionConfidence,
-        resolution_note: v2ResolutionNote,
-        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      return refuseWrite({
+        confidence: v2ResolutionConfidence,
+        note: v2ResolutionNote,
+        decidedBy: 'llm',
+        searchKey: env.resolution?.search_key ?? null,
       });
     }
 
@@ -212,19 +283,17 @@ export async function POST(req: NextRequest) {
         `[pipeline/iv] V2 missing search_key: candidate=${env.candidate?.candidate_name}, ` +
           `granola=${rawPayload.granola_title}`
       );
-      return NextResponse.json({
-        success: false,
-        disambiguation_needed: true,
-        candidate_name: env.candidate?.candidate_name ?? null,
-        search_key: null,
-        search_name: v2SearchName,
-        resolution_confidence: 'no_match',
-        resolution_note:
-          'V2 envelope missing search_key — cannot resolve search server-side.',
-        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      return refuseWrite({
+        confidence: 'no_match',
+        note: 'V2 envelope missing search_key — cannot resolve search server-side.',
+        decidedBy: 'llm',
+        searchKey: null,
       });
     }
 
+    // Unknown search_key (including the LLM inventing one) → no write, 200
+    // with disambiguation_needed so the m6 email flow is identical to every
+    // other refusal case. Deliberately not a 4xx.
     const canonicalSearchId = await resolveSearchId(llmSearchKey);
     if (!canonicalSearchId) {
       console.warn(
@@ -232,15 +301,11 @@ export async function POST(req: NextRequest) {
           `candidate=${env.candidate?.candidate_name}, ` +
           `granola=${rawPayload.granola_title}`
       );
-      return NextResponse.json({
-        success: false,
-        disambiguation_needed: true,
-        candidate_name: env.candidate?.candidate_name ?? null,
-        search_key: llmSearchKey,
-        search_name: v2SearchName,
-        resolution_confidence: 'no_match',
-        resolution_note: `search_key '${llmSearchKey}' did not match any active search.`,
-        resolution_alternatives: env.resolution?.resolution_alternatives ?? [],
+      return refuseWrite({
+        confidence: 'no_match',
+        note: `search_key '${llmSearchKey}' did not match any active search.`,
+        decidedBy: 'llm',
+        searchKey: llmSearchKey,
       });
     }
 
@@ -252,6 +317,45 @@ export async function POST(req: NextRequest) {
           `granola=${rawPayload.granola_title}. Using canonical.`
       );
     }
+
+    // Deterministic cross-check — when the title map and the LLM resolution
+    // disagree, neither can be trusted (9 Jun 2026: Managed Access interviews
+    // resolved to cgn-bdd at high confidence while the card was built from
+    // cgn-ma-bd's config). Treat as ambiguous: no client-visible write; the
+    // disambiguation email names both candidate searches.
+    if (detHit && detHit.search_key !== llmSearchKey) {
+      console.warn(
+        `[pipeline/iv] V2 deterministic conflict: title map says '${detHit.search_key}' ` +
+          `(${detHit.client}: ${detHit.rule}) but LLM resolved '${llmSearchKey}' at high ` +
+          `confidence. candidate=${env.candidate?.candidate_name}, ` +
+          `granola=${rawPayload.granola_title}. Refusing write.`
+      );
+      return refuseWrite({
+        confidence: 'ambiguous',
+        note:
+          `Deterministic title map ('${detHit.search_key}' — ${detHit.client}: ` +
+          `${detHit.rule}) disagrees with the LLM resolution ('${llmSearchKey}'). ` +
+          `Refusing the write; re-fire once the correct search is confirmed.`,
+        decidedBy: 'conflict',
+        searchKey: llmSearchKey,
+        alternatives: [llmSearchKey, detHit.search_key],
+      });
+    }
+
+    v2DecidedBy = detHit ? 'deterministic+llm' : 'llm';
+
+    // Resolution audit object — persisted onto edc_data.resolution (create
+    // AND merge paths) so misroutes can be diagnosed post-hoc. The LLM's
+    // emitted UUID is kept here as evidence only; targeting uses canonical.
+    v2Resolution = {
+      search_key: llmSearchKey,
+      search_id_as_emitted: llmSearchId,
+      canonical_search_id: canonicalSearchId,
+      resolution_confidence: v2ResolutionConfidence,
+      resolution_note: v2ResolutionNote,
+      resolution_alternatives: llmAlternatives,
+      decided_by: v2DecidedBy,
+    };
 
     // High confidence + verified — flatten the envelope onto the V1-shape
     // contract so the rest of the handler (merge logic, raw passthrough,
@@ -303,10 +407,7 @@ export async function POST(req: NextRequest) {
   const supabase = getServiceClient();
 
   // Generate slug from candidate name
-  const slug = candidate_name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+  const slug = slugify(candidate_name);
 
   // Generate initials
   const parts = candidate_name.split(' ');
@@ -368,6 +469,12 @@ export async function POST(req: NextRequest) {
     existingEdc,
     manuallyEdited
   );
+
+  // Persist the resolution audit object (V2 only). Lives in edc_data, not
+  // ai_generated_edc — the latter stays a pristine copy of Engine output.
+  if (v2Resolution) {
+    mergedEdcData.resolution = v2Resolution;
+  }
 
   // Engine-derived headline fallback (only used when consultant hasn't edited
   // headline AND incoming doesn't supply one).
@@ -562,7 +669,7 @@ export async function POST(req: NextRequest) {
     `[pipeline/iv] ${isNewCandidate ? 'created' : 'merged'} ${slug}: ` +
       `version ${existing?.generation_version ?? 0}→${nextVersion}, ` +
       `preserved=[${manuallyEdited.join(',') || 'none'}], ` +
-      `path=${isV2 ? 'v2' : 'v1'}`
+      `path=${isV2 ? `v2 decided_by=${v2DecidedBy}` : 'v1'}`
   );
 
   // Update pipeline_log. V1 path: a prior /api/pipeline/match call left a
@@ -605,6 +712,7 @@ export async function POST(req: NextRequest) {
     search_name:
       v2SearchName ?? ((edc_data?.search_name as string | undefined) ?? null),
     disambiguation_needed: false,
+    decided_by: v2DecidedBy,
     merged: !isNewCandidate,
     generation_version: nextVersion,
     preserved_fields: manuallyEdited,
