@@ -137,12 +137,20 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
   // Legacy exact-name role_requirement override. Only consulted in the
   // non-canonical render path (canonical-first reads role_requirement straight
   // from baseRows). Missing entries fall through to the candidate snapshot.
-  // Built from validDims so an empty-name dim can never match (and gate) a row.
+  // Built from validDims so an empty-name dim can never match a row.
   const dimByName = new Map<string, { name: string; role_requirement: string }>(
     validDims.map((d) => [d.name, d])
   );
   const canonical = scopeCanonicalFirst === true && validDims.length > 0;
-  const showRowControls = isEditable && !canonical;
+
+  // Search-owned dimensions: when the search has any usable dims, the Role
+  // Brief's Scope Dimensions editor is the only surface for dimension names,
+  // role requirements, and row structure — cards render those read-only
+  // (candidate_actual and alignment stay per-candidate editable). Decks with
+  // no search dims (fixtures, pre-Engine searches) keep per-card editing,
+  // because no Role Brief editor exists for them.
+  const searchOwned = validDims.length > 0;
+  const showRowControls = isEditable && !searchOwned;
 
   const baseRows = useMemo<ScopeRow[]>(() => {
     if (!canonical) return scope_match;
@@ -282,8 +290,9 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                 onMouseEnter={() => isEditable && setHoveredRow(i)}
                 onMouseLeave={() => isEditable && setHoveredRow(null)}
               >
-                {/* Scope name — read-only in canonical mode (owned by Role Brief) */}
-                {isEditable && !canonical ? (
+                {/* Scope name — read-only whenever the search owns dimensions
+                    (edited via Role Brief → Scope dimensions only) */}
+                {isEditable && !searchOwned ? (
                   <EditableCell
                     value={item.scope}
                     originalValue={orig?.scope ?? item.scope}
@@ -291,7 +300,10 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                     style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}
                   />
                 ) : (
-                  <span style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}>
+                  <span
+                    style={{ fontWeight: 500, color: "var(--ss-dark)", fontSize: "0.9rem" }}
+                    title={isEditable && searchOwned ? "Owned by the Role Brief" : undefined}
+                  >
                     {item.scope}
                   </span>
                 )}
@@ -310,14 +322,14 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                   </span>
                 )}
 
-                {/* Role requirement. Search-owned (canonical mode, or an
-                    exact-name dimByName override exists) → read-only with an
-                    "Edit in Role Brief" affordance: edits here would be
-                    phantom — the override always wins at render. Otherwise
-                    the snapshot value, editable. */}
+                {/* Role requirement. When the search owns dimensions the cell
+                    is read-only with an "Edit in Role Brief" affordance —
+                    role-level text is edited once in the Role Brief, never
+                    per-card (where exact-name overrides made edits phantom
+                    anyway). Editable only on decks with no search dims. */}
                 {(() => {
                   const override = !canonical ? dimByName.get(item.scope)?.role_requirement : undefined;
-                  const gated = canonical || override !== undefined;
+                  const gated = searchOwned;
                   const effective = canonical
                     ? (item.role_requirement ?? "")
                     : (override ?? item.role_requirement ?? "");
@@ -383,7 +395,8 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                 </span>
 
                 {/* Remove row — cell reserved in edit mode for grid alignment;
-                    button only in legacy mode (canonical rows are search-owned). */}
+                    button only when the search has no dims (search-owned rows
+                    are added/removed via Role Brief → Scope dimensions). */}
                 {isEditable && (
                   <span className="flex items-center justify-center">
                     {showRowControls && (
@@ -410,7 +423,8 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
             );
           })}
 
-          {/* Ghost add-row — legacy edit mode only (canonical dims are search-owned) */}
+          {/* Ghost add-row — only when the search has no dims (search-owned
+              dims are added via Role Brief → Scope dimensions) */}
           {showRowControls && (
             <button
               onClick={addRow}
