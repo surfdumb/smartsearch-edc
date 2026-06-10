@@ -451,7 +451,14 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       setView({ mode: "grid" });
     };
     window.addEventListener("popstate", handler);
-    return () => window.removeEventListener("popstate", handler);
+    // Anchor-click hash navigation (e.g. the "Edit in Role Brief" affordance's
+    // #brief link) fires hashchange, not popstate. Our own hash writes use
+    // replaceState/pushState, which fire neither — no loop.
+    window.addEventListener("hashchange", handler);
+    return () => {
+      window.removeEventListener("popstate", handler);
+      window.removeEventListener("hashchange", handler);
+    };
   }, [orderedCandidates]);
 
   // ── Card flip handler ───────────────────────────────────────────────────────

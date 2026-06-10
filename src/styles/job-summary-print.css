@@ -19,7 +19,8 @@
   .js-brief-back-button,
   .js-brief-export-btn,
   .js-brief-lock-share-btn,
-  .js-brief-recover-modal {
+  .js-brief-recover-modal,
+  .js-brief-scope-dims {
     display: none !important;
   }
 

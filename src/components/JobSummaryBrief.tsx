@@ -35,6 +35,19 @@ interface JobSummaryBriefProps {
 
 type Criterion = { name: string; detail?: string; priority?: string };
 
+type ScopeDim = { name: string; role_requirement: string };
+
+// Legacy decks (don-*) store dims under `scope` instead of `name`, and very old
+// rows can be a plain string. Normalize on load; the first save repairs them to
+// the `name` key ScopeMatch requires (it discards dims with no usable name).
+function normalizeScopeDims(raw: unknown): ScopeDim[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as Record<string, unknown>[]).map((d) => ({
+    name: String(d?.name ?? d?.scope ?? ""),
+    role_requirement: String(d?.role_requirement ?? ""),
+  }));
+}
+
 // Human-readable labels for the API field names that can appear in a draft.
 // Keep aligned with ALLOWED_FIELDS in src/app/api/deck/[searchId]/brief/route.ts.
 const BRIEF_FIELD_LABELS: Record<string, string> = {
@@ -574,6 +587,18 @@ export default function JobSummaryBrief({
     }
   }, [localOverrides]);
 
+  // Local state for scope dimensions (supports add/remove/reorder)
+  const [scopeDims, setScopeDims] = useState<ScopeDim[]>(
+    () => normalizeScopeDims(data.scope_match_dimensions)
+  );
+
+  // Apply recovered scope-dimension overrides
+  useEffect(() => {
+    if (localOverrides.scope_match_dimensions && Array.isArray(localOverrides.scope_match_dimensions)) {
+      setScopeDims(normalizeScopeDims(localOverrides.scope_match_dimensions));
+    }
+  }, [localOverrides]);
+
   // ── Debounced save (all hooks must be before early return) ────────────────
 
   const saveTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
@@ -633,6 +658,11 @@ export default function JobSummaryBrief({
     handleFieldSave("key_criteria", updated);
   }, [handleFieldSave]);
 
+  const saveScopeDims = useCallback((updated: ScopeDim[]) => {
+    setScopeDims(updated);
+    handleFieldSave("scope_match_dimensions", updated);
+  }, [handleFieldSave]);
+
   const handleSaveIntelligence = useCallback(async () => {
     setIntelSaving(true);
     try {
@@ -656,6 +686,10 @@ export default function JobSummaryBrief({
   // ── Drag-to-reorder criteria (edit mode only) ────────────────────────────
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
+  // ── Drag-to-reorder scope dimensions (edit mode only, own state) ─────────
+  const [dimDragIdx, setDimDragIdx] = useState<number | null>(null);
+  const [dimDragOverIdx, setDimDragOverIdx] = useState<number | null>(null);
 
   // ── Early return after all hooks ──────────────────────────────────────────
 
@@ -731,6 +765,56 @@ export default function JobSummaryBrief({
   const handleCriteriaDragEnd = () => {
     setDragIdx(null);
     setDragOverIdx(null);
+  };
+
+  // ── Scope dimension handlers (mirror the criteria editor) ─────────────────
+
+  const updateDimName = (index: number, name: string) => {
+    saveScopeDims(scopeDims.map((d, i) => (i === index ? { ...d, name } : d)));
+  };
+
+  const updateDimRequirement = (index: number, role_requirement: string) => {
+    saveScopeDims(scopeDims.map((d, i) => (i === index ? { ...d, role_requirement } : d)));
+  };
+
+  const removeDim = (index: number) => {
+    saveScopeDims(scopeDims.filter((_, i) => i !== index));
+  };
+
+  const addDim = () => {
+    saveScopeDims([...scopeDims, { name: "New dimension", role_requirement: "" }]);
+  };
+
+  const handleDimDragStart = (idx: number) => (e: React.DragEvent) => {
+    setDimDragIdx(idx);
+    e.dataTransfer.effectAllowed = "move";
+    if (e.currentTarget instanceof HTMLElement) {
+      e.dataTransfer.setDragImage(e.currentTarget, e.currentTarget.offsetWidth / 2, 20);
+    }
+  };
+
+  const handleDimDragOver = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dimDragIdx !== null && idx !== dimDragIdx) {
+      setDimDragOverIdx(idx);
+    }
+  };
+
+  const handleDimDrop = (idx: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (dimDragIdx === null || dimDragIdx === idx) { setDimDragIdx(null); setDimDragOverIdx(null); return; }
+    const reordered = [...scopeDims];
+    const [moved] = reordered.splice(dimDragIdx, 1);
+    reordered.splice(idx, 0, moved);
+    saveScopeDims(reordered);
+    setDimDragIdx(null);
+    setDimDragOverIdx(null);
+  };
+
+  const handleDimDragEnd = () => {
+    setDimDragIdx(null);
+    setDimDragOverIdx(null);
   };
 
   // Derive display values (with localStorage overrides)
@@ -1300,6 +1384,157 @@ export default function JobSummaryBrief({
                 </Section>
                 <GoldRule />
               </>
+            )}
+
+            {/* ── Scope Dimensions (edit mode only — internal tooling) ── */}
+            {isEditMode && (
+              <div className="js-brief-scope-dims">
+                <Section label="Scope Dimensions">
+                  <p
+                    style={{
+                      fontSize: "0.75rem",
+                      color: "#8a8a8a",
+                      fontStyle: "italic",
+                      marginBottom: "10px",
+                    }}
+                  >
+                    Canonical Role Requirement column on every candidate&apos;s Scope
+                    Match. Internal only — not shown to clients or in the PDF.
+                  </p>
+                  <ol style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                    {scopeDims.map((dim, i) => (
+                      <li
+                        key={i}
+                        draggable
+                        onDragStart={handleDimDragStart(i)}
+                        onDragOver={handleDimDragOver(i)}
+                        onDrop={handleDimDrop(i)}
+                        onDragEnd={handleDimDragEnd}
+                        style={{
+                          display: "flex",
+                          gap: "12px",
+                          marginBottom: "9px",
+                          lineHeight: 1.55,
+                          alignItems: "flex-start",
+                          padding: "6px 8px",
+                          borderRadius: "6px",
+                          borderLeft: "2px solid transparent",
+                          transition: "all 0.15s",
+                          marginLeft: "-10px",
+                          opacity: dimDragIdx === i ? 0.3 : 1,
+                          cursor: dimDragIdx === i ? "grabbing" : "grab",
+                          borderTop: dimDragOverIdx === i && dimDragIdx !== null && dimDragIdx > i
+                            ? "2px solid var(--ss-gold, #c5a572)"
+                            : undefined,
+                          borderBottom: dimDragOverIdx === i && dimDragIdx !== null && dimDragIdx < i
+                            ? "2px solid var(--ss-gold, #c5a572)"
+                            : undefined,
+                        }}
+                      >
+                        {/* Drag handle */}
+                        <span
+                          style={{
+                            color: "rgba(197,165,114,0.35)",
+                            fontSize: "0.75rem",
+                            flexShrink: 0,
+                            paddingTop: "2px",
+                            cursor: "grab",
+                            userSelect: "none",
+                          }}
+                          title="Drag to reorder"
+                        >
+                          ⠿
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <EditableField
+                            value={dim.name}
+                            as="div"
+                            html={false}
+                            style={{
+                              fontWeight: 700,
+                              fontSize: "0.88rem",
+                              color: "#1a1a1a",
+                              display: "block",
+                            }}
+                            onUpdate={(v) => updateDimName(i, v)}
+                          />
+                          <EditableField
+                            value={dim.role_requirement}
+                            as="div"
+                            html={false}
+                            style={{
+                              fontSize: "0.85rem",
+                              color: "#4a4a4a",
+                              display: "block",
+                              marginTop: "4px",
+                            }}
+                            onUpdate={(v) => updateDimRequirement(i, v)}
+                          />
+                        </div>
+                        {/* Remove button */}
+                        <button
+                          onClick={() => removeDim(i)}
+                          title="Remove dimension"
+                          style={{
+                            width: "20px",
+                            height: "20px",
+                            borderRadius: "50%",
+                            border: "1px solid rgba(197,165,114,0.2)",
+                            background: "transparent",
+                            color: "rgba(197,165,114,0.4)",
+                            fontSize: "0.72rem",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                            marginTop: "2px",
+                            transition: "all 0.15s",
+                          }}
+                          onMouseOver={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(184,84,80,0.4)";
+                            (e.currentTarget as HTMLButtonElement).style.color = "rgba(184,84,80,0.7)";
+                          }}
+                          onMouseOut={(e) => {
+                            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.2)";
+                            (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.4)";
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                  <button
+                    onClick={addDim}
+                    style={{
+                      background: "transparent",
+                      border: "1px dashed rgba(197,165,114,0.25)",
+                      borderRadius: "6px",
+                      padding: "8px 16px",
+                      fontSize: "0.78rem",
+                      fontWeight: 500,
+                      color: "rgba(197,165,114,0.5)",
+                      cursor: "pointer",
+                      transition: "all 0.15s",
+                      width: "100%",
+                      textAlign: "left",
+                      marginTop: "4px",
+                    }}
+                    onMouseOver={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.5)";
+                      (e.currentTarget as HTMLButtonElement).style.color = "var(--ss-gold, #c5a572)";
+                    }}
+                    onMouseOut={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(197,165,114,0.25)";
+                      (e.currentTarget as HTMLButtonElement).style.color = "rgba(197,165,114,0.5)";
+                    }}
+                  >
+                    + Add dimension
+                  </button>
+                </Section>
+                <GoldRule />
+              </div>
             )}
 
             {/* ── Key Responsibilities ────────────────────────────── */}

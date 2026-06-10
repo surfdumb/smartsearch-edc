@@ -127,19 +127,20 @@ function EditableCell({
 export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
 
-  // Legacy exact-name role_requirement override. Only consulted in the
-  // non-canonical render path (canonical-first reads role_requirement straight
-  // from baseRows). Missing entries fall through to the candidate snapshot.
-  const dimByName = new Map<string, { name: string; role_requirement: string }>(
-    (searchDimensions ?? []).map((d) => [d.name, d])
-  );
-
   // Canonical-first mode: the search's dimensions own names/order/role-
   // requirements on every card. Gated per-search AND guarded against malformed
   // canonical (e.g. dims stored with a `scope` key instead of `name` → no usable
   // name → ignored; if none survive we fall back to legacy rather than render
   // nameless rows).
   const validDims = (searchDimensions ?? []).filter((d) => (d?.name ?? "").trim().length > 0);
+
+  // Legacy exact-name role_requirement override. Only consulted in the
+  // non-canonical render path (canonical-first reads role_requirement straight
+  // from baseRows). Missing entries fall through to the candidate snapshot.
+  // Built from validDims so an empty-name dim can never match (and gate) a row.
+  const dimByName = new Map<string, { name: string; role_requirement: string }>(
+    validDims.map((d) => [d.name, d])
+  );
   const canonical = scopeCanonicalFirst === true && validDims.length > 0;
   const showRowControls = isEditable && !canonical;
 
@@ -309,20 +310,18 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                   </span>
                 )}
 
-                {/* Role requirement. Canonical-first: value is the search's
-                    dimension (carried in baseRows) and read-only. Legacy: the
-                    exact-name dimByName override wins over the snapshot, editable. */}
+                {/* Role requirement. Search-owned (canonical mode, or an
+                    exact-name dimByName override exists) → read-only with an
+                    "Edit in Role Brief" affordance: edits here would be
+                    phantom — the override always wins at render. Otherwise
+                    the snapshot value, editable. */}
                 {(() => {
-                  if (canonical) {
-                    return (
-                      <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
-                        {item.role_requirement ?? ""}
-                      </span>
-                    );
-                  }
-                  const override = dimByName.get(item.scope)?.role_requirement;
-                  const effective = override ?? item.role_requirement ?? "";
-                  if (isEditable) {
+                  const override = !canonical ? dimByName.get(item.scope)?.role_requirement : undefined;
+                  const gated = canonical || override !== undefined;
+                  const effective = canonical
+                    ? (item.role_requirement ?? "")
+                    : (override ?? item.role_requirement ?? "");
+                  if (isEditable && !gated) {
                     return (
                       <EditableCell
                         value={effective}
@@ -333,8 +332,28 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                     );
                   }
                   return (
-                    <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
-                      {effective}
+                    <span
+                      style={{ display: "block" }}
+                      title={isEditable && gated ? "Owned by the Role Brief" : undefined}
+                    >
+                      <span className="text-body text-ss-gray" style={{ fontSize: "0.9rem" }}>
+                        {effective}
+                      </span>
+                      {isEditable && gated && hoveredRow === i && (
+                        <a
+                          href="#brief"
+                          style={{
+                            display: "block",
+                            marginTop: "2px",
+                            fontSize: "0.68rem",
+                            color: "var(--ss-gold-deep)",
+                            textDecoration: "none",
+                            letterSpacing: "0.2px",
+                          }}
+                        >
+                          Edit in Role Brief → Scope dimensions
+                        </a>
+                      )}
                     </span>
                   );
                 })()}
