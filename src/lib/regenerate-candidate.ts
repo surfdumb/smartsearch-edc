@@ -249,6 +249,7 @@ export async function regenerateCandidate(
     red_flag_detail: searchRow.red_flag_detail,
     candidate_messaging: searchRow.candidate_messaging,
     confidentiality: searchRow.confidentiality,
+    notes: searchRow.notes,
   };
 
   const candidatePromptRow: RegenerationCandidateRow = {

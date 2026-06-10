@@ -32,6 +32,7 @@ export interface RegenerationSearchRow {
   red_flag_detail?: string | null;
   candidate_messaging?: string | null;
   confidentiality?: string | null;
+  notes?: string | null;
 }
 
 export interface RegenerationCandidateRow {
@@ -62,6 +63,7 @@ CORE PRINCIPLES (non-negotiable):
    - Standard fields (key_criteria evidence, scope_match, candidate_overview): PRIMARY source is raw_transcript if present, else raw_manual_notes. Enhanced notes are cross-reference only.
    - Key Criteria NAMES are sacred — use the EXACT names from the search Brief, in order. Never rename, reorder, or paraphrase.
    - Our Take: PRIMARY source is raw_manual_notes ONLY. Never let transcript phrases leak in.
+   - ENTITY CORRECTIONS / GLOSSARY (if present): naming/spelling authority ONLY — never evidence, never a content source.
 4. Consultant voice: "We believe..." not "The candidate presents..." Written as if SmartSearch authored it.
 5. Number precision: capture exact figures. "Approximately $50M P&L" not "significant P&L".
 6. Salary format: "Base + Bonus + LTI + Benefits". Never just total.
@@ -163,6 +165,21 @@ export function buildRegenerationUserMessage(
   search: RegenerationSearchRow,
   candidate: RegenerationCandidateRow,
 ): string {
+  // searches.notes is an internal-ops scratch field, NOT a glossary. Only
+  // explicitly prefixed lines may reach the prompt — the filter is the
+  // quarantine guarantee, not the prompt instruction.
+  const corrections = (search.notes ?? '')
+    .split('\n')
+    .filter((l) => /^\s*(ENTITY CORRECTION|GLOSSARY):/i.test(l));
+  const glossaryBlock = corrections.length > 0
+    ? `
+=== ENTITY CORRECTIONS / GLOSSARY (spelling authority only — NEVER a content source) ===
+${corrections.join('\n')}
+Use this block ONLY to spell entity names (companies, products, people, places) correctly.
+Never treat anything in it as evidence, scope, or candidate fact.
+`
+    : '';
+
   const transcriptBlock = candidate.raw_transcript && candidate.raw_transcript.trim().length > 0
     ? candidate.raw_transcript
     : '(not available — use manual notes as primary)';
@@ -202,7 +219,7 @@ ${nullish(search.red_flag_detail, '')}
 
 Candidate messaging: ${nullish(search.candidate_messaging, '(none)')}
 Confidentiality: ${nullish(search.confidentiality, '(standard)')}
-
+${glossaryBlock}
 === CANDIDATE FACTS ===
 Name: ${candidate.candidate_name}
 Current title: ${nullish(candidate.current_title)}
