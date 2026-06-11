@@ -212,6 +212,7 @@ export async function regenerateCandidate(
     .select('*')
     .eq('search_id', searchRow.id)
     .eq('candidate_slug', candidateSlug)
+    .is('deleted_at', null) // soft-deleted candidates 404 here
     .maybeSingle();
 
   if (candErr || !candidateRaw) {

@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import IntroCard from "@/components/deck/IntroCard";
 import DeckEDCView from "@/components/deck/DeckEDCView";
 import JobSummaryBrief from "@/components/JobSummaryBrief";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import TypedConfirmDialog from "@/components/ui/TypedConfirmDialog";
+import RegenerateToast from "@/components/edc/RegenerateToast";
 import { useDeckTheme } from "@/hooks/useDeckTheme";
 import { uploadFile, listBlobs, deleteBlob } from "@/lib/blob";
 import { fileStoreGet, fileStoreRemove } from "@/lib/fileStore";
-import type { SearchContext } from "@/lib/types";
+import type { SearchContext, IntroCardData } from "@/lib/types";
 import { useAutoSaveGrid } from "@/hooks/useAutoSave";
 import { readDraft, removeDraft } from "@/lib/brief-draft";
 
@@ -293,8 +296,74 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
   // callbacks lived here. They were only used by the EDC status bar's Lock & Share
   // and Hide from Client buttons, both of which are gone post the deck_status
   // visibility flatten. The fire-and-forget hideCandidate above stays — it backs
-  // the IntroCard X (grid-level "remove from deck edit view"), which is the only
-  // entry point into hidden_candidates now.)
+  // the IntroCard kebab's "Hide from deck", which is the only entry point into
+  // hidden_candidates now.)
+
+  // ── Soft / hard delete (kebab → Remove from deck / Delete permanently) ───
+  // removedCandidates is plain local state: once soft-deleted, the server stops
+  // returning the row entirely, so the set only bridges until the next load.
+  const [removedCandidates, setRemovedCandidates] = useState<Set<string>>(new Set());
+  const [pendingRemove, setPendingRemove] = useState<IntroCardData | null>(null);
+  const [pendingHardDelete, setPendingHardDelete] = useState<IntroCardData | null>(null);
+  const [hardDeleteBusy, setHardDeleteBusy] = useState(false);
+  const [hardDeleteError, setHardDeleteError] = useState<string | null>(null);
+
+  const toast = (kind: "success" | "error", message: string, candidateName?: string) => {
+    window.dispatchEvent(new CustomEvent("regenerate-toast", { detail: { kind, message, candidateName } }));
+  };
+
+  const softDeleteCandidate = useCallback((card: IntroCardData) => {
+    setPendingRemove(null);
+    // Optimistic — mirror the persistHidden pattern, but roll back on failure.
+    setRemovedCandidates((prev) => new Set(prev).add(card.candidate_id));
+    fetch(`/api/deck/${searchId}/candidates/${card.candidate_id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deleted_by: "consultant" }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        toast("success", "Removed from deck", card.candidate_name);
+      })
+      .catch(() => {
+        setRemovedCandidates((prev) => {
+          const next = new Set(prev);
+          next.delete(card.candidate_id);
+          return next;
+        });
+        toast("error", "Remove failed — card restored", card.candidate_name);
+      });
+  }, [searchId]);
+
+  const hardDeleteCandidate = useCallback(async (card: IntroCardData, operatorKey: string) => {
+    // Irreversible — NOT optimistic: wait for the 200 before touching the list.
+    setHardDeleteBusy(true);
+    setHardDeleteError(null);
+    try {
+      const res = await fetch(`/api/deck/${searchId}/candidates/${card.candidate_id}?hard=true`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json", "x-operator-secret": operatorKey },
+        body: JSON.stringify({ deleted_by: "consultant" }),
+      });
+      if (res.status === 403) {
+        const body = await res.json().catch(() => null);
+        setHardDeleteError(
+          body?.error === "hard_delete_disabled"
+            ? "Hard delete is not enabled on this deployment."
+            : "Invalid operator key."
+        );
+        return;
+      }
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setRemovedCandidates((prev) => new Set(prev).add(card.candidate_id));
+      setPendingHardDelete(null);
+      toast("success", "Permanently deleted", card.candidate_name);
+    } catch {
+      setHardDeleteError("Delete failed — please try again.");
+    } finally {
+      setHardDeleteBusy(false);
+    }
+  }, [searchId]);
 
   // Visibility gate: a candidate is "in shortlist" once they have a per-candidate
   // status (New / Active / Rejected / Hold). No status = not yet ready for client.
@@ -309,9 +378,14 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     ? data.candidates
     : data.candidates.filter((c) => hasShortlistStatus(c.edc_data?.status));
 
-  // Apply hidden candidates filter
-  const visibleCandidates = statusFiltered.filter((c) => !hiddenCandidates.has(c.candidate_id));
-  const hiddenCandidatesList = data.candidates.filter((c) => hiddenCandidates.has(c.candidate_id));
+  // Apply hidden + soft-deleted filters. A soft-deleted candidate must not
+  // surface anywhere — including the hidden tray, even if previously hidden.
+  const visibleCandidates = statusFiltered.filter(
+    (c) => !hiddenCandidates.has(c.candidate_id) && !removedCandidates.has(c.candidate_id)
+  );
+  const hiddenCandidatesList = data.candidates.filter(
+    (c) => hiddenCandidates.has(c.candidate_id) && !removedCandidates.has(c.candidate_id)
+  );
 
   // Derive ordered candidates
   const orderedCandidates = cardOrder.length > 0
@@ -1392,7 +1466,9 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                         card={candidate}
                         onClick={() => handleCardClick(i)}
                         editMode={editMode}
-                        onRemove={editMode ? () => hideCandidate(candidate.candidate_id) : undefined}
+                        onHide={editMode ? () => hideCandidate(candidate.candidate_id) : undefined}
+                        onSoftDelete={editMode ? () => setPendingRemove(candidate) : undefined}
+                        onHardDelete={editMode ? () => { setHardDeleteError(null); setPendingHardDelete(candidate); } : undefined}
                       />
                     </div>
                   );
@@ -1551,6 +1627,29 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
                 )}
               </div>
             )}
+
+            {/* ── Remove / delete dialogs + toast (edit mode) ── */}
+            <ConfirmDialog
+              open={!!pendingRemove}
+              tone="danger"
+              title="Remove from deck?"
+              body={`${pendingRemove?.candidate_name ?? "This candidate"} will disappear from the consultant deck, client view, shared links, and PDFs. The SmartSearch team can restore the card if needed.`}
+              confirmLabel="Remove card"
+              onConfirm={() => pendingRemove && softDeleteCandidate(pendingRemove)}
+              onCancel={() => setPendingRemove(null)}
+            />
+            <TypedConfirmDialog
+              open={!!pendingHardDelete}
+              title="Delete permanently?"
+              body={`This cannot be undone. ${pendingHardDelete?.candidate_name ?? "This candidate"}'s card AND its Engine-generated source data will be destroyed. Requires the operator key.`}
+              inputLabel="Operator key"
+              confirmLabel="Delete permanently"
+              busy={hardDeleteBusy}
+              errorText={hardDeleteError}
+              onConfirm={(typed) => pendingHardDelete && hardDeleteCandidate(pendingHardDelete, typed)}
+              onCancel={() => { setPendingHardDelete(null); setHardDeleteError(null); }}
+            />
+            <RegenerateToast />
 
             {/* Spacer + subtle footer */}
             <div style={{ flex: 1 }} />

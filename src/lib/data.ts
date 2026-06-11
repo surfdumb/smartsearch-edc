@@ -618,7 +618,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
           const { data: aiRows } = await sb
             .from('candidates')
             .select('candidate_slug, ai_generated_edc')
-            .eq('search_id', searchUUID);
+            .eq('search_id', searchUUID)
+            .is('deleted_at', null);
           if (aiRows) {
             const aiMap = new Map<string, Record<string, unknown>>();
             for (const r of aiRows) {
