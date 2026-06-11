@@ -1,6 +1,7 @@
 import { getServiceClient, SUPABASE_ENABLED } from './supabase';
 import type { SearchContext, IntroCardData, EDCData } from './types';
 import { mergeKeyCriteria } from './merge-criteria';
+import { normalizeEdcData, stripMotivationPrefix } from './normalize-edc';
 
 // ─── Search key → UUID resolver ─────────────────────────────────────────────
 
@@ -153,6 +154,11 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       edcPayload.cv_url = c.cv_url;
     }
 
+    // Self-heal legacy formatting artifacts (scope label concat, motivation
+    // prefix) once per candidate, at finalization — covers both the edc_data
+    // branch and the raw-EDS fallback branch.
+    edcPayload = normalizeEdcData(edcPayload);
+
     return {
       candidate_name: c.candidate_name,
       candidate_id: c.candidate_slug,
@@ -166,7 +172,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       career_trajectory: c.career_trajectory || (raw?.career_trajectory as string) || undefined,
       industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
       photo_url: (raw?.photo_url as string) || undefined,
-      motivation_hook: c.motivation_hook || (raw?.motivation_hook as string) || c.key_strength || undefined,
+      motivation_hook: stripMotivationPrefix(c.motivation_hook || (raw?.motivation_hook as string) || c.key_strength || undefined),
       has_raw_notes: typeof c.raw_manual_notes === 'string' && c.raw_manual_notes.trim().length > 0,
       edc_data: edcPayload,
     } as IntroCardData;

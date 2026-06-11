@@ -2,6 +2,7 @@ import type { EDCData, IntroCardData, SearchContext } from './types';
 import { getSupabaseDeckData } from './supabase-data';
 import { SUPABASE_ENABLED } from './supabase';
 import { mergeKeyCriteria } from './merge-criteria';
+import { normalizeEdcData } from './normalize-edc';
 import fs from 'fs';
 import path from 'path';
 
@@ -112,6 +113,16 @@ function attachCvs(
         candidate_slug: c.candidate_id,
       });
     }
+  }
+}
+
+/** Self-heal legacy formatting artifacts (scope label concat, motivation
+ *  prefix) at the finalization point of a data path — AFTER edit overlays,
+ *  which can carry the same artifacts. The Supabase-native path normalizes
+ *  inside getSupabaseDeckData instead. */
+function normalizeCandidates(candidates: IntroCardData[]) {
+  for (const c of candidates) {
+    if (c.edc_data) c.edc_data = normalizeEdcData(c.edc_data);
   }
 }
 
@@ -315,7 +326,7 @@ export async function getCandidateData(
       const photos = await getPhotoUrls(searchId);
       const overlay = overlays[candidateId];
       if (photos[candidateId]) overlay.photo_url = photos[candidateId];
-      return overlay;
+      return normalizeEdcData(overlay);
     }
   }
 
@@ -329,7 +340,7 @@ export async function getCandidateData(
       // Attach blob photo if uploaded
       const photos = await getPhotoUrls(searchId);
       if (photos[candidateId]) edcData.photo_url = photos[candidateId];
-      return edcData;
+      return normalizeEdcData(edcData);
     }
   }
 
@@ -414,7 +425,7 @@ export async function getCandidateData(
             if (fixture?.role_title || fixture?.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
 
             console.log('[data] Loaded structured EDC from Output Store for', candidateId);
-            return edcData;
+            return normalizeEdcData(edcData);
           } catch (e) {
             console.warn('[data] Failed to parse EDC Output JSON for', candidateId, ':', e);
           }
@@ -472,7 +483,7 @@ export async function getCandidateData(
         else if (fixture?.search_name) edcData.search_name = fixture.search_name;
         if (fixture?.role_title || fixture?.search_name) edcData.role_title = fixture.role_title || fixture.search_name || '';
 
-        return edcData;
+        return normalizeEdcData(edcData);
       }
     } catch (err) {
       console.warn('[data] Sheets lookup failed for getCandidateData, falling back:', err);
@@ -490,7 +501,8 @@ export async function getCandidateData(
   try {
     const fixtureData = await import('../../data/test_fixtures.json');
     const fixtures = fixtureData.default as { candidates: Record<string, EDCData> };
-    return fixtures.candidates?.[candidateId] ?? null;
+    const legacy = fixtures.candidates?.[candidateId];
+    return legacy ? normalizeEdcData(legacy) : null;
   } catch {
     return null;
   }
@@ -553,6 +565,8 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
         }
       }
     }
+
+    normalizeCandidates(candidates);
 
     const context: SearchContext = {
       search_name: fixture.search_name || searchId,
@@ -803,6 +817,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
               }
             }
           }
+          normalizeCandidates(candidates);
           const ctx1: SearchContext = {
             search_name: fixture?.search_name || js[0] || searchId,
             role_title: fixture?.role_title || fixture?.search_name || js[0] || searchId,
@@ -927,6 +942,7 @@ export async function getDeckData(searchId: string): Promise<SearchContext | nul
             }
           }
         }
+        normalizeCandidates(context.candidates);
         if (co2) context.card_order = co2;
         if (hc2) context.hidden_candidates = hc2;
         return context;
