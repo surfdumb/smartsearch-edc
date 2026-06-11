@@ -398,6 +398,33 @@ export async function regenerateCandidate(
     update.our_take_source = candidate.our_take_source;
   }
 
+  // Preserve-don't-null guard: a regen must never blank a mirror column that
+  // currently holds a value. Omitted columns are already preserved (UPDATE
+  // only touches listed keys); this makes the invariant explicit for every
+  // mirror in the payload, whatever shape the fallbacks above produce.
+  const MIRROR_COLUMNS = [
+    'current_title', 'current_company', 'location', 'headline',
+    'flash_summary', 'compensation_alignment', 'our_take', 'our_take_source',
+    'deck_status',
+  ];
+  const candidateRow = candidate as unknown as Record<string, unknown>;
+  for (const column of MIRROR_COLUMNS) {
+    if (!(column in update)) continue;
+    const next = update[column];
+    const current = candidateRow[column];
+    if ((next === null || next === undefined || next === '') &&
+        current !== null && current !== undefined && current !== '') {
+      update[column] = current;
+    }
+  }
+
+  // deck_status drives client visibility — a regen must never move it.
+  // Only the edited-preservation path above may include it, and only with
+  // the candidate's existing value.
+  if ('deck_status' in update && update.deck_status !== candidateRow.deck_status) {
+    update.deck_status = candidateRow.deck_status;
+  }
+
   // 8. UPDATE
   const { error: updateErr } = await supabase
     .from('candidates')
