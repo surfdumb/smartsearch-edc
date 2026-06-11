@@ -78,7 +78,7 @@ OUTPUT SHAPE (return ONLY valid JSON, no preamble, no markdown fences):
   "search_name": "...",          // from search Brief — client display name or client
   "role_title": "...",            // from search Brief
   "headline": "...",              // 1-line punch summary; wrap key numbers in <strong>...</strong>
-  "motivation_hook": "...",       // 1-sentence why they're looking (the "Motivation —" line)
+  "motivation_hook": "...",       // 1-sentence why they're looking. The hook text ONLY — never prepend a "Motivation —" label; the UI renders that label itself.
   "key_criteria": [
     {
       "name": "<EXACT criterion name from Brief>",
