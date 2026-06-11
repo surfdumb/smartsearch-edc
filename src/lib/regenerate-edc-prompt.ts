@@ -89,7 +89,7 @@ OUTPUT SHAPE (return ONLY valid JSON, no preamble, no markdown fences):
   ],
   "scope_match": [
     {
-      "scope": "<EXACT dimension name from Brief — use 'scope' not 'dimension'>",
+      "scope": "<EXACT dimension name from Brief — the name ONLY, never the role requirement, no — or : separator>",
       "candidate_actual": "<short factual statement of the candidate's actual scope on this dimension>",
       "role_requirement": "<what the role requires — pull from Brief>",
       "alignment": "strong" | "partial" | "gap"
@@ -130,6 +130,7 @@ DO NOT:
 - Use markdown fences or any text outside the JSON object.
 - Paraphrase or reorder Key Criteria names from the Brief.
 - Output \`scope_match\` rows using "dimension" — the field name MUST be "scope".
+- Concatenate the dimension name and its role requirement into "scope" (no "Name — requirement" strings).
 
 INPUT FORMAT:
 The user message that follows contains the SEARCH BRIEF, the CANDIDATE FACTS, and one or more of: RAW MANUAL NOTES, RAW TRANSCRIPT, RAW ENHANCED NOTES. Produce the EDC JSON respecting all 7 principles above.`;
@@ -138,8 +139,15 @@ function formatScopeDimensions(raw: RegenerationSearchRow['scope_match_dimension
   if (!raw) return '(not specified)';
   if (typeof raw === 'string') return raw;
   if (Array.isArray(raw)) {
+    // The dimension name and the role requirement are emitted as separate
+    // labelled lines — never joined into one string. A joined "name — req"
+    // line gets copied verbatim into the "scope" output field by the model.
     return raw
-      .map((d) => (d.role_requirement ? `${d.name} — ${d.role_requirement}` : d.name))
+      .map((d) =>
+        d.role_requirement
+          ? `- scope: ${d.name}\n  role_requirement: ${d.role_requirement}`
+          : `- scope: ${d.name}`,
+      )
       .join('\n');
   }
   return '(not specified)';
@@ -211,7 +219,7 @@ Compensation range (target):
 KEY CRITERIA (use these exact names, in this exact order):
 ${formatKeyCriteria(search.key_criteria)}
 
-SCOPE MATCH DIMENSIONS (use these as the "scope" field values, in this order):
+SCOPE MATCH DIMENSIONS (one scope_match row per dimension, in this order. The "scope:" value goes in the "scope" field EXACTLY as written — the name ONLY. The "role_requirement:" text goes in the "role_requirement" field, NEVER in "scope"):
 ${formatScopeDimensions(search.scope_match_dimensions)}
 
 Red flag: ${nullish(search.red_flag_title, '(none)')}
