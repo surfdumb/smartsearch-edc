@@ -172,7 +172,10 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       career_trajectory: c.career_trajectory || (raw?.career_trajectory as string) || undefined,
       industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
       photo_url: (raw?.photo_url as string) || undefined,
-      motivation_hook: stripMotivationPrefix(c.motivation_hook || (raw?.motivation_hook as string) || c.key_strength || undefined),
+      // edc_data wins: the top-level motivation_hook column has no writer
+      // (regen and /api/edits/save only update edc_data JSONB), so column-first
+      // precedence would pin the carousel to a stale snapshot forever.
+      motivation_hook: stripMotivationPrefix((raw?.motivation_hook as string) || c.motivation_hook || c.key_strength || undefined),
       has_raw_notes: typeof c.raw_manual_notes === 'string' && c.raw_manual_notes.trim().length > 0,
       edc_data: edcPayload,
     } as IntroCardData;
