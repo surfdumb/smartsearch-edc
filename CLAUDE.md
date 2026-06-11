@@ -563,7 +563,8 @@ Cormorant Garamond italic is used sparingly for the Our Take button and eyebrow 
 
 ## CI / Verification
 
-There are no Vitest / Jest tests in this repo. Pre-commit runs `next lint`. Verify changes by:
+Vitest tests live in `src/lib/__tests__/` — run `npm test`. Pre-commit runs `next lint`. Verify changes by:
+- `npm test` — Vitest suite (normalize-edc coverage so far).
 - `npm run build` — catches type errors and missing imports.
 - `npm run dev` — manual smoke against `/deck/demo-coo` (the cleanest fixture).
 - Vercel preview deploys per branch.

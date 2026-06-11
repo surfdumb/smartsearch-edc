@@ -166,11 +166,20 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
       current_company: c.current_company || '',
       location: c.location || '',
       initials: c.initials || makeInitials(c.candidate_name),
-      headline: c.headline || (raw?.headline as string) || c.candidate_overview_prose || `${c.current_title} at ${c.current_company}`,
-      flash_summary: c.flash_summary || (raw?.flash_summary as string) || c.candidate_overview_prose || undefined,
+      // edc_data wins for headline/flash_summary: the Engine (pipeline/iv) and
+      // regen write both the column and the JSONB, but consultant edits via
+      // /api/edits/save land in edc_data only — whenever the two diverge, the
+      // column is the stale side. Column remains the fallback for rows where
+      // the JSONB lacks the field (e.g., envelope-level flash_summary).
+      headline: (raw?.headline as string) || c.headline || c.candidate_overview_prose || `${c.current_title} at ${c.current_company}`,
+      flash_summary: (raw?.flash_summary as string) || c.flash_summary || c.candidate_overview_prose || undefined,
+      // Column-first is correct here: /api/edits/save mirrors
+      // compensation_alignment edits to the top-level column.
       compensation_alignment: (c.compensation_alignment || 'not_set') as 'green' | 'amber' | 'not_set',
-      career_trajectory: c.career_trajectory || (raw?.career_trajectory as string) || undefined,
-      industry_shorthand: c.industry_shorthand || (raw?.industry_shorthand as string) || undefined,
+      // edc_data wins: these columns have no writer at all — values only ever
+      // land in edc_data via the AI output shape.
+      career_trajectory: (raw?.career_trajectory as string) || c.career_trajectory || undefined,
+      industry_shorthand: (raw?.industry_shorthand as string) || c.industry_shorthand || undefined,
       photo_url: (raw?.photo_url as string) || undefined,
       // edc_data wins: the top-level motivation_hook column has no writer
       // (regen and /api/edits/save only update edc_data JSONB), so column-first
