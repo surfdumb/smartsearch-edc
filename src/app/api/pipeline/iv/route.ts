@@ -4,6 +4,7 @@ import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
 import { deterministicResolve } from '@/lib/pipeline-resolution';
 import { normalizeEdcData } from '@/lib/normalize-edc';
+import { detectJobSpecIngest } from '@/lib/phantom-guard';
 import type { EDCData } from '@/lib/types';
 
 function validatePipelineAuth(req: NextRequest): boolean {
@@ -398,6 +399,45 @@ export async function POST(req: NextRequest) {
     invenias_note_id,
     flash_summary,
   } = payload;
+
+  // ─── PHANTOM-CANDIDATE GUARD ────────────────────────────────────────────
+  // Job-spec-shaped ingests (Granola JS notes mis-fired through the IV engine)
+  // must not become candidate rows. Skip + log + 200 — never an error — so the
+  // Make scenario continues. Runs only when edc_data is a real object; a
+  // payload without edc_data still falls through to the 400 below (malformed
+  // ≠ job-spec).
+  const phantom = detectJobSpecIngest({ candidate_name, granola_title, edc_data });
+  if (phantom.skip) {
+    console.warn(
+      `[pipeline/iv] phantom-candidate skip: reason=${phantom.reason}, ` +
+        `candidate=${candidate_name ?? 'null'}, granola=${granola_title ?? 'null'}`
+    );
+    try {
+      const { error: skipLogErr } = await getServiceClient().from('pipeline_log').insert({
+        note_type: 'iv',
+        granola_title: granola_title ?? null,
+        matched_search_key: search_key ?? null,
+        candidate_name_extracted:
+          typeof candidate_name === 'string' && candidate_name.trim() ? candidate_name : null,
+        pipeline_status: 'skipped',
+        error_message: `phantom_guard: ${phantom.reason}`,
+      });
+      if (skipLogErr) {
+        console.warn('[pipeline/iv] pipeline_log skip warn:', skipLogErr.message);
+      }
+    } catch (e) {
+      console.warn('[pipeline/iv] pipeline_log skip warn:', (e as Error).message);
+    }
+    // 200 — the Make scenario must not halt on a skip.
+    return NextResponse.json({
+      success: false,
+      skipped: true,
+      reason: phantom.reason,
+      disambiguation_needed: false,
+      candidate_name: typeof candidate_name === 'string' ? candidate_name : null,
+      search_key: search_key ?? null,
+    });
+  }
 
   if (!search_id || !candidate_name || !edc_data) {
     return NextResponse.json(
