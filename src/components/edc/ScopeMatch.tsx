@@ -13,6 +13,10 @@ interface ScopeRow {
   candidate_actual: string;
   role_requirement: string;
   alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
+  /** Stable id of the canonical dimension this row belongs to. The canonical
+   *  join is by this id; `scope` (name) is only a fallback for legacy rows that
+   *  predate the id. */
+  dimension_id?: string;
 }
 
 interface ScopeMatchProps {
@@ -23,7 +27,7 @@ interface ScopeMatchProps {
    *  When present, role_requirement is looked up here by scope name — so editing
    *  the role requirement in Role Brief updates all candidate cards at once.
    *  Falls back to candidate snapshot when absent (fixture decks, older searches). */
-  searchDimensions?: { name: string; role_requirement: string }[];
+  searchDimensions?: { id?: string; name: string; role_requirement: string }[];
   /** When true (deck_settings.scope_canonical_first), render canonical-first:
    *  searchDimensions drive the dimension names/order/role-requirements on every
    *  card and each candidate's own actual + alignment carry across by a
@@ -154,18 +158,29 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
 
   const baseRows = useMemo<ScopeRow[]>(() => {
     if (!canonical) return scope_match;
-    const snap = new Map<string, ScopeRow>();
+    // Join candidate snapshot rows to canonical dims by STABLE id first; fall
+    // back to a normalised-name match only for legacy rows that predate the id
+    // (un-backfilled). The id join is what survives a rename — the candidate's
+    // candidate_actual/alignment follow the dimension even when its name changes.
+    const byId = new Map<string, ScopeRow>();
+    const byName = new Map<string, ScopeRow>();
     for (const r of scope_match) {
+      if (r.dimension_id && !byId.has(r.dimension_id)) byId.set(r.dimension_id, r);
       const k = canonKey(r.scope);
-      if (k && !snap.has(k)) snap.set(k, r);
+      if (k && !byName.has(k)) byName.set(k, r);
     }
     return validDims.map((d) => {
-      const m = snap.get(canonKey(d.name));
+      const m = (d.id ? byId.get(d.id) : undefined) ?? byName.get(canonKey(d.name));
       return {
         scope: d.name,
         role_requirement: d.role_requirement ?? "",
         candidate_actual: m?.candidate_actual ?? "",
         alignment: m?.alignment ?? "not_assessed",
+        // Stamp the canonical id onto the rendered row. When the consultant
+        // edits candidate_actual/alignment, this id is persisted into
+        // edc_data.scope_match, so a legacy name-keyed row self-heals to the
+        // id-keyed shape (same pattern as normalize-edc).
+        ...(d.id ? { dimension_id: d.id } : {}),
       } as ScopeRow;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

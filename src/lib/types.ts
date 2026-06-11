@@ -21,6 +21,13 @@ export interface EDCData {
     candidate_actual: string;
     role_requirement: string;
     alignment: 'strong' | 'partial' | 'gap' | 'not_assessed';
+    /** Stable id of the canonical dimension this row belongs to (matches an
+     *  `id` in SearchContext.scope_match_dimensions). The render and Regenerate
+     *  logic join on this — NOT on `scope` (the name), which the consultant can
+     *  rename freely. Optional for back-compat: legacy/Engine-emitted rows carry
+     *  only `scope`; they're resolved to an id at read/regen time by exact name
+     *  match against canonical and stamped here (self-healing). */
+    dimension_id?: string;
   }[];
   scope_seasoning?: string;
 
@@ -146,8 +153,13 @@ export interface SearchContext {
   js_source_url?: string;
   /** Canonical per-search scope dimensions. When present, ScopeMatch reads
    *  role_requirement from here instead of the candidate snapshot — so editing
-   *  the role requirement in Role Brief updates all candidate cards at once. */
-  scope_match_dimensions?: { name: string; role_requirement: string }[];
+   *  the role requirement in Role Brief updates all candidate cards at once.
+   *  Each dimension carries a stable `id` minted at creation and never changed
+   *  by renames — per-candidate scope_match rows join to it via `dimension_id`,
+   *  so renaming `name` here can never orphan candidate evidence. `id` is
+   *  optional in the type only for back-compat with pre-migration rows; the
+   *  Brief save path stamps one onto every dimension that lacks it. */
+  scope_match_dimensions?: { id?: string; name: string; role_requirement: string }[];
   /** Canonical per-search target compensation. When present, the Compensation
    *  panel reads Target Range from here instead of the candidate snapshot — so
    *  editing budget in Role Brief updates every EDC in the deck immediately. */
