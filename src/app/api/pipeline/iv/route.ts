@@ -3,6 +3,8 @@ import { jsonrepair } from 'jsonrepair';
 import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
 import { deterministicResolve } from '@/lib/pipeline-resolution';
+import { normalizeEdcData } from '@/lib/normalize-edc';
+import type { EDCData } from '@/lib/types';
 
 function validatePipelineAuth(req: NextRequest): boolean {
   const secret = req.headers.get('x-pipeline-secret');
@@ -462,10 +464,19 @@ export async function POST(req: NextRequest) {
   const existingEdc = (existing?.edc_data ?? null) as Record<string, unknown> | null;
   const nextVersion = (existing?.generation_version ?? 0) + 1;
 
+  // Normalize the Engine output before it becomes the edc_data baseline:
+  // the prompt forbids the "Motivation — " prefix and scope-label concat,
+  // but prompt rules are probabilistic (observed leak: 1 in 6 post-patch
+  // generations). ai_generated_edc below deliberately keeps the RAW Engine
+  // output — it is the audit record of what the Engine actually emitted.
+  const cleanedEngineEdc = normalizeEdcData(
+    edc_data as unknown as EDCData
+  ) as unknown as Record<string, unknown>;
+
   // Build the merged edc_data JSONB. Engine's incoming edc_data is the baseline;
   // any field the consultant has edited keeps its existing value.
   const mergedEdcData = mergeEdcData(
-    edc_data as Record<string, unknown>,
+    cleanedEngineEdc,
     existingEdc,
     manuallyEdited
   );
@@ -505,9 +516,12 @@ export async function POST(req: NextRequest) {
     ai_generated_edc: edc_data, // always overwrite — pristine Engine copy
     manually_edited_fields: manuallyEdited, // preserve, never reset
     generation_version: nextVersion, // monotonic increment
+    // New candidates land hidden ('none') — a freshly-interviewed candidate
+    // must not be client-visible before consultant review. Forward-only:
+    // existing rows keep whatever status the consultant set.
     deck_status: isNewCandidate
-      ? 'new'
-      : ((existing?.deck_status as string | null) ?? 'new'),
+      ? 'none'
+      : ((existing?.deck_status as string | null) ?? 'none'),
     data_status: isNewCandidate ? 'draft' : undefined,
   };
 
