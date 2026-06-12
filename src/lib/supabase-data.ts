@@ -38,6 +38,7 @@ export async function getSupabaseDeckData(searchKey: string): Promise<SearchCont
     .from('candidates')
     .select('*, edc_data, ai_generated_edc')
     .eq('search_id', search.id)
+    .is('deleted_at', null) // soft-deleted candidates vanish from every surface
     .order('candidate_name') as { data: Record<string, unknown>[] | null; error: unknown };
 
   if (candErr) {

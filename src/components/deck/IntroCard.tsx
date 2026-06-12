@@ -11,7 +11,12 @@ interface IntroCardProps {
   card: IntroCardData;
   onClick: () => void;
   editMode?: boolean;
-  onRemove?: () => void;
+  /** Existing hidden-candidates flow — instant, recoverable from the edit-mode tray. */
+  onHide?: () => void;
+  /** Soft delete — DeckClient opens a confirm dialog; card vanishes from every surface. */
+  onSoftDelete?: () => void;
+  /** Hard delete — DeckClient opens the operator-key dialog; irreversible. */
+  onHardDelete?: () => void;
 }
 
 // ── Per-candidate edit overrides stored in localStorage ──────────────────────
@@ -171,9 +176,56 @@ function Editable({
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }
 
+// ── Kebab menu row ────────────────────────────────────────────────────────────
+function MenuItem({ label, danger = false, onSelect }: { label: string; danger?: boolean; onSelect: () => void }) {
+  const baseColor = danger ? "#b85450" : "#6b6b6b";
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); onSelect(); }}
+      draggable={false}
+      style={{
+        display: "block",
+        width: "100%",
+        textAlign: "left",
+        background: "transparent",
+        border: "none",
+        borderRadius: "6px",
+        padding: "8px 10px",
+        fontSize: "0.78rem",
+        fontWeight: 500,
+        color: baseColor,
+        cursor: "pointer",
+        transition: "background 0.15s",
+      }}
+      onMouseOver={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.background = danger
+          ? "rgba(184,84,80,0.08)"
+          : "rgba(160,160,160,0.1)";
+      }}
+      onMouseOut={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
-export default function IntroCard({ card, onClick, editMode = false, onRemove }: IntroCardProps) {
+export default function IntroCard({ card, onClick, editMode = false, onHide, onSoftDelete, onHardDelete }: IntroCardProps) {
   const [edits, setEdits] = useState<CardEdits>({});
+
+  // ── Card options (kebab) menu ──
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [menuOpen]);
 
   const cardPropData = { candidate_name: card.candidate_name, current_title: card.current_title, current_company: card.current_company, location: card.location, compensation_alignment: card.compensation_alignment };
   useEffect(() => {
@@ -323,45 +375,72 @@ export default function IntroCard({ card, onClick, editMode = false, onRemove }:
         </div>
       )}
 
-      {/* ── Remove from deck button (edit mode only) ── */}
-      {editMode && onRemove && (
-        <button
-          onClick={(e) => { e.stopPropagation(); onRemove(); }}
-          title="Remove from deck edit view"
-          style={{
-            position: "absolute",
-            top: "12px",
-            left: "12px",
-            width: "24px",
-            height: "24px",
-            borderRadius: "50%",
-            border: "1px solid rgba(160,160,160,0.2)",
-            background: "rgba(160,160,160,0.06)",
-            color: "rgba(160,160,160,0.5)",
-            fontSize: "0.72rem",
-            fontWeight: 700,
-            cursor: "pointer",
-            zIndex: 2,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.2s",
-            lineHeight: 1,
-            padding: 0,
-          }}
-          onMouseOver={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "#b85450";
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(184,84,80,0.3)";
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(184,84,80,0.08)";
-          }}
-          onMouseOut={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.color = "rgba(160,160,160,0.5)";
-            (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.2)";
-            (e.currentTarget as HTMLButtonElement).style.background = "rgba(160,160,160,0.06)";
-          }}
-        >
-          ✕
-        </button>
+      {/* ── Card options menu (edit mode only) ── */}
+      {editMode && (onHide || onSoftDelete || onHardDelete) && (
+        <div ref={menuRef} draggable={false} style={{ position: "absolute", top: "12px", left: "12px", zIndex: 3 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
+            title="Card options"
+            draggable={false}
+            style={{
+              width: "24px",
+              height: "24px",
+              borderRadius: "50%",
+              border: "1px solid rgba(160,160,160,0.2)",
+              background: menuOpen ? "rgba(160,160,160,0.12)" : "rgba(160,160,160,0.06)",
+              color: "rgba(160,160,160,0.6)",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.2s",
+              lineHeight: 1,
+              padding: 0,
+            }}
+            onMouseOver={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "#6b6b6b";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.4)";
+            }}
+            onMouseOut={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "rgba(160,160,160,0.6)";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(160,160,160,0.2)";
+            }}
+          >
+            ⋮
+          </button>
+          {menuOpen && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute",
+                top: "30px",
+                left: 0,
+                minWidth: "180px",
+                background: "#faf8f5",
+                border: "1px solid rgba(197,165,114,0.35)",
+                borderRadius: "10px",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
+                padding: "6px",
+                textAlign: "left",
+              }}
+            >
+              {onHide && (
+                <MenuItem label="Hide from deck" onSelect={() => { setMenuOpen(false); onHide(); }} />
+              )}
+              {onSoftDelete && (
+                <MenuItem label="Remove from deck" onSelect={() => { setMenuOpen(false); onSoftDelete(); }} />
+              )}
+              {onHardDelete && (
+                <>
+                  <div style={{ height: "1px", background: "rgba(160,160,160,0.15)", margin: "4px 6px" }} />
+                  <MenuItem label="Delete permanently" danger onSelect={() => { setMenuOpen(false); onHardDelete(); }} />
+                </>
+              )}
+            </div>
+          )}
+        </div>
       )}
 
       {/* ── Card body ── */}

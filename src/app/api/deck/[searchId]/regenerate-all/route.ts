@@ -44,6 +44,7 @@ export async function POST(
     .from('candidates')
     .select('candidate_slug, candidate_name, raw_manual_notes')
     .eq('search_id', searchUUID)
+    .is('deleted_at', null) // don't burn AI tokens regenerating soft-deleted candidates
     .order('candidate_name');
 
   if (candErr) {
