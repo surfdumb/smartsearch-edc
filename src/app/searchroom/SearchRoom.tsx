@@ -407,9 +407,9 @@ export default function SearchRoom({ authed, initial }: { authed: boolean; initi
           <Chevron className="chev" />
         </button>
         <div className="urls">
-          {urlChip("Edit", "/" + s.k + "/edit", "edit", true)}
-          {urlChip("Client view", "/" + s.k, "client", true)}
-          {urlChip("Role brief", "/" + s.k + "/brief", "brief", s.brief)}
+          {urlChip("Edit", "/deck/" + s.k + "/edit", "edit", true)}
+          {urlChip("Client view", "/deck/" + s.k, "client", true)}
+          {urlChip("Role brief", "/deck/" + s.k + "/edit#brief", "brief", true)}
         </div>
         {isOpen ? candidateRows(s) : null}
       </div>
