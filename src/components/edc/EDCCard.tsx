@@ -70,6 +70,10 @@ interface EDCCardProps {
   /** When true (deck_settings.scope_canonical_first), ScopeMatch renders
    *  canonical-first. Threaded straight through to ScopeMatch. */
   scopeCanonicalFirst?: boolean;
+  /** Deck-wide write-through for a Scope Match role requirement. Threaded to
+   *  ScopeMatch so the on-card edit rewrites searches.scope_match_dimensions
+   *  (mirrors how searchBudget edits reach the search row). */
+  onUpdateRoleRequirement?: (dimensionName: string, value: string) => void;
   /** Canonical per-search target compensation from searches.budget_*.
    *  Threaded to Compensation so Target Range is read from the search config
    *  rather than the candidate snapshot. */
@@ -102,6 +106,7 @@ export default function EDCCard({
   onOurTakeChange,
   searchDimensions,
   scopeCanonicalFirst,
+  onUpdateRoleRequirement,
   searchBudget,
   roleBriefMode = false,
   hiddenCriterionNames,
@@ -539,6 +544,7 @@ export default function EDCCard({
                     candidateId={candidateId}
                     searchDimensions={searchDimensions}
                     scopeCanonicalFirst={scopeCanonicalFirst}
+                    onUpdateRoleRequirement={onUpdateRoleRequirement}
                   />
                 </div>
 
