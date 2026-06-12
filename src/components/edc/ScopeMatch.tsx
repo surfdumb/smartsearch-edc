@@ -30,6 +30,16 @@ interface ScopeMatchProps {
    *  normalised name match. Default off → the legacy per-candidate snapshot
    *  render (with exact-name role_requirement override) is unchanged. */
   scopeCanonicalFirst?: boolean;
+  /** Deck-wide write-through for a Scope Match role requirement. When provided,
+   *  the Role Requirement cell becomes editable in edit mode on search-owned
+   *  decks (mirrors Compensation's Target Range). On commit (blur) it routes the
+   *  edit up to the deck-level save which rewrites the matching dimension's
+   *  role_requirement on searches.scope_match_dimensions — so the new wording
+   *  appears on every candidate card at once. Deliberately NOT routed through the
+   *  candidate's `rows`/localStorage path: this is a search-level field, not a
+   *  per-candidate snapshot edit. The dimension NAME stays read-only (it is the
+   *  matching key that carries candidate_actual + alignment across cards). */
+  onUpdateRoleRequirement?: (dimensionName: string, value: string) => void;
 }
 
 const ALIGNMENT_CYCLE: ScopeRow['alignment'][] = ['strong', 'partial', 'gap', 'not_assessed'];
@@ -124,7 +134,63 @@ function EditableCell({
   );
 }
 
-export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst }: ScopeMatchProps) {
+/* ── Editable Role Requirement cell — deck-wide write-through ──
+ *  Mirrors Compensation's BudgetEditable: contentEditable, no reset dot (the
+ *  server is the source of truth, so "original" rebases on every save), commit
+ *  on blur. Saving routes up via onUpdate → DeckClient, which rewrites the
+ *  matching dimension's role_requirement on searches.scope_match_dimensions and
+ *  refreshes, so the new wording propagates to every candidate card. */
+function RoleRequirementEditable({
+  value,
+  onUpdate,
+  style,
+}: {
+  value: string;
+  onUpdate: (v: string) => void;
+  style?: React.CSSProperties;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const focusedRef = useRef(false);
+
+  useEffect(() => {
+    if (ref.current && !focusedRef.current && ref.current.textContent !== value) {
+      ref.current.textContent = value;
+    }
+  }, [value]);
+
+  return (
+    <span
+      ref={(el) => {
+        (ref as React.MutableRefObject<HTMLSpanElement | null>).current = el;
+        if (el && !el.textContent) el.textContent = value;
+      }}
+      contentEditable
+      suppressContentEditableWarning
+      className="editable-cell"
+      title="Edits the role requirement for every candidate card in this deck"
+      onFocus={() => { focusedRef.current = true; }}
+      onBlur={(e) => {
+        focusedRef.current = false;
+        // Commit on blur only (no debounce). stripArtifacts mirrors the other
+        // brief writes; the server also runs stripArtifactsDeep over the payload.
+        const clean = stripArtifacts(e.currentTarget.textContent || "");
+        if (clean !== e.currentTarget.textContent) {
+          e.currentTarget.textContent = clean;
+        }
+        onUpdate(clean);
+      }}
+      style={{
+        display: "block",
+        padding: "1px 6px",
+        margin: "-1px -6px",
+        outline: "none",
+        ...style,
+      }}
+    />
+  );
+}
+
+export default function ScopeMatch({ scope_match, candidateId, searchDimensions, scopeCanonicalFirst, onUpdateRoleRequirement }: ScopeMatchProps) {
   const { isEditable } = useEditorContext();
 
   // Canonical-first mode: the search's dimensions own names/order/role-
@@ -322,17 +388,25 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                   </span>
                 )}
 
-                {/* Role requirement. When the search owns dimensions the cell
-                    is read-only with an "Edit in Role Brief" affordance —
-                    role-level text is edited once in the Role Brief, never
-                    per-card (where exact-name overrides made edits phantom
-                    anyway). Editable only on decks with no search dims. */}
+                {/* Role requirement. Three render paths:
+                    1. Search-owned + a deck-wide write-through handler wired →
+                       on-card editable cell (mirrors Comp's Target Range). The
+                       edit rewrites searches.scope_match_dimensions for the
+                       matching dimension, so it lands on every candidate card.
+                    2. Search-owned, no handler (read-only contexts, or before
+                       the handler is threaded) → read-only span + "Edit in Role
+                       Brief" affordance.
+                    3. No search dims (fixtures/pre-Engine) → per-card editable
+                       cell writing the candidate snapshot, unchanged.
+                    The dimension NAME is never editable here — it is the match
+                    key carrying candidate_actual + alignment across cards. */}
                 {(() => {
                   const override = !canonical ? dimByName.get(item.scope)?.role_requirement : undefined;
                   const gated = searchOwned;
                   const effective = canonical
                     ? (item.role_requirement ?? "")
                     : (override ?? item.role_requirement ?? "");
+                  // Path 3 — no search dims: legacy per-card editable cell.
                   if (isEditable && !gated) {
                     return (
                       <EditableCell
@@ -343,6 +417,20 @@ export default function ScopeMatch({ scope_match, candidateId, searchDimensions,
                       />
                     );
                   }
+                  // Path 1 — search-owned + handler: deck-wide write-through.
+                  // TODO(scope-dimension-id): once the data-integrity fix lands a
+                  // stable dimension_id, pass the id instead of item.scope so the
+                  // match survives a name change. Name is unique per deck for v1.
+                  if (isEditable && gated && onUpdateRoleRequirement) {
+                    return (
+                      <RoleRequirementEditable
+                        value={effective}
+                        onUpdate={(v) => onUpdateRoleRequirement(item.scope, v)}
+                        style={{ fontSize: "0.9rem", color: "var(--ss-gray)" }}
+                      />
+                    );
+                  }
+                  // Path 2 — read-only (client view, or search-owned w/o handler).
                   return (
                     <span
                       style={{ display: "block" }}

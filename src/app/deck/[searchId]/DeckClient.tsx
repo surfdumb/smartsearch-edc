@@ -99,6 +99,43 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
     };
   }, [router]);
 
+  // ── Deck-wide Scope Match role-requirement write-through ───────────────────
+  // The Scope Match role requirements are shared across every card via
+  // searches.scope_match_dimensions (canonical-first). When a consultant edits a
+  // requirement on the card (ScopeMatch's RoleRequirementEditable), rewrite only
+  // the matching dimension's role_requirement here — preserving order and all
+  // other dimensions/fields — and POST the full array to the brief endpoint
+  // (which already whitelists scope_match_dimensions + runs stripArtifactsDeep).
+  // router.refresh() then propagates the new wording to every candidate card.
+  // Mirrors the Compensation Target Range write-through (searches.budget_*).
+  const handleUpdateRoleRequirement = useCallback((dimensionName: string, value: string) => {
+    const current = data.scope_match_dimensions ?? [];
+    // TODO(scope-dimension-id): match by stable dimension_id once the
+    // data-integrity fix lands it; name is unique within a deck for v1.
+    let matched = false;
+    const nextDims = current.map((d) => {
+      if (!matched && d.name === dimensionName) {
+        matched = true;
+        return { ...d, role_requirement: value };
+      }
+      return d;
+    });
+    if (!matched) return; // no canonical dimension by that name — safe no-op
+    (async () => {
+      try {
+        const res = await fetch(`/api/deck/${searchId}/brief`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scope_match_dimensions: nextDims }),
+        });
+        if (res.ok) router.refresh();
+        else console.error('[deck] role requirement save failed', res.status);
+      } catch (err) {
+        console.error('[deck] role requirement save error', err);
+      }
+    })();
+  }, [data.scope_match_dimensions, searchId, router]);
+
   // ── Client logo from localStorage or data ──────────────────────────────────
   const [clientLogo, setClientLogo] = useState<string | null>(null);
   useEffect(() => {
@@ -1793,6 +1830,7 @@ export default function DeckClient({ data, searchId, isEditRoute = false }: Deck
       onOurTakeChange={handleOurTakeChange}
       searchDimensions={data.scope_match_dimensions}
       scopeCanonicalFirst={data.deck_settings?.scope_canonical_first === true}
+      onUpdateRoleRequirement={isEditRoute ? handleUpdateRoleRequirement : undefined}
       searchBudget={data.search_budget}
       roleBriefMode={jsInPortal}
       hiddenCriteriaPerCandidate={data.hidden_criteria_per_candidate}
