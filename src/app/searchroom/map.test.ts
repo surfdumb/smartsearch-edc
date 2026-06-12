@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { mapToBoard, priorityFor, type DbCandidate, type DbSearch } from "./map";
+import { mapToBoard, type DbCandidate, type DbSearch } from "./map";
 
 function search(overrides: Partial<DbSearch> = {}): DbSearch {
   return {
@@ -37,23 +37,6 @@ function cand(overrides: Partial<DbCandidate> = {}): DbCandidate {
   };
 }
 
-describe("priorityFor", () => {
-  it("maps the DB band to the board colour token", () => {
-    expect(priorityFor("needs_cut", "high")).toBe("purple");
-    expect(priorityFor("offer", "active")).toBe("green");
-    expect(priorityFor("high", "active")).toBe("red");
-    expect(priorityFor("medium", "active")).toBe("amber");
-    expect(priorityFor("hold", "hold")).toBe("hold");
-  });
-  it("falls back to a status-derived band when priority is null/unknown", () => {
-    expect(priorityFor(null, "high")).toBe("red");
-    expect(priorityFor(null, "active")).toBe("amber");
-    expect(priorityFor(null, "hold")).toBe("hold");
-    expect(priorityFor(null, "closed")).toBe("hold");
-    expect(priorityFor("garbage", "high")).toBe("red");
-  });
-});
-
 describe("mapToBoard", () => {
   it("maps search columns to the board shape", () => {
     const { searches } = mapToBoard([search()], []);
@@ -67,10 +50,14 @@ describe("mapToBoard", () => {
       cg: "Kalum",
       cc: "Jane",
       ev: "v2",
-      pri: "purple",
       brief: true,
       pw: false,
     });
+  });
+
+  it("does not emit a priority band — that is derived at read time by buildSearches", () => {
+    const { searches } = mapToBoard([search({ priority: "needs_cut" })], []);
+    expect(searches[0]).not.toHaveProperty("pri");
   });
 
   it("prefers display name / role_title and reflects password presence", () => {
