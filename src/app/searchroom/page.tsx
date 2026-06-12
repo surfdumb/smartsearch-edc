@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import SearchRoom from "./SearchRoom";
 import { loadSearchRoomData } from "./load";
+import { SEARCHROOM_COOKIE, verifySearchRoomToken } from "@/lib/searchroomAccess";
 import "./search-room.css";
 
 export const metadata: Metadata = {
@@ -9,10 +11,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Live data from Supabase on first paint (snapshot fallback inside the loader).
 export const dynamic = "force-dynamic";
 
 export default async function SearchRoomPage() {
-  const initial = await loadSearchRoomData();
-  return <SearchRoom initial={initial} />;
+  // Server-side gate: only fetch + send the (PII-bearing) board data once the
+  // internal session cookie is present. Unauthed visitors get the gate only.
+  const token = (await cookies()).get(SEARCHROOM_COOKIE)?.value;
+  const authed = await verifySearchRoomToken(token);
+  const initial = authed ? await loadSearchRoomData() : null;
+  return <SearchRoom authed={authed} initial={initial} />;
 }

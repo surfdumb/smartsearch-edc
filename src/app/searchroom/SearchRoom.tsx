@@ -2,6 +2,7 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BASE,
   CATS,
@@ -23,8 +24,6 @@ import {
   type RawCandidate,
   type Search,
 } from "./lib";
-
-const GATE_PASSWORD = "edc2026";
 
 // Canonical source of truth for the board — the SmartSearch Company
 // Spreadsheet (live-searches tab) on SharePoint. Opened in a new tab from the
@@ -117,12 +116,11 @@ function RefreshIcon() {
 
 type ModId = 1 | 2 | 3;
 
-export default function SearchRoom({ initial }: { initial: Dataset }) {
-  const [unlocked, setUnlocked] = useState(false);
-
-  // Board data — seeded from the server-loaded snapshot (live Supabase, with a
-  // static fallback inside the loader), replaceable by Sync via /api/searchroom/data.
-  const [dataset, setDataset] = useState<Dataset>(initial);
+export default function SearchRoom({ authed, initial }: { authed: boolean; initial: Dataset | null }) {
+  // Board data — seeded from the server-loaded dataset (only present when the
+  // server has already authed; live Supabase with a static fallback in the
+  // loader), replaceable by Sync via /api/searchroom/data.
+  const [dataset, setDataset] = useState<Dataset>(initial ?? { searches: [], candidates: {} });
   const SEARCHES = useMemo(() => buildSearches(dataset), [dataset]);
 
   // Sync + "synced N ago" state.
@@ -582,24 +580,41 @@ export default function SearchRoom({ initial }: { initial: Dataset }) {
     listBody = MODULES.map((mod) => moduleBlock(mod, rows));
   }
 
-  /* ---------- gate ---------- */
+  /* ---------- gate (server-authed) ---------- */
+  const router = useRouter();
   const [pw, setPw] = useState("");
   const [pwErr, setPwErr] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const pwRef = useRef<HTMLInputElement | null>(null);
-  function unlock() {
-    if (pw.trim().toLowerCase() === GATE_PASSWORD) {
-      setUnlocked(true);
-    } else {
+  async function unlock() {
+    if (submitting) return;
+    setSubmitting(true);
+    setPwErr(false);
+    try {
+      const r = await fetch("/api/searchroom/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pw.trim() }),
+      });
+      if (r.ok) {
+        // Cookie set; re-run the server component so it renders the board with data.
+        router.refresh();
+        return;
+      }
       setPwErr(true);
       setPw("");
       pwRef.current?.focus();
+    } catch {
+      setPwErr(true);
+    } finally {
+      setSubmitting(false);
     }
   }
   useEffect(() => {
-    if (!unlocked) pwRef.current?.focus();
-  }, [unlocked]);
+    if (!authed) pwRef.current?.focus();
+  }, [authed]);
 
-  if (!unlocked) {
+  if (!authed) {
     return (
       <div className="sr-root">
         <div className="gate">
@@ -629,12 +644,12 @@ export default function SearchRoom({ initial }: { initial: Dataset }) {
                   if (e.key === "Enter") unlock();
                 }}
               />
-              <button onClick={unlock}>Enter</button>
+              <button onClick={unlock} disabled={submitting}>
+                {submitting ? "…" : "Enter"}
+              </button>
             </div>
             <p className={"gate-err" + (pwErr ? " show" : "")}>That password doesn&apos;t match. Try again.</p>
-            <p className="gate-hint">
-              Access: <code>{GATE_PASSWORD}</code>
-            </p>
+            <p className="gate-hint">SmartSearch · internal access</p>
           </div>
         </div>
       </div>
