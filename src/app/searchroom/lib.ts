@@ -36,6 +36,9 @@ export interface SearchData {
   candidates: Record<string, RawCandidate[]>;
 }
 
+// SearchData plus the freshness stamp the /searchroom API/board carry.
+export type Dataset = SearchData & { synced_at?: string };
+
 export interface Search extends RawSearch {
   _cands: RawCandidate[];
   _counts: Record<CandStatus, number>;

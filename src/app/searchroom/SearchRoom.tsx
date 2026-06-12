@@ -2,7 +2,6 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
-import rawData from "./data.json";
 import {
   BASE,
   CATS,
@@ -17,12 +16,12 @@ import {
   initials,
   kamShort,
   val,
+  type Dataset,
   type MFKey,
   type ModuleDef,
   type Priority,
   type RawCandidate,
   type Search,
-  type SearchData,
 } from "./lib";
 
 const GATE_PASSWORD = "edc2026";
@@ -33,8 +32,6 @@ const GATE_PASSWORD = "edc2026";
 const COMPANY_SPREADSHEET_URL =
   process.env.NEXT_PUBLIC_COMPANY_SPREADSHEET_URL ||
   "https://smartsearchexec.sharepoint.com/:x:/r/sites/SmartSearch/_layouts/15/doc2.aspx?sourcedoc=%7BF01AC4D0-0C2D-4C3E-ADCC-A60065E48011%7D&file=Company%20Spreadsheet.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1";
-
-type Dataset = SearchData & { synced_at?: string };
 
 // Relative "synced N ago" label. now=null until mounted (avoids SSR/CSR drift).
 function relTime(iso: string | undefined, now: number | null): string | null {
@@ -120,12 +117,12 @@ function RefreshIcon() {
 
 type ModId = 1 | 2 | 3;
 
-export default function SearchRoom() {
+export default function SearchRoom({ initial }: { initial: Dataset }) {
   const [unlocked, setUnlocked] = useState(false);
 
-  // Board data — seeded from the static snapshot (instant first paint),
-  // replaceable by the Sync button via /api/searchroom/data.
-  const [dataset, setDataset] = useState<Dataset>(rawData as Dataset);
+  // Board data — seeded from the server-loaded snapshot (live Supabase, with a
+  // static fallback inside the loader), replaceable by Sync via /api/searchroom/data.
+  const [dataset, setDataset] = useState<Dataset>(initial);
   const SEARCHES = useMemo(() => buildSearches(dataset), [dataset]);
 
   // Sync + "synced N ago" state.
@@ -164,8 +161,11 @@ export default function SearchRoom() {
 
   const evOptions = useMemo(() => {
     const evs: Record<string, true> = {};
-    SEARCHES.forEach((s) => (evs[s.ev] = true));
-    return ["v2.1", "v2.0"].filter((v) => evs[v]);
+    SEARCHES.forEach((s) => {
+      if (s.ev) evs[s.ev] = true;
+    });
+    // newest-first-ish: sort descending so v2.1 > v2.0 > v2; "—" sinks to the end
+    return Object.keys(evs).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
   }, [SEARCHES]);
 
   const headStats = useMemo(() => {
