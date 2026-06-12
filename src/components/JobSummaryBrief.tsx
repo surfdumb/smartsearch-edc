@@ -18,6 +18,7 @@ import {
   relativeTime,
   type Staleness,
 } from "@/lib/brief-draft";
+import { newDimensionId } from "@/lib/scope-dimension-id";
 import "@/styles/job-summary-print.css";
 
 interface BulkConflictEntry {
@@ -35,18 +36,27 @@ interface JobSummaryBriefProps {
 
 type Criterion = { name: string; detail?: string; priority?: string };
 
-type ScopeDim = { name: string; role_requirement: string };
+type ScopeDim = { id?: string; name: string; role_requirement: string };
 
 // Legacy decks (don-*) store dims under `scope` instead of `name`, and very old
 // rows can be a plain string. Normalize on load; the first save repairs them to
 // the `name` key ScopeMatch requires (it discards dims with no usable name).
+// Carry the stable `id` through verbatim — losing it here would let a rename
+// orphan candidate rows again (the whole point of the id).
 function normalizeScopeDims(raw: unknown): ScopeDim[] {
   if (!Array.isArray(raw)) return [];
   return (raw as Record<string, unknown>[]).map((d) => ({
+    ...(typeof d?.id === "string" && d.id ? { id: d.id } : {}),
     name: String(d?.name ?? d?.scope ?? ""),
     role_requirement: String(d?.role_requirement ?? ""),
   }));
 }
+
+// Normalised key matching ScopeMatch's canonKey — used only as a fallback when
+// a dimension has no id yet (pre-backfill), to detect whether any candidate has
+// content under it before a delete.
+const dimCanonKey = (s: string) =>
+  (s || "").split(/[—–:]/)[0].toLowerCase().replace(/[^a-z0-9]/g, "");
 
 // Human-readable labels for the API field names that can appear in a draft.
 // Keep aligned with ALLOWED_FIELDS in src/app/api/deck/[searchId]/brief/route.ts.
@@ -691,6 +701,10 @@ export default function JobSummaryBrief({
   const [dimDragIdx, setDimDragIdx] = useState<number | null>(null);
   const [dimDragOverIdx, setDimDragOverIdx] = useState<number | null>(null);
 
+  // Index of a dimension pending a delete confirmation (set when the dimension
+  // has candidate content; null when no confirm is open).
+  const [dimPendingDelete, setDimPendingDelete] = useState<number | null>(null);
+
   // ── Early return after all hooks ──────────────────────────────────────────
 
   if (!js) return null;
@@ -777,12 +791,45 @@ export default function JobSummaryBrief({
     saveScopeDims(scopeDims.map((d, i) => (i === index ? { ...d, role_requirement } : d)));
   };
 
-  const removeDim = (index: number) => {
+  // Does any candidate have real scope content (non-empty actual, or an
+  // assessed alignment) under this dimension? Joins by stable id first, falling
+  // back to a normalised-name match for pre-backfill rows. Drives the
+  // delete-confirm so a consultant can't silently drop generated evidence.
+  const dimensionHasContent = (dim: ScopeDim): boolean => {
+    const key = dimCanonKey(dim.name);
+    for (const cand of data.candidates ?? []) {
+      const rows = cand.edc_data?.scope_match;
+      if (!Array.isArray(rows)) continue;
+      for (const r of rows) {
+        const matches = (dim.id && r?.dimension_id === dim.id) || dimCanonKey(r?.scope) === key;
+        if (!matches) continue;
+        const hasActual = typeof r?.candidate_actual === "string" && r.candidate_actual.trim().length > 0;
+        const assessed = r?.alignment && r.alignment !== "not_assessed";
+        if (hasActual || assessed) return true;
+      }
+    }
+    return false;
+  };
+
+  const deleteDimAt = (index: number) => {
     saveScopeDims(scopeDims.filter((_, i) => i !== index));
   };
 
+  const removeDim = (index: number) => {
+    const dim = scopeDims[index];
+    // Confirm only when candidate evidence exists under this dimension —
+    // deleting an empty dimension is a zero-cost reversible edit.
+    if (dim && dimensionHasContent(dim)) {
+      setDimPendingDelete(index);
+      return;
+    }
+    deleteDimAt(index);
+  };
+
   const addDim = () => {
-    saveScopeDims([...scopeDims, { name: "New dimension", role_requirement: "" }]);
+    // Mint the stable id at creation so it survives the session's debounced
+    // saves (and every later rename). The server preserves it; it never changes.
+    saveScopeDims([...scopeDims, { id: newDimensionId(), name: "New dimension", role_requirement: "" }]);
   };
 
   const handleDimDragStart = (idx: number) => (e: React.DragEvent) => {
@@ -975,6 +1022,23 @@ export default function JobSummaryBrief({
               tone="gold"
               onConfirm={() => { setBulkConfirmOpen(false); handleRegenerateAll(); }}
               onCancel={() => setBulkConfirmOpen(false)}
+            />
+
+            <ConfirmDialog
+              open={dimPendingDelete !== null}
+              title="Delete this scope dimension?"
+              body={
+                dimPendingDelete !== null && scopeDims[dimPendingDelete]
+                  ? `"${scopeDims[dimPendingDelete].name}" has candidate evidence on one or more cards. Deleting it removes the dimension from every candidate's Scope Match. This can't be undone from here.`
+                  : "Deleting this dimension removes it from every candidate's Scope Match."
+              }
+              confirmLabel="Delete dimension"
+              tone="danger"
+              onConfirm={() => {
+                if (dimPendingDelete !== null) deleteDimAt(dimPendingDelete);
+                setDimPendingDelete(null);
+              }}
+              onCancel={() => setDimPendingDelete(null)}
             />
 
             {/* Bulk conflict modal queue — opens for each candidate with

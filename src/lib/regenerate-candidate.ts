@@ -21,6 +21,7 @@ import {
   type RegenerationSearchRow,
   type RegenerationCandidateRow,
 } from '@/lib/regenerate-edc-prompt';
+import { stampDimensionIds, type ScopeMatchRow, type CanonicalDimension } from '@/lib/scope-dimension-id';
 
 const REGENERATE_MODEL = 'claude-sonnet-4-6';
 const REGENERATE_MAX_TOKENS = 8192;
@@ -356,6 +357,24 @@ export async function regenerateCandidate(
     if (!(field in mergedEdc)) {
       mergedEdc[field] = existingEdc[field];
     }
+  }
+
+  // 6b. Resolution shim: stamp dimension_id onto the WORKING scope_match
+  // (edc_data) by exact name match against the search's canonical dimensions.
+  // The Engine/regen emits name-keyed rows ("scope" = exact dimension name);
+  // this binds them to the stable id so a later rename can't orphan them.
+  // No exact match → logged miss, dimension_id left unset (never a guess).
+  // ai_generated_edc is left untouched — it stays name-keyed and historical.
+  if (Array.isArray(mergedEdc.scope_match)) {
+    const canonicalDims = Array.isArray(searchRow.scope_match_dimensions)
+      ? (searchRow.scope_match_dimensions as CanonicalDimension[])
+      : undefined;
+    const { rows: stamped } = stampDimensionIds(
+      mergedEdc.scope_match as ScopeMatchRow[],
+      canonicalDims,
+      `regen ${candidateSlug}`,
+    );
+    mergedEdc.scope_match = stamped;
   }
 
   // 7. Build top-level UPDATE payload, mirroring derived columns the same way

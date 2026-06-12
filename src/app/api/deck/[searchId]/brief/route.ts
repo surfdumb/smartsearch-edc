@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServiceClient } from '@/lib/supabase';
 import { resolveSearchId } from '@/lib/supabase-data';
 import { stripArtifactsDeep } from '@/lib/sanitize';
+import { ensureDimensionIds } from '@/lib/scope-dimension-id';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,6 +58,15 @@ export async function POST(
       if (ALLOWED_FIELDS.has(key)) {
         updates[key] = stripArtifactsDeep(value);
       }
+    }
+
+    // Scope dimensions are id-keyed: mint a stable uuid for any dimension that
+    // lacks one, preserving existing ids verbatim. This is what makes a rename
+    // a rename (same id, new name) rather than a delete+create — the failure
+    // mode that orphaned per-candidate scope rows. Server-authoritative so the
+    // client can never reassign an id and break the join.
+    if ('scope_match_dimensions' in updates) {
+      updates.scope_match_dimensions = ensureDimensionIds(updates.scope_match_dimensions);
     }
 
     if (Object.keys(updates).length === 0) {
