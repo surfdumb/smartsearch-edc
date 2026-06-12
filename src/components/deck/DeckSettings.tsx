@@ -60,6 +60,16 @@ export default function DeckSettings({ data, searchId, initialAccess }: DeckSett
   const [compSaving, setCompSaving] = useState(false);
   const [compSaved, setCompSaved] = useState(false);
 
+  // ─── Scope / Key Criteria visibility state (default SHOW) ───
+  const [scopeDisplay, setScopeDisplay] = useState<'SHOW' | 'HIDE'>(
+    () => data.deck_settings?.scope_display ?? 'SHOW'
+  );
+  const [scopeSaved, setScopeSaved] = useState(false);
+  const [criteriaDisplay, setCriteriaDisplay] = useState<'SHOW' | 'HIDE'>(
+    () => data.deck_settings?.key_criteria_display ?? 'SHOW'
+  );
+  const [criteriaSaved, setCriteriaSaved] = useState(false);
+
   const persistOurTakeMode = useCallback(async (mode: OurTakeMode) => {
     setOurTakeSaving(true);
     try {
@@ -113,6 +123,46 @@ export default function DeckSettings({ data, searchId, initialAccess }: DeckSett
     setCompDisplay(display);
     void persistCompDisplay(display);
   }, [persistCompDisplay]);
+
+  // Generic persister for the Scope / Key Criteria visibility flags.
+  const persistDisplayFlag = useCallback(
+    async (
+      field: 'scope_display' | 'key_criteria_display',
+      display: 'SHOW' | 'HIDE',
+      setSaved: (v: boolean) => void,
+      revert: () => void,
+    ) => {
+      try {
+        const res = await fetch(`/api/deck/${searchId}/deck-settings`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ [field]: display }),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || `Save failed: ${res.status}`);
+        }
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } catch (err) {
+        alert(`Could not save setting: ${(err as Error).message}`);
+        revert();
+      }
+    },
+    [searchId],
+  );
+
+  const handleScopeDisplayChange = useCallback((display: 'SHOW' | 'HIDE') => {
+    setScopeDisplay(display);
+    void persistDisplayFlag('scope_display', display, setScopeSaved,
+      () => setScopeDisplay(data.deck_settings?.scope_display ?? 'SHOW'));
+  }, [persistDisplayFlag, data.deck_settings]);
+
+  const handleCriteriaDisplayChange = useCallback((display: 'SHOW' | 'HIDE') => {
+    setCriteriaDisplay(display);
+    void persistDisplayFlag('key_criteria_display', display, setCriteriaSaved,
+      () => setCriteriaDisplay(data.deck_settings?.key_criteria_display ?? 'SHOW'));
+  }, [persistDisplayFlag, data.deck_settings]);
 
   const persistAccessPassword = useCallback(
     async (value: string | null) => {
@@ -668,6 +718,84 @@ Best,
 
           <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px", lineHeight: 1.6 }}>
             When hidden, the Compensation tab is removed from the client view (and any PDF). Consultants still see and can edit Compensation in edit mode.
+          </p>
+        </section>
+
+        {/* ── Scope / Key Criteria visibility section ── */}
+        <section style={{ marginBottom: "48px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+            <span
+              style={{
+                fontSize: "0.65rem",
+                fontWeight: 600,
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                color: "rgba(var(--deck-bg-text-rgb),0.3)",
+              }}
+            >
+              Scope &amp; Key Criteria
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(197,165,114,0.1)" }} />
+            {(scopeSaved || criteriaSaved) && (
+              <span style={{ fontSize: "0.7rem", color: "var(--ss-green)" }}>Saved</span>
+            )}
+          </div>
+
+          <p style={{ fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.5)", marginBottom: "16px" }}>
+            Controls whether the Scope and Key Criteria tabs appear in the client view. Both show by default.
+          </p>
+
+          {([
+            { label: "Scope", value: scopeDisplay, onChange: handleScopeDisplayChange, aria: "Scope display" },
+            { label: "Key Criteria", value: criteriaDisplay, onChange: handleCriteriaDisplayChange, aria: "Key Criteria display" },
+          ] as { label: string; value: 'SHOW' | 'HIDE'; onChange: (v: 'SHOW' | 'HIDE') => void; aria: string }[]).map((row) => (
+            <div key={row.label} style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "12px" }}>
+              <span style={{ width: "110px", fontSize: "0.82rem", color: "rgba(var(--deck-bg-text-rgb),0.75)" }}>{row.label}</span>
+              <div
+                role="radiogroup"
+                aria-label={row.aria}
+                style={{
+                  display: "inline-flex",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(197,165,114,0.25)",
+                  background: "rgba(var(--deck-bg-text-rgb),0.04)",
+                  padding: "4px",
+                  gap: "2px",
+                }}
+              >
+                {([
+                  { value: "SHOW", label: "Show" },
+                  { value: "HIDE", label: "Hide" },
+                ] as { value: 'SHOW' | 'HIDE'; label: string }[]).map((opt) => {
+                  const selected = row.value === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      role="radio"
+                      aria-checked={selected}
+                      onClick={() => row.onChange(opt.value)}
+                      style={{
+                        padding: "8px 20px",
+                        borderRadius: "8px",
+                        border: "none",
+                        cursor: "pointer",
+                        fontSize: "0.78rem",
+                        fontWeight: selected ? 600 : 500,
+                        color: selected ? "var(--ss-dark)" : "rgba(var(--deck-bg-text-rgb),0.7)",
+                        background: selected ? "var(--ss-gold)" : "transparent",
+                        transition: "all 0.15s ease",
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          <p style={{ fontSize: "0.72rem", color: "rgba(var(--deck-bg-text-rgb),0.65)", marginTop: "14px", lineHeight: 1.6 }}>
+            When hidden, the tab is removed from the client view (and any PDF). Consultants still see and can edit it in edit mode. Key Criteria is the client-facing standard — only hide it deliberately.
           </p>
         </section>
 
