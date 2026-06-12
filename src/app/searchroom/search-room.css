@@ -186,6 +186,23 @@
 
 /* ---------- Toolbar ---------- */
 .sr-root .toolbar { max-width: 1080px; margin: 0 auto; padding: 26px 24px 6px; width: 100%; }
+
+/* sync strip — subtle Company Spreadsheet link + "synced N ago" + Sync */
+.sr-root .sync-strip { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-bottom: 12px; font-size: var(--text-caption); color: var(--text-tertiary); }
+.sr-root .sheet-link { display: inline-flex; align-items: center; gap: 6px; color: var(--ss-gold-warm); text-decoration: none; font-weight: 500; opacity: .85; transition: opacity var(--duration-fast) var(--ease-standard); }
+.sr-root .sheet-link:hover { opacity: 1; text-decoration: underline; }
+.sr-root .sheet-link svg:first-child { width: 13px; height: 13px; stroke: var(--ss-gold-warm); flex: 0 0 auto; }
+.sr-root .sheet-link .ext { width: 11px; height: 11px; stroke: var(--text-tertiary); opacity: 0; transition: opacity var(--duration-fast) var(--ease-standard); }
+.sr-root .sheet-link:hover .ext { opacity: 1; }
+.sr-root .sync-sep { color: var(--ss-gold); opacity: .45; }
+.sr-root .sync-status { color: var(--text-secondary); white-space: nowrap; }
+.sr-root .sync-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border-strong); background: var(--surface-card); color: var(--text-secondary); font-size: var(--text-caption); font-weight: 500; font-family: inherit; padding: 5px 11px; border-radius: var(--radius-control); transition: border-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
+.sr-root .sync-btn:hover:not(:disabled) { border-color: var(--ss-gold-warm); color: var(--text-display); }
+.sr-root .sync-btn:disabled { opacity: .65; cursor: default; }
+.sr-root .sync-btn svg { width: 13px; height: 13px; stroke: currentColor; flex: 0 0 auto; }
+.sr-root .sync-btn.busy svg { animation: sr-spin .8s linear infinite; transform-origin: 50% 50%; }
+@keyframes sr-spin { to { transform: rotate(360deg); } }
+
 .sr-root .searchbox { position: relative; margin-bottom: 14px; }
 .sr-root .searchbox svg { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); width: 17px; height: 17px; stroke: var(--text-tertiary); }
 .sr-root .searchbox input {
@@ -366,6 +383,7 @@
 .sr-root .srow-head:focus-visible, .sr-root .module-head:focus-visible { box-shadow: inset 0 0 0 1.5px var(--ss-gold); }
 
 @media (max-width: 720px) {
+  .sr-root .sync-strip { flex-wrap: wrap; justify-content: flex-start; }
   .sr-root .module-head { flex-wrap: wrap; gap: 9px; }
   .sr-root .module-stats { justify-content: flex-start; width: 100%; order: 3; }
   .sr-root .module-chev { position: absolute; right: 18px; top: 20px; }
