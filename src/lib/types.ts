@@ -174,6 +174,14 @@ export interface SearchContext {
      *  view (and the Puppeteer PDF, which renders the client deck). Consultants
      *  still see Compensation in edit mode. Absent/undefined defaults to SHOW. */
     compensation_display?: 'SHOW' | 'HIDE';
+    /** When 'HIDE', the Scope tab + data are removed from the client view (and
+     *  PDF). Edit mode always shows it. Absent/undefined defaults to SHOW. */
+    scope_display?: 'SHOW' | 'HIDE';
+    /** When 'HIDE', the Key Criteria tab + data are removed from the client
+     *  view (and PDF). Edit mode always shows it. Absent/undefined defaults to
+     *  SHOW — Key Criteria is the client-facing standard, so never hidden by
+     *  default (only when a deck opts in). */
+    key_criteria_display?: 'SHOW' | 'HIDE';
     edit_mode: boolean;
     show_linkedin?: boolean;
     js_in_portal?: boolean;

@@ -26,6 +26,8 @@ interface DeckSettings {
   our_take_display?: 'SHOW' | 'HIDE';
   scope_narrative_display?: 'SHOW' | 'HIDE';
   compensation_display?: 'SHOW' | 'HIDE';
+  scope_display?: 'SHOW' | 'HIDE';
+  key_criteria_display?: 'SHOW' | 'HIDE';
   our_take_landing?: 'overlay' | 'bubble';
   our_take_mode?: 'leading' | 'button' | 'hidden';
 }
@@ -183,15 +185,6 @@ export default function EDCCard({
     onPanelChange?.(target);
   };
 
-  // Guard: panel 4 (Narrative) is consultant-only. If client view ever
-  // reaches state=4 (e.g. via stale URL hash), fall back to panel 1.
-  useEffect(() => {
-    if (!isEditable && currentPanel === 4) {
-      setCurrentPanel(1);
-      onPanelChange?.(1);
-    }
-  }, [isEditable, currentPanel, onPanelChange]);
-
   const handleOurTakeToggle = (open: boolean) => {
     setOurTakeOpen(open);
     onOurTakeChange?.(open);
@@ -199,20 +192,34 @@ export default function EDCCard({
 
   const showNarrative = deckSettings?.scope_narrative_display !== 'HIDE';
 
-  // Compensation hide is client-only: consultants keep the Comp tab in edit
-  // mode (like the Spiel tab). When hidden for the client, the panel-3 div is
-  // not rendered at all, so comp figures never reach the client browser DOM.
+  // Per-deck client visibility. Each tab + its panel data is removed from the
+  // client view (and the PDF, which renders the client deck) when the deck opts
+  // into the matching *_display: 'HIDE'. Consultants always see every tab in
+  // edit mode (like the Spiel tab). Absent/undefined defaults to SHOW; Key
+  // Criteria is never hidden by default (only when a deck opts in). When hidden,
+  // the panel div isn't rendered at all, so the data never reaches the client DOM.
+  const showScope = isEditable || deckSettings?.scope_display !== 'HIDE';
+  const showKeyCriteria = isEditable || deckSettings?.key_criteria_display !== 'HIDE';
   const showCompensation = isEditable || deckSettings?.compensation_display !== 'HIDE';
 
-  // Guard: Compensation (panel 3) can be hidden from the client. If the client
-  // view lands on panel 3 (e.g. via a stale URL hash) while it's hidden, fall
-  // back to panel 1 — mirrors the panel-4 (Spiel) guard above.
+  // First panel still visible to this viewer — used to bounce off a panel that
+  // is hidden for the client (e.g. a stale URL hash landing on a hidden tab).
+  const firstVisiblePanel: EDCPanel = showScope ? 1 : showKeyCriteria ? 2 : showCompensation ? 3 : 1;
+
+  // Guard: if the current panel is hidden from this viewer (Scope/Criteria/Comp
+  // per deck settings, or Spiel which is consultant-only), fall back to the
+  // first visible panel.
   useEffect(() => {
-    if (!showCompensation && currentPanel === 3) {
-      setCurrentPanel(1);
-      onPanelChange?.(1);
+    const hidden =
+      (currentPanel === 1 && !showScope) ||
+      (currentPanel === 2 && !showKeyCriteria) ||
+      (currentPanel === 3 && !showCompensation) ||
+      (currentPanel === 4 && !isEditable);
+    if (hidden && currentPanel !== firstVisiblePanel) {
+      setCurrentPanel(firstVisiblePanel);
+      onPanelChange?.(firstVisiblePanel);
     }
-  }, [showCompensation, currentPanel, onPanelChange]);
+  }, [currentPanel, showScope, showKeyCriteria, showCompensation, isEditable, firstVisiblePanel, onPanelChange]);
 
   // Swipe detection for candidate navigation
   const swipeRef = useSwipeNavigation({
@@ -532,25 +539,29 @@ export default function EDCCard({
               {/* Scroll fade indicator — signals content extends below */}
               <div className="scroll-fade-indicator" />
                 {/* All tabs stay mounted to preserve edit state across tab switches */}
-                <div style={{ display: currentPanel === 1 ? 'block' : 'none' }}>
-                  <ScopeMatch
-                    scope_match={data.scope_match}
-                    scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
-                    candidateId={candidateId}
-                    searchDimensions={searchDimensions}
-                    scopeCanonicalFirst={scopeCanonicalFirst}
-                  />
-                </div>
+                {showScope && (
+                  <div style={{ display: currentPanel === 1 ? 'block' : 'none' }}>
+                    <ScopeMatch
+                      scope_match={data.scope_match}
+                      scope_seasoning={showNarrative ? data.scope_seasoning : undefined}
+                      candidateId={candidateId}
+                      searchDimensions={searchDimensions}
+                      scopeCanonicalFirst={scopeCanonicalFirst}
+                    />
+                  </div>
+                )}
 
-                <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
-                  <KeyCriteria
-                    key_criteria={data.key_criteria}
-                    candidateId={candidateId}
-                    searchId={searchId}
-                    hiddenCriterionNames={hiddenCriterionNames}
-                    roleBriefMode={roleBriefMode}
-                  />
-                </div>
+                {showKeyCriteria && (
+                  <div style={{ display: currentPanel === 2 ? 'block' : 'none' }}>
+                    <KeyCriteria
+                      key_criteria={data.key_criteria}
+                      candidateId={candidateId}
+                      searchId={searchId}
+                      hiddenCriterionNames={hiddenCriterionNames}
+                      roleBriefMode={roleBriefMode}
+                    />
+                  </div>
+                )}
 
                 {showCompensation && (
                   <div style={{ display: currentPanel === 3 ? 'block' : 'none' }}>
@@ -604,6 +615,8 @@ export default function EDCCard({
           current={currentPanel}
           onChange={navigateToPanel}
           showNarrativeTab={isEditable}
+          showScopeTab={showScope}
+          showCriteriaTab={showKeyCriteria}
           showCompensationTab={showCompensation}
         />
       )}

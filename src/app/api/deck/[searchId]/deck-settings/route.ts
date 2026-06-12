@@ -17,7 +17,12 @@ export async function POST(
     return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
   }
 
-  let body: { our_take_mode?: unknown; compensation_display?: unknown } = {};
+  let body: {
+    our_take_mode?: unknown;
+    compensation_display?: unknown;
+    scope_display?: unknown;
+    key_criteria_display?: unknown;
+  } = {};
   try {
     body = await request.json();
   } catch {
@@ -36,13 +41,11 @@ export async function POST(
     }
   }
 
-  if (body.compensation_display !== undefined) {
-    if (
-      body.compensation_display !== 'SHOW' &&
-      body.compensation_display !== 'HIDE'
-    ) {
+  for (const field of ['compensation_display', 'scope_display', 'key_criteria_display'] as const) {
+    const v = body[field];
+    if (v !== undefined && v !== 'SHOW' && v !== 'HIDE') {
       return NextResponse.json(
-        { error: 'compensation_display must be either SHOW or HIDE' },
+        { error: `${field} must be either SHOW or HIDE` },
         { status: 400 }
       );
     }
@@ -73,6 +76,12 @@ export async function POST(
 
   if (body.compensation_display !== undefined) {
     next.compensation_display = body.compensation_display;
+  }
+  if (body.scope_display !== undefined) {
+    next.scope_display = body.scope_display;
+  }
+  if (body.key_criteria_display !== undefined) {
+    next.key_criteria_display = body.key_criteria_display;
   }
 
   const { error: writeErr } = await supabase

@@ -8,6 +8,10 @@ interface TabNavigationProps {
   current: EDCPanel;
   onChange: (panel: EDCPanel) => void;
   showNarrativeTab?: boolean;
+  /** When false, the Scope tab (panel 1) is filtered out — per deck_settings. */
+  showScopeTab?: boolean;
+  /** When false, the Key Criteria tab (panel 2) is filtered out — per deck_settings. */
+  showCriteriaTab?: boolean;
   /** When false, the Compensation tab (panel 3) is filtered out — used to
    *  hide Compensation from the client view per deck_settings. */
   showCompensationTab?: boolean;
@@ -25,15 +29,19 @@ export default function TabNavigation({
   current,
   onChange,
   showNarrativeTab = false,
+  showScopeTab = true,
+  showCriteriaTab = true,
   showCompensationTab = true,
 }: TabNavigationProps) {
   const tabs = useMemo(() => {
-    const base = showCompensationTab
-      ? BASE_TABS
-      : BASE_TABS.filter((t) => t.id !== 3);
+    const hidden = new Set<EDCPanel>();
+    if (!showScopeTab) hidden.add(1);
+    if (!showCriteriaTab) hidden.add(2);
+    if (!showCompensationTab) hidden.add(3);
+    const base = BASE_TABS.filter((t) => !hidden.has(t.id));
     return showNarrativeTab ? [...base, NARRATIVE_TAB] : base;
-  }, [showNarrativeTab, showCompensationTab]);
-  const maxId = tabs[tabs.length - 1].id;
+  }, [showNarrativeTab, showScopeTab, showCriteriaTab, showCompensationTab]);
+  const maxId = tabs.length ? tabs[tabs.length - 1].id : 1;
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
