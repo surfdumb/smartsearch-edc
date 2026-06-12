@@ -334,7 +334,9 @@ export default function SearchRoom({ authed, initial }: { authed: boolean; initi
     return (
       <div className="cands">
         {s._cands.map((p, i) => {
-          const u = p.sl ? BASE + "/" + s.k + "/" + p.sl : null;
+          // Canonical shareable candidate URL — the standalone EDC route,
+          // matching the in-app CopyLinkButton (/search/[searchId]/edc/[id]).
+          const u = p.sl ? BASE + "/search/" + s.k + "/edc/" + p.sl : null;
           return (
             <div className="crow" key={i}>
               <span className={"pill " + p.ds}>{PILL_LABEL[p.ds] || p.ds}</span>
@@ -407,9 +409,11 @@ export default function SearchRoom({ authed, initial }: { authed: boolean; initi
           <Chevron className="chev" />
         </button>
         <div className="urls">
-          {urlChip("Edit", "/" + s.k + "/edit", "edit", true)}
-          {urlChip("Client view", "/" + s.k, "client", true)}
-          {urlChip("Role brief", "/" + s.k + "/brief", "brief", s.brief)}
+          {/* Deck routes live under /deck/[searchId]. The Role Brief has no
+              path route — it opens via the #brief hash on the (edit) deck. */}
+          {urlChip("Edit", "/deck/" + s.k + "/edit", "edit", true)}
+          {urlChip("Client view", "/deck/" + s.k, "client", true)}
+          {urlChip("Role brief", "/deck/" + s.k + "/edit#brief", "brief", s.brief)}
         </div>
         {isOpen ? candidateRows(s) : null}
       </div>
