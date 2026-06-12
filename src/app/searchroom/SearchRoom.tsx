@@ -2,7 +2,6 @@
 
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useMemo, useRef, useState } from "react";
-import rawData from "./data.json";
 import {
   BASE,
   CATS,
@@ -17,15 +16,38 @@ import {
   initials,
   kamShort,
   val,
+  type Dataset,
   type MFKey,
   type ModuleDef,
   type Priority,
   type RawCandidate,
   type Search,
-  type SearchData,
 } from "./lib";
 
 const GATE_PASSWORD = "edc2026";
+
+// Canonical source of truth for the board — the SmartSearch Company
+// Spreadsheet (live-searches tab) on SharePoint. Opened in a new tab from the
+// board's sync strip. Overridable without a code change via env.
+const COMPANY_SPREADSHEET_URL =
+  process.env.NEXT_PUBLIC_COMPANY_SPREADSHEET_URL ||
+  "https://smartsearchexec.sharepoint.com/:x:/r/sites/SmartSearch/_layouts/15/doc2.aspx?sourcedoc=%7BF01AC4D0-0C2D-4C3E-ADCC-A60065E48011%7D&file=Company%20Spreadsheet.xlsx&action=default&mobileredirect=true&DefaultItemOpen=1";
+
+// Relative "synced N ago" label. now=null until mounted (avoids SSR/CSR drift).
+function relTime(iso: string | undefined, now: number | null): string | null {
+  if (!iso || now == null) return null;
+  const t = Date.parse(iso);
+  if (isNaN(t)) return null;
+  const s = Math.max(0, Math.floor((now - t) / 1000));
+  if (s < 45) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m <= 1 ? "1 minute ago" : m + " minutes ago";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h === 1 ? "1 hour ago" : h + " hours ago";
+  const d = Math.floor(h / 24);
+  if (d < 30) return d === 1 ? "1 day ago" : d + " days ago";
+  return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 
 /* ---------- inline icons ---------- */
 function SearchIcon() {
@@ -74,13 +96,44 @@ function ExtIcon() {
     </svg>
   );
 }
+function SheetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <line x1="3" y1="9" x2="21" y2="9" />
+      <line x1="9" y1="9" x2="9" y2="21" />
+    </svg>
+  );
+}
+function RefreshIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    </svg>
+  );
+}
 
 type ModId = 1 | 2 | 3;
 
-export default function SearchRoom() {
+export default function SearchRoom({ initial }: { initial: Dataset }) {
   const [unlocked, setUnlocked] = useState(false);
 
-  const SEARCHES = useMemo(() => buildSearches(rawData as SearchData), []);
+  // Board data — seeded from the server-loaded snapshot (live Supabase, with a
+  // static fallback inside the loader), replaceable by Sync via /api/searchroom/data.
+  const [dataset, setDataset] = useState<Dataset>(initial);
+  const SEARCHES = useMemo(() => buildSearches(dataset), [dataset]);
+
+  // Sync + "synced N ago" state.
+  const [syncing, setSyncing] = useState(false);
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(id);
+  }, []);
+  const syncedAgo = relTime(dataset.synced_at, now);
 
   // filter / view state
   const [q, setQ] = useState("");
@@ -108,8 +161,11 @@ export default function SearchRoom() {
 
   const evOptions = useMemo(() => {
     const evs: Record<string, true> = {};
-    SEARCHES.forEach((s) => (evs[s.ev] = true));
-    return ["v2.1", "v2.0"].filter((v) => evs[v]);
+    SEARCHES.forEach((s) => {
+      if (s.ev) evs[s.ev] = true;
+    });
+    // newest-first-ish: sort descending so v2.1 > v2.0 > v2; "—" sinks to the end
+    return Object.keys(evs).sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
   }, [SEARCHES]);
 
   const headStats = useMemo(() => {
@@ -143,6 +199,26 @@ export default function SearchRoom() {
         showToast(text);
       }
       document.body.removeChild(ta);
+    }
+  }
+
+  async function sync() {
+    if (syncing) return;
+    setSyncing(true);
+    const prev = dataset.synced_at;
+    try {
+      const r = await fetch("/api/searchroom/data", { cache: "no-store" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const d: Dataset = await r.json();
+      if (!d || !Array.isArray(d.searches)) throw new Error("bad payload");
+      setDataset(d);
+      setNow(Date.now());
+      const changed = d.synced_at && d.synced_at !== prev;
+      showToast(changed ? 'Synced from the <span class="g">Company Spreadsheet</span>' : "Already up to date");
+    } catch {
+      showToast('Sync failed — <span class="g">try again</span>');
+    } finally {
+      setSyncing(false);
     }
   }
 
@@ -607,6 +683,19 @@ export default function SearchRoom() {
         </header>
 
         <div className="toolbar">
+          <div className="sync-strip">
+            <a className="sheet-link" href={COMPANY_SPREADSHEET_URL} target="_blank" rel="noopener noreferrer" title="Open the Company Spreadsheet (live searches) in a new tab">
+              <SheetIcon />
+              Company Spreadsheet
+              <ExtIcon />
+            </a>
+            <span className="sync-sep">·</span>
+            <span className="sync-status">{syncedAgo ? "Synced " + syncedAgo : "Synced —"}</span>
+            <button className={"sync-btn" + (syncing ? " busy" : "")} onClick={sync} disabled={syncing} aria-busy={syncing} title="Pull the latest from the Company Spreadsheet">
+              <RefreshIcon />
+              {syncing ? "Syncing…" : "Sync"}
+            </button>
+          </div>
           <div className="searchbox">
             <SearchIcon />
             <input

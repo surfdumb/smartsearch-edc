@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import SearchRoom from "./SearchRoom";
+import { loadSearchRoomData } from "./load";
 import "./search-room.css";
 
 export const metadata: Metadata = {
@@ -8,6 +9,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function SearchRoomPage() {
-  return <SearchRoom />;
+// Live data from Supabase on first paint (snapshot fallback inside the loader).
+export const dynamic = "force-dynamic";
+
+export default async function SearchRoomPage() {
+  const initial = await loadSearchRoomData();
+  return <SearchRoom initial={initial} />;
 }
