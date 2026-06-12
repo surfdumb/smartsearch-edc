@@ -1,31 +1,11 @@
-import type { CandStatus, Priority, RawCandidate, RawSearch, SearchStatus } from "./lib";
+import type { CandStatus, RawCandidate, RawSearch, SearchStatus } from "./lib";
 
 // ── Priority band ─────────────────────────────────────────────────────────
-// `searches.priority` holds the ops triage band (needs_cut|offer|high|medium|hold).
-// The board renders the legacy colour tokens, so map DB → board here.
-export const PRI_MAP: Record<string, Priority> = {
-  needs_cut: "purple",
-  offer: "green",
-  high: "red",
-  medium: "amber",
-  hold: "hold",
-};
-
-// Fallback when a search has no priority set yet (new rows not in the seed):
-// derive a sensible band from lifecycle status so it still lands in a module.
-export function priorityFor(priority: string | null | undefined, status: SearchStatus): Priority {
-  if (priority && PRI_MAP[priority]) return PRI_MAP[priority];
-  switch (status) {
-    case "high":
-      return "red";
-    case "active":
-      return "amber";
-    case "hold":
-    case "closed":
-    default:
-      return "hold";
-  }
-}
+// NOTE: the board no longer maps a stored `searches.priority` seed into a band.
+// Effective priority is computed at read time in buildSearches() (see lib.ts)
+// from status + the live candidate pipeline, so the board is self-maintaining
+// and no search is ever orphaned by a stale seed. The `priority` column is still
+// selected by the loader and kept on DbSearch as a future manual-override hook.
 
 const VALID_DS: CandStatus[] = ["none", "new", "active", "hold", "rejected"];
 
@@ -102,7 +82,7 @@ export function mapToBoard(
     cg: s.candidate_generator,
     cc: s.client_contact,
     ev: s.engine_version || "—",
-    pri: priorityFor(s.priority, s.status),
+    // pri omitted — derived at read time by buildSearches (see lib.ts).
   }));
 
   return { searches: outSearches, candidates: cands };

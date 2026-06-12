@@ -18,7 +18,9 @@ export interface RawSearch {
   cg?: string | null;
   cc?: string | null;
   ev: string;           // engine version
-  pri: Priority;
+  // NOTE: `pri` is intentionally NOT a raw field. The priority band is derived
+  // at read time in buildSearches() from status + the live candidate pipeline,
+  // so a stored seed can never go stale or orphan a search. See computePriority.
 }
 
 export interface RawCandidate {
@@ -40,6 +42,7 @@ export interface SearchData {
 export type Dataset = SearchData & { synced_at?: string };
 
 export interface Search extends RawSearch {
+  pri: Priority;        // derived band — see computePriority
   _cands: RawCandidate[];
   _counts: Record<CandStatus, number>;
   _total: number;
@@ -154,6 +157,36 @@ export function initials(name: string): string {
   );
 }
 
+// Effective priority band, computed at read time from lifecycle status + the
+// live candidate pipeline. The stored `searches.priority` seed is intentionally
+// ignored for classification — it goes stale the moment the desk moves and
+// orphans any search added after it was seeded. It is reserved as a future
+// manual-override hook (a separate `priority_override` column), so compute stays
+// the source of truth until there's a UI to set overrides.
+//
+//   onDeck = candidates with deck_status 'active'.
+//
+// Purple (needs_cut) deliberately outranks red: a high-priority search with
+// nobody on deck = "needs another cut" = the loudest signal on the board. Red is
+// reserved for high-priority searches that ARE sourced and in front of the client.
+export function computePriority(status: SearchStatus, onDeck: number, hasOffer: boolean): Priority {
+  if (status === "closed" || status === "hold") return "hold"; // grey  → On hold
+  // status is "high" or "active" from here.
+  if (hasOffer) return "green"; //                                green → offer in progress
+  if (onDeck === 0) return "purple"; //                           purple→ needs a cut (HIGHEST)
+  if (status === "high") return "red"; //                         red   → sourced + active urgency
+  return "amber"; //                                              amber → medium urgency
+}
+
+// Offer-stage detection. There is no 'offer' deck_status in Supabase today
+// (none|new|active|hold|rejected), so this is always false under live data and
+// the green band stays empty — honest. When 'offer' is added to the deck_status
+// set (fast-follow), marked candidates flow through and their search auto-greens
+// with zero extra upkeep. Cast keeps the seam type-safe until then.
+export function hasOfferStageCandidate(cands: RawCandidate[]): boolean {
+  return cands.some((p) => (p.ds as string) === "offer");
+}
+
 // Enrich raw searches with derived counts + a searchable haystack.
 export function buildSearches(data: SearchData): Search[] {
   return data.searches.map((s) => {
@@ -166,6 +199,7 @@ export function buildSearches(data: SearchData): Search[] {
     list.forEach((p) => hay.push(p.n, p.t || "", p.c || "", p.cons || ""));
     return {
       ...s,
+      pri: computePriority(s.st, c.active, hasOfferStageCandidate(list)),
       _cands: list,
       _counts: c,
       _total: list.length,
